@@ -1,0 +1,5 @@
+_cmd
+_dev
+python/python39
+python/venvs/pythonBuild
+

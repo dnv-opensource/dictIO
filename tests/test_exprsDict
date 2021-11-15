@@ -1,0 +1,80 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+
+#include 'test_simpleParamDict'
+
+keyA                      $paramA;
+keyB                      $paramB;
+keyC                      "$paramC";
+keyD                      "$paramD+$paramC/2";
+keyE                      "$paramC-$paramD/2";
+keyF                      "3 * $paramD + $paramC";
+keyG                      "3 * $paramC - $paramD";
+keyH                      "$paramE[1]";
+keyI                      "$paramE";
+keyJ                      "$paramF[1][1]";
+keyK                      "$paramF[1]";
+keyL                      "$paramF";
+keyM                      "3 * $paramA";
+keyN                      "$paramA + $paramB";
+
+differentKeyNames
+{
+    keyA                      $paramA;
+    keyB                      '$paramB';
+    keyC                      "$paramC";
+    keyD                      "$paramD+$paramC/2";
+    keyE                      "$paramC-$paramD/2";
+    keyF                      "3 * $paramD + $paramC";
+    keyG                      "3 * $paramC - $paramD";
+    keyH                      "$paramE[1]";
+    keyI                      "$paramE";
+    keyJ                      "$paramF[1][1]";
+    keyK                      "$paramF[1]";
+    keyL                      "$paramF";
+    keyM                      "3 * $paramA";
+    keyN                      "$paramA + $paramB";
+}
+
+sameKeyNames
+{
+    paramA                      $paramA;
+    paramB                      '$paramB';
+    paramC                      "$paramC";
+    paramD                      "$paramC+$paramC/2";
+    paramE                      "$paramE[1]";
+    paramF                      "$paramF";
+}
+
+keysWithNestedRefs
+{
+    nestKeyA                   $paramA;
+    nestKeyB                   "$paramB";
+    nestKeyC                   "$paramA * $paramB";
+    nestKeyD                   "$paramC / $paramE[1] + $paramE[2]";
+    nestKeyE                   "$paramE[2]";
+    nestKeyF                   "$paramF";
+    nestKeyG                   "$paramG";
+    nestKeyH                   "$paramH[1]";
+    nestKeyI                   "$paramI[0][1]";
+    nestParamA                 "$paramA";
+    nestParamB                 "$paramB";
+    nestParamC                 "$paramC";
+    nestParamD                 "$paramD";
+    nestParamE                 "$paramE";
+    nestParamF                 "$paramF[0][0]";
+    nestParamG                 "$paramG";
+    nestParamH                 "$paramH";
+    nestParamI                 "$paramI";
+    nestParamJ                 "$nestKeyE";
+    nestParamK                 "$paramE[2] * 10 + $paramA";
+    nestParamL                 "$nestParamI[1][1] + $paramC";
+}
+
+keysPointingToAListOfExpressions
+{
+    keyToListA  ($paramA 1 2);
+    keyToListB  ("$paramB" 1 2);
+    keyToListL  ("$nestParamI[1][1] + $paramC" 1 2);
+}

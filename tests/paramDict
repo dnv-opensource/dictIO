@@ -1,0 +1,59 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+Re_profile                    1000000.0;
+_components
+{
+    _self
+    (
+        neg5              null              pos5
+    );
+    theta
+    (
+        -5.0              0.0               5.0
+    );
+}
+_dimension                    3;
+_flag                         exe;
+_index                        0;
+_level                        3;
+_ops
+{
+    copy
+    (
+        'cp -r $TEMPLATEDIR/blockGridDict .'    'cp $TEMPLATEDIR/system/functionObjects/forceCoeffs system/functionObjects/'    'cp $TEMPLATEDIR/system/functionObjects/surfaces system/functionObjects/'
+    );
+    init
+    (
+        'dictParser.py --verbose include/initialConditions'
+    );
+    link
+    (
+        'ln -sf $BINDIR/profileBlockGrid.py .'    'ln -sf $BINDIR/postImage.py .'    'ln -sf $BINDIR/postConvPlot.py .'    'ln -sf $BINDIR/runBlockGridJob.sh .'    'ln -sf $SRCDIR/HSVA-strut profile.dat'
+    );
+    mesher
+    (
+        './profileBlockGrid.py'
+    );
+    mkdirs
+    (
+        'mkdir -p 0 constant include logs postProcessing/logs postProcessing/pic system/functionObjects'
+    );
+    runjob
+    (
+        './runBlockGridJob.sh'
+    );
+    sync
+    (
+        'rsync -a --exclude=*~ $TEMPLATEDIR/0/* 0/'    'rsync -a --exclude=*~ $TEMPLATEDIR/system/*Dict system/'    'rsync -a --exclude=*~ $TEMPLATEDIR/system/fvS* system/'    'rsync -a --exclude=*~ $TEMPLATEDIR/include/* include/'    'rsync -a --exclude=*~ $TEMPLATEDIR/constant/* constant/'
+    );
+    testenv
+    (
+        'echo $BINDIR'
+    );
+}
+_path                         '/home/frl/project/profileOptimization/polareCase/cases/gBlock/Re_1.e06/neg5';
+_purpose                      'vary angle of approach for generating profile polares';
+_self                         neg5;
+gridType                      blockMesh;
+theta                         -5.0;

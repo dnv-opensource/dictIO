@@ -1,0 +1,208 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+#include 'test_paramDict'
+// The input section defines all settings needed to properly and case-specificly configure the simulation model.
+// The postprocessing section defines parameters and output variables
+emptyDict
+{
+}
+emptyList
+(
+);
+input
+{
+    // parameters that farn.py will vary and set to case specific values when traversing the design space.
+    // parameters of the simulation itself
+    parameterObjects
+    {
+        // parameter A
+        // parameter B
+        // parameter C
+        // parameter D
+        // a parameter that is NOT varied by farn.py, but set to same value for all cases
+        parameterA
+        {
+            // Reference to a variable. References are prefixed with $.
+            name              parameterA;
+            property          CONST;
+            unit              -;
+            value             $paramA;
+        }
+        parameterB
+        {
+            // Expression. However, result of this simple expression would be same as using a reference.
+            name              parameterB;
+            property          CONST;
+            unit              -;
+            value             $paramB;
+        }
+        parameterC
+        {
+            // Expression with one reference and one constant.
+            name              parameterC;
+            property          CONST;
+            unit              -;
+            value             '$paramC + 4';
+        }
+        parameterD
+        {
+            // Expression with two references.
+            name              parameterD;
+            property          CONST;
+            unit              -;
+            value             '$paramC + $paramD';
+        }
+        parameterNotVariedButSameForAllCasesE
+        {
+            name              parameterNotVariedButSameForAllCasesE;
+            property          CONST;
+            unit              -;
+            value             13.5;
+        }
+        parameterNotVariedButSameForAllCasesF
+        {
+            name              parameterNotVariedButSameForAllCasesF;
+            property          CONST;
+            unit              -;
+            value             14.3;
+        }
+    }
+    time
+    {
+        tStart                0;
+        tStop                 120;
+        tUnit                 s;
+    }
+}
+postprocessing
+{
+    // parameters, the set values of which shall be persisted in the results file
+    // properties of each parameter that shall be persisted in the results file
+    // output variables, the results of which shall be persisted in the results file
+    // result properties of each output variable that shall be persisted in the results file
+    emptyNestedDict
+    {
+    }
+    emptyNestedList
+    (
+    );
+    nestedListWithNestedDict
+    (
+        (
+            11                12                13
+        )
+        (
+            21                22                23
+        )
+        (
+            31                32                33
+        )
+    );
+    nestedListWithNestedList
+    (
+        (
+            1.0               2.20972831e-17    3.15717747e-18
+        )
+        (
+            2.20972831e-17    1.0               -7.0729005e-18
+        )
+        (
+            3.15717747e-18    -7.0729005e-18    1.0
+        )
+    );
+    parameterObjects
+    {
+        parameterA
+        {
+            name              parameterA;
+            property          CONST;
+        }
+        parameterB
+        {
+            name              parameterB;
+            property          CONST;
+        }
+        parameterC
+        {
+            name              parameterC;
+            property          CONST;
+        }
+        parameterD
+        {
+            name              parameterD;
+            property          CONST;
+        }
+        parameterNotVariedButSameForAllCasesE
+        {
+            name              parameterNotVariedButSameForAllCasesE;
+            property          CONST;
+        }
+        parameterNotVariedButSameForAllCasesF
+        {
+            name              parameterNotVariedButSameForAllCasesF;
+            property          CONST;
+        }
+        tStart
+        {
+            name              tStart;
+        }
+        tStop
+        {
+            name              tStop;
+        }
+    }
+    parameterProperties
+    (
+        Quantity          SIunit            Start             Unit              Value
+    );
+    resultObjects
+    {
+        outputVariableG
+        {
+            name              variableG;
+            property          y;
+        }
+        outputVariableH
+        {
+            name              variableH;
+            property          y;
+        }
+        outputVariableI
+        {
+            name              variableI;
+            property          y;
+        }
+        outputVariableJ
+        {
+            name              variableJ;
+            property          y;
+        }
+        tSim
+        {
+            name              tSim;
+            property          y;
+        }
+    }
+    resultProperties
+    (
+        LastValue         MaxValue          MeanValue         MinValue          Protocol
+        Quantity          RMSValue          SIUnit            Unit              ProtValues
+    );
+    subdict1
+    {
+        list1
+        (
+            subdict1
+            {
+                key1          value1;
+                key2          value2;
+            }
+            subdict2
+            {
+                key1          value1;
+                key2          value2;
+            }
+        );
+    }
+}

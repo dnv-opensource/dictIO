@@ -1,0 +1,40 @@
+input
+{
+    parameterObjects
+    {
+        parameterA
+        {
+            name              'parameterA';
+            property          'CONST';
+            unit              '-';
+            value             1.0;
+        }
+        parameterB
+        {
+            name              'parameterB';
+            property          'CONST';
+            unit              '-';
+            value             2.0;
+        }
+        parameterC
+        {
+            name              'parameterC';
+            property          'CONST';
+            unit              '-';
+            value             "$paramC";
+        }
+        parameterD
+        {
+            name              'parameterD';
+            property          'CONST';
+            unit              '-';
+            value             "$paramD";
+        }
+    }
+    time
+    {
+        tStart                0;
+        tStop                 120;
+        tUnit                 's';
+    }
+}

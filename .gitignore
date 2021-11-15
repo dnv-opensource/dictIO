@@ -3,6 +3,18 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#vi & emacs
+*~
+'#'*
+
+#packaging
+*.whl
+*.tar.gz
+
+
+#doxygen
+html/
+
 # C extensions
 *.so
 
