@@ -7,8 +7,12 @@ Welcome to dictIO's documentation!
 ==================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :caption: Contents:
+
+   readme_link
+   license_link
+   modules
 
 
 
