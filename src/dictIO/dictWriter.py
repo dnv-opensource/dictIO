@@ -29,29 +29,31 @@ class DictWriter():
         order: bool = False,
         formatter: Formatter = None,
     ):
-        """Writes a dictionary file in C++ dictionary format, as well as JSON, XML and OpenFoam
+        """Writes a dictionary file in C++ dictionary format, as well as JSON, XML and OpenFoam.
 
         Writes a C++ dictionary object (parameter source_dict of type CppDict) to target_file.
         Following file formats are supported and interpreted through target_file's file ending:
-            no file ending   ->   C++  dictionary
-            '.cpp'           ->   C++  dictionary
-            '.foam'          ->   Foam dictionary
-            '.json'          ->   Json dictionary
-            '.xml'           ->   XML  dictionary
+        no file ending   ->   C++  dictionary
+        '.cpp'           ->   C++  dictionary
+        '.foam'          ->   Foam dictionary
+        '.json'          ->   Json dictionary
+        '.xml'           ->   XML  dictionary
         Following modes are supported:
-            mode = 'a': append to target file. If the existing file contains a dictionary, write() will append the new dict to the existing through merging.
-            mode = 'w': overwrite target file. The existing file will be overwritten. This is the default behaviour.
+        mode = 'a': append to target file. If the existing file contains a dictionary, write() will append the new dict to the existing through merging.
+        mode = 'w': overwrite target file. The existing file will be overwritten. This is the default behaviour.
 
-        :param source_dict: the source dict
-        :type source_dict: Union[MutableMapping, CppDict]
-        :param target_file: optional name of the target file, defaults to None
-        :type target_file: Union[str, os.PathLike[str]], optional
-        :param mode: append to target file ('a') or overwrite target file ('w'), defaults to 'w'
-        :type mode: str, optional
-        :param order: sort the dict before writing, defaults to False
-        :type order: bool, optional
-        :param formatter: optional Formatter object to be used, defaults to None
-        :type formatter: Formatter, optional
+        Parameters
+        ----------
+        source_dict : Union[MutableMapping, CppDict]
+            the source dict
+        target_file : Union[str, os.PathLike[str]], optional
+            name of the target file, by default None
+        mode : str, optional
+            append to target file ('a') or overwrite target file ('w'), by default 'w'
+        order : bool, optional
+            sort the dict before writing, by default False
+        formatter : Formatter, optional
+            Formatter object to be used, by default None
         """
 
         # Check argument

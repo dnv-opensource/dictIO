@@ -35,31 +35,36 @@ class DictReader():
         scope: MutableSequence[str] = None,
         parser: Parser = None,
     ) -> CppDict:
-        """Reads a dictionary file in C++ dictionary format, as well as JSON and XML
+        """Reads a dictionary file in C++ dictionary format, as well as JSON and XML.
 
         Reads a dict file, parses it and transforms its content into a C++ dictionary object (CppDict).
         Following file formats are supported and interpreted through source_file's file ending:
-            no file ending   ->   C++  dictionary
-            '.cpp'           ->   C++  dictionary
-            '.foam'          ->   Foam dictionary
-            '.json'          ->   Json dictionary
-            '.xml'           ->   XML  dictionary
+        no file ending   ->   C++  dictionary
+        '.cpp'           ->   C++  dictionary
+        '.foam'          ->   Foam dictionary
+        '.json'          ->   Json dictionary
+        '.xml'           ->   XML  dictionary
         Return type is in all cases CppDict
 
-        :param source_file: name of the dict file to be read
-        :type source_file: Union[str, os.PathLike[str]]
-        :param includes: merge sub-dicts being referenced through #include directives, defaults to True
-        :type includes: bool, optional
-        :param order: sort the read dict, defaults to False
-        :type order: bool, optional
-        :param comments: reads comments from source file, defaults to True
-        :type comments: bool, optional
-        :param scope: optional scope the dict will be reduced to after reading.'scope' can be EMPTY, a 'STRING' or a list of strings ['STRING1', 'STRING2'], defaults to None
-        :type scope: MutableSequence[str], optional
-        :param parser: optional Parser object to be used, defaults to None
-        :type parser: Parser, optional
-        :return: the read dict
-        :rtype: CppDict
+        Parameters
+        ----------
+        source_file : Union[str, os.PathLike[str]]
+            name of the dict file to be read
+        includes : bool, optional
+            merge sub-dicts being referenced through #include directives, by default True
+        order : bool, optional
+            sort the read dict, by default False
+        comments : bool, optional
+            reads comments from source file, by default True
+        scope : MutableSequence[str], optional
+            scope the dict will be reduced to after reading.'scope' can be EMPTY, a 'STRING' or a list of strings ['STRING1', 'STRING2'], by default None
+        parser : Parser, optional
+            Parser object to be used, by default None
+
+        Returns
+        -------
+        CppDict
+            the read dict
         """
 
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
