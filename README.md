@@ -1,5 +1,5 @@
-# dictIO
-Python package to read, parse and write dictionaries in C++ dictionary format, as well as JSON, XML and OpenFOAM.
+# README
+dictIO is a Python package to read, parse and write dictionaries in C++ dictionary format, as well as JSON, XML and OpenFOAM.
 
 ## What are dictionaries?
 Dictionaries are a modified adaptations of C++ dictionaries, as the are used e.g. within OpenFOAM.
