@@ -273,23 +273,30 @@ If your are interested in the long story including the why‘s, read these discu
 
 
 ## Docstrings
-* Write Docstrings for each method that is more complicated than hello world.
-* All Docstrings should be written as [Sphinx docstrings](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html) in [reStructuredText](https://www.python.org/dev/peps/pep-0287/) format. For a good tutorial on Docstrings, see further [Documenting Python Code: A Complete Guide](https://realpython.com/documenting-python-code)
+* All Docstrings should be written in [Numpy](https://numpydoc.readthedocs.io/en/latest/format.html) format. For a good tutorial on Docstrings, see [Documenting Python Code: A Complete Guide](https://realpython.com/documenting-python-code)
 * In a Docstring, summarize function/method behavior and document its arguments, return value(s), side effects, exceptions raised, and restrictions
 * Wrap Docstrings with triple double quotes (""")
+* The description of the arguments must be indented
 ~~~
     def some_method(name, print=False):
         """This function does something
 
-        :param name: The name to use
-        :type name: str
-        :param print: A flag used to print the name to the console, defaults to `False`
-        :type print: bool, optional
+        Parameters
+        ----------
+        name : str
+            The name to use
+        print: bool, optional
+            A flag used to print the name to the console, by default False
 
-        :raises KeyError: If name is not found.
+        Raises
+        ------
+        KeyError
+            If name is not found
 
-        :return: The return code
-        :rtype: int
+        Returns
+        -------
+        int
+            The return code
         """
         ...
         return 0
