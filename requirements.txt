@@ -4,6 +4,7 @@ flake8>=4.0.1
 pep8-naming>=0.12.1
 Sphinx>=4.2.0
 myst-parser>=0.15.2
+furo
 
 lxml>=4.6.4
 jsonschema>=4.2.1
