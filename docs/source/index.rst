@@ -14,6 +14,7 @@ Welcome to dictIO's documentation!
    license_link
    api
    cli
+   examples
 
 
 
