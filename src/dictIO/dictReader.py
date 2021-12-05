@@ -187,7 +187,7 @@ class DictReader():
             ref: value
             for ref,
             value in references.items()
-            if not re.search(r'EXPRESSION|\$', str(value))
+            if (value is not None) and (not re.search(r'EXPRESSION|\$', str(value)))
         }
         references_not_resolved = [ref for ref in references if ref not in references_resolved]
 
@@ -242,7 +242,7 @@ class DictReader():
                 ref: value
                 for ref,
                 value in references.items()
-                if not re.search(r'EXPRESSION|\$', str(value))
+                if (value is not None) and (not re.search(r'EXPRESSION|\$', str(value)))
             }
             references_not_resolved = [ref for ref in references if ref not in references_resolved]
 
