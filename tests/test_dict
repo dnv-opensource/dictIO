@@ -5,85 +5,15 @@ filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
 #include 'test_paramDict'
 
 // This is a line comment at the top of the file
-references
+emptyDict
 {
-    parameterA   // parameter A
-    {
-        name              'parameterA';
-        value             $paramA;   // Single reference to a variable. References are prefixed with $.
-    }
-    parameterB   // parameter B
-    {
-        name              'parameterB';
-        value             "$paramB";  // Expression. However, result of this simple expression would be same as using a single reference without double quotes.
-    }
-    parameterC   // parameter C
-    {
-        name              'parameterC';
-        value             "$paramC + 4";  // Expression with one reference and one constant.
-    }
-    parameterD   // parameter D
-    {
-        name              'parameterD';
-        value             "$paramC + $paramD";  // Expression with two references.
-    }
-    parameterE
-    {
-        name              'parameterE0';
-        value             $paramE[0];  // Expression containing a list
-    }
-    parameterF
-    {
-        name              'parameterF00';
-        value             $paramF[0][0];  // Expression containing lists of a list
-    }
-    parameterG1
-    {
-        name              'parameterG1';
-        value             "$paramG[1][2]";  // Expression containing lists of a list, one value taken
-    }
-    parameterG2
-    {
-        name              'parameterG2';
-        value             "$paramG[0]";  // Expression containing lists of a list, but one row taken
-    }
-    parameterG3
-    {
-        name              'parameterG3';
-        value             "$paramG";  // Expression containing lists of a list, but the whole object is referenced
-    }
+
 }
 
+emptyList
+(
 
-numerals
-{
-    int1                   0;
-    int2                 120;
-    float1               3.5;
-}
-
-scope
-{
-    subscope1
-    {
-        subscope11
-        {
-            name        'subscope11';
-        }
-        subscope12
-        {
-            name        'subscope12';
-        }
-    }
-}
-
-strings
-{
-    listWithStrings
-    (
-        'string1'    'string2 has spaces'    'string3'     'string4 is ok but note that string5 is empty'     ''
-    );
-}
+);
 
 exampleDict
 {
@@ -139,12 +69,81 @@ exampleDict
     }
 }
 
-emptyDict
+numerals
 {
-
+    int1                   0;
+    int2                 120;
+    float1               3.5;
 }
 
-emptyList
-(
+strings
+{
+    listWithStrings
+    (
+        'string1'    'string2 has spaces'    'string3'     'string4 is ok but note that string5 is empty'     ''
+    );
+}
 
-);
+references
+{
+    parameterA   // parameter A
+    {
+        name              'parameterA';
+        value             $paramA;   // Single reference to a variable. References are prefixed with $.
+    }
+    parameterB   // parameter B
+    {
+        name              'parameterB';
+        value             "$paramB";  // Expression. However, result of this simple expression would be same as using a single reference without double quotes.
+    }
+    parameterC   // parameter C
+    {
+        name              'parameterC';
+        value             "$paramC + 4";  // Expression with one reference and one constant.
+    }
+    parameterD   // parameter D
+    {
+        name              'parameterD';
+        value             "$paramC + $paramD";  // Expression with two references.
+    }
+    parameterE
+    {
+        name              'parameterE0';
+        value             $paramE[0];  // Expression containing a list
+    }
+    parameterF
+    {
+        name              'parameterF00';
+        value             $paramF[0][0];  // Expression containing lists of a list
+    }
+    parameterG1
+    {
+        name              'parameterG1';
+        value             "$paramG[1][2]";  // Expression containing lists of a list, one value taken
+    }
+    parameterG2
+    {
+        name              'parameterG2';
+        value             "$paramG[0]";  // Expression containing lists of a list, but one row taken
+    }
+    parameterG3
+    {
+        name              'parameterG3';
+        value             "$paramG";  // Expression containing lists of a list, but the whole object is referenced
+    }
+}
+
+scope
+{
+    subscope1
+    {
+        subscope11
+        {
+            name        'subscope11';
+        }
+        subscope12
+        {
+            name        'subscope12';
+        }
+    }
+}

@@ -624,13 +624,13 @@ class TestCppParser():
         assert list(dict_out.keys())[0][:12] == 'BLOCKCOMMENT'
         assert list(dict_out.keys())[1][:7] == 'INCLUDE'
         assert list(dict_out.keys())[2][:11] == 'LINECOMMENT'
-        assert list(dict_out.keys())[3] == 'references'
-        assert list(dict_out.keys())[4] == 'numerals'
-        assert list(dict_out.keys())[5] == 'scope'
-        assert list(dict_out.keys())[6] == 'strings'
-        assert list(dict_out.keys())[7] == 'exampleDict'
-        assert list(dict_out.keys())[8] == 'emptyDict'
-        assert list(dict_out.keys())[9] == 'emptyList'
+        assert list(dict_out.keys())[3] == 'emptyDict'
+        assert list(dict_out.keys())[4] == 'emptyList'
+        assert list(dict_out.keys())[5] == 'exampleDict'
+        assert list(dict_out.keys())[6] == 'numerals'
+        assert list(dict_out.keys())[7] == 'strings'
+        assert list(dict_out.keys())[8] == 'references'
+        assert list(dict_out.keys())[9] == 'scope'
         assert len(dict_out['references']) == 13                # parameterA..G3 (level 2)
         assert len(dict_out['references']['parameterA']) == 3   # name,value,COMMENT (level 3)
         assert len(dict_out['references']['parameterB']) == 3
