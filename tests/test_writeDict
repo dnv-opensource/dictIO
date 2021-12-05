@@ -10,14 +10,14 @@ parameters
     {
         name                  parameterA;
         value                 '$paramA';
-        // Single reference to a variable. References are prefixed with $.
+        // Simple reference to a variable. References are prefixed with $.
     }
     // parameter B
     parameterB
     {
         name                  parameterB;
         value                 '$paramB';
-        // Expression. However, result of this simple expression would be same as using a single reference without double quotes.
+        // Expression. However, result of this expression is same as using a simple reference without double quotes.
     }
     // parameter C
     parameterC

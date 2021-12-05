@@ -5,6 +5,7 @@ filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
 #include 'test_paramDict'
 
 // This is a line comment at the top of the file
+
 emptyDict
 {
 
@@ -86,49 +87,49 @@ strings
 
 references
 {
-    parameterA   // parameter A
+    reference   // reference
     {
-        name              'parameterA';
-        value             $paramA;   // Single reference to a variable. References are prefixed with $.
+        name              'reference';
+        value             $paramA;   // Simple reference to a variable. References are prefixed with $.
     }
-    parameterB   // parameter B
+    expression1   // expression 1
     {
-        name              'parameterB';
-        value             "$paramB";  // Expression. However, result of this simple expression would be same as using a single reference without double quotes.
+        name              'expression1';
+        value             "$paramB";  // Expression. However, result of this expression is same as using a simple reference without double quotes.
     }
-    parameterC   // parameter C
+    expression2   // expression 2
     {
-        name              'parameterC';
+        name              'expression2';
         value             "$paramC + 4";  // Expression with one reference and one constant.
     }
-    parameterD   // parameter D
+    expression3   // expression 3
     {
-        name              'parameterD';
+        name              'expression3';
         value             "$paramC + $paramD";  // Expression with two references.
     }
-    parameterE
+    expressionE
     {
-        name              'parameterE0';
+        name              'expressionE0';
         value             $paramE[0];  // Expression containing a list
     }
-    parameterF
+    expressionF
     {
-        name              'parameterF00';
+        name              'expressionF00';
         value             $paramF[0][0];  // Expression containing lists of a list
     }
-    parameterG1
+    expressionG1
     {
-        name              'parameterG1';
+        name              'expressionG1';
         value             "$paramG[1][2]";  // Expression containing lists of a list, one value taken
     }
-    parameterG2
+    expressionG2
     {
-        name              'parameterG2';
+        name              'expressionG2';
         value             "$paramG[0]";  // Expression containing lists of a list, but one row taken
     }
-    parameterG3
+    expressionG3
     {
-        name              'parameterG3';
+        name              'expressionG3';
         value             "$paramG";  // Expression containing lists of a list, but the whole object is referenced
     }
 }

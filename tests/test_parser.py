@@ -631,16 +631,16 @@ class TestCppParser():
         assert list(dict_out.keys())[7] == 'strings'
         assert list(dict_out.keys())[8] == 'references'
         assert list(dict_out.keys())[9] == 'scope'
-        assert len(dict_out['references']) == 13                # parameterA..G3 (level 2)
-        assert len(dict_out['references']['parameterA']) == 3   # name,value,COMMENT (level 3)
-        assert len(dict_out['references']['parameterB']) == 3
-        assert len(dict_out['references']['parameterC']) == 3
-        assert len(dict_out['references']['parameterD']) == 3
-        assert len(dict_out['references']['parameterE']) == 3
-        assert len(dict_out['references']['parameterF']) == 3
-        assert len(dict_out['references']['parameterG1']) == 3
-        assert len(dict_out['references']['parameterG2']) == 3
-        assert len(dict_out['references']['parameterG3']) == 3
+        assert len(dict_out['references']) == 13                # reference..G3 (level 2)
+        assert len(dict_out['references']['reference']) == 3    # name,value,COMMENT (level 3)
+        assert len(dict_out['references']['expression1']) == 3
+        assert len(dict_out['references']['expression2']) == 3
+        assert len(dict_out['references']['expression3']) == 3
+        assert len(dict_out['references']['expressionE']) == 3
+        assert len(dict_out['references']['expressionF']) == 3
+        assert len(dict_out['references']['expressionG1']) == 3
+        assert len(dict_out['references']['expressionG2']) == 3
+        assert len(dict_out['references']['expressionG3']) == 3
 
         assert len(dict_out['numerals']) == 3   # int1,int2,float1
         assert len(dict_out['emptyDict']) == 0
@@ -664,9 +664,9 @@ class TestCppParser():
         assert len(dict_out['exampleDict']['nestedListWithNestedDict'][1]) == 3
         assert len(dict_out['exampleDict']['nestedListWithNestedDict'][2]) == 3
         # check some selected keys
-        assert dict_out['references']['parameterA']['name'][:13] == 'STRINGLITERAL'
-        assert dict_out['references']['parameterC']['value'][:10] == 'EXPRESSION'
-        assert dict_out['references']['parameterD']['value'][:10] == 'EXPRESSION'
+        assert dict_out['references']['reference']['name'][:13] == 'STRINGLITERAL'
+        assert dict_out['references']['expression2']['value'][:10] == 'EXPRESSION'
+        assert dict_out['references']['expression3']['value'][:10] == 'EXPRESSION'
         assert dict_out['numerals']['int2'] == 120
         # check that also lists are parsed correctly
         assert len(dict_out['emptyList']) == 0
@@ -731,7 +731,7 @@ class TestCppParser():
         dict_in = deepcopy(dict.data)
         # Preparations done.
         # Now start the actual test
-        assert dict_in['references']['parameterA']['name'][:13] == 'STRINGLITERAL'
+        assert dict_in['references']['reference']['name'][:13] == 'STRINGLITERAL'
         assert dict_in['strings']['listWithStrings'][0][:13] == 'STRINGLITERAL'
         assert dict_in['strings']['listWithStrings'][1][:13] == 'STRINGLITERAL'
         assert dict_in['strings']['listWithStrings'][2][:13] == 'STRINGLITERAL'
@@ -740,7 +740,7 @@ class TestCppParser():
         parser.insert_string_literals(dict)
         dict_out = dict.data
         # check whether string literals have been inserted
-        assert dict_out['references']['parameterA']['name'] == 'parameterA'
+        assert dict_out['references']['reference']['name'] == 'reference'
         assert dict_out['strings']['listWithStrings'][0] == 'string1'
         assert dict_out['strings']['listWithStrings'][1] == 'string2 has spaces'
         assert dict_out['strings']['listWithStrings'][2] == 'string3'
