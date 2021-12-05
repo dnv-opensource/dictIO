@@ -156,6 +156,11 @@ class Parser():
         # The following starts a filter cascade, hence the sequence is important,
         # otherwise latter clauses would produce unreasonable matches!
 
+        # Empty string
+        check: str = __class__.remove_quotes_from_string(arg)
+        if check == '':
+            return ''
+
         # Simple placeholder or reserved expressions -> do nothing
         # Note: This if clause is important: It avoids that distinct placeholders like e.g.
         # '-' are interpreted as float (and then transformed to float .. what might even fail).
