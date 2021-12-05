@@ -711,17 +711,17 @@ class TestCppParser():
         # Now start the actual test
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # check structure of subdict1
-        assert len(dict_out['exampleDict']['subdict1']) == 1                # list1
-        assert len(dict_out['exampleDict']['subdict1']['list1']) == 4       # 'subdict2', (dict object)
-        assert isinstance(dict_out['exampleDict']['subdict1']['list1'][0], str)
-        assert dict_out['exampleDict']['subdict1']['list1'][0] == 'subdict1'
-        assert dict_out['exampleDict']['subdict1']['list1'][2] == 'subdict2'
-        assert isinstance(dict_out['exampleDict']['subdict1']['list1'][1], dict)
-        assert len(dict_out['exampleDict']['subdict1']['list1'][1]) == 2    # key1, key2
-        assert list(dict_out['exampleDict']['subdict1']['list1'][1].keys())[0] == 'key1'
-        assert list(dict_out['exampleDict']['subdict1']['list1'][1].keys())[1] == 'key2'
-        assert dict_out['exampleDict']['subdict1']['list1'][1]['key1'] == 'value1'
-        assert dict_out['exampleDict']['subdict1']['list1'][1]['key2'] == 'value2'
+        assert len(dict_out['exampleDict']['subdict']) == 1             # list
+        assert len(dict_out['exampleDict']['subdict']['list']) == 4     # 'subdict2', (dict object)
+        assert isinstance(dict_out['exampleDict']['subdict']['list'][0], str)
+        assert dict_out['exampleDict']['subdict']['list'][0] == 'subdict1'
+        assert dict_out['exampleDict']['subdict']['list'][2] == 'subdict2'
+        assert isinstance(dict_out['exampleDict']['subdict']['list'][1], dict)
+        assert len(dict_out['exampleDict']['subdict']['list'][1]) == 2  # key1, key2
+        assert list(dict_out['exampleDict']['subdict']['list'][1].keys())[0] == 'key1'
+        assert list(dict_out['exampleDict']['subdict']['list'][1].keys())[1] == 'key2'
+        assert dict_out['exampleDict']['subdict']['list'][1]['key1'] == 'value1'
+        assert dict_out['exampleDict']['subdict']['list'][1]['key2'] == 'value2'
 
     def test_insert_string_literals(self):
         # Prepare dict until and including convert_tokens_to_dict()

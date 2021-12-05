@@ -121,9 +121,9 @@ exampleDict
             31      32      33
         );
     );
-    subdict1
+    subdict
     {
-        list1
+        list
         (
             subdict1
             {
