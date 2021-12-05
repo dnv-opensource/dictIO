@@ -1,39 +1,7 @@
-_flag                         'exe';   // The '_flag' element of a paramDict is either 'sub' or 'exe'.
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
 
-_level                        4;       // The child (nest) level of the current folder (in case farn.py generating a hierarchical folder structure)
-
-_ops   // _ops defines operations that can be executed in leaf layers
-{
-    ls
-    (
-        'ls -la'
-    );
-    rmIsx
-    (
-        'rm -f *.isx'
-    );
-    copy
-    (
-        'cp %TEMPLATEDIR%/model.isx .'
-        'cp %TEMPLATEDIR%/configDict .'
-        'cp %TEMPLATEDIR%/job .'
-    );
-    evaluate
-    (
-        'dictParser.py --quiet configDict'
-    );
-    runSim
-    (
-        'runSimXSimulationInBatchMode.py -d ./evaluated.configDict -m ./model.isx --run'
-    );
-    runJob
-    (
-        'bash -c ./job'
-    );
-}
-_path                         'C:\Users\CLAROS\Documents\SystemSimulation\ModelVerification\tools\dict';
-_purpose                      'parameter D';
-_self                         'd072';
 paramA                     4.0;
 paramB                     6.0;
 paramC                     8.0;

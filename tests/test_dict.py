@@ -84,20 +84,13 @@ def test_reduce_scope(test_dict):
     SetupHelper.prepare_dict(dict_to_prepare=test_dict)
     # Preparations done.
     # Now start the actual test
-    scope = ['input', 'parameterObjects']
+    scope = ['scope', 'subscope1']
     test_dict.reduce_scope(scope)
     dict_out = test_dict.data
     # check structure of the dict
-    assert len(dict_out) == 16                  # parameterA,B,C,D (level 2)
-    assert len(dict_out['parameterA']) == 5     # name,property,unit,value,COMMENT (level 3)
-    assert len(dict_out['parameterB']) == 5
-    assert len(dict_out['parameterC']) == 5
-    assert len(dict_out['parameterD']) == 5
-    assert len(dict_out['parameterE']) == 5
-    assert len(dict_out['parameterF']) == 5
-    assert len(dict_out['parameterG1']) == 5
-    assert len(dict_out['parameterG2']) == 5
-    assert len(dict_out['parameterG3']) == 5
+    assert len(dict_out) == 2   # subscope11, subscope12
+    assert dict_out['subscope11']['name'] == 'subscope11'
+    assert dict_out['subscope12']['name'] == 'subscope12'
 
 
 def test_iter_find_key():
@@ -267,7 +260,7 @@ def test_iter_find_key():
 class SetupHelper():
 
     @staticmethod
-    def prepare_dict(dict_to_prepare: CppDict, file_to_read='test_configDict'):
+    def prepare_dict(dict_to_prepare: CppDict, file_to_read='test_dict'):
 
         file_name = Path.cwd() / file_to_read
 

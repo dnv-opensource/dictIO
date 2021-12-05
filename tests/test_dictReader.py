@@ -27,14 +27,14 @@ def test_merge_includes():  # sourcery skip: class-extract-method
     dict_in = deepcopy(dict.data)
                             # Preparations done.
                             # Now start the actual test
-    assert dict_in['input']['parameterObjects']['parameterA']['value'][:10] == 'EXPRESSION'
-    assert dict_in['input']['parameterObjects']['parameterB']['value'][:10] == 'EXPRESSION'
-    assert dict_in['input']['parameterObjects']['parameterC']['value'][:10] == 'EXPRESSION'
-    assert dict_in['input']['parameterObjects']['parameterD']['value'][:10] == 'EXPRESSION'
+    assert dict_in['references']['parameterA']['value'][:10] == 'EXPRESSION'
+    assert dict_in['references']['parameterB']['value'][:10] == 'EXPRESSION'
+    assert dict_in['references']['parameterC']['value'][:10] == 'EXPRESSION'
+    assert dict_in['references']['parameterD']['value'][:10] == 'EXPRESSION'
     DictReader._merge_includes(dict)
     dict_out = dict.data
                             # check whether test_paramDict has been merged
-    assert len(dict_out) == len(dict_in) + 16
+    assert len(dict_out) == len(dict_in) + 7
     assert dict_out['paramA'] == 4.0
     assert dict_out['paramB'] == 6.0
     assert dict_out['paramC'] == 8.0
@@ -105,40 +105,30 @@ def test_eval_expressions():
     dict = CppDict(Path('testDict'))
     SetupHelper.prepare_dict_until(dict_to_prepare=dict, until_step=0)
     dict_in = deepcopy(dict.data)
-    assert dict_in['input']['parameterObjects']['parameterA']['value'][:10] == 'EXPRESSION'     # $paramA
-    assert dict_in['input']['parameterObjects']['parameterB']['value'][:10
-                                                                       ] == 'EXPRESSION'        # "$paramB"
-    assert dict_in['input']['parameterObjects']['parameterC']['value'
-                                                              ][:10] == 'EXPRESSION'            # "$paramC + 4"
-    assert dict_in['input']['parameterObjects']['parameterD'][
-        'value'][:10] == 'EXPRESSION'                                                           # "$paramC + $paramD"
-    assert dict_in['input']['parameterObjects']['parameterE']['value'
-                                                              ][:10] == 'EXPRESSION'            # $paramE[0]
-    assert dict_in['input']['parameterObjects']['parameterF']['value'
-                                                              ][:10] == 'EXPRESSION'            # $paramF[0][0]
-    assert dict_in['input']['parameterObjects']['parameterG1'][
-        'value'][:10] == 'EXPRESSION'                                                           # "$paramG[1][2]"
-    assert dict_in['input']['parameterObjects']['parameterG2']['value'
-                                                               ][:10] == 'EXPRESSION'           # "$paramG[0]"
-    assert dict_in['input']['parameterObjects']['parameterG3']['value'
-                                                               ][:10] == 'EXPRESSION'           # "$paramG"
-                                                                                                # Preparations done.
+    assert dict_in['references']['parameterA']['value'][:10] == 'EXPRESSION'            # $paramA
+    assert dict_in['references']['parameterB']['value'][:10] == 'EXPRESSION'            # "$paramB"
+    assert dict_in['references']['parameterC']['value'][:10] == 'EXPRESSION'            # "$paramC + 4"
+    assert dict_in['references']['parameterD']['value'][:10] == 'EXPRESSION'            # "$paramC + $paramD"
+    assert dict_in['references']['parameterE']['value'][:10] == 'EXPRESSION'            # $paramE[0]
+    assert dict_in['references']['parameterF']['value'][:10] == 'EXPRESSION'            # $paramF[0][0]
+    assert dict_in['references']['parameterG1']['value'][:10] == 'EXPRESSION'           # "$paramG[1][2]"
+    assert dict_in['references']['parameterG2']['value'][:10] == 'EXPRESSION'           # "$paramG[0]"
+    assert dict_in['references']['parameterG3']['value'][:10] == 'EXPRESSION'           # "$paramG"
+                                                                                        # Preparations done.
     DictReader._eval_expressions(dict)
     dict_out = dict.data
-                                                                                                # check whether references have been resolved
-    assert dict_out['input']['parameterObjects']['parameterA']['value'] == 4.0                  # 4.0
-    assert dict_out['input']['parameterObjects']['parameterB']['value'] == 6.0                  # 6.0
-    assert dict_out['input']['parameterObjects']['parameterC']['value'] == 12.0                 # 8.0 + 4
-    assert dict_out['input']['parameterObjects']['parameterD']['value'] == 8.72                 # 8.0 + 0.72
-    assert dict_out['input']['parameterObjects']['parameterE']['value'] == 0.1                  # paramE[0]
-    assert dict_out['input']['parameterObjects']['parameterF']['value'] == 0.3                  # paramF[0][0]
-    assert dict_out['input']['parameterObjects']['parameterG1']['value'] == 'come'              # paramG[1][2]
-    assert dict_out['input']['parameterObjects']['parameterG2']['value'] == [
-        10, 'fancy', 3.14, 's'
-    ]                                                                                           # paramG[0]
-    assert dict_out['input']['parameterObjects']['parameterG3']['value'] == [
+                                                                                        # check whether references have been resolved
+    assert dict_out['references']['parameterA']['value'] == 4.0                         # 4.0
+    assert dict_out['references']['parameterB']['value'] == 6.0                         # 6.0
+    assert dict_out['references']['parameterC']['value'] == 12.0                        # 8.0 + 4
+    assert dict_out['references']['parameterD']['value'] == 8.72                        # 8.0 + 0.72
+    assert dict_out['references']['parameterE']['value'] == 0.1                         # paramE[0]
+    assert dict_out['references']['parameterF']['value'] == 0.3                         # paramF[0][0]
+    assert dict_out['references']['parameterG1']['value'] == 'come'                     # paramG[1][2]
+    assert dict_out['references']['parameterG2']['value'] == [10, 'fancy', 3.14, 's']   # paramG[0]
+    assert dict_out['references']['parameterG3']['value'] == [
         [10, 'fancy', 3.14, 's'], ['more', 2, 'come']
-    ]                                                                                           # paramG
+    ]                                                                                   # paramG
 
 
 def test_eval_expressions_with_included_keys():
@@ -249,35 +239,35 @@ def test_remove_include_keys():
 
 # def test_read_config_dict():
 #     silentRemove('parsed.test_paramDict')
-#     silentRemove('parsed.test_configDict')
-#     file_name = Path('test_configDict')
+#     silentRemove('parsed.test_dict')
+#     file_name = Path('test_dict')
 #     dict = DictReader.read(file_name)
 #     assert not os.path.exists('parsed.test_paramDict')
-#     assert not os.path.exists('parsed.test_configDict')
+#     assert not os.path.exists('parsed.test_dict')
 #     dict = DictReader.read(file_name)
 #     assert not os.path.exists('parsed.test_paramDict')
-#     assert os.path.exists('parsed.test_configDict')
+#     assert os.path.exists('parsed.test_dict')
 
 
 def test_reread_parsed_dict():
     silent_remove(Path('parsed.test_paramDict'))
-    silent_remove(Path('parsed.test_configDict'))
+    silent_remove(Path('parsed.test_dict'))
     silent_remove(Path('parsed.parsed.test_paramDict'))
-    silent_remove(Path('parsed.parsed.test_configDict'))
-    file_name = Path('test_configDict')
+    silent_remove(Path('parsed.parsed.test_dict'))
+    file_name = Path('test_dict')
     dict = DictReader.read(file_name)
     parsed_file_name = create_target_file_name(file_name, 'parsed')
     silent_remove(parsed_file_name)
     DictWriter.write(dict, parsed_file_name)
     assert not os.path.exists('parsed.test_paramDict')
-    assert os.path.exists('parsed.test_configDict')
-    file_name = Path('parsed.test_configDict')
+    assert os.path.exists('parsed.test_dict')
+    file_name = Path('parsed.test_dict')
     dict = DictReader.read(file_name)
     assert not os.path.exists('parsed.test_paramDict')
-    assert os.path.exists('parsed.test_configDict')
+    assert os.path.exists('parsed.test_dict')
     # no piping parsed prefix anymore: parsed.parsedtest_paramDict
     assert not os.path.exists('parsed.parsed.test_paramDict')
-    assert not os.path.exists('parsed.parsed.test_configDict')
+    assert not os.path.exists('parsed.parsed.test_dict')
 
 
 def test_dict_from_xml():
@@ -398,7 +388,7 @@ class SetupHelper():
     def prepare_dict_until(
         dict_to_prepare: CppDict,
         until_step=-1,
-        file_to_read='test_configDict',
+        file_to_read='test_dict',
     ):
 
         file_name = Path.cwd() / file_to_read

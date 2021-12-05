@@ -287,7 +287,7 @@ class TestFoamFormatter():
 
     def test_to_string_does_not_contain_underscores(self):
         # Prepare dict until and including ()
-        dict = DictReader.read(Path('test_configDict'), comments=False)
+        dict = DictReader.read(Path('test_dict'), comments=False)
         formatter = FoamFormatter()
         # Preparations done.
         # Now start the actual test
@@ -297,7 +297,7 @@ class TestFoamFormatter():
 
     def test_to_string_does_not_contain_single_quotes(self):
         # Prepare dict until and including ()
-        dict = DictReader.read(Path('test_configDict'), comments=True)
+        dict = DictReader.read(Path('test_dict'), comments=True)
         formatter = FoamFormatter()
         # Preparations done.
         # Now start the actual test
@@ -329,7 +329,7 @@ class TestXmlFormatter():
     def test_to_string(self):
         # Prepare dict until and including ()
         # source_file = Path('test_demoCaseDict')
-        source_file = Path('test_configDict')
+        source_file = Path('test_dict')
         # source_file = Path('testDict')
         # dict = CppDict(source_file)
         # SetupHelper.prepare_dict(dict_to_prepare=dict)
@@ -357,7 +357,7 @@ class TestXmlFormatter():
 class SetupHelper():
 
     @staticmethod
-    def prepare_dict(dict_to_prepare: CppDict, file_to_read='test_configDict'):
+    def prepare_dict(dict_to_prepare: CppDict, file_to_read='test_dict'):
 
         file_name = Path.cwd() / file_to_read
 

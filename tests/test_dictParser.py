@@ -17,11 +17,11 @@ def test_validate_scope():
     assert scope_out is None
 
     # (single) string -> should not be stored as a raw string, but as a one-element list
-    scope_in = 'postprocessing'
+    scope_in = 'strings'
     scope_out = _validate_scope(scope_in)
     assert isinstance(scope_out, list)
     assert len(scope_out) == 1
-    assert list(scope_out)[0] == 'postprocessing'
+    assert list(scope_out)[0] == 'strings'
 
     # list
     scope_in = ['input', 'time']
@@ -49,13 +49,13 @@ def test_validate_scope():
 
 def test_parse_dict():  # sourcery skip: class-extract-method
     silent_remove(Path('parsed.test_paramDict'))
-    silent_remove(Path('parsed.test_configDict'))
+    silent_remove(Path('parsed.test_dict'))
     silent_remove(Path('parsed.parsed.test_paramDict'))
-    silent_remove(Path('parsed.parsed.test_configDict'))
-    file_name = Path('test_configDict')
+    silent_remove(Path('parsed.parsed.test_dict'))
+    file_name = Path('test_dict')
     dict = DictParser.parse(file_name)
     assert not os.path.exists('parsed.test_paramDict')
-    assert os.path.exists('parsed.test_configDict')
+    assert os.path.exists('parsed.test_dict')
 
     parsed_file_name = create_target_file_name(file_name, 'parsed')
     dict_reread = DictReader.read(parsed_file_name)
@@ -64,16 +64,16 @@ def test_parse_dict():  # sourcery skip: class-extract-method
 
 def test_parse_dict_foam_format():
     silent_remove(Path('parsed.test_paramDict'))
-    silent_remove(Path('parsed.test_configDict'))
-    silent_remove(Path('parsed.test_configDict.foam'))
+    silent_remove(Path('parsed.test_dict'))
+    silent_remove(Path('parsed.test_dict.foam'))
     silent_remove(Path('parsed.parsed.test_paramDict'))
-    silent_remove(Path('parsed.parsed.test_configDict'))
-    silent_remove(Path('parsed.parsed.test_configDict.foam'))
-    file_name = Path('test_configDict')
+    silent_remove(Path('parsed.parsed.test_dict'))
+    silent_remove(Path('parsed.parsed.test_dict.foam'))
+    file_name = Path('test_dict')
     DictParser.parse(file_name, output='foam')
     assert not os.path.exists('parsed.test_paramDict')
-    assert not os.path.exists('parsed.test_configDict')
-    assert os.path.exists('parsed.test_configDict.foam')
+    assert not os.path.exists('parsed.test_dict')
+    assert os.path.exists('parsed.test_dict.foam')
 
     # parsed_file_name = create_target_file_name(file_name, 'parsed')
     # dict_reread = DictReader.read(parsed_file_name)

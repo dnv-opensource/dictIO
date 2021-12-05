@@ -28,14 +28,14 @@
             }
         },
         {
-            "name": "dictParser test_configDict",
+            "name": "dictParser test_dict",
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}\\tests",
             "program": "${workspaceFolder}\\src\\dictIO\\cli\\dictParser.py",
             "args": [
                 "-v",
-                "test_configDict"
+                "test_dict"
             ],
             "console": "integratedTerminal",
             "autoReload": {
@@ -58,7 +58,7 @@
             }
         },
         {
-            "name": "dictParser test_configDict .env",
+            "name": "dictParser test_dict .env",
             "type": "python",
             "request": "launch",
             "envFile": "${workspaceFolder}\\.env",
@@ -66,7 +66,7 @@
             "program": "${workspaceFolder}\\src\\dictIO\\cli\\dictParser.py",
             "args": [
                 "-v",
-                "test_configDict"
+                "test_dict"
             ],
             "console": "integratedTerminal",
             "autoReload": {

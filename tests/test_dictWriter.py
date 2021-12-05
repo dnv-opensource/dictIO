@@ -15,7 +15,8 @@ from dictIO.utils.path import silent_remove
 
 def test_write_and_reread_dict_without_includes():
     silent_remove(Path('parsed.test_writeDict'))
-    dict_read = DictReader.read(Path('test_writeDict'), includes=False)
+    # dict_read = DictReader.read(Path('test_writeDict'), includes=False)
+    dict_read = DictReader.read(Path('test_Dict'), includes=False)
     assert not os.path.exists('parsed.test_writeDict')
     DictWriter.write(dict_read, Path('parsed.test_writeDict'))
     assert os.path.exists('parsed.test_writeDict')
@@ -186,17 +187,17 @@ def test_write_option_mode():
 
     # delete one element (parameterD) in the dict to have a test case for the write mode
     dict_read_modified = deepcopy(dict_read)
-    del dict_read_modified['input']['parameterObjects']['parameterD']
+    del dict_read_modified['parameters']['parameterD']
     # Write with mode 'a': -> parameterD should still exist after writing (as the existing file was not overwritten but only appended to)
     DictWriter.write(dict_read_modified, Path('parsed.test_writeDict'), mode='a')
     assert os.path.exists('parsed.test_writeDict')
     dict_reread = DictReader.read(Path('parsed.test_writeDict'), includes=False)
-    assert 'parameterD' in dict_reread['input']['parameterObjects']
+    assert 'parameterD' in dict_reread['parameters']
     # Write with mode 'w': -> parameterD should not exist after writing (as the existing file was overwritten)
     DictWriter.write(dict_read_modified, Path('parsed.test_writeDict'), mode='w')
     assert os.path.exists('parsed.test_writeDict')
     dict_reread = DictReader.read(Path('parsed.test_writeDict'), includes=False)
-    assert 'parameterD' not in dict_reread['input']['parameterObjects']
+    assert 'parameterD' not in dict_reread['parameters']
 
 
 def test_write_farn_param_dict():
@@ -255,6 +256,9 @@ def test_write_farn_param_dict():
     assert file_name.exists()
     parsed_str = re.sub(r'[\r\n\s]+', ' ', str(DictReader.read(file_name)))
     assert parsed_str == test_str
+
+    # clean up
+    silent_remove(file_name)
 
 
 def test_generic_xml():

@@ -1,40 +1,23 @@
-input
+parameters
 {
-    parameterObjects
+    parameterA
     {
-        parameterA
-        {
-            name              'parameterA';
-            property          'CONST';
-            unit              '-';
-            value             1.0;
-        }
-        parameterB
-        {
-            name              'parameterB';
-            property          'CONST';
-            unit              '-';
-            value             2.0;
-        }
-        parameterC
-        {
-            name              'parameterC';
-            property          'CONST';
-            unit              '-';
-            value             "$paramC";
-        }
-        parameterD
-        {
-            name              'parameterD';
-            property          'CONST';
-            unit              '-';
-            value             "$paramD";
-        }
+        name              'parameterA';
+        value             1.0;
     }
-    time
+    parameterB
     {
-        tStart                0;
-        tStop                 120;
-        tUnit                 's';
+        name              'parameterB';
+        value             2.0;
+    }
+    parameterC
+    {
+        name              'parameterC';
+        value             "$paramC";
+    }
+    parameterD
+    {
+        name              'parameterD';
+        value             "$paramD";
     }
 }

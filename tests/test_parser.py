@@ -208,6 +208,21 @@ class TestParser():
         assert isinstance(str_out, str)
         assert str_out == str_in
 
+    def test_parse_type_empty_str(self):
+        parser = Parser()
+        str_in = ''
+        str_out = parser.parse_type(str_in)
+        assert isinstance(str_out, str)
+        assert str_out == str_in
+        str_in_with_single_quotes = '\'' + str_in + '\''
+        str_out = parser.parse_type(str_in_with_single_quotes)
+        assert isinstance(str_out, str)
+        assert str_out == str_in
+        str_in_with_double_quotes = '\"' + str_in + '\"'
+        str_out = parser.parse_type(str_in_with_double_quotes)
+        assert isinstance(str_out, str)
+        assert str_out == str_in
+
     def test_parse_list(self):
         parser = Parser()
         str_1 = 'string 1'
@@ -583,22 +598,17 @@ class TestCppParser():
         # Now start the actual test
         dict_out = parser.parse_tokenized_dict(dict, dict.tokens, level=0)
         # check structure of the dict
-        assert len(dict_out) == 1                                   # input (level 0)
-        assert len(dict_out['input']) == 2                          # parameterObjects, time (level 1)
-        assert len(dict_out['input']['parameterObjects']) == 4      # parameterA,B,C,D (level 2)
-        assert len(
-            dict_out['input']['parameterObjects']['parameterA']
-        ) == 4                                                      # name,property,unit,value (level 3)
-        assert len(dict_out['input']['parameterObjects']['parameterB']) == 4
-        assert len(dict_out['input']['parameterObjects']['parameterC']) == 4
-        assert len(dict_out['input']['parameterObjects']['parameterD']) == 4
-        assert len(dict_out['input']['time']) == 3                  # tStart,tStop,tUnit (level 2)
-                                                                    # check some selected keys
-        assert dict_out['input']['parameterObjects']['parameterA']['name'][:13] == 'STRINGLITERAL'
-        assert dict_out['input']['parameterObjects']['parameterB']['value'] == 2.0
-        assert dict_out['input']['parameterObjects']['parameterC']['value'][:10] == 'EXPRESSION'
-        assert dict_out['input']['parameterObjects']['parameterD']['value'][:10] == 'EXPRESSION'
-        assert dict_out['input']['time']['tStop'] == 120
+        assert len(dict_out) == 1                               # parameters (level 0)
+        assert len(dict_out['parameters']) == 4                 # parameterA,B,C,D (level 1)
+        assert len(dict_out['parameters']['parameterA']) == 2   # name,value (level 2)
+        assert len(dict_out['parameters']['parameterB']) == 2
+        assert len(dict_out['parameters']['parameterC']) == 2
+        assert len(dict_out['parameters']['parameterD']) == 2
+                                                                # check some selected keys
+        assert dict_out['parameters']['parameterA']['name'][:13] == 'STRINGLITERAL'
+        assert dict_out['parameters']['parameterB']['value'] == 2.0
+        assert dict_out['parameters']['parameterC']['value'][:10] == 'EXPRESSION'
+        assert dict_out['parameters']['parameterD']['value'][:10] == 'EXPRESSION'
 
     def test_parse_tokenized_dict_config_dict(self):
         # Prepare dict until and including determine_token_hierarchy()
@@ -610,91 +620,85 @@ class TestCppParser():
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
 
         # check structure of the dict
-        # input (level 0)
-        # @TODO:  This is not what I expected. I suspect comments in betweeen key and dict are not correcty identified.
-        assert len(dict_out) == 8
+        assert len(dict_out) == 10
         assert list(dict_out.keys())[0][:12] == 'BLOCKCOMMENT'
         assert list(dict_out.keys())[1][:7] == 'INCLUDE'
-        # @TODO:  I would expect the line comment to come AFTER the input key
         assert list(dict_out.keys())[2][:11] == 'LINECOMMENT'
-        assert list(dict_out.keys())[3] == 'input'
-        assert list(dict_out.keys())[4][:11] == 'LINECOMMENT'
-        assert list(dict_out.keys())[5] == 'postprocessing'
-        assert list(dict_out.keys())[6] == 'emptyDict'
-        assert list(dict_out.keys())[7] == 'emptyList'
-        assert len(dict_out['input']) == 4                          # parameterObjects, COMMENT, time, COMMENT (level 1)
-        assert len(dict_out['input']['parameterObjects']) == 16     # parameterA,B,C,D (level 2)
-        assert len(
-            dict_out['input']['parameterObjects']['parameterA']
-        ) == 5                                                      # name,property,unit,value,COMMENT (level 3)
-        assert len(dict_out['input']['parameterObjects']['parameterB']) == 5
-        assert len(dict_out['input']['parameterObjects']['parameterC']) == 5
-        assert len(dict_out['input']['parameterObjects']['parameterD']) == 5
-        assert len(dict_out['input']['parameterObjects']['parameterE']) == 5
-        assert len(dict_out['input']['parameterObjects']['parameterF']) == 5
-        assert len(dict_out['input']['parameterObjects']['parameterG1']) == 5
-        assert len(dict_out['input']['parameterObjects']['parameterG2']) == 5
-        assert len(dict_out['input']['parameterObjects']['parameterG3']) == 5
+        assert list(dict_out.keys())[3] == 'references'
+        assert list(dict_out.keys())[4] == 'numerals'
+        assert list(dict_out.keys())[5] == 'scope'
+        assert list(dict_out.keys())[6] == 'strings'
+        assert list(dict_out.keys())[7] == 'exampleDict'
+        assert list(dict_out.keys())[8] == 'emptyDict'
+        assert list(dict_out.keys())[9] == 'emptyList'
+        assert len(dict_out['references']) == 13                # parameterA..G3 (level 2)
+        assert len(dict_out['references']['parameterA']) == 3   # name,value,COMMENT (level 3)
+        assert len(dict_out['references']['parameterB']) == 3
+        assert len(dict_out['references']['parameterC']) == 3
+        assert len(dict_out['references']['parameterD']) == 3
+        assert len(dict_out['references']['parameterE']) == 3
+        assert len(dict_out['references']['parameterF']) == 3
+        assert len(dict_out['references']['parameterG1']) == 3
+        assert len(dict_out['references']['parameterG2']) == 3
+        assert len(dict_out['references']['parameterG3']) == 3
 
-        assert len(dict_out['input']['time']) == 3  # tStart,tStop,tUnit (level 2)
+        assert len(dict_out['numerals']) == 3   # int1,int2,float1
         assert len(dict_out['emptyDict']) == 0
-        assert len(dict_out['postprocessing']['emptyNestedDict']) == 0
+        assert len(dict_out['exampleDict']['emptyNestedDict']) == 0
 
         # nested list with nested list
-        assert len(dict_out['postprocessing']['nestedListWithNestedList']) == 3
-        assert isinstance(dict_out['postprocessing']['nestedListWithNestedList'][0], list)
-        assert isinstance(dict_out['postprocessing']['nestedListWithNestedList'][1], list)
-        assert isinstance(dict_out['postprocessing']['nestedListWithNestedList'][2], list)
-        assert len(dict_out['postprocessing']['nestedListWithNestedList'][0]) == 3
-        assert len(dict_out['postprocessing']['nestedListWithNestedList'][1]) == 3
-        assert len(dict_out['postprocessing']['nestedListWithNestedList'][2]) == 3
+        assert len(dict_out['exampleDict']['nestedListWithNestedList']) == 3
+        assert isinstance(dict_out['exampleDict']['nestedListWithNestedList'][0], list)
+        assert isinstance(dict_out['exampleDict']['nestedListWithNestedList'][1], list)
+        assert isinstance(dict_out['exampleDict']['nestedListWithNestedList'][2], list)
+        assert len(dict_out['exampleDict']['nestedListWithNestedList'][0]) == 3
+        assert len(dict_out['exampleDict']['nestedListWithNestedList'][1]) == 3
+        assert len(dict_out['exampleDict']['nestedListWithNestedList'][2]) == 3
 
         # nested list with nested dict
-        assert len(dict_out['postprocessing']['nestedListWithNestedDict']) == 3
-        assert isinstance(dict_out['postprocessing']['nestedListWithNestedDict'][0], list)
-        assert isinstance(dict_out['postprocessing']['nestedListWithNestedDict'][1], dict)
-        assert isinstance(dict_out['postprocessing']['nestedListWithNestedDict'][2], list)
-        assert len(dict_out['postprocessing']['nestedListWithNestedDict'][0]) == 3
-        assert len(dict_out['postprocessing']['nestedListWithNestedDict'][1]) == 3
-        assert len(dict_out['postprocessing']['nestedListWithNestedDict'][2]) == 3
+        assert len(dict_out['exampleDict']['nestedListWithNestedDict']) == 3
+        assert isinstance(dict_out['exampleDict']['nestedListWithNestedDict'][0], list)
+        assert isinstance(dict_out['exampleDict']['nestedListWithNestedDict'][1], dict)
+        assert isinstance(dict_out['exampleDict']['nestedListWithNestedDict'][2], list)
+        assert len(dict_out['exampleDict']['nestedListWithNestedDict'][0]) == 3
+        assert len(dict_out['exampleDict']['nestedListWithNestedDict'][1]) == 3
+        assert len(dict_out['exampleDict']['nestedListWithNestedDict'][2]) == 3
         # check some selected keys
-        assert dict_out['input']['parameterObjects']['parameterA']['name'][:13] == 'STRINGLITERAL'
-        assert dict_out['input']['parameterObjects']['parameterNotVariedButSameForAllCasesE'][
-            'value'] == 13.5
-        assert dict_out['input']['parameterObjects']['parameterC']['value'][:10] == 'EXPRESSION'
-        assert dict_out['input']['parameterObjects']['parameterD']['value'][:10] == 'EXPRESSION'
-        assert dict_out['input']['time']['tStop'] == 120
+        assert dict_out['references']['parameterA']['name'][:13] == 'STRINGLITERAL'
+        assert dict_out['references']['parameterC']['value'][:10] == 'EXPRESSION'
+        assert dict_out['references']['parameterD']['value'][:10] == 'EXPRESSION'
+        assert dict_out['numerals']['int2'] == 120
         # check that also lists are parsed correctly
         assert len(dict_out['emptyList']) == 0
-        assert len(dict_out['postprocessing']['emptyNestedList']) == 0
-        assert len(dict_out['postprocessing']['parameterProperties']) == 5
-        assert dict_out['postprocessing']['parameterProperties'][0][:13] == 'STRINGLITERAL'
-        assert dict_out['postprocessing']['parameterProperties'][1][:13] == 'STRINGLITERAL'
-        assert dict_out['postprocessing']['parameterProperties'][2][:13] == 'STRINGLITERAL'
-        assert dict_out['postprocessing']['parameterProperties'][3][:13] == 'STRINGLITERAL'
-        assert dict_out['postprocessing']['parameterProperties'][4][:13] == 'STRINGLITERAL'
+        assert len(dict_out['exampleDict']['emptyNestedList']) == 0
+        assert len(dict_out['strings']['listWithStrings']) == 5
+        assert dict_out['strings']['listWithStrings'][0][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][1][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][2][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][3][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][4][:13] == 'STRINGLITERAL'
 
         # nested list with nested list
-        assert dict_out['postprocessing']['nestedListWithNestedList'][0][0] == 1.00000000e+00
-        assert dict_out['postprocessing']['nestedListWithNestedList'][0][1] == 2.20972831e-17
-        assert dict_out['postprocessing']['nestedListWithNestedList'][0][2] == 3.15717747e-18
-        assert dict_out['postprocessing']['nestedListWithNestedList'][1][0] == 2.20972831e-17
-        assert dict_out['postprocessing']['nestedListWithNestedList'][1][1] == 1.00000000e+00
-        assert dict_out['postprocessing']['nestedListWithNestedList'][1][2] == -7.07290050e-18
-        assert dict_out['postprocessing']['nestedListWithNestedList'][2][0] == 3.15717747e-18
-        assert dict_out['postprocessing']['nestedListWithNestedList'][2][1] == -7.07290050e-18
-        assert dict_out['postprocessing']['nestedListWithNestedList'][2][2] == 1.00000000e+00
+        assert dict_out['exampleDict']['nestedListWithNestedList'][0][0] == 1.00000000e+00
+        assert dict_out['exampleDict']['nestedListWithNestedList'][0][1] == 2.20972831e-17
+        assert dict_out['exampleDict']['nestedListWithNestedList'][0][2] == 3.15717747e-18
+        assert dict_out['exampleDict']['nestedListWithNestedList'][1][0] == 2.20972831e-17
+        assert dict_out['exampleDict']['nestedListWithNestedList'][1][1] == 1.00000000e+00
+        assert dict_out['exampleDict']['nestedListWithNestedList'][1][2] == -7.07290050e-18
+        assert dict_out['exampleDict']['nestedListWithNestedList'][2][0] == 3.15717747e-18
+        assert dict_out['exampleDict']['nestedListWithNestedList'][2][1] == -7.07290050e-18
+        assert dict_out['exampleDict']['nestedListWithNestedList'][2][2] == 1.00000000e+00
 
         # nested list with nested dict
-        assert dict_out['postprocessing']['nestedListWithNestedDict'][0][0] == 11
-        assert dict_out['postprocessing']['nestedListWithNestedDict'][0][1] == 12
-        assert dict_out['postprocessing']['nestedListWithNestedDict'][0][2] == 13
-        assert dict_out['postprocessing']['nestedListWithNestedDict'][1]['value21'] == 21
-        assert dict_out['postprocessing']['nestedListWithNestedDict'][1]['value22'] == 22
-        assert dict_out['postprocessing']['nestedListWithNestedDict'][1]['value23'] == 23
-        assert dict_out['postprocessing']['nestedListWithNestedDict'][2][0] == 31
-        assert dict_out['postprocessing']['nestedListWithNestedDict'][2][1] == 32
-        assert dict_out['postprocessing']['nestedListWithNestedDict'][2][2] == 33
+        assert dict_out['exampleDict']['nestedListWithNestedDict'][0][0] == 11
+        assert dict_out['exampleDict']['nestedListWithNestedDict'][0][1] == 12
+        assert dict_out['exampleDict']['nestedListWithNestedDict'][0][2] == 13
+        assert dict_out['exampleDict']['nestedListWithNestedDict'][1]['value21'] == 21
+        assert dict_out['exampleDict']['nestedListWithNestedDict'][1]['value22'] == 22
+        assert dict_out['exampleDict']['nestedListWithNestedDict'][1]['value23'] == 23
+        assert dict_out['exampleDict']['nestedListWithNestedDict'][2][0] == 31
+        assert dict_out['exampleDict']['nestedListWithNestedDict'][2][1] == 32
+        assert dict_out['exampleDict']['nestedListWithNestedDict'][2][2] == 33
 
     def test_parse_tokenized_dict_sub_dict(self):
         # This test case adresses issue #6 that Frank raised on Github
@@ -707,17 +711,17 @@ class TestCppParser():
         # Now start the actual test
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # check structure of subdict1
-        assert len(dict_out['postprocessing']['subdict1']) == 1                 # list1
-        assert len(dict_out['postprocessing']['subdict1']['list1']) == 4        # 'subdict2', (dict object)
-        assert isinstance(dict_out['postprocessing']['subdict1']['list1'][0], str)
-        assert dict_out['postprocessing']['subdict1']['list1'][0] == 'subdict1'
-        assert dict_out['postprocessing']['subdict1']['list1'][2] == 'subdict2'
-        assert isinstance(dict_out['postprocessing']['subdict1']['list1'][1], dict)
-        assert len(dict_out['postprocessing']['subdict1']['list1'][1]) == 2     # key1, key2
-        assert list(dict_out['postprocessing']['subdict1']['list1'][1].keys())[0] == 'key1'
-        assert list(dict_out['postprocessing']['subdict1']['list1'][1].keys())[1] == 'key2'
-        assert dict_out['postprocessing']['subdict1']['list1'][1]['key1'] == 'value1'
-        assert dict_out['postprocessing']['subdict1']['list1'][1]['key2'] == 'value2'
+        assert len(dict_out['exampleDict']['subdict1']) == 1                # list1
+        assert len(dict_out['exampleDict']['subdict1']['list1']) == 4       # 'subdict2', (dict object)
+        assert isinstance(dict_out['exampleDict']['subdict1']['list1'][0], str)
+        assert dict_out['exampleDict']['subdict1']['list1'][0] == 'subdict1'
+        assert dict_out['exampleDict']['subdict1']['list1'][2] == 'subdict2'
+        assert isinstance(dict_out['exampleDict']['subdict1']['list1'][1], dict)
+        assert len(dict_out['exampleDict']['subdict1']['list1'][1]) == 2    # key1, key2
+        assert list(dict_out['exampleDict']['subdict1']['list1'][1].keys())[0] == 'key1'
+        assert list(dict_out['exampleDict']['subdict1']['list1'][1].keys())[1] == 'key2'
+        assert dict_out['exampleDict']['subdict1']['list1'][1]['key1'] == 'value1'
+        assert dict_out['exampleDict']['subdict1']['list1'][1]['key2'] == 'value2'
 
     def test_insert_string_literals(self):
         # Prepare dict until and including convert_tokens_to_dict()
@@ -727,21 +731,22 @@ class TestCppParser():
         dict_in = deepcopy(dict.data)
         # Preparations done.
         # Now start the actual test
-        assert dict_in['input']['parameterObjects']['parameterA']['name'][:13] == 'STRINGLITERAL'
-        assert dict_in['postprocessing']['parameterProperties'][0][:13] == 'STRINGLITERAL'
-        assert dict_in['postprocessing']['parameterProperties'][1][:13] == 'STRINGLITERAL'
-        assert dict_in['postprocessing']['parameterProperties'][2][:13] == 'STRINGLITERAL'
-        assert dict_in['postprocessing']['parameterProperties'][3][:13] == 'STRINGLITERAL'
-        assert dict_in['postprocessing']['parameterProperties'][4][:13] == 'STRINGLITERAL'
+        assert dict_in['references']['parameterA']['name'][:13] == 'STRINGLITERAL'
+        assert dict_in['strings']['listWithStrings'][0][:13] == 'STRINGLITERAL'
+        assert dict_in['strings']['listWithStrings'][1][:13] == 'STRINGLITERAL'
+        assert dict_in['strings']['listWithStrings'][2][:13] == 'STRINGLITERAL'
+        assert dict_in['strings']['listWithStrings'][3][:13] == 'STRINGLITERAL'
+        assert dict_in['strings']['listWithStrings'][4][:13] == 'STRINGLITERAL'
         parser.insert_string_literals(dict)
         dict_out = dict.data
         # check whether string literals have been inserted
-        assert dict_out['input']['parameterObjects']['parameterA']['name'] == 'parameterA'
-        assert dict_out['postprocessing']['parameterProperties'][0] == 'Quantity'
-        assert dict_out['postprocessing']['parameterProperties'][1] == 'SIunit'
-        assert dict_out['postprocessing']['parameterProperties'][2] == 'Start'
-        assert dict_out['postprocessing']['parameterProperties'][3] == 'Unit'
-        assert dict_out['postprocessing']['parameterProperties'][4] == 'Value'
+        assert dict_out['references']['parameterA']['name'] == 'parameterA'
+        assert dict_out['strings']['listWithStrings'][0] == 'string1'
+        assert dict_out['strings']['listWithStrings'][1] == 'string2 has spaces'
+        assert dict_out['strings']['listWithStrings'][2] == 'string3'
+        assert dict_out['strings']['listWithStrings'][
+            3] == 'string4 is ok but note that string5 is empty'
+        assert dict_out['strings']['listWithStrings'][4] == ''
 
 
 class TestXmlParser():
@@ -843,7 +848,7 @@ class SetupHelper():
     def prepare_dict_until(
         dict_to_prepare: CppDict,
         until_step=-1,
-        file_to_read='test_configDict',
+        file_to_read='test_dict',
     ):
 
         file_name = Path.cwd() / file_to_read
