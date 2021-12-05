@@ -43,6 +43,21 @@
             }
         },
         {
+            "name": "dictParser include\\initialConditions",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}\\tests",
+            "program": "${workspaceFolder}\\src\\dictIO\\cli\\dictParser.py",
+            "args": [
+                "-v",
+                "include\\initialConditions"
+            ],
+            "console": "integratedTerminal",
+            "autoReload": {
+                "enable": true
+            }
+        },
+        {
             "name": "dictParser test_configDict .env",
             "type": "python",
             "request": "launch",

@@ -339,11 +339,13 @@ def test_read_dict_in_subfolder_with_includes_no_order_called_via_dictparser_scr
     file_name = 'include\\initialConditions'
     silent_remove(Path('include\\parsed.initialConditions'))
     silent_remove(Path('include\\parsed.initialConditions.foam'))
-    os.system(f'..\\src\\dictIO\\cli\\dictParser.py --quiet {file_name}')
+    # os.system(f'..\\src\\dictIO\\cli\\dictParser.py --quiet {file_name}')
+    os.system(f' python -m dictIO.cli.dictParser --quiet {file_name}')
     assert os.path.exists('include\\parsed.initialConditions')
     assert not os.path.exists('include\\parsed.initialConditions.foam')
     silent_remove(Path('include\\parsed.initialConditions'))
-    os.system(f'..\\src\\dictIO\\cli\\dictParser.py --quiet --output=foam {file_name}')
+    # os.system(f'..\\src\\dictIO\\cli\\dictParser.py --quiet --output=foam {file_name}')
+    os.system(f' python -m dictIO.cli.dictParser --quiet --output=foam {file_name}')
     assert not os.path.exists('include\\parsed.initialConditions')
     assert os.path.exists('include\\parsed.initialConditions.foam')
 
