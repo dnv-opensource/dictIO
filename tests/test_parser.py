@@ -705,23 +705,38 @@ class TestCppParser():
         # https://github.com/MaritimeOSPx/ModelVerification/issues/6
         # Prepare dict until and including determine_token_hierarchy()
         dict_in = CppDict(Path('testDict'))
-        SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
+        SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9, comments=False)
         parser = CppParser()
         # Preparations done.
         # Now start the actual test
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
-        # check structure of subdict1
-        assert len(dict_out['exampleDict']['subdict']) == 1             # list
-        assert len(dict_out['exampleDict']['subdict']['list']) == 4     # 'subdict2', (dict object)
-        assert isinstance(dict_out['exampleDict']['subdict']['list'][0], str)
-        assert dict_out['exampleDict']['subdict']['list'][0] == 'subdict1'
-        assert dict_out['exampleDict']['subdict']['list'][2] == 'subdict2'
-        assert isinstance(dict_out['exampleDict']['subdict']['list'][1], dict)
-        assert len(dict_out['exampleDict']['subdict']['list'][1]) == 2  # key1, key2
-        assert list(dict_out['exampleDict']['subdict']['list'][1].keys())[0] == 'key1'
-        assert list(dict_out['exampleDict']['subdict']['list'][1].keys())[1] == 'key2'
-        assert dict_out['exampleDict']['subdict']['list'][1]['key1'] == 'value1'
-        assert dict_out['exampleDict']['subdict']['list'][1]['key2'] == 'value2'
+        # check structure of subdict
+        assert len(dict_out['exampleDict']['keyToADict']) == 1                      # list
+        assert len(
+            dict_out['exampleDict']['keyToADict']['keyToAList']
+        ) == 7                                                                      # 'notAKey', {}, 'notAKey', 'notAKey', 'notAKey', 'notAKey', {}
+        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][0], str)
+        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][1], dict)
+        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][2], str)
+        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][3], str)
+        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][4], str)
+        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][5], str)
+        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][6], dict)
+        assert dict_out['exampleDict']['keyToADict']['keyToAList'][0] == 'notAKey'
+        assert len(dict_out['exampleDict']['keyToADict']['keyToAList'][1]) == 2     # key1, key2
+        assert list(dict_out['exampleDict']['keyToADict']['keyToAList'][1].keys())[0] == 'key1'
+        assert list(dict_out['exampleDict']['keyToADict']['keyToAList'][1].keys())[1] == 'key2'
+        assert dict_out['exampleDict']['keyToADict']['keyToAList'][1]['key1'] == 'value1'
+        assert dict_out['exampleDict']['keyToADict']['keyToAList'][1]['key2'] == 'value2'
+        assert dict_out['exampleDict']['keyToADict']['keyToAList'][2] == 'notAKey'
+        assert dict_out['exampleDict']['keyToADict']['keyToAList'][3] == 'notAKey'
+        assert dict_out['exampleDict']['keyToADict']['keyToAList'][4] == 'notAKey'
+        assert dict_out['exampleDict']['keyToADict']['keyToAList'][5] == 'notAKey'
+        assert len(dict_out['exampleDict']['keyToADict']['keyToAList'][6]) == 2     # key1, key2
+        assert list(dict_out['exampleDict']['keyToADict']['keyToAList'][6].keys())[0] == 'key1'
+        assert list(dict_out['exampleDict']['keyToADict']['keyToAList'][6].keys())[1] == 'key2'
+        assert dict_out['exampleDict']['keyToADict']['keyToAList'][6]['key1'] == 'value1'
+        assert dict_out['exampleDict']['keyToADict']['keyToAList'][6]['key2'] == 'value2'
 
     def test_insert_string_literals(self):
         # Prepare dict until and including convert_tokens_to_dict()
@@ -849,6 +864,7 @@ class SetupHelper():
         dict_to_prepare: CppDict,
         until_step=-1,
         file_to_read='test_dict',
+        comments: bool = True,
     ):
 
         file_name = Path.cwd() / file_to_read
@@ -861,8 +877,6 @@ class SetupHelper():
         dict_to_prepare.line_content = file_content.splitlines(keepends=True)
 
         parser = CppParser()
-
-        comments: bool = True
 
         funcs = [
             (parser.extract_line_comments, dict_to_prepare, comments),          # Step 00
