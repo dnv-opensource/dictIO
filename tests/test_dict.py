@@ -260,7 +260,7 @@ def test_iter_find_key():
 class SetupHelper():
 
     @staticmethod
-    def prepare_dict(dict_to_prepare: CppDict, file_to_read='test_dict'):
+    def prepare_dict(dict_to_prepare: CppDict, file_to_read='test_dict_dict'):
 
         file_name = Path.cwd() / file_to_read
 

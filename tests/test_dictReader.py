@@ -388,7 +388,7 @@ class SetupHelper():
     def prepare_dict_until(
         dict_to_prepare: CppDict,
         until_step=-1,
-        file_to_read='test_dict',
+        file_to_read='test_dictReader_dict',
     ):
 
         file_name = Path.cwd() / file_to_read

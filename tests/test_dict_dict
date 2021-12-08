@@ -1,0 +1,18 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+
+scope
+{
+    subscope1
+    {
+        subscope11
+        {
+            name        'subscope11';
+        }
+        subscope12
+        {
+            name        'subscope12';
+        }
+    }
+}

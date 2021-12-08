@@ -2,7 +2,7 @@
 filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
 \*----------------------------------------------------------------------------*/
 
-#include 'test_paramDict'
+#include 'test_parser_paramDict'
 
 // This is a line comment at the top of the file
 
@@ -134,20 +134,5 @@ references
     {
         name              'expressionG3';
         value             "$paramG";  // Expression containing lists of a list, but the whole object is referenced
-    }
-}
-
-scope
-{
-    subscope1
-    {
-        subscope11
-        {
-            name        'subscope11';
-        }
-        subscope12
-        {
-            name        'subscope12';
-        }
     }
 }

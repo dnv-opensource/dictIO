@@ -26,8 +26,7 @@ class TestCppFormatter():
         SetupHelper.prepare_dict(dict_to_prepare=dict)
         dict_in = deepcopy(dict.data)
         formatter = CppFormatter()
-        # Preparations done.
-        # Now start the actual test
+        # Execute
         str_out = str()
         str_out += formatter.format_dict(dict.data)
         str_out += formatter.insert_block_comments(dict, str_out)
@@ -289,8 +288,7 @@ class TestFoamFormatter():
         # Prepare dict until and including ()
         dict = DictReader.read(Path('test_dict'), comments=False)
         formatter = FoamFormatter()
-        # Preparations done.
-        # Now start the actual test
+        # Execute
         str_out = str()
         str_out += formatter.to_string(dict)
         assert re.search(r'\s+_', str_out) is None
@@ -299,8 +297,7 @@ class TestFoamFormatter():
         # Prepare dict until and including ()
         dict = DictReader.read(Path('test_dict'), comments=True)
         formatter = FoamFormatter()
-        # Preparations done.
-        # Now start the actual test
+        # Execute
         str_out = str()
         str_out += formatter.to_string(dict)
         assert re.search(r'\'', str_out) is None
@@ -343,8 +340,7 @@ class TestXmlFormatter():
         }
         dict.update({'_xmlOpts': xml_opts})
         formatter = XmlFormatter()
-        # Preparations done.
-        # Now start the actual test
+        # Execute
         str_out = str()
         str_out += formatter.to_string(dict)
         # assert dict.data == dict_in     # assert that no whatsoever changes have been made to the  dict itself

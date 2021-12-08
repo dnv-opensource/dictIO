@@ -442,7 +442,7 @@ class TestCppParser():
         )
 
     def test_extract_expressions(self):
-        dict = CppDict(Path('testDict'))
+        dict = CppDict()
         parser = CppParser()
         # key_8 is unfortunately not recogniset as string in this test here,
         # for dictionary with given
@@ -594,8 +594,7 @@ class TestCppParser():
         SetupHelper.prepare_dict_until(
             dict_to_prepare=dict, until_step=9, file_to_read='test_simpleDict'
         )
-        # Preparations done.
-        # Now start the actual test
+        # Execute
         dict_out = parser.parse_tokenized_dict(dict, dict.tokens, level=0)
         # check structure of the dict
         assert len(dict_out) == 1                               # parameters (level 0)
@@ -611,16 +610,15 @@ class TestCppParser():
         assert dict_out['parameters']['parameterD']['value'][:10] == 'EXPRESSION'
 
     def test_parse_tokenized_dict_config_dict(self):
-        # Prepare dict until and including determine_token_hierarchy()
-        dict_in = CppDict(Path('testDict'))
+        # Prepare dict
+        dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
-        # Preparations done.
-        # Now start the actual test
+        # Execute
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
 
-        # check structure of the dict
-        assert len(dict_out) == 10
+        # assert structure of the dict
+        assert len(dict_out) == 9
         assert list(dict_out.keys())[0][:12] == 'BLOCKCOMMENT'
         assert list(dict_out.keys())[1][:7] == 'INCLUDE'
         assert list(dict_out.keys())[2][:11] == 'LINECOMMENT'
@@ -630,7 +628,6 @@ class TestCppParser():
         assert list(dict_out.keys())[6] == 'numerals'
         assert list(dict_out.keys())[7] == 'strings'
         assert list(dict_out.keys())[8] == 'references'
-        assert list(dict_out.keys())[9] == 'scope'
         assert len(dict_out['references']) == 13                # reference..G3 (level 2)
         assert len(dict_out['references']['reference']) == 3    # name,value,COMMENT (level 3)
         assert len(dict_out['references']['expression1']) == 3
@@ -671,12 +668,6 @@ class TestCppParser():
         # check that also lists are parsed correctly
         assert len(dict_out['emptyList']) == 0
         assert len(dict_out['exampleDict']['emptyNestedList']) == 0
-        assert len(dict_out['strings']['listWithStrings']) == 5
-        assert dict_out['strings']['listWithStrings'][0][:13] == 'STRINGLITERAL'
-        assert dict_out['strings']['listWithStrings'][1][:13] == 'STRINGLITERAL'
-        assert dict_out['strings']['listWithStrings'][2][:13] == 'STRINGLITERAL'
-        assert dict_out['strings']['listWithStrings'][3][:13] == 'STRINGLITERAL'
-        assert dict_out['strings']['listWithStrings'][4][:13] == 'STRINGLITERAL'
 
         # nested list with nested list
         assert dict_out['exampleDict']['nestedListWithNestedList'][0][0] == 1.00000000e+00
@@ -703,14 +694,14 @@ class TestCppParser():
     def test_parse_tokenized_dict_sub_dict(self):
         # This test case adresses issue #6 that Frank raised on Github
         # https://github.com/MaritimeOSPx/ModelVerification/issues/6
-        # Prepare dict until and including determine_token_hierarchy()
+
+        # Prepare
         dict_in = CppDict(Path('testDict'))
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9, comments=False)
         parser = CppParser()
-        # Preparations done.
-        # Now start the actual test
+        # Execute
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
-        # check structure of subdict
+        # assert structure of subdict
         assert len(dict_out['exampleDict']['keyToADict']) == 1                      # list
         assert len(
             dict_out['exampleDict']['keyToADict']['keyToAList']
@@ -739,23 +730,21 @@ class TestCppParser():
         assert dict_out['exampleDict']['keyToADict']['keyToAList'][6]['key2'] == 'value2'
 
     def test_insert_string_literals(self):
-        # Prepare dict until and including convert_tokens_to_dict()
-        dict = CppDict(Path('testDict'))
+        # Prepare
+        dict = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict, until_step=10)
         parser = CppParser()
         dict_in = deepcopy(dict.data)
-        # Preparations done.
-        # Now start the actual test
-        assert dict_in['references']['reference']['name'][:13] == 'STRINGLITERAL'
+        # assert pre-condition
         assert dict_in['strings']['listWithStrings'][0][:13] == 'STRINGLITERAL'
         assert dict_in['strings']['listWithStrings'][1][:13] == 'STRINGLITERAL'
         assert dict_in['strings']['listWithStrings'][2][:13] == 'STRINGLITERAL'
         assert dict_in['strings']['listWithStrings'][3][:13] == 'STRINGLITERAL'
         assert dict_in['strings']['listWithStrings'][4][:13] == 'STRINGLITERAL'
+        # Execute
         parser.insert_string_literals(dict)
+        # assert string literals have been inserted
         dict_out = dict.data
-        # check whether string literals have been inserted
-        assert dict_out['references']['reference']['name'] == 'reference'
         assert dict_out['strings']['listWithStrings'][0] == 'string1'
         assert dict_out['strings']['listWithStrings'][1] == 'string2 has spaces'
         assert dict_out['strings']['listWithStrings'][2] == 'string3'
@@ -780,8 +769,7 @@ class TestXmlParser():
         str_in = ''
         with open(file_name, 'r') as f:
             str_in = f.read()
-        # Preparations done.
-        # Now start the actual test
+        # Execute
         dict_out = CppDict(file_name)
         parser = XmlParser(add_node_numbering=False)
         dict_out = parser.parse_string(str_in, dict_out)
@@ -819,8 +807,7 @@ class TestXmlParser():
         str_in = ''
         with open(file_name, 'r') as f:
             str_in = f.read()
-        # Preparations done.
-        # Now start the actual test
+        # Execute
         dict_out = CppDict(file_name)
         parser = XmlParser(add_node_numbering=True)
         BorgCounter.reset()
@@ -863,7 +850,7 @@ class SetupHelper():
     def prepare_dict_until(
         dict_to_prepare: CppDict,
         until_step=-1,
-        file_to_read='test_dict',
+        file_to_read='test_parser_dict',
         comments: bool = True,
     ):
 
