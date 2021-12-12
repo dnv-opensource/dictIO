@@ -71,8 +71,8 @@ class DictReader():
         source_file = source_file if isinstance(source_file, Path) else Path(source_file)
         # @TODO: Activate raising FileNotFoundError in a new branch and create pull request for it.
         #        CLAROS, 2021-12-12
-        if not source_file.exists():
-            raise FileNotFoundError(source_file)
+        # if not source_file.exists():
+        #     raise FileNotFoundError(source_file)
 
         # Create parser
         # If a parser has been passed to read(), use that.

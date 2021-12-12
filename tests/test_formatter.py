@@ -328,16 +328,131 @@ class TestCppFormatter():
 
 class TestFoamFormatter():
 
-    def test_to_string_does_not_contain_underscores(self):
-        # Prepare dict until and including ()
-        dict = DictReader.read(Path('test_formatter_dict'), comments=False)
+    def test_insert_block_comments(self):                                                           # sourcery skip: class-extract-method
+                                                                                                    # Prepare dict until and including ()
+        dict = CppDict()
+        SetupHelper.prepare_dict(dict_to_prepare=dict, file_to_read='test_formatter_dict')
         formatter = FoamFormatter()
-        # Execute
-        str_out = str()
-        str_out += formatter.to_string(dict)
-        assert re.search(r'\s+_', str_out) is None
+        block_comment_in = (
+            '/*--------------------------------*- C++ -*----------------------------------*\\\n'
+            '| =========       This is a block comment                                     |\n'
+            '| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |\n'
+            '|  \\\\    /   O peration     | Version:  dev                                   |\n'
+            '|   \\\\  /    A nd           | Web:      www.OpenFOAM.com                      |\n'
+            '|    \\\\/     M anipulation  |                                                 |\n'
+            '\\*---------------------------------------------------------------------------*/\n'
+            'FoamFile\n'
+            '{\n'
+            '    version                   2.0;\n'
+            '    format                    ascii;\n'
+            '    class                     dictionary;\n'
+            '    object                    foamDict;\n'
+            '}\n'
+            '// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //'
+        )
+        default_block_comment = (
+            '/*--------------------------------*- C++ -*----------------------------------*\\\n'
+            '| =========                 |                                                 |\n'
+            '| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |\n'
+            '|  \\\\    /   O peration     | Version:  dev                                   |\n'
+            '|   \\\\  /    A nd           | Web:      www.OpenFOAM.com                      |\n'
+            '|    \\\\/     M anipulation  |                                                 |\n'
+            '\\*---------------------------------------------------------------------------*/\n'
+            'FoamFile\n'
+            '{\n'
+            '    version                   2.0;\n'
+            '    format                    ascii;\n'
+            '    class                     dictionary;\n'
+            '    object                    foamDict;\n'
+            '}\n'
+            '// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //'
+        )
+                                                                                                    # Prepare input templates
+        str_in_template = formatter.format_dict(
+            dict.data
+        )                                                                                           # as we used test_simpleDict, str_in does not have a block comment yet
+        placeholder1 = 'BLOCKCOMMENT000101            BLOCKCOMMENT000101;'
+        placeholder2 = 'BLOCKCOMMENT000102            BLOCKCOMMENT000102;'
+        placeholder3 = 'BLOCKCOMMENT000103            BLOCKCOMMENT000103;'
 
-    def test_to_string_does_not_contain_single_quotes(self):
+        # THE STANDARD CASE: The dictionary contains 1 (ONE) BLOCK COMMENT
+        # Prepare the dict
+        dict.block_comments = {}
+        dict.block_comments.update({101: block_comment_in})
+        # Prepare the input
+        str_in = placeholder1 + '\n' + str_in_template
+        # Prepare what we expect as output
+        str_assert = str_in.replace(placeholder1, block_comment_in)
+        # Run the test
+        str_out = formatter.insert_block_comments(dict, str_in)
+        assert str_out == str_assert
+
+        # THE FALLBACK CASE: The dictionary contains 0 (NO) BLOCK COMMENT
+        # Prepare the dict
+        dict.block_comments = {}
+        # Prepare the input
+        str_in = str_in_template
+        # Prepare what we expect as output
+        str_assert = default_block_comment + '\n' + str_in
+        # Run the test
+        str_out = formatter.insert_block_comments(dict, str_in)
+        assert str_out == str_assert
+        # but does it also work when we call insert_block_comments() the second time? Will the default block comment then still be inserted?
+        str_in = str_in_template
+        str_out = formatter.insert_block_comments(dict, str_in)
+        assert str_out == str_assert
+
+        # A NON-STANDARD CASE: The dictionary contains 3 (THREE) BLOCK COMMENTS, ALL IDENTICAL
+        # Prepare the dict
+        dict.block_comments = {}
+        dict.block_comments.update({101: block_comment_in})
+        dict.block_comments.update({102: block_comment_in})
+        dict.block_comments.update({103: block_comment_in})
+        # Prepare the input
+        str_in = placeholder1 + '\n' + placeholder2 + '\n' + placeholder3 + '\n' + str_in_template
+        # Prepare what we expect as output
+        str_assert = (
+            str_in.replace(placeholder1, block_comment_in).replace(placeholder2,
+                                                                   '').replace(placeholder3, '')
+        )
+        # Run the test
+        str_out = formatter.insert_block_comments(dict, str_in)
+        assert str_out == str_assert
+
+        # A NON-STANDARD CASE: The dictionary contains 3 (THREE) BLOCK COMMENTS, NON IDENTICAL
+        # Prepare the dict
+        dict.block_comments = {}
+        dict.block_comments.update({101: block_comment_in})
+        dict.block_comments.update({102: default_block_comment})
+        dict.block_comments.update({103: block_comment_in})
+        # Prepare the input
+        str_in = placeholder1 + '\n' + placeholder2 + '\n' + placeholder3 + '\n' + str_in_template
+        # Prepare what we expect as output
+        str_assert = (
+            str_in.replace(placeholder1,
+                           block_comment_in).replace(placeholder2, default_block_comment
+                                                     ).replace(placeholder3, '')
+        )
+        # Run the test
+        str_out = formatter.insert_block_comments(dict, str_in)
+        assert str_out == str_assert
+
+        # A NON-STANDARD CASE: The dictionary contains 1 (ONE) BLOCK COMMENT, BUT IT DOES NOT CONTAIN ' C++ '
+        block_comment_tampered = re.sub(r'\s[Cc]\+{2}\s', ' C# ', block_comment_in)
+        # Prepare the dict
+        dict.block_comments = {}
+        dict.block_comments.update({101: block_comment_tampered})
+        # Prepare the input
+        str_in = placeholder1 + '\n' + str_in_template
+        # Prepare what we expect as output
+        str_assert = str_in.replace(
+            placeholder1, default_block_comment + '\n' + block_comment_tampered
+        )
+        # Run the test
+        str_out = formatter.insert_block_comments(dict, str_in)
+        assert str_out == str_assert
+
+    def test_ensure_string_does_not_contain_single_quotes(self):
         # Prepare dict until and including ()
         dict = DictReader.read(Path('test_formatter_dict'), comments=True)
         formatter = FoamFormatter()
@@ -345,6 +460,15 @@ class TestFoamFormatter():
         str_out = str()
         str_out += formatter.to_string(dict)
         assert re.search(r'\'', str_out) is None
+
+    def test_ensure_string_does_not_contain_underscore_variables(self):
+        # Prepare dict until and including ()
+        dict = DictReader.read(Path('test_formatter_dict'), comments=False)
+        formatter = FoamFormatter()
+        # Execute
+        str_out = str()
+        str_out += formatter.to_string(dict)
+        assert re.search(r'\s+_', str_out) is None
 
 
 class TestXmlFormatter():

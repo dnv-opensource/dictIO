@@ -283,8 +283,8 @@ class CppFormatter(Formatter):
 
         # String type:
         # Add double quotes if ..
-        # ..string contains a keyword AND a non-Word character (a single keywords does not need quotes)
-        if re.search(r'[$]', arg) and re.search(r'[^$a-zA-Z0-9]', arg):
+        # ..string contains a keyword AND a non-Word character (single keywords do not need quotes)
+        if re.search(r'[$]', arg) and re.search(r'[^$a-zA-Z0-9_]', arg):
             return '"' + arg + '"'
         # Add single quotes if..
         # ..string is empty, contains spaces or is a path
@@ -299,27 +299,17 @@ class CppFormatter(Formatter):
         str s is expected to contain the CppDict's block_content containing block comment placeholders to substitute (BLOCKCOMMENT... BLOCKCOMMENT...)
         '''
 
-        # Define a default, preformatted block_comment that will be used
-        # in case no block_comment exists.
-        default_block_comment = \
-            '/*' + '-' * 33 + '*- C++ -*' + '-' * 34 + '*\\\n' \
-            'filetype dictionary; ' \
-            'coding utf-8; ' \
-            'version 0.1; ' \
-            'local --; ' \
-            'purpose --;\n' \
-            '\\*' + '-' * 76 + '*/\n'
-
         # Replace all BLOCKCOMMENT placeholders in s with the actual block_comments saved in dict
         block_comments_inserted_so_far = ''
         first_block_comment = True  # MonoFlop, armed
         for key, block_comment in dict.block_comments.items():
 
-            # If this is the first block_comment, and there is no ' C++ ' contained,
-            # then insert the default one in addition, in front
+            # If this is the first block_comment, make sure it contains the default block comment
             if first_block_comment:
-                if not re.search(r'\s[Cc]\+{2}\s', block_comment):
-                    block_comment = default_block_comment + str(dict.block_comments[key])
+                # if not re.search(r'\s[Cc]\+{2}\s', block_comment):
+                #     # block_comment = default_block_comment + str(dict.block_comments[key])
+                #     block_comment = default_block_comment + block_comment
+                block_comment = self.default_block_comment(block_comment)
                 first_block_comment = False     # disarm MonoFlop
 
             # Check whether the current block comment is identical with a block comment that we already inserted earlier
@@ -339,11 +329,25 @@ class CppFormatter(Formatter):
                                                                                             # Document which block comments we already inserted.
                 block_comments_inserted_so_far += block_comment
 
-        # If no block_comment had been inserted, insert a default one
+        # If no block_comment had been inserted, insert the default block comment
         if block_comments_inserted_so_far == '':
-            s = default_block_comment + s
+            s = self.default_block_comment() + s
 
         return s
+
+    def default_block_comment(self, block_comment: str = '') -> str:
+        # If there is no ' C++ ' contained in block_comment,
+        # then insert the C++ default block comment in front:
+        # sourcery skip: move-assign
+        default_block_comment = (
+            '/*---------------------------------*- C++ -*----------------------------------*\\\n'
+            'filetype dictionary; coding utf-8; version 0.1; local --; purpose --;\n'
+            '\\*----------------------------------------------------------------------------*/\n'
+        )
+        if not re.search(r'\s[Cc]\+{2}\s', block_comment):
+            # block_comment = default_block_comment + str(dict.block_comments[key])
+            block_comment = default_block_comment + block_comment
+        return block_comment
 
     def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
         '''
@@ -353,16 +357,7 @@ class CppFormatter(Formatter):
             # Search for the placeholder entry we created in parse_tokenized_dict(),
             # and insert back the original include directive.
             search_pattern = r'INCLUDE%06i\s+INCLUDE%06i;' % (key, key)
-
-            if 'FoamFormatter' in self.__str__():
-                # OpenFOAM does some more things on reading dicts, e.g. compiling code from _variables
-                s = re.sub(search_pattern, '', s)
-            else:
-                # use no re.escape! it will escape everything!
-                # re.sub is not safely substituting
-                # pythons str.replace() here is more reliable,
-                # but it does not cover the case if already two bsl's are given
-                s = re.sub(search_pattern, include_directive.replace('\\', '\\\\'), s)
+            s = re.sub(search_pattern, include_directive.replace('\\', '\\\\'), s)
 
         return s
 
@@ -422,8 +417,7 @@ class FoamFormatter(CppFormatter):
 
         # Foam dicts are, in contrast to C++ dicts, restricted in what they shall contain.
         # The dict content is hence reduced to what Foam is able to interpret.
-        # Dict entries that Foam cannot interpret - or would eventually even misinterpret - are removed.
-        dict_adapted_for_foam = deepcopy(dict)
+        # Dict entries that Foam cannot interpret - or would eventually even misinterpret - are hence removed:
 
         # Remove all dict entries starting with underscore
         def remove_underscore_keys_recursive(dict: MutableMapping):
@@ -435,15 +429,55 @@ class FoamFormatter(CppFormatter):
                     remove_underscore_keys_recursive(dict[key])     # recursion
             return
 
+        dict_adapted_for_foam = deepcopy(dict)
         remove_underscore_keys_recursive(dict_adapted_for_foam)
 
         # Call base class implementation (CppFormatter)
         s = super().to_string(dict_adapted_for_foam)
 
-        # Substitute all single quotes by double quotes.
+        # Substitute all remeining single quotes, if any, by double quotes:
         s = re.sub('\'', '"', s)
 
         return s
+
+    def format_type(self, arg: Any) -> str:
+        '''
+        Formats single value types (str, int, float, boolean and None)
+        '''
+        # Call base class implementation (CppFormatter)
+        arg = super().format_type(arg)
+
+        # Substitute single quotes by double quotes.
+        arg = re.sub('\'', '"', arg)
+
+        return arg
+
+    def default_block_comment(self, block_comment: str = '') -> str:
+        # If there is no ' C++ ' and 'OpenFoam' contained in block_comment,
+        # then insert the OpenFOAM default block comment in front:
+        default_block_comment = (
+            '/*--------------------------------*- C++ -*----------------------------------*\\\n'
+            '| =========                 |                                                 |\n'
+            '| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |\n'
+            '|  \\\\    /   O peration     | Version:  dev                                   |\n'
+            '|   \\\\  /    A nd           | Web:      www.OpenFOAM.com                      |\n'
+            '|    \\\\/     M anipulation  |                                                 |\n'
+            '\\*---------------------------------------------------------------------------*/\n'
+            'FoamFile\n'
+            '{\n'
+            '    version                   2.0;\n'
+            '    format                    ascii;\n'
+            '    class                     dictionary;\n'
+            '    object                    foamDict;\n'
+            '}\n'
+            '// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n'
+        )
+        if not re.search(r'\s[Cc]\+{2}\s', block_comment):
+            # block_comment = default_block_comment + str(dict.block_comments[key])
+            block_comment = default_block_comment + block_comment
+        if not re.search(r'OpenFOAM', block_comment):
+            block_comment = default_block_comment
+        return block_comment
 
 
 class JsonFormatter(Formatter):

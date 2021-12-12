@@ -9,6 +9,7 @@ from dictIO.cppDict import CppDict
 from dictIO.dictReader import DictReader
 from dictIO.dictWriter import DictWriter, create_target_file_name
 from dictIO.formatter import CppFormatter, XmlFormatter
+from dictIO.parser import FoamParser
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.path import silent_remove
 
@@ -140,19 +141,86 @@ def test_write_dict_filetype_xml():
     # assert dict == dict_reread  # Rereading xml doesn't work yet 1:1
 
 
-def test_read_write_foam_dict():
-    file_name_in = Path('test_foamDict')
-    file_name_out = Path('reread.test_foamDict.foam')
+def test_read_write_cpp_without_includes():
+    file_name_in = Path('test_dictWriter_dict')
+    file_name_out = Path('reread.test_dictWriter_dict')
     silent_remove(file_name_out)
-    dict_read = DictReader.read(file_name_in)
+    dict_read = DictReader.read(file_name_in, includes=False)
     assert not os.path.exists(file_name_out)
     DictWriter.write(dict_read, file_name_out)
     assert os.path.exists(file_name_out)
     dict_reread = DictReader.read(file_name_out)
     # @TODO: failing under linux: CRLF !== LF
     assert dict_read == dict_reread
-    # @TODO: test env setup function for something like this...
-    #        os.system('. .OFdev ; cd $TESTFOLDER ; blockMesh')
+
+
+def test_read_write_cpp():
+    file_name_in = Path('test_dictWriter_dict')
+    file_name_out = Path('reread.test_dictWriter_dict')
+    silent_remove(file_name_out)
+    dict_read = DictReader.read(file_name_in, includes=True)
+    assert not os.path.exists(file_name_out)
+    DictWriter.write(dict_read, file_name_out)
+    assert os.path.exists(file_name_out)
+    dict_reread = DictReader.read(file_name_out)
+    # @TODO: failing under linux: CRLF !== LF
+    assert dict_read == dict_reread
+
+
+def test_read_write_foam_without_includes():
+    file_name_in = Path('test_dictWriter_foam')
+    file_name_out = Path('reread.test_dictWriter_foam.foam')
+    silent_remove(file_name_out)
+    foam_parser = FoamParser()
+    dict_read = DictReader.read(file_name_in, includes=False, parser=foam_parser)
+    assert not os.path.exists(file_name_out)
+    DictWriter.write(dict_read, file_name_out)
+    assert os.path.exists(file_name_out)
+    dict_reread = DictReader.read(file_name_out)
+    # @TODO: failing under linux: CRLF !== LF
+    assert dict_read == dict_reread
+
+
+def test_read_write_foam():
+    file_name_in = Path('test_dictWriter_foam')
+    file_name_out = Path('reread.test_dictWriter_foam.foam')
+    silent_remove(file_name_out)
+    foam_parser = FoamParser()
+    dict_read = DictReader.read(file_name_in, includes=True, parser=foam_parser)
+    assert not os.path.exists(file_name_out)
+    DictWriter.write(dict_read, file_name_out)
+    assert os.path.exists(file_name_out)
+    dict_reread = DictReader.read(file_name_out)
+    # @TODO: failing under linux: CRLF !== LF
+    assert dict_read == dict_reread
+
+
+def test_read_write_xml_without_includes():
+    file_name_in = Path('test_dictWriter_xml.xml')
+    file_name_out = Path('reread.test_dictWriter_xml.xml')
+    silent_remove(file_name_out)
+    BorgCounter.reset()
+    dict_read = DictReader.read(file_name_in, includes=False)
+    assert not os.path.exists(file_name_out)
+    DictWriter.write(dict_read, file_name_out)
+    assert os.path.exists(file_name_out)
+    BorgCounter.reset()
+    dict_reread = DictReader.read(file_name_out)
+    assert dict_read == dict_reread
+
+
+def test_read_write_xml():
+    file_name_in = Path('test_dictWriter_xml.xml')
+    file_name_out = Path('reread.test_dictWriter_xml.xml')
+    silent_remove(file_name_out)
+    BorgCounter.reset()
+    dict_read = DictReader.read(file_name_in, includes=True)
+    assert not os.path.exists(file_name_out)
+    DictWriter.write(dict_read, file_name_out)
+    assert os.path.exists(file_name_out)
+    BorgCounter.reset()
+    dict_reread = DictReader.read(file_name_out)
+    assert dict_read == dict_reread
 
 
 def test_write_mode():
@@ -178,7 +246,7 @@ def test_write_mode():
 
 
 def test_write_farn_param_dict():
-    file_name = Path('test_farnParamDict')
+    file_name = Path('test_farn_paramDict')
     test_dict = dict(
         {
             'param1': -10.0,
@@ -236,29 +304,6 @@ def test_write_farn_param_dict():
 
     # clean up
     silent_remove(file_name)
-
-
-def test_write_xml():
-    silent_remove(Path('parsed.test_dictWriter_xml'))
-    silent_remove(Path('parsed.test_dictWriter_xml.xml'))
-    BorgCounter.reset()
-    dict_read = DictReader.read(Path('test_dictWriter_xml.xml'))
-
-    parsed_file = Path('parsed.test_dictWriter_xml')
-    DictWriter.write(dict_read, parsed_file)
-    assert os.path.exists('parsed.test_dictWriter_xml')
-    assert not os.path.exists('parsed.test_dictWriter_xml.xml')
-    silent_remove(Path('parsed.test_dictWriter_xml'))
-
-    parsed_file = Path('parsed.test_dictWriter_xml.xml')
-    DictWriter.write(dict_read, parsed_file)
-    assert not os.path.exists('parsed.test_dictWriter_xml')
-    assert os.path.exists('parsed.test_dictWriter_xml.xml')
-    # silentRemove(Path('parsed.test_dictWriter_xml.xml'))
-
-    BorgCounter.reset()
-    dict_reread = DictReader.read(Path('parsed.test_dictWriter_xml.xml'))
-    assert dict_read == dict_reread
 
 
 class TestCreateTargetFileName():

@@ -122,3 +122,5 @@ parameters
         // ..and $paramG[1][2] is a reference to a specific value in the matrix
     }
 }
+nonUnderScoreVariable       'non underscore variables will be processed by all Formatters';
+_underscoreVariable         'underscore variables will be omitted by the FoamFormatter';

@@ -270,10 +270,26 @@ def test_reread_parsed_dict():
     assert not os.path.exists('parsed.parsed.test_dictReader_Paramdict')
 
 
+def test_read_foam():
+    # Prepare
+    source_file = Path('test_dictReader_foam')
+    parsed_file = create_target_file_name(source_file, 'parsed')
+    silent_remove(parsed_file)
+    # Execute
+    dict = DictReader.read(source_file)
+    # Assert
+    assert dict['Re_profile'] == 1000000.0
+    assert dict['mag_U_infty'] == 1.004
+
+
 def test_read_xml():
-    silent_remove(Path('parsed.test_dictReader_xml.xml'))
-    file_name = Path('test_dictReader_xml.xml')
-    dict = DictReader.read(file_name)
+    # Prepare
+    source_file = Path('test_dictReader_xml.xml')
+    parsed_file = create_target_file_name(source_file, 'parsed')
+    silent_remove(parsed_file)
+    # Execute
+    dict = DictReader.read(source_file)
+    # Assert
     assert '_xmlOpts' in dict
     assert len(dict['_xmlOpts']['_nameSpaces']) == 1
     assert dict['_xmlOpts']['_nameSpaces']['xs'] == 'http://www.w3.org/2001/XMLSchema'

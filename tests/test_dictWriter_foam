@@ -1,0 +1,46 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      foamDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+#include        "test_dictWriter_foam_paramDict"
+g_Earth          -9.80665;
+PI               3.141592654;
+
+rho_water        998.9;
+nu_water         1.004e-06;
+p_infty          0;
+
+L_ref            1.0;
+t_ref            0.01;
+A_ref            "$L_ref * $t_ref";
+
+Re_profile       "$Re_profile";
+
+U_infty          ("$Re_profile * $nu_water / $L_ref" 0 0);
+
+theta            "$theta";
+
+mag_U_infty      "sqrt($U_infty[0]**2 + $U_infty[1]**2 + $U_infty[2]**2)";
+
+k_init           3.1135704e-03;
+nut_init         1.139e-05;
+nuTilda_init     1.139e-05;
+omega_init       273.36;
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (1 1 2) simpleGrading (1 1 1)
+    hex (8 9 10 11 12 13 14 15) (1 1 2) edgeGrading (1 1 1 1 1 1 1 1 1 1 1 1)
+);
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
