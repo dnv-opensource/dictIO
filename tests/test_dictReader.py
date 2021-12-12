@@ -270,9 +270,9 @@ def test_reread_parsed_dict():
     assert not os.path.exists('parsed.parsed.test_dictReader_Paramdict')
 
 
-def test_dict_from_xml():
-    silent_remove(Path('parsed.test_generic.xml'))
-    file_name = Path('test_generic.xml')
+def test_read_xml():
+    silent_remove(Path('parsed.test_dictReader_xml.xml'))
+    file_name = Path('test_dictReader_xml.xml')
     dict = DictReader.read(file_name)
     assert '_xmlOpts' in dict
     assert len(dict['_xmlOpts']['_nameSpaces']) == 1
@@ -338,48 +338,6 @@ def test_read_dict_in_subfolder_with_includes_no_order_called_via_dictparser_scr
     os.system(f' python -m dictIO.cli.dictParser --quiet --output=foam {file_name}')
     assert not os.path.exists('include\\parsed.initialConditions')
     assert os.path.exists('include\\parsed.initialConditions.foam')
-
-
-def test_merge_opts(parsed_dict):
-
-    dict_in = DictReader.read(Path('test_mergeDict'))
-
-    # add key in level 0
-    dict_in.update({'key01': 'val01'})
-
-    # add key in level 1
-    dict_in.update({'key00': {'key11': 'val11'}})
-
-    # add to key in level 1
-    dict_in['key00'].update({'key10': {'key21': 'val21'}})
-
-    dict_out = deepcopy(dict_in)
-
-    # test a (before test w because otherwise w removes content in level 1)
-    DictWriter.write(dict_out, Path('parsed.test_mergeDict'), 'a')
-    test_dict = DictReader.read(Path('parsed.test_mergeDict'))
-    assert test_dict.data == {
-        'BLOCKCOMMENT000000': 'BLOCKCOMMENT000000',
-        'key00': {
-            'key10': {
-                'key20': 'val20', 'key21': 'val21'
-            }, 'key11': 'val11'
-        },
-        'key01': 'val01'
-    }
-
-    # test w
-    DictWriter.write(dict_out, Path('parsed.test_mergeDict'), 'w', order=True)
-    test_dict = DictReader.read(Path('parsed.test_mergeDict'))
-    assert test_dict.data == {
-        'BLOCKCOMMENT000000': 'BLOCKCOMMENT000000',
-        'key00': {
-            'key10': {
-                'key21': 'val21'
-            }, 'key11': 'val11'
-        },
-        'key01': 'val01'
-    }
 
 
 class SetupHelper():

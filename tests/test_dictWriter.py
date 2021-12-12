@@ -155,7 +155,7 @@ def test_read_write_foam_dict():
     #        os.system('. .OFdev ; cd $TESTFOLDER ; blockMesh')
 
 
-def test_write_option_mode():
+def test_write_mode():
     silent_remove(Path('parsed.test_dictWriter_dict'))
     dict_read = DictReader.read(Path('test_dictWriter_dict'), includes=False)
     assert not os.path.exists('parsed.test_dictWriter_dict')
@@ -238,31 +238,26 @@ def test_write_farn_param_dict():
     silent_remove(file_name)
 
 
-def test_generic_xml():
-    silent_remove(Path('parsed.test_generic'))
-    silent_remove(Path('parsed.test_generic.xml'))
+def test_write_xml():
+    silent_remove(Path('parsed.test_dictWriter_xml'))
+    silent_remove(Path('parsed.test_dictWriter_xml.xml'))
     BorgCounter.reset()
-    dict_read = DictReader.read(Path('test_generic.xml'))
+    dict_read = DictReader.read(Path('test_dictWriter_xml.xml'))
 
-    parsed_file = Path('parsed.test_generic')
+    parsed_file = Path('parsed.test_dictWriter_xml')
     DictWriter.write(dict_read, parsed_file)
-    assert os.path.exists('parsed.test_generic')
-    assert not os.path.exists('parsed.test_generic.xml')
-    silent_remove(Path('parsed.test_generic'))
+    assert os.path.exists('parsed.test_dictWriter_xml')
+    assert not os.path.exists('parsed.test_dictWriter_xml.xml')
+    silent_remove(Path('parsed.test_dictWriter_xml'))
 
-    parsed_file = Path('parsed.test_generic.xml')
+    parsed_file = Path('parsed.test_dictWriter_xml.xml')
     DictWriter.write(dict_read, parsed_file)
-    assert not os.path.exists('parsed.test_generic')
-    assert os.path.exists('parsed.test_generic.xml')
-    # silentRemove(Path('parsed.test_generic.xml'))
+    assert not os.path.exists('parsed.test_dictWriter_xml')
+    assert os.path.exists('parsed.test_dictWriter_xml.xml')
+    # silentRemove(Path('parsed.test_dictWriter_xml.xml'))
 
     BorgCounter.reset()
-    dict_reread = DictReader.read(Path('parsed.test_generic.xml'))
-    # still some slight issues with data types
-    # for index, ((i1, i2), (i3, i4)) in enumerate(zip(dict.items(), dict_reread.items())):
-    # print ('\n')
-    # print (index, '\t', i1, '\t', i2)
-    # print (index, '\t', i3, '\t', i4)
+    dict_reread = DictReader.read(Path('parsed.test_dictWriter_xml.xml'))
     assert dict_read == dict_reread
 
 

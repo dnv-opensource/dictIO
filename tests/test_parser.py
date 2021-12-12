@@ -776,7 +776,7 @@ class TestXmlParser():
 
     def test_parse_generic_xml_without_node_numbering(self):
         # Prepare XML string to be parsed
-        file_name = Path('test_generic.xml')
+        file_name = Path('test_parser_xml.xml')
         # Read file content
         str_in = ''
         with open(file_name, 'r') as f:
@@ -814,7 +814,7 @@ class TestXmlParser():
 
     def test_parse_generic_xml_with_node_numbering(self):
         # Prepare XML string to be parsed
-        file_name = Path('test_generic.xml')
+        file_name = Path('test_parser_xml.xml')
         # Read file content
         str_in = ''
         with open(file_name, 'r') as f:
