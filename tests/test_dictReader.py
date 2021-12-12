@@ -22,7 +22,7 @@ def parsed_dict():
 
 def test_merge_includes():  # sourcery skip: class-extract-method
                             # Prepare dict until and including parse_tokenized_dict()
-    dict = CppDict(Path('testDict'))
+    dict = CppDict()
     SetupHelper.prepare_dict_until(dict_to_prepare=dict)
     dict_in = deepcopy(dict.data)
                             # Preparations done.
@@ -34,11 +34,11 @@ def test_merge_includes():  # sourcery skip: class-extract-method
     DictReader._merge_includes(dict)
     dict_out = dict.data
                             # check whether test_paramDict has been merged
-    assert len(dict_out) == len(dict_in) + 7
-    assert dict_out['paramA'] == 4.0
-    assert dict_out['paramB'] == 6.0
-    assert dict_out['paramC'] == 8.0
-    assert dict_out['paramD'] == 0.72
+    assert len(dict_out) == len(dict_in) + 8
+    assert dict_out['paramA'] == 3.0
+    assert dict_out['paramB'] == 4.0
+    assert dict_out['paramC'] == 7.0
+    assert dict_out['paramD'] == 0.66
     assert dict_out['paramE'] == [0.1, 0.2, 0.4]
     assert dict_out['paramF'] == [[0.3, 0.9], [2.7, 8.1]]
     assert dict_out['paramG'] == [[10, 'fancy', 3.14, 's'], ['more', 2, 'come']]
@@ -46,13 +46,13 @@ def test_merge_includes():  # sourcery skip: class-extract-method
 
 def test_resolve_reference():
     # Prepare dict until and including ()
-    dict = CppDict(Path('testDict'))
+    dict = CppDict()
     SetupHelper.prepare_dict_until(dict_to_prepare=dict, until_step=0)
     # test resolution of non-indexed references
-    assert DictReader._resolve_reference('$paramA', dict) == 4.0
-    assert DictReader._resolve_reference('$paramB', dict) == 6.0
-    assert DictReader._resolve_reference('$paramC', dict) == 8.0
-    assert DictReader._resolve_reference('$paramD', dict) == 0.72
+    assert DictReader._resolve_reference('$paramA', dict) == 3.0
+    assert DictReader._resolve_reference('$paramB', dict) == 4.0
+    assert DictReader._resolve_reference('$paramC', dict) == 7.0
+    assert DictReader._resolve_reference('$paramD', dict) == 0.66
     assert DictReader._resolve_reference('$paramE[0]', dict.variables) == 0.1
 
     paramE = DictReader._resolve_reference('$paramE', dict)     # noqa: N806
@@ -102,7 +102,7 @@ def test_resolve_reference():
 
 def test_eval_expressions():
     # Prepare dict until and including ()
-    dict = CppDict(Path('testDict'))
+    dict = CppDict()
     SetupHelper.prepare_dict_until(dict_to_prepare=dict, until_step=0)
     dict_in = deepcopy(dict.data)
     assert dict_in['references']['reference']['value'][:10] == 'EXPRESSION'             # $paramA
@@ -111,35 +111,35 @@ def test_eval_expressions():
     assert dict_in['references']['expression3']['value'][:10] == 'EXPRESSION'           # "$paramC + $paramD"
     assert dict_in['references']['expressionE']['value'][:10] == 'EXPRESSION'           # $paramE[0]
     assert dict_in['references']['expressionF']['value'][:10] == 'EXPRESSION'           # $paramF[0][0]
-    assert dict_in['references']['expressionG1']['value'][:10] == 'EXPRESSION'          # "$paramG[1][2]"
+    assert dict_in['references']['expressionG1']['value'][:10] == 'EXPRESSION'          # "$paramG"
     assert dict_in['references']['expressionG2']['value'][:10] == 'EXPRESSION'          # "$paramG[0]"
-    assert dict_in['references']['expressionG3']['value'][:10] == 'EXPRESSION'          # "$paramG"
+    assert dict_in['references']['expressionG3']['value'][:10] == 'EXPRESSION'          # "$paramG[1][2]"
                                                                                         # Preparations done.
     DictReader._eval_expressions(dict)
     dict_out = dict.data
                                                                                         # check whether references have been resolved
-    assert dict_out['references']['reference']['value'] == 4.0                          # 4.0
-    assert dict_out['references']['expression1']['value'] == 6.0                        # 6.0
-    assert dict_out['references']['expression2']['value'] == 12.0                       # 8.0 + 4
-    assert dict_out['references']['expression3']['value'] == 8.72                       # 8.0 + 0.72
+    assert dict_out['references']['reference']['value'] == 3.0                          # 3.0
+    assert dict_out['references']['expression1']['value'] == 4.0                        # 4.0
+    assert dict_out['references']['expression2']['value'] == 11.0                       # 7.0 + 4
+    assert dict_out['references']['expression3']['value'] == 7.66                       # 7.0 + 0.66
     assert dict_out['references']['expressionE']['value'] == 0.1                        # paramE[0]
     assert dict_out['references']['expressionF']['value'] == 0.3                        # paramF[0][0]
-    assert dict_out['references']['expressionG1']['value'] == 'come'                    # paramG[1][2]
-    assert dict_out['references']['expressionG2']['value'] == [10, 'fancy', 3.14, 's']  # paramG[0]
-    assert dict_out['references']['expressionG3']['value'] == [
+    assert dict_out['references']['expressionG1']['value'] == [
         [10, 'fancy', 3.14, 's'], ['more', 2, 'come']
     ]                                                                                   # paramG
+    assert dict_out['references']['expressionG2']['value'] == [10, 'fancy', 3.14, 's']  # paramG[0]
+    assert dict_out['references']['expressionG3']['value'] == 'come'                    # paramG[1][2]
 
 
 def test_eval_expressions_with_included_keys():
     # test keys with the same name as included keys
-    file_name = Path('test_exprsDict')
+    file_name = Path('test_dictReader_dict')
     dict = DictReader.read(file_name, includes=True)
     dict_out = dict.data
 
     # root keys
     assert dict_out['keyA'] == 3.0                          # $paramA
-    assert dict_out['keyB'] == 4.0                          # $paramB
+    assert dict_out['keyB'] == 4.0                          # "$paramB"
     assert dict_out['keyC'] == 7.0                          # "$paramC"
     assert dict_out['keyD'] == 4.16                         # "$paramD+$paramC/2"
     assert dict_out['keyE'] == 6.67                         # "$paramC-$paramD/2"
@@ -155,7 +155,7 @@ def test_eval_expressions_with_included_keys():
 
     # different key names
     assert dict_out['differentKeyNames']['keyA'] == 3.0                         # $paramA
-    assert dict_out['differentKeyNames']['keyB'] == '$paramB'                   # '$paramB'
+    assert dict_out['differentKeyNames']['keyB'] == 4.0                         # "$paramB"
     assert dict_out['differentKeyNames']['keyC'] == 7.0                         # "$paramC"
     assert dict_out['differentKeyNames']['keyD'] == 4.16                        # "$paramD+$paramC/2"
     assert dict_out['differentKeyNames']['keyE'] == 6.67                        # "$paramC-$paramD/2"
@@ -173,7 +173,7 @@ def test_eval_expressions_with_included_keys():
     # Be aware that in the nested dict 'sameKeyNames', paramD becomes reaasigned.
     # This overwrites paramD from included dict due to the flat lookup table provided through dict.variables
     assert dict_out['sameKeyNames']['paramA'] == 3.0                        # $paramA;
-    assert dict_out['sameKeyNames']['paramB'] == '$paramB'                  # '$paramB';
+    assert dict_out['sameKeyNames']['paramB'] == 4.0                        # "$paramB";
     assert dict_out['sameKeyNames']['paramC'] == 7.0                        # "$paramC";
     assert dict_out['sameKeyNames']['paramD'] == 10.5                       # "$paramC+$paramC/2";
     assert dict_out['sameKeyNames']['paramE'] == 0.2                        # "$paramE[1]";
@@ -186,21 +186,21 @@ def test_eval_expressions_with_included_keys():
     assert dict_out['keysWithNestedRefs']['nestKeyD'] == 35.4                           # "$paramC / $paramE[1] + $paramE[2]";
     assert dict_out['keysWithNestedRefs']['nestKeyE'] == 0.4                            # "$paramE[2]";
     assert dict_out['keysWithNestedRefs']['nestKeyF'] == [[0.3, 0.9], [2.7, 8.1]]       # "$paramF";
-    assert dict_out['keysWithNestedRefs']['nestKeyG'] == 1.2                            # "$paramG";
-    assert dict_out['keysWithNestedRefs']['nestKeyH'] == 3.4                            # "$paramH[1]";
-    assert dict_out['keysWithNestedRefs']['nestKeyI'] == 5.6                            # "$paramI[0][1]";
+    assert dict_out['keysWithNestedRefs']['nestKeyH'] == 1.2                            # "$paramH";
+    assert dict_out['keysWithNestedRefs']['nestKeyI'] == 3.4                            # "$paramI[1]";
+    assert dict_out['keysWithNestedRefs']['nestKeyJ'] == 5.6                            # "$paramJ[0][1]";
     assert dict_out['keysWithNestedRefs']['nestParamA'] == 3.0                          # "$paramA";
     assert dict_out['keysWithNestedRefs']['nestParamB'] == 4.0                          # "$paramB";
     assert dict_out['keysWithNestedRefs']['nestParamC'] == 7.0                          # "$paramC";
     assert dict_out['keysWithNestedRefs']['nestParamD'] == 0.66                         # "$paramD";
     assert dict_out['keysWithNestedRefs']['nestParamE'] == [0.1, 0.2, 0.4]              # "$paramE";
     assert dict_out['keysWithNestedRefs']['nestParamF'] == 0.3                          # "$paramF[0][0]";
-    assert dict_out['keysWithNestedRefs']['nestParamG'] == 1.2                          # "$paramG";
-    assert dict_out['keysWithNestedRefs']['nestParamH'] == [2.3, 3.4]                   # "$paramH";
-    assert dict_out['keysWithNestedRefs']['nestParamI'] == [[4.5, 5.6], [6.7, 7.8]]     # "$paramI";
-    assert dict_out['keysWithNestedRefs']['nestParamJ'] == 0.4                          # "$nestKeyE" == "$paramE[2]";
-    assert dict_out['keysWithNestedRefs']['nestParamK'] == 7.0                          # "$paramE[2] * 10 + $paramA";
-    assert dict_out['keysWithNestedRefs']['nestParamL'] == 14.8                         # "$nestParamI[1][1] + $paramC";
+    assert dict_out['keysWithNestedRefs']['nestParamH'] == 1.2                          # "$paramH";
+    assert dict_out['keysWithNestedRefs']['nestParamI'] == [2.3, 3.4]                   # "$paramI";
+    assert dict_out['keysWithNestedRefs']['nestParamJ'] == [[4.5, 5.6], [6.7, 7.8]]     # "$paramJ";
+    assert dict_out['keysWithNestedRefs']['nestParamK'] == 0.4                          # "$nestKeyE" == "$paramE[2]";
+    assert dict_out['keysWithNestedRefs']['nestParamL'] == 7.0                          # "$paramE[2] * 10 + $paramA";
+    assert dict_out['keysWithNestedRefs']['nestParamM'] == 14.8                         # "$nestParamJ[1][1] + $paramC";
 
     # keys that do not point to a single expression, but a list of expressions
     assert dict_out['keysPointingToAListOfExpressions']['keyToListA'][0] == 3.0     # $paramA;
@@ -208,12 +208,12 @@ def test_eval_expressions_with_included_keys():
     assert dict_out['keysPointingToAListOfExpressions']['keyToListA'][2] == 2
     assert dict_out['keysPointingToAListOfExpressions']['keyToListB'][0] == 4.0     # "$paramB";
     assert dict_out['keysPointingToAListOfExpressions']['keyToListL'][
-        0] == 14.8                                                                  # "$nestParamI[1][1] + $paramC";
+        0] == 14.8                                                                  # "$nestParamJ[1][1] + $paramC";
 
 
 def test_reparse_string_literals():
     # test keys with the same name as imported keys
-    file_name = Path('test_exprsDict')
+    file_name = Path('test_dictReader_dict')
     dict = DictReader.read(file_name, includes=True)
     parsed_file_name = create_target_file_name(file_name, 'parsed')
     silent_remove(parsed_file_name)
@@ -250,24 +250,24 @@ def test_remove_include_keys():
 
 
 def test_reread_parsed_dict():
-    silent_remove(Path('parsed.test_paramDict'))
-    silent_remove(Path('parsed.test_dict'))
-    silent_remove(Path('parsed.parsed.test_paramDict'))
-    silent_remove(Path('parsed.parsed.test_dict'))
-    file_name = Path('test_dict')
+    silent_remove(Path('parsed.test_dictReader_dict'))
+    silent_remove(Path('parsed.test_dictReader_Paramdict'))
+    silent_remove(Path('parsed.parsed.test_dictReader_dict'))
+    silent_remove(Path('parsed.parsed.test_dictReader_Paramdict'))
+    file_name = Path('test_dictReader_dict')
     dict = DictReader.read(file_name)
     parsed_file_name = create_target_file_name(file_name, 'parsed')
     silent_remove(parsed_file_name)
     DictWriter.write(dict, parsed_file_name)
-    assert not os.path.exists('parsed.test_paramDict')
-    assert os.path.exists('parsed.test_dict')
-    file_name = Path('parsed.test_dict')
+    assert os.path.exists('parsed.test_dictReader_dict')
+    assert not os.path.exists('parsed.test_dictReader_Paramdict')
+    file_name = Path('parsed.test_dictReader_dict')
     dict = DictReader.read(file_name)
-    assert not os.path.exists('parsed.test_paramDict')
-    assert os.path.exists('parsed.test_dict')
+    assert os.path.exists('parsed.test_dictReader_dict')
+    assert not os.path.exists('parsed.test_dictReader_Paramdict')
     # no piping parsed prefix anymore: parsed.parsedtest_paramDict
-    assert not os.path.exists('parsed.parsed.test_paramDict')
-    assert not os.path.exists('parsed.parsed.test_dict')
+    assert not os.path.exists('parsed.parsed.test_dictReader_dict')
+    assert not os.path.exists('parsed.parsed.test_dictReader_Paramdict')
 
 
 def test_dict_from_xml():

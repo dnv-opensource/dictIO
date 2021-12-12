@@ -22,7 +22,7 @@ class TestCppFormatter():
 
     def test_to_string(self):
         # Prepare dict until and including ()
-        dict = CppDict(Path('testDict'))
+        dict = CppDict()
         SetupHelper.prepare_dict(dict_to_prepare=dict)
         dict_in = deepcopy(dict.data)
         formatter = CppFormatter()
@@ -41,8 +41,48 @@ class TestCppFormatter():
         str_assert = str_in
         str_out = formatter.format_type(str_in)
         assert str_out == str_assert
+        str_in = '0.1'
+        str_assert = str_in
+        str_out = formatter.format_type(str_in)
+        assert str_out == str_assert
+        str_in = '2'
+        str_assert = str_in
+        str_out = formatter.format_type(str_in)
+        assert str_out == str_assert
+        str_in = '+0.1'
+        str_assert = str_in
+        str_out = formatter.format_type(str_in)
+        assert str_out == str_assert
+        str_in = '+2'
+        str_assert = str_in
+        str_out = formatter.format_type(str_in)
+        assert str_out == str_assert
+        str_in = '-0.1'
+        str_assert = str_in
+        str_out = formatter.format_type(str_in)
+        assert str_out == str_assert
+        str_in = '-2'
+        str_assert = str_in
+        str_out = formatter.format_type(str_in)
+        assert str_out == str_assert
         str_in = '$keyword'
-        str_assert = '\'' + str_in + '\''
+        str_assert = str_in
+        str_out = formatter.format_type(str_in)
+        assert str_out == str_assert
+        str_in = '$keyword1'
+        str_assert = str_in
+        str_out = formatter.format_type(str_in)
+        assert str_out == str_assert
+        str_in = '$keyword+1'
+        str_assert = '"' + str_in + '"'
+        str_out = formatter.format_type(str_in)
+        assert str_out == str_assert
+        str_in = '$keyword - 3.0'
+        str_assert = '"' + str_in + '"'
+        str_out = formatter.format_type(str_in)
+        assert str_out == str_assert
+        str_in = '$keyword1 * $keyword2'
+        str_assert = '"' + str_in + '"'
         str_out = formatter.format_type(str_in)
         assert str_out == str_assert
         str_in = 'a string with spaces'
@@ -57,11 +97,15 @@ class TestCppFormatter():
         str_assert = '\'' + str_in + '\''
         str_out = formatter.format_type(str_in)
         assert str_out == str_assert
+        str_in = ''
+        str_assert = '\'' + str_in + '\''
+        str_out = formatter.format_type(str_in)
+        assert str_out == str_assert
 
     def test_insert_block_comments(self):                                                           # sourcery skip: class-extract-method
                                                                                                     # Prepare dict until and including ()
-        dict = CppDict(Path('testDict'))
-        SetupHelper.prepare_dict(dict_to_prepare=dict, file_to_read='test_simpleDict')
+        dict = CppDict()
+        SetupHelper.prepare_dict(dict_to_prepare=dict, file_to_read='test_formatter_dict')
         formatter = CppFormatter()
         block_comment_in = (
             '/*---------------------------------*- C++ -*----------------------------------*\\\n'
@@ -160,8 +204,8 @@ class TestCppFormatter():
 
     def test_insert_includes(self):
         # Prepare dict until and including ()
-        dict = CppDict(Path('testDict'))
-        SetupHelper.prepare_dict(dict_to_prepare=dict, file_to_read='test_simpleDict')
+        dict = CppDict()
+        SetupHelper.prepare_dict(dict_to_prepare=dict, file_to_read='test_formatter_dict')
         include_line_in = "#include 'test_paramDict'"
         include_path_in = Path('test_paramDict')
         formatter = CppFormatter()
@@ -184,8 +228,8 @@ class TestCppFormatter():
 
     def test_insert_line_comments(self):
         # Prepare dict until and including ()
-        dict = CppDict(Path('testDict'))
-        SetupHelper.prepare_dict(dict_to_prepare=dict, file_to_read='test_simpleDict')
+        dict = CppDict()
+        SetupHelper.prepare_dict(dict_to_prepare=dict, file_to_read='test_formatter_dict')
         line_comment_in = "// This is a line comment"
         formatter = CppFormatter()
         # Prepare input templates
@@ -270,7 +314,7 @@ class TestCppFormatter():
                 'edgeGrading', [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
             ]
         }
-        dict = CppDict(Path('testDict'))
+        dict = CppDict()
         dict_in = deepcopy(dict.data)
         dict_in.update(test_obj)
         formatter = CppFormatter()
@@ -286,7 +330,7 @@ class TestFoamFormatter():
 
     def test_to_string_does_not_contain_underscores(self):
         # Prepare dict until and including ()
-        dict = DictReader.read(Path('test_dict'), comments=False)
+        dict = DictReader.read(Path('test_formatter_dict'), comments=False)
         formatter = FoamFormatter()
         # Execute
         str_out = str()
@@ -295,7 +339,7 @@ class TestFoamFormatter():
 
     def test_to_string_does_not_contain_single_quotes(self):
         # Prepare dict until and including ()
-        dict = DictReader.read(Path('test_dict'), comments=True)
+        dict = DictReader.read(Path('test_formatter_dict'), comments=True)
         formatter = FoamFormatter()
         # Execute
         str_out = str()
@@ -325,11 +369,7 @@ class TestXmlFormatter():
 
     def test_to_string(self):
         # Prepare dict until and including ()
-        # source_file = Path('test_demoCaseDict')
-        source_file = Path('test_dict')
-        # source_file = Path('testDict')
-        # dict = CppDict(source_file)
-        # SetupHelper.prepare_dict(dict_to_prepare=dict)
+        source_file = Path('test_formatter_dict')
         dict = DictReader.read(source_file)
         xml_opts = {
             '_nameSpaces': {
@@ -353,7 +393,7 @@ class TestXmlFormatter():
 class SetupHelper():
 
     @staticmethod
-    def prepare_dict(dict_to_prepare: CppDict, file_to_read='test_dict'):
+    def prepare_dict(dict_to_prepare: CppDict, file_to_read='test_formatter_dict'):
 
         file_name = Path.cwd() / file_to_read
 

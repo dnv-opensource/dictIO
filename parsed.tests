@@ -1,18 +1,3 @@
 /*---------------------------------*- C++ -*----------------------------------*\
 filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
 \*----------------------------------------------------------------------------*/
-key8
-{
-    key8j
-    {
-        key8jI val8jI;
-        key8jA val8jA;
-        key8jB val8jB;
-    }
-    key8i val8i;
-    key8a val8a;
-    key8b val8b;
-}
-key9 val9;
-key1 val1;
-key2 val2;

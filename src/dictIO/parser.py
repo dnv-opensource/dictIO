@@ -1,4 +1,5 @@
 import re
+import os
 from pathlib import Path
 from typing import Any, MutableMapping, MutableSequence, Union
 from xml.etree.ElementTree import Element
@@ -49,7 +50,7 @@ class Parser():
 
     def parse_file(
         self,
-        source_file: Path,
+        source_file: Union[str, os.PathLike[str]],
         target_dict: CppDict = None,
         comments: bool = True,
     ) -> CppDict:
@@ -58,6 +59,13 @@ class Parser():
         Parses a file and deserializes it into a dict.
         Return type by default is CppDict, unless a specific Parser implementation supports a different dict type.
         '''
+        # Make sure source_file argument is of type Path. If not, cast it to Path type.
+        source_file = source_file if isinstance(source_file, Path) else Path(source_file)
+        # @TODO: Activate raising FileNotFoundError in a new branch and create pull request for it.
+        #        CLAROS, 2021-12-12
+        # if not source_file.exists():
+        #     raise FileNotFoundError(source_file)
+
         self.source_file = source_file
 
         # Check whether file to read from exists.
@@ -73,8 +81,11 @@ class Parser():
 
         # Create target dict in case no specific target dict was passed in
         if target_dict is None:
-            # logger.warning('ParserparseFile(): Target dict is None. Will create new target dict.')
             target_dict = CppDict(source_file)
+        else:
+            target_dict.source_file = source_file.absolute()
+            target_dict.path = source_file.parent
+            target_dict.name = source_file.name
 
         # one final check only
         # whether a file exists (can also have zero content)
@@ -393,7 +404,7 @@ class CppParser(Parser):
                 include_file_name = re.sub(r'(^\s*#\s*include\s*|\s*$)', '', line)
                 include_file_name = __class__.remove_quotes_from_string(include_file_name)
 
-                include_file = Path.joinpath(dict.source_file.parent, include_file_name)
+                include_file = Path.joinpath(dict.path, include_file_name)
 
                 include_directive = line
                 if line[-1] == '\n':

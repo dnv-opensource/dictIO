@@ -24,14 +24,16 @@ class CppDict(UserDict):
     def __init__(self, file: Union[str, os.PathLike[str]] = None):
         super().__init__()  # call base class constructor
 
-        # In case no file name was passed, have it default to local folder
-        file = file or Path()
-        # Make sure file argument is of type Path. If not, cast it to Path type.
-        file = file if isinstance(file, Path) else Path(file)
+        self.source_file = None
+        self.path = Path.cwd()
+        self.name = ''
 
-        self.source_file = Path.joinpath(Path.cwd(), file)
-        self.path = self.source_file.parent
-        self.name = self.source_file.name
+        if file:
+            # Make sure file argument is of type Path. If not, cast it to Path type.
+            file = file if isinstance(file, Path) else Path(file)
+            self.source_file = file.absolute()
+            self.path = self.source_file.parent
+            self.name = self.source_file.name
 
         self.line_content = []
         self.block_content = ''

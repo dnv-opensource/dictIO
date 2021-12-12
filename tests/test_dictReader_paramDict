@@ -2,14 +2,16 @@
 filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
 \*----------------------------------------------------------------------------*/
 
-paramA                     4.0;
-paramB                     6.0;
-paramC                     8.0;
-paramD                     0.72;
+paramA                     3.0;
+paramB                     4.0;
+paramC                     7.0;
+paramD                     0.66;
+
 paramE
 (
     0.1 0.2 0.4
 );
+
 paramF
 (
     (
@@ -19,6 +21,7 @@ paramF
         2.7 8.1
     )
 );
+
 paramG
 (
     (
@@ -28,3 +31,21 @@ paramG
         'more' 2 'come'
     )
 );
+
+dictA
+{
+    paramH                 1.2;
+    paramI
+    (
+        2.3 3.4
+    );
+    paramJ
+    (
+        (
+            4.5 5.6
+        )
+        (
+            6.7 7.8
+        )
+    );
+}

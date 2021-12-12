@@ -280,45 +280,51 @@ class TestParser():
         assert list_out == list_assert
         assert list_out[3] == list_assert[3]
 
+    def test_parse_file_into_existing_dict(self):
+        # Prepare
+        target_dict = CppDict()
+        source_file = Path('test_parser_dict')
+        parser = Parser()
+        # Execute
+        parser.parse_file(source_file, target_dict)
+        # Assert
+        assert target_dict.source_file == source_file.absolute()
+        assert target_dict.path == source_file.parent
+        assert target_dict.name == source_file.name
+
 
 class TestCppParser():
 
     def test_convert_line_content_to_block_content(self):
-        dict = CppDict(Path('testDict'))
+        dict = CppDict()
         parser = CppParser()
         # Three lines with line endings
         line1 = 'line 1\n'
         line2 = 'line 2\n'
         line3 = 'line 3\n'
-        assert dict.line_content == []
         dict.line_content.extend([line1, line2, line3])
-        assert dict.block_content == ''
         parser.convert_line_content_to_block_content(dict)
         assert dict.block_content == 'line 1\nline 2\nline 3\n'
 
     def test_remove_line_endings_from_block_content(self):
-        dict = CppDict(Path('testDict'))
+        dict = CppDict()
         parser = CppParser()
         # Three lines with line endings
         line1 = 'line 1\n'
         line2 = 'line 2\n'
         line3 = 'line 3\n'
-        assert dict.line_content == []
         dict.line_content.extend([line1, line2, line3])
-        assert dict.block_content == ''
         parser.convert_line_content_to_block_content(dict)
         parser.remove_line_endings_from_block_content(dict)
         assert dict.block_content == 'line 1 line 2 line 3'
 
     def test_extract_line_comments(self):
-        dict = CppDict(Path('testDict'))
+        dict = CppDict()
         parser = CppParser()
         line1 = 'a line with no line comment\n'
         line2 = '//a line comment\n'
         line3 = 'a line with //an inline comment\n'
         line4 = 'a line with no line comment\n'
-        assert dict.line_content == []
-        assert dict.line_comments == {}
         dict.line_content.extend([line1, line2, line3, line4])
         assert len(dict.line_content) == 4
         parser.extract_line_comments(dict, comments=True)
@@ -330,7 +336,7 @@ class TestCppParser():
             assert re.search(str(r'//'), str(line)) is not None
 
     def test_extract_includes(self):
-        dict = CppDict(Path('testDict'))
+        dict = CppDict()
         parser = CppParser()
         line1 = 'a line with no include directive\n'
         line2 = '#include testDict\n'
@@ -339,8 +345,6 @@ class TestCppParser():
         line4 = '   #include testDict   \n'
         line5 = '   # include testDict   \n'
         line6 = 'a line with no include directive\n'
-        assert dict.line_content == []
-        assert dict.includes == {}
         dict.line_content.extend([line1, line2, line3, line4, line5, line6])
         assert len(dict.line_content) == 6
         parser.extract_includes(dict)
@@ -358,7 +362,7 @@ class TestCppParser():
             assert path == path_assert
 
     def test_extract_string_literals(self):
-        dict = CppDict(Path('testDict'))
+        dict = CppDict()
         parser = CppParser()
         text_block_in = (
             'This is a text block\n'
@@ -388,8 +392,6 @@ class TestCppParser():
             'And here we close our small test with a final line with no string literal at all'
         )
 
-        assert dict.block_content == ''
-        assert dict.string_literals == {}
         dict.block_content = text_block_in
         parser.extract_string_literals(dict)
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
@@ -405,7 +407,7 @@ class TestCppParser():
                     )[4] == 'This line is nothing else than a string literal5'
 
     def test_extract_block_comments(self):
-        dict = CppDict(Path('testDict'))
+        dict = CppDict()
         parser = CppParser()
         text_block_in = (
             'This is a text block\n'
@@ -427,8 +429,6 @@ class TestCppParser():
             'in the form B L O C K C O M M E N T 0 0 0 0 0 0 .'
         )
 
-        assert dict.block_content == ''
-        assert dict.block_comments == {}
         dict.block_content = text_block_in
         parser.extract_block_comments(dict, comments=True)
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
@@ -444,30 +444,26 @@ class TestCppParser():
     def test_extract_expressions(self):
         dict = CppDict()
         parser = CppParser()
-        # key_8 is unfortunately not recogniset as string in this test here,
-        # for dictionary with given
-        # key '$bvalue';
-        # it works properly
         text_block_in = (
             'This is a text block\n'
             'with multiple lines. Within this text block, there are key value pairs where the value\n'
             'is a string surrounded by double quotes and containing at least one reference to a variable starting with $.\n'
             'Such strings are identified as expressions. Expressions will be evaluated by DictReader.\n'
             'The following examples will be identified as expressions:\n'
-            'key_1    "$varName1"\n'
-            '   key_2                        \"$varName2 + 4\"\n'
-            '   key_3                        \"4 + $varName2\"\n'
-            '   key_4                        \"$varName2 + $varName3\" and some blabla thereafter\n'
-            '   key_5                        \"$varName1 + $varName2 + $varName3\" and some blabla thereafter\n'
-            '   key_6                        \"$varName2 + $varName3 + $varName1\" and some blabla thereafter\n'
-            'key_7    \"not_a_nExpression4\"\n'
-            'extract_expressions() will extract such expressions and substitute them with a placeholder\n'
+            '   key_1       "$varName1"\n'
+            '   key_2       "$varName2 + 4"\n'
+            '   key_3       "4 + $varName2"\n'
+            '   key_4       "$varName2 + $varName3" and some blabla thereafter\n'
+            '   key_5       "$varName1 + $varName2 + $varName3" and some blabla thereafter\n'
+            '   key_6       "$varName2 + $varName3 + $varName1" and some blabla thereafter\n'
+            '   key_7       $varName1\n'
+            'The following example will NOT be identified as expression but as string literal:\n'
+            '   key_8       \'$varName1\'\n'
+            '   key_9       "not_a_nExpression4"\n'
+            'extract_expressions() will extract expressions and substitute them with a placeholder\n'
             'in the form E X P R E S S I O N 0 0 0 0 0 0.'
             'The actual evaluation of an expression is not part of extract_expressions(). The evaluation is done within ().'
         )
-        # '   key_5                        \"REFERENCE000001 + $varName3\" and some blabla thereafter\n'
-        # '   key_6                        \"REFERENCE000001 + REFERENCE000002\" and some blabla thereafter\n'
-        # 'key_8    \'$not_a_nExpression5\'\n'
 
         text_block_assert = (
             'This is a text block\n'
@@ -475,30 +471,28 @@ class TestCppParser():
             'is a string surrounded by double quotes and containing at least one reference to a variable starting with $.\n'
             'Such strings are identified as expressions. Expressions will be evaluated by DictReader.\n'
             'The following examples will be identified as expressions:\n'
-            'key_1    EXPRESSION000000\n'
-            '   key_2                        EXPRESSION000000\n'
-            '   key_3                        EXPRESSION000000\n'
-            '   key_4                        EXPRESSION000000 and some blabla thereafter\n'
-            '   key_5                        EXPRESSION000000 and some blabla thereafter\n'
-            '   key_6                        EXPRESSION000000 and some blabla thereafter\n'
-            'key_7    \"not_a_nExpression4\"\n'
-            'extract_expressions() will extract such expressions and substitute them with a placeholder\n'
+            '   key_1       EXPRESSION000000\n'
+            '   key_2       EXPRESSION000000\n'
+            '   key_3       EXPRESSION000000\n'
+            '   key_4       EXPRESSION000000 and some blabla thereafter\n'
+            '   key_5       EXPRESSION000000 and some blabla thereafter\n'
+            '   key_6       EXPRESSION000000 and some blabla thereafter\n'
+            '   key_7       EXPRESSION000000\n'
+            'The following example will NOT be identified as expression but as string literal:\n'
+            '   key_8       STRINGLITERAL000000\n'
+            '   key_9       "not_a_nExpression4"\n'
+            'extract_expressions() will extract expressions and substitute them with a placeholder\n'
             'in the form E X P R E S S I O N 0 0 0 0 0 0.'
             'The actual evaluation of an expression is not part of extract_expressions(). The evaluation is done within ().'
         )
-        # '   key_5                        EXPRESSION000000 and some blabla thereafter\n'
-        # '   key_6                        EXPRESSION000000 and some blabla thereafter\n'
-        # 'key_8    \'$not_a_nExpression5\'\n'
 
-        assert dict.block_content == ''
-        assert dict.expressions == {}
         dict.block_content = text_block_in
         parser.extract_string_literals(dict)
         parser.extract_expressions(dict)
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
         assert text_block_out == text_block_assert
         string_diff(text_block_out, text_block_assert)
-        assert len(dict.expressions) == 6
+        assert len(dict.expressions) == 7
 
         assert list(dict.expressions.values())[0]['name'][:10] == 'EXPRESSION'
         assert list(dict.expressions.values())[0]['expression'] == '$varName1'
@@ -520,8 +514,11 @@ class TestCppParser():
         assert list(dict.expressions.values()
                     )[5]['expression'] == '$varName2 + $varName3 + $varName1'
 
+        assert list(dict.expressions.values())[6]['name'][:10] == 'EXPRESSION'
+        assert list(dict.expressions.values())[6]['expression'] == '$varName1'
+
     def test_separate_delimiters(self):
-        dict = CppDict(Path('testDict'))
+        dict = CppDict()
         parser = CppParser()
         text_block_in = (
             'This is a text block\n'
@@ -538,7 +535,6 @@ class TestCppParser():
             'delimiters burried between other text: bla{bla}bla(bla)bla<bla>bla;bla,bla\n'
             'And here we close our small test with a final line with no delimiter at all'
         )
-
         text_block_assert = (
             'This is a text block '
             'with multiple lines. Within this text block there are distinct chars that shall be identified as delimiters. '
@@ -554,12 +550,10 @@ class TestCppParser():
             'delimiters burried between other text: bla { bla } bla ( bla ) bla < bla > bla ; bla , bla '
             'And here we close our small test with a final line with no delimiter at all'
         )
-
-        assert dict.block_content == ''
-        # assert dict.delimiters == ['{','}','[',']','(',')','<','>',';',',']
-        assert dict.delimiters == ['{', '}', '(', ')', '<', '>', ';', ',']
         dict.block_content = text_block_in
+        # Execute
         parser.separate_delimiters(dict, dict.delimiters)
+        # Assert
         assert dict.block_content == text_block_assert
         string_diff(dict.block_content, text_block_assert)
         # In addition, test whether re.split('\s', block_content) results in tokens containing one single word each
@@ -570,7 +564,8 @@ class TestCppParser():
             assert len(token) > 0
 
     def test_determine_token_hierarchy(self):
-        dict = CppDict(Path('testDict'))
+        # Prepare
+        dict = CppDict()
         parser = CppParser()
         text_block = (
             'level0 { level1 { level2 { level3 } level2 } level1 } level0\n'
@@ -579,55 +574,121 @@ class TestCppParser():
         )
         tokens = re.split(r'\s', text_block)
         tokens_in = [(0, token) for token in tokens]
-
         levels_assert = [0, 0, 1, 1, 2, 2, 3, 2, 2, 1, 1, 0, 0] * 3
         tokens_assert = list(zip(levels_assert, tokens))
-
         dict.tokens = tokens_in
+        # Execute
         parser.determine_token_hierarchy(dict)
+        # Assert
         assert dict.tokens == tokens_assert
 
-    def test_parse_tokenized_dict_simple_dict(self):
-        # Prepare dict until and including determine_token_hierarchy()
-        dict = CppDict(Path('testDict'))
-        parser = CppParser()
-        SetupHelper.prepare_dict_until(
-            dict_to_prepare=dict, until_step=9, file_to_read='test_simpleDict'
-        )
-        # Execute
-        dict_out = parser.parse_tokenized_dict(dict, dict.tokens, level=0)
-        # check structure of the dict
-        assert len(dict_out) == 1                               # parameters (level 0)
-        assert len(dict_out['parameters']) == 4                 # parameterA,B,C,D (level 1)
-        assert len(dict_out['parameters']['parameterA']) == 2   # name,value (level 2)
-        assert len(dict_out['parameters']['parameterB']) == 2
-        assert len(dict_out['parameters']['parameterC']) == 2
-        assert len(dict_out['parameters']['parameterD']) == 2
-                                                                # check some selected keys
-        assert dict_out['parameters']['parameterA']['name'][:13] == 'STRINGLITERAL'
-        assert dict_out['parameters']['parameterB']['value'] == 2.0
-        assert dict_out['parameters']['parameterC']['value'][:10] == 'EXPRESSION'
-        assert dict_out['parameters']['parameterD']['value'][:10] == 'EXPRESSION'
-
-    def test_parse_tokenized_dict_config_dict(self):
-        # Prepare dict
+    def test_parse_tokenized_dict(self):
+        # Prepare
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
-
-        # assert structure of the dict
-        assert len(dict_out) == 9
+        # Assert
+        assert len(dict_out) == 10
         assert list(dict_out.keys())[0][:12] == 'BLOCKCOMMENT'
         assert list(dict_out.keys())[1][:7] == 'INCLUDE'
         assert list(dict_out.keys())[2][:11] == 'LINECOMMENT'
         assert list(dict_out.keys())[3] == 'emptyDict'
         assert list(dict_out.keys())[4] == 'emptyList'
-        assert list(dict_out.keys())[5] == 'exampleDict'
-        assert list(dict_out.keys())[6] == 'numerals'
-        assert list(dict_out.keys())[7] == 'strings'
+        assert list(dict_out.keys())[5] == 'numerals'
+        assert list(dict_out.keys())[6] == 'strings'
+        assert list(dict_out.keys())[7] == 'nesting'
         assert list(dict_out.keys())[8] == 'references'
+        assert list(dict_out.keys())[9] == 'theKeyPitfall'
+
+    def test_parse_tokenized_dict_numerals(self):
+        # Prepare
+        dict_in = CppDict()
+        SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
+        parser = CppParser()
+        # Execute
+        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        # Assert
+        assert len(dict_out['numerals']) == 3   # int1,int2,float1
+        assert isinstance(dict_out['numerals']['int1'], int)
+        assert isinstance(dict_out['numerals']['int2'], int)
+        assert isinstance(dict_out['numerals']['float1'], float)
+        assert dict_out['numerals']['int1'] == 0
+        assert dict_out['numerals']['int2'] == 120
+        assert dict_out['numerals']['float1'] == 3.5
+
+    def test_parse_tokenized_dict_strings(self):
+        # Prepare
+        dict_in = CppDict()
+        SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
+        parser = CppParser()
+        # Execute
+        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        # Assert
+        assert len(dict_out['strings']) == 1
+        assert dict_out['strings']['listWithStrings'][0][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][1][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][2][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][3][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][4][:13] == 'STRINGLITERAL'
+
+    def test_parse_tokenized_dict_nesting(self):
+        # Prepare
+        dict_in = CppDict()
+        SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
+        parser = CppParser()
+        # Execute
+        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        # Assert
+        assert len(dict_out['nesting']) == 4
+        # Assert emptyNestedDict
+        assert len(dict_out['nesting']['emptyNestedDict']) == 0
+        # Assert emptyNestedList
+        assert len(dict_out['nesting']['emptyNestedList']) == 0
+        # Assert nested list with nested list
+        assert len(dict_out['nesting']['nestedListWithNestedList']) == 3
+        assert isinstance(dict_out['nesting']['nestedListWithNestedList'][0], list)
+        assert isinstance(dict_out['nesting']['nestedListWithNestedList'][1], list)
+        assert isinstance(dict_out['nesting']['nestedListWithNestedList'][2], list)
+        assert len(dict_out['nesting']['nestedListWithNestedList'][0]) == 3
+        assert len(dict_out['nesting']['nestedListWithNestedList'][1]) == 3
+        assert len(dict_out['nesting']['nestedListWithNestedList'][2]) == 3
+        assert dict_out['nesting']['nestedListWithNestedList'][0][0] == 1.00000000e+00
+        assert dict_out['nesting']['nestedListWithNestedList'][0][1] == 2.20972831e-17
+        assert dict_out['nesting']['nestedListWithNestedList'][0][2] == 3.15717747e-18
+        assert dict_out['nesting']['nestedListWithNestedList'][1][0] == 2.20972831e-17
+        assert dict_out['nesting']['nestedListWithNestedList'][1][1] == 1.00000000e+00
+        assert dict_out['nesting']['nestedListWithNestedList'][1][2] == -7.07290050e-18
+        assert dict_out['nesting']['nestedListWithNestedList'][2][0] == 3.15717747e-18
+        assert dict_out['nesting']['nestedListWithNestedList'][2][1] == -7.07290050e-18
+        assert dict_out['nesting']['nestedListWithNestedList'][2][2] == 1.00000000e+00
+        # Assert nested list with nested dict
+        assert len(dict_out['nesting']['nestedListWithNestedDict']) == 3
+        assert isinstance(dict_out['nesting']['nestedListWithNestedDict'][0], list)
+        assert isinstance(dict_out['nesting']['nestedListWithNestedDict'][1], dict)
+        assert isinstance(dict_out['nesting']['nestedListWithNestedDict'][2], list)
+        assert len(dict_out['nesting']['nestedListWithNestedDict'][0]) == 3
+        assert len(dict_out['nesting']['nestedListWithNestedDict'][1]) == 3
+        assert len(dict_out['nesting']['nestedListWithNestedDict'][2]) == 3
+        assert dict_out['nesting']['nestedListWithNestedDict'][0][0] == 11
+        assert dict_out['nesting']['nestedListWithNestedDict'][0][1] == 12
+        assert dict_out['nesting']['nestedListWithNestedDict'][0][2] == 13
+        assert dict_out['nesting']['nestedListWithNestedDict'][1]['value21'] == 21
+        assert dict_out['nesting']['nestedListWithNestedDict'][1]['value22'] == 22
+        assert dict_out['nesting']['nestedListWithNestedDict'][1]['value23'] == 23
+        assert dict_out['nesting']['nestedListWithNestedDict'][2][0] == 31
+        assert dict_out['nesting']['nestedListWithNestedDict'][2][1] == 32
+        assert dict_out['nesting']['nestedListWithNestedDict'][2][2] == 33
+
+    def test_parse_tokenized_dict_references(self):
+        # Prepare
+        dict_in = CppDict()
+        SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
+        parser = CppParser()
+        # Execute
+        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        # Assert
         assert len(dict_out['references']) == 13                # reference..G3 (level 2)
         assert len(dict_out['references']['reference']) == 3    # name,value,COMMENT (level 3)
         assert len(dict_out['references']['expression1']) == 3
@@ -638,112 +699,63 @@ class TestCppParser():
         assert len(dict_out['references']['expressionG1']) == 3
         assert len(dict_out['references']['expressionG2']) == 3
         assert len(dict_out['references']['expressionG3']) == 3
-
-        assert len(dict_out['numerals']) == 3   # int1,int2,float1
-        assert len(dict_out['emptyDict']) == 0
-        assert len(dict_out['exampleDict']['emptyNestedDict']) == 0
-
-        # nested list with nested list
-        assert len(dict_out['exampleDict']['nestedListWithNestedList']) == 3
-        assert isinstance(dict_out['exampleDict']['nestedListWithNestedList'][0], list)
-        assert isinstance(dict_out['exampleDict']['nestedListWithNestedList'][1], list)
-        assert isinstance(dict_out['exampleDict']['nestedListWithNestedList'][2], list)
-        assert len(dict_out['exampleDict']['nestedListWithNestedList'][0]) == 3
-        assert len(dict_out['exampleDict']['nestedListWithNestedList'][1]) == 3
-        assert len(dict_out['exampleDict']['nestedListWithNestedList'][2]) == 3
-
-        # nested list with nested dict
-        assert len(dict_out['exampleDict']['nestedListWithNestedDict']) == 3
-        assert isinstance(dict_out['exampleDict']['nestedListWithNestedDict'][0], list)
-        assert isinstance(dict_out['exampleDict']['nestedListWithNestedDict'][1], dict)
-        assert isinstance(dict_out['exampleDict']['nestedListWithNestedDict'][2], list)
-        assert len(dict_out['exampleDict']['nestedListWithNestedDict'][0]) == 3
-        assert len(dict_out['exampleDict']['nestedListWithNestedDict'][1]) == 3
-        assert len(dict_out['exampleDict']['nestedListWithNestedDict'][2]) == 3
-        # check some selected keys
         assert dict_out['references']['reference']['name'][:13] == 'STRINGLITERAL'
+        assert dict_out['references']['expression1']['value'][:10] == 'EXPRESSION'
         assert dict_out['references']['expression2']['value'][:10] == 'EXPRESSION'
         assert dict_out['references']['expression3']['value'][:10] == 'EXPRESSION'
-        assert dict_out['numerals']['int2'] == 120
-        # check that also lists are parsed correctly
-        assert len(dict_out['emptyList']) == 0
-        assert len(dict_out['exampleDict']['emptyNestedList']) == 0
+        assert dict_out['references']['expressionE']['value'][:10] == 'EXPRESSION'
+        assert dict_out['references']['expressionF']['value'][:10] == 'EXPRESSION'
+        assert dict_out['references']['expressionG1']['value'][:10] == 'EXPRESSION'
+        assert dict_out['references']['expressionG2']['value'][:10] == 'EXPRESSION'
+        assert dict_out['references']['expressionG3']['value'][:10] == 'EXPRESSION'
 
-        # nested list with nested list
-        assert dict_out['exampleDict']['nestedListWithNestedList'][0][0] == 1.00000000e+00
-        assert dict_out['exampleDict']['nestedListWithNestedList'][0][1] == 2.20972831e-17
-        assert dict_out['exampleDict']['nestedListWithNestedList'][0][2] == 3.15717747e-18
-        assert dict_out['exampleDict']['nestedListWithNestedList'][1][0] == 2.20972831e-17
-        assert dict_out['exampleDict']['nestedListWithNestedList'][1][1] == 1.00000000e+00
-        assert dict_out['exampleDict']['nestedListWithNestedList'][1][2] == -7.07290050e-18
-        assert dict_out['exampleDict']['nestedListWithNestedList'][2][0] == 3.15717747e-18
-        assert dict_out['exampleDict']['nestedListWithNestedList'][2][1] == -7.07290050e-18
-        assert dict_out['exampleDict']['nestedListWithNestedList'][2][2] == 1.00000000e+00
-
-        # nested list with nested dict
-        assert dict_out['exampleDict']['nestedListWithNestedDict'][0][0] == 11
-        assert dict_out['exampleDict']['nestedListWithNestedDict'][0][1] == 12
-        assert dict_out['exampleDict']['nestedListWithNestedDict'][0][2] == 13
-        assert dict_out['exampleDict']['nestedListWithNestedDict'][1]['value21'] == 21
-        assert dict_out['exampleDict']['nestedListWithNestedDict'][1]['value22'] == 22
-        assert dict_out['exampleDict']['nestedListWithNestedDict'][1]['value23'] == 23
-        assert dict_out['exampleDict']['nestedListWithNestedDict'][2][0] == 31
-        assert dict_out['exampleDict']['nestedListWithNestedDict'][2][1] == 32
-        assert dict_out['exampleDict']['nestedListWithNestedDict'][2][2] == 33
-
-    def test_parse_tokenized_dict_sub_dict(self):
+    def test_parse_tokenized_dict_theKeyPitfall(self):
         # This test case adresses issue #6 that Frank raised on Github
         # https://github.com/MaritimeOSPx/ModelVerification/issues/6
 
         # Prepare
-        dict_in = CppDict(Path('testDict'))
+        dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9, comments=False)
         parser = CppParser()
         # Execute
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
-        # assert structure of subdict
-        assert len(dict_out['exampleDict']['keyToADict']) == 1                      # list
+        # Assert
+        assert len(dict_out['theKeyPitfall']) == 1
+        assert len(dict_out['theKeyPitfall']['keyToADict']) == 1                    # list
         assert len(
-            dict_out['exampleDict']['keyToADict']['keyToAList']
+            dict_out['theKeyPitfall']['keyToADict']['keyToAList']
         ) == 7                                                                      # 'notAKey', {}, 'notAKey', 'notAKey', 'notAKey', 'notAKey', {}
-        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][0], str)
-        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][1], dict)
-        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][2], str)
-        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][3], str)
-        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][4], str)
-        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][5], str)
-        assert isinstance(dict_out['exampleDict']['keyToADict']['keyToAList'][6], dict)
-        assert dict_out['exampleDict']['keyToADict']['keyToAList'][0] == 'notAKey'
-        assert len(dict_out['exampleDict']['keyToADict']['keyToAList'][1]) == 2     # key1, key2
-        assert list(dict_out['exampleDict']['keyToADict']['keyToAList'][1].keys())[0] == 'key1'
-        assert list(dict_out['exampleDict']['keyToADict']['keyToAList'][1].keys())[1] == 'key2'
-        assert dict_out['exampleDict']['keyToADict']['keyToAList'][1]['key1'] == 'value1'
-        assert dict_out['exampleDict']['keyToADict']['keyToAList'][1]['key2'] == 'value2'
-        assert dict_out['exampleDict']['keyToADict']['keyToAList'][2] == 'notAKey'
-        assert dict_out['exampleDict']['keyToADict']['keyToAList'][3] == 'notAKey'
-        assert dict_out['exampleDict']['keyToADict']['keyToAList'][4] == 'notAKey'
-        assert dict_out['exampleDict']['keyToADict']['keyToAList'][5] == 'notAKey'
-        assert len(dict_out['exampleDict']['keyToADict']['keyToAList'][6]) == 2     # key1, key2
-        assert list(dict_out['exampleDict']['keyToADict']['keyToAList'][6].keys())[0] == 'key1'
-        assert list(dict_out['exampleDict']['keyToADict']['keyToAList'][6].keys())[1] == 'key2'
-        assert dict_out['exampleDict']['keyToADict']['keyToAList'][6]['key1'] == 'value1'
-        assert dict_out['exampleDict']['keyToADict']['keyToAList'][6]['key2'] == 'value2'
+        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][0], str)
+        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][1], dict)
+        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][2], str)
+        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][3], str)
+        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][4], str)
+        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][5], str)
+        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][6], dict)
+        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][0] == 'notAKey'
+        assert len(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][1]) == 2   # key1, key2
+        assert list(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][1].keys())[0] == 'key1'
+        assert list(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][1].keys())[1] == 'key2'
+        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][1]['key1'] == 'value1'
+        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][1]['key2'] == 'value2'
+        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][2] == 'notAKey'
+        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][3] == 'notAKey'
+        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][4] == 'notAKey'
+        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][5] == 'notAKey'
+        assert len(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][6]) == 2   # key1, key2
+        assert list(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][6].keys())[0] == 'key1'
+        assert list(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][6].keys())[1] == 'key2'
+        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][6]['key1'] == 'value1'
+        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][6]['key2'] == 'value2'
 
     def test_insert_string_literals(self):
         # Prepare
         dict = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict, until_step=10)
         parser = CppParser()
-        dict_in = deepcopy(dict.data)
-        # assert pre-condition
-        assert dict_in['strings']['listWithStrings'][0][:13] == 'STRINGLITERAL'
-        assert dict_in['strings']['listWithStrings'][1][:13] == 'STRINGLITERAL'
-        assert dict_in['strings']['listWithStrings'][2][:13] == 'STRINGLITERAL'
-        assert dict_in['strings']['listWithStrings'][3][:13] == 'STRINGLITERAL'
-        assert dict_in['strings']['listWithStrings'][4][:13] == 'STRINGLITERAL'
         # Execute
         parser.insert_string_literals(dict)
-        # assert string literals have been inserted
+        # Assert
         dict_out = dict.data
         assert dict_out['strings']['listWithStrings'][0] == 'string1'
         assert dict_out['strings']['listWithStrings'][1] == 'string2 has spaces'
@@ -854,12 +866,16 @@ class SetupHelper():
         comments: bool = True,
     ):
 
-        file_name = Path.cwd() / file_to_read
+        source_file = Path.cwd() / file_to_read
 
         if dict_to_prepare is None:
-            dict_to_prepare = CppDict(file_name)
+            dict_to_prepare = CppDict(source_file)
+        else:
+            dict_to_prepare.source_file = source_file.absolute()
+            dict_to_prepare.path = source_file.parent
+            dict_to_prepare.name = source_file.name
 
-        with open(file_name, 'r') as f:
+        with open(source_file, 'r') as f:
             file_content = f.read()
         dict_to_prepare.line_content = file_content.splitlines(keepends=True)
 

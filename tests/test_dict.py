@@ -8,89 +8,30 @@ from dictIO.parser import CppParser
 
 @pytest.fixture()
 def test_dict():
-    return CppDict(Path('testDict'))
+    parser = CppParser()
+    return parser.parse_file(Path('test_dict_dict'))
 
 
-def test_order_keys(test_dict):
-    str_1 = 'string 1'
-    str_2 = 'string 2'
-    str_3 = 'string 3'
-    not_a_str_1 = 1234
-    not_a_str_2 = 1.23
-    not_a_str_3 = False
-
-    key_1 = 'key_1'
-    key_2 = 'key_2'
-    key_3 = 'key_3'
-    key_n_1 = 'key_n_1'
-    key_n_2 = 'key_n_2'
-    key_n_3 = 'key_n_3'
-    key_4 = 'key_4'
-
-    d_nested = {
-        key_3: str_3,
-        key_1: str_1,
-        key_2: str_2,
-        key_n_3: not_a_str_3,
-        key_n_1: not_a_str_1,
-        key_n_2: not_a_str_2,
-    }
-    dict_in = {
-        key_3: str_3,
-        key_1: str_1,
-        key_2: str_2,
-        key_n_3: not_a_str_3,
-        key_n_2: not_a_str_2,
-        key_4: d_nested,
-        key_n_1: not_a_str_1,
-    }
-    keys_assert = [key_1, key_2, key_3, key_4, key_n_1, key_n_2, key_n_3]
-    keys_assert_nested = [key_1, key_2, key_3, key_n_1, key_n_2, key_n_3]
-
-    test_dict.data.update(deepcopy(dict_in))
-
-    # 1. negative test: assert dict_in is not alphanumerically ordered
-    for (index, key) in enumerate(dict_in):
-        assert key != keys_assert[index]
-    for (index, key) in enumerate(dict_in[key_4]):
-        assert key != keys_assert_nested[index]
-
-    # 2. negative test: assert dict is not alphanumerically ordered
-    for (index, key) in enumerate(test_dict.data):
-        assert key != keys_assert[index]
-    for (index, key) in enumerate(test_dict.data[key_4]):
-        assert key != keys_assert_nested[index]
-
-    dict_out = order_keys(
-        dict_in
-    )                       # order_keys method defined in dict.py module (on module level, independent of CppDict class)
-    test_dict.order_keys()  # order_keys instance method of CppDict class
-
-    # 1. positive test for dict_out: assert dict_out is alphanumerically ordered
-    for (index, key) in enumerate(dict_out):
-        assert key == keys_assert[index]
-    for (index, key) in enumerate(dict_out[key_4]):
-        assert key == keys_assert_nested[index]
-
-    # 2. positive test for dict: assert dict.data is alphanumerically ordered
-    for (index, key) in enumerate(test_dict.data):
-        assert key == keys_assert[index]
-    for (index, key) in enumerate(test_dict.data[key_4]):
-        assert key == keys_assert_nested[index]
+def test_init():
+    dict = CppDict()
+    assert dict.source_file is None
+    assert dict.path == Path.cwd()
+    assert dict.name == ''
+    assert dict.line_content == []
+    assert dict.line_comments == {}
+    assert dict.includes == {}
+    assert dict.block_content == ''
+    assert dict.block_comments == {}
+    assert dict.string_literals == {}
+    assert dict.expressions == {}
+    # assert dict.delimiters == ['{','}','[',']','(',')','<','>',';',',']
+    assert dict.delimiters == ['{', '}', '(', ')', '<', '>', ';', ',']
 
 
-def test_reduce_scope(test_dict):
-    # Prepare dict until and including parse_tokenized_dict()
-    SetupHelper.prepare_dict(dict_to_prepare=test_dict)
-    # Preparations done.
-    # Now start the actual test
-    scope = ['scope', 'subscope1']
-    test_dict.reduce_scope(scope)
-    dict_out = test_dict.data
-    # check structure of the dict
-    assert len(dict_out) == 2   # subscope11, subscope12
-    assert dict_out['subscope11']['name'] == 'subscope11'
-    assert dict_out['subscope12']['name'] == 'subscope12'
+def test_init_with_file():
+    dict = CppDict('someDict')
+    assert dict.path == Path.cwd()
+    assert dict.source_file == Path.cwd() / 'someDict'
 
 
 def test_iter_find_key():
@@ -257,15 +198,88 @@ def test_iter_find_key():
     assert dict_out[keyldl][0][keyl][2] == str_out_3
 
 
-class SetupHelper():
+def test_order_keys():
+    str_1 = 'string 1'
+    str_2 = 'string 2'
+    str_3 = 'string 3'
+    not_a_str_1 = 1234
+    not_a_str_2 = 1.23
+    not_a_str_3 = False
 
-    @staticmethod
-    def prepare_dict(dict_to_prepare: CppDict, file_to_read='test_dict_dict'):
+    key_1 = 'key_1'
+    key_2 = 'key_2'
+    key_3 = 'key_3'
+    key_n_1 = 'key_n_1'
+    key_n_2 = 'key_n_2'
+    key_n_3 = 'key_n_3'
+    key_4 = 'key_4'
 
-        file_name = Path.cwd() / file_to_read
+    d_nested = {
+        key_3: str_3,
+        key_1: str_1,
+        key_2: str_2,
+        key_n_3: not_a_str_3,
+        key_n_1: not_a_str_1,
+        key_n_2: not_a_str_2,
+    }
+    dict_in = {
+        key_3: str_3,
+        key_1: str_1,
+        key_2: str_2,
+        key_n_3: not_a_str_3,
+        key_n_2: not_a_str_2,
+        key_4: d_nested,
+        key_n_1: not_a_str_1,
+    }
+    keys_assert = [key_1, key_2, key_3, key_4, key_n_1, key_n_2, key_n_3]
+    keys_assert_nested = [key_1, key_2, key_3, key_n_1, key_n_2, key_n_3]
 
-        parser = CppParser()
+    dict = CppDict()
+    dict.data.update(deepcopy(dict_in))
 
-        parser.parse_file(file_name, dict_to_prepare)
+    # 1. negative test: assert dict_in is not alphanumerically ordered
+    for (index, key) in enumerate(dict_in):
+        assert key != keys_assert[index]
+    for (index, key) in enumerate(dict_in[key_4]):
+        assert key != keys_assert_nested[index]
 
-        return dict_to_prepare
+    # 2. negative test: assert dict is not alphanumerically ordered
+    for (index, key) in enumerate(dict.data):
+        assert key != keys_assert[index]
+    for (index, key) in enumerate(dict.data[key_4]):
+        assert key != keys_assert_nested[index]
+
+    dict_out = order_keys(dict_in)  # order_keys function defined in dict.py module
+    dict.order_keys()               # order_keys instance method of CppDict class
+
+    # 1. positive test for dict_out: assert dict_out is alphanumerically ordered
+    for (index, key) in enumerate(dict_out):
+        assert key == keys_assert[index]
+    for (index, key) in enumerate(dict_out[key_4]):
+        assert key == keys_assert_nested[index]
+
+    # 2. positive test for dict: assert dict.data is alphanumerically ordered
+    for (index, key) in enumerate(dict.data):
+        assert key == keys_assert[index]
+    for (index, key) in enumerate(dict.data[key_4]):
+        assert key == keys_assert_nested[index]
+
+
+def test_order_keys_of_test_dict(test_dict):
+    # Prepare
+    # Execute
+    test_dict.order_keys()
+    # Assert
+    assert str(test_dict.data['unordered']) == str(test_dict.data['ordered'])
+
+
+def test_reduce_scope_of_test_dict(test_dict):
+    # Prepare
+    scope = ['scope', 'subscope1']
+    # Execute
+    test_dict.reduce_scope(scope)
+    # Assert
+    dict_out = test_dict.data
+    assert len(dict_out) == 2   # subscope11, subscope12
+    assert dict_out['subscope11']['name'] == 'subscope11'
+    assert dict_out['subscope12']['name'] == 'subscope12'

@@ -69,6 +69,10 @@ class DictReader():
 
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
         source_file = source_file if isinstance(source_file, Path) else Path(source_file)
+        # @TODO: Activate raising FileNotFoundError in a new branch and create pull request for it.
+        #        CLAROS, 2021-12-12
+        # if not source_file.exists():
+        #     raise FileNotFoundError(source_file)
 
         # Create parser
         # If a parser has been passed to read(), use that.
@@ -124,7 +128,9 @@ class DictReader():
             for _, path in dict.includes.values():
                 prove_recursive_include = djv(path)
                 if prove_recursive_include is True:
-                    logger.warning('Recursive includes detected. Merging of include aborted.')
+                    logger.warning(f'Recursive include detected. Merging of {path} aborted.')
+                elif not path.exists():
+                    logger.warning(f'included dict not found. Merging of {path} aborted.')
                 else:
                     parser = Parser.get_parser(path)
                     included_dict = parser.parse_file(path, dict, comments=comments)

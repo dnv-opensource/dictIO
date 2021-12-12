@@ -276,12 +276,19 @@ class CppFormatter(Formatter):
         '''
         Formats single value types (str, int, float, boolean and None)
         '''
-        # Non-string types: Return the string representation of the type without additional quotes.
+        # Non-string types:
+        # Return the string representation of the type without additional quotes.
         if not isinstance(arg, str):
             return str(arg)
 
-        # String type: Add single quotes in case the string contains spaces, is a path or is contains '$'.
-        if re.search(r'[/\:\s:$]', arg):
+        # String type:
+        # Add double quotes if ..
+        # ..string contains a keyword AND a non-Word character (a single keywords does not need quotes)
+        if re.search(r'[$]', arg) and re.search(r'[^$a-zA-Z0-9]', arg):
+            return '"' + arg + '"'
+        # Add single quotes if..
+        # ..string is empty, contains spaces or is a path
+        if arg == '' or re.search(r'[\s:/\\]', arg):
             return '\'' + arg + '\''
         else:
             return arg
@@ -620,8 +627,7 @@ class XmlFormatter(Formatter):
                     # correct occurence of true false -> de-pythonize for lowercase
                     # if here is more expense needed, we have to revoke the one-liner
                     element.attrib = {
-                        k:
-                        str(v).lower() if re.match('^(true|false)$', str(v), re.I) else str(v)
+                        k: str(v).lower() if re.match('^(true|false)$', str(v), re.I) else str(v)
                         for k,
                         v in item.items()
                         if len(str(v)) != 0
