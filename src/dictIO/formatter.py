@@ -309,7 +309,7 @@ class CppFormatter(Formatter):
                 # if not re.search(r'\s[Cc]\+{2}\s', block_comment):
                 #     # block_comment = default_block_comment + str(dict.block_comments[key])
                 #     block_comment = default_block_comment + block_comment
-                block_comment = self.default_block_comment(block_comment)
+                block_comment = self.make_default_block_comment(block_comment)
                 first_block_comment = False     # disarm MonoFlop
 
             # Check whether the current block comment is identical with a block comment that we already inserted earlier
@@ -331,11 +331,11 @@ class CppFormatter(Formatter):
 
         # If no block_comment had been inserted, insert the default block comment
         if block_comments_inserted_so_far == '':
-            s = self.default_block_comment() + s
+            s = self.make_default_block_comment() + s
 
         return s
 
-    def default_block_comment(self, block_comment: str = '') -> str:
+    def make_default_block_comment(self, block_comment: str = '') -> str:
         # If there is no ' C++ ' contained in block_comment,
         # then insert the C++ default block comment in front:
         # sourcery skip: move-assign
@@ -452,7 +452,7 @@ class FoamFormatter(CppFormatter):
 
         return arg
 
-    def default_block_comment(self, block_comment: str = '') -> str:
+    def make_default_block_comment(self, block_comment: str = '') -> str:
         # If there is no ' C++ ' and 'OpenFoam' contained in block_comment,
         # then insert the OpenFOAM default block comment in front:
         default_block_comment = (
