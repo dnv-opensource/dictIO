@@ -10,16 +10,6 @@ from dictIO.parser import CppParser
 from dictIO.utils.path import silent_remove
 
 
-@pytest.fixture()
-def parsed_dict():
-    # remove if exists
-    silent_remove(Path('parsed.test_mergeDict'))
-    # generate one with certain key in it
-    parsed_dict = {'key00': {'key10': {'key20': 'val20'}}}
-    DictWriter.write(parsed_dict, Path('parsed.test_mergeDict'))
-    return
-
-
 def test_merge_includes():  # sourcery skip: class-extract-method
                             # Prepare dict until and including parse_tokenized_dict()
     dict = CppDict()
@@ -33,7 +23,7 @@ def test_merge_includes():  # sourcery skip: class-extract-method
     assert dict_in['references']['expression3']['value'][:10] == 'EXPRESSION'
     DictReader._merge_includes(dict)
     dict_out = dict.data
-                            # check whether test_paramDict has been merged
+                            # check whether test_dictReader_paramDict has been merged
     assert len(dict_out) == len(dict_in) + 8
     assert dict_out['paramA'] == 3.0
     assert dict_out['paramB'] == 4.0
@@ -211,7 +201,7 @@ def test_eval_expressions_with_included_keys():
         0] == 14.8                                                                  # "$nestParamJ[1][1] + $paramC";
 
 
-def test_reparse_string_literals():
+def test_reread_string_literals():
     # test keys with the same name as imported keys
     file_name = Path('test_dictReader_dict')
     dict = DictReader.read(file_name, includes=True)
@@ -219,12 +209,13 @@ def test_reparse_string_literals():
     silent_remove(parsed_file_name)
     DictWriter.write(dict, parsed_file_name)
     assert os.path.exists(parsed_file_name)
-    # Assure that string literals that contain the '$' character are written back and reparsed with surrounding single quotes.
+    # Assure that string literals that contain the '$' character are written back and reread with surrounding single quotes.
     # This to avoid that a string literal with single quotes that contains a '$' character gets unintentionally evaluated as expression
     # when rereading a parsed dict.
     parsed_dict = DictReader.read(Path(parsed_file_name))
     assert dict.data['differentKeyNames'] == parsed_dict.data['differentKeyNames']
     assert dict.data['sameKeyNames'] == parsed_dict.data['sameKeyNames']
+    silent_remove(parsed_file_name)
 
 
 # @TODO: To be implemented
@@ -238,14 +229,14 @@ def test_remove_include_keys():
 
 
 # def test_read_config_dict():
-#     silentRemove('parsed.test_paramDict')
+#     silentRemove('parsed.test_dictReader_paramDict')
 #     silentRemove('parsed.test_dict')
 #     file_name = Path('test_dict')
 #     dict = DictReader.read(file_name)
-#     assert not os.path.exists('parsed.test_paramDict')
+#     assert not os.path.exists('parsed.test_dictReader_paramDict')
 #     assert not os.path.exists('parsed.test_dict')
 #     dict = DictReader.read(file_name)
-#     assert not os.path.exists('parsed.test_paramDict')
+#     assert not os.path.exists('parsed.test_dictReader_paramDict')
 #     assert os.path.exists('parsed.test_dict')
 
 
@@ -254,27 +245,26 @@ def test_reread_parsed_dict():
     silent_remove(Path('parsed.test_dictReader_Paramdict'))
     silent_remove(Path('parsed.parsed.test_dictReader_dict'))
     silent_remove(Path('parsed.parsed.test_dictReader_Paramdict'))
-    file_name = Path('test_dictReader_dict')
-    dict = DictReader.read(file_name)
-    parsed_file_name = create_target_file_name(file_name, 'parsed')
+    source_file = Path('test_dictReader_dict')
+    dict = DictReader.read(source_file)
+    parsed_file_name = create_target_file_name(source_file, 'parsed')
     silent_remove(parsed_file_name)
     DictWriter.write(dict, parsed_file_name)
     assert os.path.exists('parsed.test_dictReader_dict')
     assert not os.path.exists('parsed.test_dictReader_Paramdict')
-    file_name = Path('parsed.test_dictReader_dict')
-    dict = DictReader.read(file_name)
+    source_file = Path('parsed.test_dictReader_dict')
+    dict = DictReader.read(source_file)
     assert os.path.exists('parsed.test_dictReader_dict')
     assert not os.path.exists('parsed.test_dictReader_Paramdict')
-    # no piping parsed prefix anymore: parsed.parsedtest_paramDict
+    # no piping parsed prefix anymore: parsed.parsed.test_dictReader_dict
     assert not os.path.exists('parsed.parsed.test_dictReader_dict')
     assert not os.path.exists('parsed.parsed.test_dictReader_Paramdict')
+    silent_remove(parsed_file_name)
 
 
 def test_read_foam():
     # Prepare
     source_file = Path('test_dictReader_foam')
-    parsed_file = create_target_file_name(source_file, 'parsed')
-    silent_remove(parsed_file)
     # Execute
     dict = DictReader.read(source_file)
     # Assert
@@ -285,8 +275,6 @@ def test_read_foam():
 def test_read_xml():
     # Prepare
     source_file = Path('test_dictReader_xml.xml')
-    parsed_file = create_target_file_name(source_file, 'parsed')
-    silent_remove(parsed_file)
     # Execute
     dict = DictReader.read(source_file)
     # Assert
@@ -299,61 +287,43 @@ def test_read_xml():
     assert dict['_xmlOpts']['_addNodeNumbering'] is True
 
 
-def test_read_dict_in_subfolder_with_includes():
-    dict = CppDict(Path.cwd() / 'include' / 'initialConditions')
-    silent_remove(Path('include\\parsed.initialConditions'))
-    dict_in = DictReader.read(dict.source_file)
-    assert dict_in['Re_profile'] == 1000000.0
-    assert dict_in['mag_U_infty'] == 1.004
+def test_read_dict_in_subfolder():
+    source_file = Path.cwd() / 'subfolder' / 'test_subfolder_dict'
+    dict_in = DictReader.read(source_file)
+    assert dict_in['valueA'] == 1
+    assert dict_in['valueB'] == 2
 
 
-def test_read_dict_in_subfolder_with_includes_source_file_given_as_str():
-    source_file_as_path = Path.cwd() / 'include' / 'initialConditions'
+def test_read_dict_in_subfolder_source_file_given_as_str():
+    source_file_as_path = Path.cwd() / 'subfolder' / 'test_subfolder_dict'
     source_file_as_str = str(source_file_as_path)
-    silent_remove(Path('include\\parsed.initialConditions'))
     dict_in = DictReader.read(source_file_as_str)
-    assert dict_in['Re_profile'] == 1000000.0
-    assert dict_in['mag_U_infty'] == 1.004
+    assert dict_in['valueA'] == 1
+    assert dict_in['valueB'] == 2
 
 
-def test_read_dict_in_subfolder_with_includes_source_file_given_as_purepath():
-    source_file_as_path = Path.cwd() / 'include' / 'initialConditions'
+def test_read_dict_in_subfolder_source_file_given_as_purepath():
+    source_file_as_path = Path.cwd() / 'subfolder' / 'test_subfolder_dict'
     source_file_as_purepath = PurePath(str(source_file_as_path))
-    silent_remove(Path('include\\parsed.initialConditions'))
     dict_in = DictReader.read(source_file_as_purepath)
-    assert dict_in['Re_profile'] == 1000000.0
-    assert dict_in['mag_U_infty'] == 1.004
+    assert dict_in['valueA'] == 1
+    assert dict_in['valueB'] == 2
 
 
-def test_read_dict_in_subfolder_with_includes_source_file_given_as_path():
-    source_file_as_path = Path.cwd() / 'include' / 'initialConditions'
-    silent_remove(Path('include\\parsed.initialConditions'))
-    dict_in = DictReader.read(source_file_as_path)
-    assert dict_in['Re_profile'] == 1000000.0
-    assert dict_in['mag_U_infty'] == 1.004
-
-
-def test_read_dict_in_subfolder_with_includes_no_order():
-    dict = CppDict(Path.cwd() / 'include' / 'initialConditions')
-    silent_remove(Path('include\\parsed.initialConditions'))
-    dict_in = DictReader.read(dict.source_file)
-    assert dict_in['Re_profile'] == 1000000.0
-    assert dict_in['mag_U_infty'] == 1.004
-
-
-def test_read_dict_in_subfolder_with_includes_no_order_called_via_dictparser_script():
-    file_name = 'include\\initialConditions'
-    silent_remove(Path('include\\parsed.initialConditions'))
-    silent_remove(Path('include\\parsed.initialConditions.foam'))
+def test_read_dict_in_subfolder_parsed_via_dictparser_cli():
+    file_name = 'subfolder/test_subfolder_dict'
+    silent_remove(Path('subfolder/parsed.test_subfolder_dict'))
+    silent_remove(Path('subfolder/parsed.test_subfolder_dict.foam'))
     # os.system(f'..\\src\\dictIO\\cli\\dictParser.py --quiet {file_name}')
     os.system(f' python -m dictIO.cli.dictParser --quiet {file_name}')
-    assert os.path.exists('include\\parsed.initialConditions')
-    assert not os.path.exists('include\\parsed.initialConditions.foam')
-    silent_remove(Path('include\\parsed.initialConditions'))
+    assert os.path.exists('subfolder/parsed.test_subfolder_dict')
+    assert not os.path.exists('subfolder/parsed.test_subfolder_dict.foam')
+    silent_remove(Path('subfolder/parsed.test_subfolder_dict'))
     # os.system(f'..\\src\\dictIO\\cli\\dictParser.py --quiet --output=foam {file_name}')
     os.system(f' python -m dictIO.cli.dictParser --quiet --output=foam {file_name}')
-    assert not os.path.exists('include\\parsed.initialConditions')
-    assert os.path.exists('include\\parsed.initialConditions.foam')
+    assert not os.path.exists('subfolder/parsed.test_subfolder_dict')
+    assert os.path.exists('subfolder/parsed.test_subfolder_dict.foam')
+    silent_remove(Path('subfolder/parsed.test_subfolder_dict.foam'))
 
 
 class SetupHelper():

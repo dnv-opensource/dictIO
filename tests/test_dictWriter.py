@@ -33,9 +33,6 @@ def test_write_and_reread_dict_with_includes():
     DictWriter.write(dict_read, Path('parsed.test_dictWriter_dict'))
     assert os.path.exists('parsed.test_dictWriter_dict')
     dict_reread = DictReader.read(Path('parsed.test_dictWriter_dict'))
-    # why is assert here failing???
-    # because of insert includes with re.escape on a whole string for include_directive
-    # yielding a  \#include\ 'test_paramDict' and not a #include 'test_paramDict'
     assert dict_read == dict_reread
 
     formatter = CppFormatter()
@@ -93,160 +90,188 @@ def test_write_and_reread_dict_target_file_given_as_path():
 
 def test_write_dict_filetype_abc():
     # sourcery skip: class-extract-method
-    silent_remove(Path('parsed.test_dictWriter_dict'))
-    silent_remove(Path('parsed.test_dictWriter_dict.abc'))
-    dict_read = DictReader.read(Path('test_dictWriter_dict'), includes=False)
-    assert not os.path.exists('parsed.test_dictWriter_dict')
-    assert not os.path.exists('parsed.test_dictWriter_dict.abc')
-    DictWriter.write(dict_read, Path('parsed.test_dictWriter_dict.abc'))
-    assert not os.path.exists('parsed.test_dictWriter_dict')
-    assert os.path.exists('parsed.test_dictWriter_dict.abc')
-    dict_reread = DictReader.read(Path('parsed.test_dictWriter_dict.abc'), includes=False)
+    source_file = Path('test_dictWriter_dict')
+    target_file = Path('parsed.test_dictWriter_dict')
+    target_file_abc = Path('parsed.test_dictWriter_dict.abc')
+    silent_remove(target_file)
+    silent_remove(target_file_abc)
+    dict_read = DictReader.read(source_file, includes=False)
+    assert not target_file.exists()
+    assert not target_file_abc.exists()
+    DictWriter.write(dict_read, target_file)
+    assert target_file.exists()
+    assert not target_file_abc.exists()
+    silent_remove(target_file)
+    DictWriter.write(dict_read, target_file_abc)
+    assert not target_file.exists()
+    assert target_file_abc.exists()
+    dict_reread = DictReader.read(target_file_abc, includes=False)
     assert dict_read == dict_reread
+    silent_remove(target_file)
+    silent_remove(target_file_abc)
 
 
 def test_write_dict_filetype_cpp():
-    silent_remove(Path('parsed.test_dictWriter_dict'))
-    silent_remove(Path('parsed.test_dictWriter_dict.cpp'))
-    dict_read = DictReader.read(Path('test_dictWriter_dict'), includes=False)
-    assert not os.path.exists('parsed.test_dictWriter_dict')
-    assert not os.path.exists('parsed.test_dictWriter_dict.cpp')
-    DictWriter.write(dict_read, Path('parsed.test_dictWriter_dict'))
-    assert os.path.exists('parsed.test_dictWriter_dict')
-    assert not os.path.exists('parsed.test_dictWriter_dict.cpp')
-    silent_remove(Path('parsed.test_dictWriter_dict'))
-    DictWriter.write(dict_read, Path('parsed.test_dictWriter_dict.cpp'))
-    assert not os.path.exists('parsed.test_dictWriter_dict')
-    assert os.path.exists('parsed.test_dictWriter_dict.cpp')
-    dict_reread = DictReader.read(Path('parsed.test_dictWriter_dict.cpp'), includes=False)
+    source_file = Path('test_dictWriter_dict')
+    target_file = Path('parsed.test_dictWriter_dict')
+    target_file_cpp = Path('parsed.test_dictWriter_dict.cpp')
+    silent_remove(target_file)
+    silent_remove(target_file_cpp)
+    dict_read = DictReader.read(source_file, includes=False)
+    assert not target_file.exists()
+    assert not target_file_cpp.exists()
+    DictWriter.write(dict_read, target_file)
+    assert target_file.exists()
+    assert not target_file_cpp.exists()
+    silent_remove(target_file)
+    DictWriter.write(dict_read, target_file_cpp)
+    assert not target_file.exists()
+    assert target_file_cpp.exists()
+    dict_reread = DictReader.read(target_file_cpp, includes=False)
     assert dict_read == dict_reread
+    silent_remove(target_file)
+    silent_remove(target_file_cpp)
 
 
 def test_write_dict_filetype_xml():
-    silent_remove(Path('parsed.test_dictWriter_dict'))
-    silent_remove(Path('parsed.test_dictWriter_dict.xml'))
+    source_file = Path('test_dictWriter_dict')
+    target_file = Path('parsed.test_dictWriter_dict')
+    target_file_xml = Path('parsed.test_dictWriter_dict.xml')
+    silent_remove(target_file)
+    silent_remove(target_file_xml)
     formatter = XmlFormatter()
-    dict_read = DictReader.read(Path('test_dictWriter_dict'), includes=False)
-    assert not os.path.exists('parsed.test_dictWriter_dict')
-    assert not os.path.exists('parsed.test_dictWriter_dict.xml')
-    DictWriter.write(dict_read, Path('parsed.test_dictWriter_dict'), formatter=formatter)
-    assert os.path.exists('parsed.test_dictWriter_dict')
-    assert not os.path.exists('parsed.test_dictWriter_dict.xml')
-    silent_remove(Path('parsed.test_dictWriter_dict'))
-    DictWriter.write(dict_read, Path('parsed.test_dictWriter_dict.xml'))
-    assert not os.path.exists('parsed.test_dictWriter_dict')
-    assert os.path.exists('parsed.test_dictWriter_dict.xml')
+    dict_read = DictReader.read(source_file, includes=False)
+    assert not target_file.exists()
+    assert not target_file_xml.exists()
+    DictWriter.write(dict_read, target_file, formatter=formatter)
+    assert target_file.exists()
+    assert not target_file_xml.exists()
+    silent_remove(target_file)
+    DictWriter.write(dict_read, target_file_xml)
+    assert not target_file.exists()
+    assert target_file_xml.exists()
     # @TODO: Rereading xml doesn't work yet 1:1
-    # dict_reread = DictReader.read('parsed.test_dictWriter_dict.xml', includes=False)
-    # assert dict == dict_reread  # Rereading xml doesn't work yet 1:1
+    # dict_reread = DictReader.read(target_file_xml, includes=False)
+    # assert dict_read == dict_reread  # Rereading xml doesn't work yet 1:1
+    silent_remove(target_file)
+    silent_remove(target_file_xml)
 
 
 def test_read_write_cpp_without_includes():
-    file_name_in = Path('test_dictWriter_dict')
-    file_name_out = Path('reread.test_dictWriter_dict')
-    silent_remove(file_name_out)
-    dict_read = DictReader.read(file_name_in, includes=False)
-    assert not os.path.exists(file_name_out)
-    DictWriter.write(dict_read, file_name_out)
-    assert os.path.exists(file_name_out)
-    dict_reread = DictReader.read(file_name_out)
+    source_file = Path('test_dictWriter_dict')
+    target_file = Path('reread.test_dictWriter_dict')
+    silent_remove(target_file)
+    dict_read = DictReader.read(source_file, includes=False)
+    assert not os.path.exists(target_file)
+    DictWriter.write(dict_read, target_file)
+    assert os.path.exists(target_file)
+    dict_reread = DictReader.read(target_file)
     # @TODO: failing under linux: CRLF !== LF
     assert dict_read == dict_reread
+    silent_remove(target_file)
 
 
 def test_read_write_cpp():
-    file_name_in = Path('test_dictWriter_dict')
-    file_name_out = Path('reread.test_dictWriter_dict')
-    silent_remove(file_name_out)
-    dict_read = DictReader.read(file_name_in, includes=True)
-    assert not os.path.exists(file_name_out)
-    DictWriter.write(dict_read, file_name_out)
-    assert os.path.exists(file_name_out)
-    dict_reread = DictReader.read(file_name_out)
+    source_file = Path('test_dictWriter_dict')
+    target_file = Path('reread.test_dictWriter_dict')
+    silent_remove(target_file)
+    dict_read = DictReader.read(source_file, includes=True)
+    assert not os.path.exists(target_file)
+    DictWriter.write(dict_read, target_file)
+    assert os.path.exists(target_file)
+    dict_reread = DictReader.read(target_file)
     # @TODO: failing under linux: CRLF !== LF
     assert dict_read == dict_reread
+    silent_remove(target_file)
 
 
 def test_read_write_foam_without_includes():
-    file_name_in = Path('test_dictWriter_foam')
-    file_name_out = Path('reread.test_dictWriter_foam.foam')
-    silent_remove(file_name_out)
+    source_file = Path('test_dictWriter_foam')
+    target_file = Path('reread.test_dictWriter_foam.foam')
+    silent_remove(target_file)
     foam_parser = FoamParser()
-    dict_read = DictReader.read(file_name_in, includes=False, parser=foam_parser)
-    assert not os.path.exists(file_name_out)
-    DictWriter.write(dict_read, file_name_out)
-    assert os.path.exists(file_name_out)
-    dict_reread = DictReader.read(file_name_out)
+    dict_read = DictReader.read(source_file, includes=False, parser=foam_parser)
+    assert not os.path.exists(target_file)
+    DictWriter.write(dict_read, target_file)
+    assert os.path.exists(target_file)
+    dict_reread = DictReader.read(target_file)
     # @TODO: failing under linux: CRLF !== LF
     assert dict_read == dict_reread
+    silent_remove(target_file)
 
 
 def test_read_write_foam():
-    file_name_in = Path('test_dictWriter_foam')
-    file_name_out = Path('reread.test_dictWriter_foam.foam')
-    silent_remove(file_name_out)
+    source_file = Path('test_dictWriter_foam')
+    target_file = Path('reread.test_dictWriter_foam.foam')
+    silent_remove(target_file)
     foam_parser = FoamParser()
-    dict_read = DictReader.read(file_name_in, includes=True, parser=foam_parser)
-    assert not os.path.exists(file_name_out)
-    DictWriter.write(dict_read, file_name_out)
-    assert os.path.exists(file_name_out)
-    dict_reread = DictReader.read(file_name_out)
+    dict_read = DictReader.read(source_file, includes=True, parser=foam_parser)
+    assert not os.path.exists(target_file)
+    DictWriter.write(dict_read, target_file)
+    assert os.path.exists(target_file)
+    dict_reread = DictReader.read(target_file)
     # @TODO: failing under linux: CRLF !== LF
     assert dict_read == dict_reread
+    silent_remove(target_file)
 
 
 def test_read_write_xml_without_includes():
-    file_name_in = Path('test_dictWriter_xml.xml')
-    file_name_out = Path('reread.test_dictWriter_xml.xml')
-    silent_remove(file_name_out)
+    source_file = Path('test_dictWriter_xml.xml')
+    target_file = Path('reread.test_dictWriter_xml.xml')
+    silent_remove(target_file)
     BorgCounter.reset()
-    dict_read = DictReader.read(file_name_in, includes=False)
-    assert not os.path.exists(file_name_out)
-    DictWriter.write(dict_read, file_name_out)
-    assert os.path.exists(file_name_out)
+    dict_read = DictReader.read(source_file, includes=False)
+    assert not os.path.exists(target_file)
+    DictWriter.write(dict_read, target_file)
+    assert os.path.exists(target_file)
     BorgCounter.reset()
-    dict_reread = DictReader.read(file_name_out)
+    dict_reread = DictReader.read(target_file)
     assert dict_read == dict_reread
+    silent_remove(target_file)
 
 
 def test_read_write_xml():
-    file_name_in = Path('test_dictWriter_xml.xml')
-    file_name_out = Path('reread.test_dictWriter_xml.xml')
-    silent_remove(file_name_out)
+    source_file = Path('test_dictWriter_xml.xml')
+    target_file = Path('reread.test_dictWriter_xml.xml')
+    silent_remove(target_file)
     BorgCounter.reset()
-    dict_read = DictReader.read(file_name_in, includes=True)
-    assert not os.path.exists(file_name_out)
-    DictWriter.write(dict_read, file_name_out)
-    assert os.path.exists(file_name_out)
+    dict_read = DictReader.read(source_file, includes=True)
+    assert not os.path.exists(target_file)
+    DictWriter.write(dict_read, target_file)
+    assert os.path.exists(target_file)
     BorgCounter.reset()
-    dict_reread = DictReader.read(file_name_out)
+    dict_reread = DictReader.read(target_file)
     assert dict_read == dict_reread
+    silent_remove(target_file)
 
 
 def test_write_mode():
-    silent_remove(Path('parsed.test_dictWriter_dict'))
-    dict_read = DictReader.read(Path('test_dictWriter_dict'), includes=False)
-    assert not os.path.exists('parsed.test_dictWriter_dict')
-    DictWriter.write(dict_read, Path('parsed.test_dictWriter_dict'))
-    assert os.path.exists('parsed.test_dictWriter_dict')
+    source_file = Path('test_dictWriter_dict')
+    target_file = Path('parsed.test_dictWriter_dict')
+    silent_remove(target_file)
+    dict_read = DictReader.read(source_file, includes=False)
+    assert not target_file.exists()
+    DictWriter.write(dict_read, target_file)
+    assert target_file.exists()
 
     # delete one element (parameterD) in the dict to have a test case for the write mode
     dict_read_modified = deepcopy(dict_read)
     del dict_read_modified['parameters']['parameterD']
     # Write with mode 'a': -> parameterD should still exist after writing (as the existing file was not overwritten but only appended to)
-    DictWriter.write(dict_read_modified, Path('parsed.test_dictWriter_dict'), mode='a')
+    DictWriter.write(dict_read_modified, target_file, mode='a')
     assert os.path.exists('parsed.test_dictWriter_dict')
-    dict_reread = DictReader.read(Path('parsed.test_dictWriter_dict'), includes=False)
+    dict_reread = DictReader.read(target_file, includes=False)
     assert 'parameterD' in dict_reread['parameters']
     # Write with mode 'w': -> parameterD should not exist after writing (as the existing file was overwritten)
-    DictWriter.write(dict_read_modified, Path('parsed.test_dictWriter_dict'), mode='w')
-    assert os.path.exists('parsed.test_dictWriter_dict')
-    dict_reread = DictReader.read(Path('parsed.test_dictWriter_dict'), includes=False)
+    DictWriter.write(dict_read_modified, target_file, mode='w')
+    assert target_file.exists()
+    dict_reread = DictReader.read(target_file, includes=False)
     assert 'parameterD' not in dict_reread['parameters']
+    silent_remove(target_file)
 
 
 def test_write_farn_param_dict():
-    file_name = Path('test_farn_paramDict')
+    target_file = Path('test_farn_paramDict')
     test_dict = dict(
         {
             'param1': -10.0,
@@ -273,37 +298,37 @@ def test_write_farn_param_dict():
     test_str = r"/*---------------------------------*- C++ -*----------------------------------*\ filetype dictionary; coding utf-8; version 0.1; local --; purpose --; \*----------------------------------------------------------------------------*/ param1 -10.0; param2 0.0; param3 0.0; _case { _layer lhsvar; _level 1; _no_of_samples 108; _index 0; _path 'C:\Users\CLAROS\Documents\SystemSimulation\ModelVerification\tools\farn\test\cases\gp_0\lhsvar_000'; _key lhsvar_000; _is_leaf False; _condition None; _names ( param1 param2 param3 ); _values ( -10.0 0.0 0.0 ); _commands { ls ( 'echo %PATH%' dir ); } } "
 
     # write as CppDict completely new
-    silent_remove(file_name)
+    silent_remove(target_file)
     test_cpp_dict = CppDict()
     test_cpp_dict.update(test_dict)
-    DictWriter.write(test_cpp_dict, file_name)
-    assert file_name.exists()
-    parsed_str = re.sub(r'[\r\n\s]+', ' ', str(DictReader.read(file_name)))
+    DictWriter.write(test_cpp_dict, target_file)
+    assert target_file.exists()
+    parsed_str = re.sub(r'[\r\n\s]+', ' ', str(DictReader.read(target_file)))
     assert parsed_str == test_str
 
     # write CppDict on top of existing
     test_cpp_dict = CppDict()
     test_cpp_dict.update(test_dict)
-    DictWriter.write(test_cpp_dict, file_name)
-    assert file_name.exists()
-    parsed_str = re.sub(r'[\r\n\s]+', ' ', str(DictReader.read(file_name)))
+    DictWriter.write(test_cpp_dict, target_file)
+    assert target_file.exists()
+    parsed_str = re.sub(r'[\r\n\s]+', ' ', str(DictReader.read(target_file)))
     assert parsed_str == test_str
 
     # write as dict completely new
-    silent_remove(file_name)
-    DictWriter.write(test_dict, file_name)
-    assert file_name.exists()
-    parsed_str = re.sub(r'[\r\n\s]+', ' ', str(DictReader.read(file_name)))
+    silent_remove(target_file)
+    DictWriter.write(test_dict, target_file)
+    assert target_file.exists()
+    parsed_str = re.sub(r'[\r\n\s]+', ' ', str(DictReader.read(target_file)))
     assert parsed_str == test_str
 
     # write as dict on top of existent
-    DictWriter.write(test_dict, file_name)
-    assert file_name.exists()
-    parsed_str = re.sub(r'[\r\n\s]+', ' ', str(DictReader.read(file_name)))
+    DictWriter.write(test_dict, target_file)
+    assert target_file.exists()
+    parsed_str = re.sub(r'[\r\n\s]+', ' ', str(DictReader.read(target_file)))
     assert parsed_str == test_str
 
     # clean up
-    silent_remove(file_name)
+    silent_remove(target_file)
 
 
 class TestCreateTargetFileName():
