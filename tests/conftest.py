@@ -6,4 +6,4 @@ import pytest
 
 @pytest.fixture(scope='package', autouse=True)
 def chdir():
-    os.chdir(Path(__file__).parent.absolute())
+    os.chdir(Path(__file__).parent.absolute() / 'test_dicts')
