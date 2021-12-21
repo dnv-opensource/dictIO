@@ -241,21 +241,27 @@ def test_remove_include_keys():
 
 
 def test_reread_parsed_dict():
-    silent_remove(Path('parsed.test_dictReader_dict'))
-    silent_remove(Path('parsed.test_dictReader_Paramdict'))
-    silent_remove(Path('parsed.parsed.test_dictReader_dict'))
-    silent_remove(Path('parsed.parsed.test_dictReader_Paramdict'))
+    # Prepare
     source_file = Path('test_dictReader_dict')
+    parsed_file = Path('parsed.test_dictReader_dict')
+    parsed_file_paramDict = Path('parsed.test_dictReader_Paramdict')
+    parsed_file_wrong = Path('parsed.parsed.test_dictReader_dict')
+    parsed_file_paramDict_wrong = Path('parsed.parsed.test_dictReader_Paramdict')
+    silent_remove(parsed_file)
+    silent_remove(parsed_file_paramDict)
+    silent_remove(parsed_file_wrong)
+    silent_remove(parsed_file_paramDict_wrong)
+
     dict = DictReader.read(source_file)
     parsed_file_name = create_target_file_name(source_file, 'parsed')
     silent_remove(parsed_file_name)
     DictWriter.write(dict, parsed_file_name)
-    assert os.path.exists('parsed.test_dictReader_dict')
-    assert not os.path.exists('parsed.test_dictReader_Paramdict')
-    source_file = Path('parsed.test_dictReader_dict')
+    assert parsed_file.exists()
+    assert not parsed_file_paramDict.exists()
+    source_file = parsed_file
     dict = DictReader.read(source_file)
-    assert os.path.exists('parsed.test_dictReader_dict')
-    assert not os.path.exists('parsed.test_dictReader_Paramdict')
+    assert parsed_file.exists()
+    assert not parsed_file_paramDict.exists()
     # no piping parsed prefix anymore: parsed.parsed.test_dictReader_dict
     assert not os.path.exists('parsed.parsed.test_dictReader_dict')
     assert not os.path.exists('parsed.parsed.test_dictReader_Paramdict')

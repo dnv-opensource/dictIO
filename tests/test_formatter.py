@@ -217,27 +217,24 @@ class TestCppFormatter():
         assert str_out == str_assert
 
     def test_insert_includes(self):
-        # Prepare dict until and including ()
+        # Prepare
+        include_line_in = '#include "test formatter paramDict"'
+        include_path_in = Path('test formatter paramDict').absolute()
+
         dict = CppDict()
-        SetupHelper.prepare_dict(dict_to_prepare=dict, file_to_read='test_formatter_dict')
-        include_line_in = "#include 'test_paramDict'"
-        include_path_in = Path('test_paramDict')
+        dict.includes[102] = (include_line_in, include_path_in)
+
+        blockcomment_placeholder = 'BLOCKCOMMENT000101            BLOCKCOMMENT000101;'
+        include_placeholder = 'INCLUDE000102            INCLUDE000102;'
+
+        str_in = blockcomment_placeholder + '\n' + include_placeholder + '\n'
+        str_assert = str_in.replace(include_placeholder, include_line_in.replace('"', '\''))
+
         formatter = CppFormatter()
-        # Prepare input templates
-        str_in_template = formatter.format_dict(
-            dict.data
-        )                                           # as we used test_simpleDict, str_in does not have a block comment yet
-        placeholder1 = 'BLOCKCOMMENT000101            BLOCKCOMMENT000101;'
-        placeholder2 = 'INCLUDE000102            INCLUDE000102;'
-                                                    # Prepare the dict
-        dict.includes = {}
-        dict.includes.update({102: (include_line_in, include_path_in)})
-                                                    # Prepare the input
-        str_in = placeholder1 + '\n' + placeholder2 + '\n' + str_in_template
-                                                    # Prepare what we expect as output
-        str_assert = str_in.replace(placeholder2, include_line_in)
-                                                    # Run the test
+
+        # Execute
         str_out = formatter.insert_includes(dict, str_in)
+        # Assert
         assert str_out == str_assert
 
     def test_insert_line_comments(self):
@@ -386,6 +383,27 @@ class TestFoamFormatter():
             as_is_block_comment,
             default_block_comment,
         )
+
+    def test_insert_includes(self):
+        # Prepare
+        include_line_in = "#include 'test formatter paramDict'"
+        include_path_in = Path('test formatter paramDict').absolute()
+
+        dict = CppDict()
+        dict.includes[102] = (include_line_in, include_path_in)
+
+        blockcomment_placeholder = 'BLOCKCOMMENT000101            BLOCKCOMMENT000101;'
+        include_placeholder = 'INCLUDE000102            INCLUDE000102;'
+
+        str_in = blockcomment_placeholder + '\n' + include_placeholder + '\n'
+        str_assert = str_in.replace(include_placeholder, include_line_in.replace('\'', '"'))
+
+        formatter = FoamFormatter()
+
+        # Execute
+        str_out = formatter.insert_includes(dict, str_in)
+        # Assert
+        assert str_out == str_assert
 
     def test_ensure_string_does_not_contain_single_quotes(self):
         # Prepare dict until and including ()

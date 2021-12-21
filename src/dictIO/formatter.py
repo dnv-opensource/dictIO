@@ -353,10 +353,19 @@ class CppFormatter(Formatter):
         '''
         Inserts back all include directives
         '''
-        for key, (include_directive, _) in cpp_dict.includes.items():
+        for key, (include_directive, include_path) in cpp_dict.includes.items():
             # Search for the placeholder entry we created in parse_tokenized_dict(),
             # and insert back the original include directive.
             search_pattern = r'INCLUDE%06i\s+INCLUDE%06i;' % (key, key)
+            rel_path: Union[Path, None] = None
+            try:
+                # rel_path = Path.cwd().relative_to(include_path)
+                rel_path = include_path.relative_to(Path.cwd())
+            except ValueError:
+                logger.exception(f'include path could not be resolved: {include_path}')
+            if rel_path:
+                include = self.format_type(str(rel_path))
+                include_directive = f'#include {include}'
             s = re.sub(search_pattern, include_directive.replace('\\', '\\\\'), s)
 
         return s
@@ -436,7 +445,7 @@ class FoamFormatter(CppFormatter):
         s = super().to_string(dict_adapted_for_foam)
 
         # Substitute all remeining single quotes, if any, by double quotes:
-        s = re.sub('\'', '"', s)
+        # s = re.sub('\'', '"', s)
 
         return s
 

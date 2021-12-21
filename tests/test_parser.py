@@ -295,29 +295,6 @@ class TestParser():
 
 class TestCppParser():
 
-    def test_convert_line_content_to_block_content(self):
-        dict = CppDict()
-        parser = CppParser()
-        # Three lines with line endings
-        line1 = 'line 1\n'
-        line2 = 'line 2\n'
-        line3 = 'line 3\n'
-        dict.line_content.extend([line1, line2, line3])
-        parser.convert_line_content_to_block_content(dict)
-        assert dict.block_content == 'line 1\nline 2\nline 3\n'
-
-    def test_remove_line_endings_from_block_content(self):
-        dict = CppDict()
-        parser = CppParser()
-        # Three lines with line endings
-        line1 = 'line 1\n'
-        line2 = 'line 2\n'
-        line3 = 'line 3\n'
-        dict.line_content.extend([line1, line2, line3])
-        parser.convert_line_content_to_block_content(dict)
-        parser.remove_line_endings_from_block_content(dict)
-        assert dict.block_content == 'line 1 line 2 line 3'
-
     def test_extract_line_comments(self):
         dict = CppDict()
         parser = CppParser()
@@ -341,70 +318,49 @@ class TestCppParser():
         line1 = 'a line with no include directive\n'
         line2 = '#include testDict\n'
         line3 = '#include \'testDict\'\n'
+        line4 = '#include \"testDict\"\n'
         # line4 = '#include testDict with some dummy content thereafter\n'   # this is currently not covered by extract_includes and would fail
-        line4 = '   #include testDict   \n'
-        line5 = '   # include testDict   \n'
-        line6 = 'a line with no include directive\n'
-        dict.line_content.extend([line1, line2, line3, line4, line5, line6])
-        assert len(dict.line_content) == 6
+        line5 = '   #include testDict   \n'
+        line6 = '   # include testDict   \n'
+        line7 = 'a line with no include directive\n'
+        dict.line_content.extend([line1, line2, line3, line4, line5, line6, line7])
+        assert len(dict.line_content) == 7
         parser.extract_includes(dict)
-        assert len(dict.line_content) == 6
+        assert len(dict.line_content) == 7
         for line in dict.line_content:
             assert bool(re.search(
                 r'#include',
                 line,
             )) is False
-        assert len(dict.includes) == 4
+        assert len(dict.includes) == 5
         path_assert = Path('testDict').absolute()
         for include_directive, path in dict.includes.values():
             assert bool(re.search(str(r'#\s*include'), str(include_directive))) is True
             assert bool(re.search(str(r'\n'), str(include_directive))) is False
             assert path == path_assert
 
-    def test_extract_string_literals(self):
+    def test_convert_line_content_to_block_content(self):
         dict = CppDict()
         parser = CppParser()
-        text_block_in = (
-            'This is a text block\n'
-            'with multiple lines. Within this text block, there are inline substrings with single quotes.\n'
-            'Such substrings we identify as string literals and substitute them with a placeholder\n'
-            'in the form S T R I N G L I T E R A L 0 0 0 0 0 0.  Lets look at some examples in the following three lines:\n'
-            'This is a line with \'a string literal1\'\n'
-            'This is a line with \'a string literal2\' and some blabla thereafter.\n'
-            'This is a line with \' a string literal3 with leading and trailing spaces \'\n'
-            '\'This line starts with a string literal4\' and then has some blabla thereafter.\n'
-            '\'This line is nothing else than a string literal5\''
-            'This line has a \"substring that is not a string literal because it got double quotes\" instead of single quotes\n'
-            'And here we close our small test with a final line with no string literal at all'
-        )
+        # Three lines with line endings
+        line1 = 'line 1\n'
+        line2 = 'line 2\n'
+        line3 = 'line 3\n'
+        dict.line_content.extend([line1, line2, line3])
+        parser.convert_line_content_to_block_content(dict)
+        assert dict.block_content == 'line 1\nline 2\nline 3\n'
 
-        text_block_assert = (
-            'This is a text block\n'
-            'with multiple lines. Within this text block, there are inline substrings with single quotes.\n'
-            'Such substrings we identify as string literals and substitute them with a placeholder\n'
-            'in the form S T R I N G L I T E R A L 0 0 0 0 0 0.  Lets look at some examples in the following three lines:\n'
-            'This is a line with STRINGLITERAL000000\n'
-            'This is a line with STRINGLITERAL000000 and some blabla thereafter.\n'
-            'This is a line with STRINGLITERAL000000\n'
-            'STRINGLITERAL000000 and then has some blabla thereafter.\n'
-            'STRINGLITERAL000000'
-            'This line has a \"substring that is not a string literal because it got double quotes\" instead of single quotes\n'
-            'And here we close our small test with a final line with no string literal at all'
-        )
-
-        dict.block_content = text_block_in
-        parser.extract_string_literals(dict)
-        text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
-        string_diff(text_block_out, text_block_assert)
-        assert text_block_out == text_block_assert
-        assert len(dict.string_literals) == 5
-        assert list(dict.string_literals.values())[0] == 'a string literal1'
-        assert list(dict.string_literals.values())[1] == 'a string literal2'
-        assert list(dict.string_literals.values()
-                    )[2] == ' a string literal3 with leading and trailing spaces '
-        assert list(dict.string_literals.values())[3] == 'This line starts with a string literal4'
-        assert list(dict.string_literals.values()
-                    )[4] == 'This line is nothing else than a string literal5'
+    def test_remove_line_endings_from_block_content(self):
+        dict = CppDict()
+        parser = CppParser()
+        # Three lines with line endings
+        line1 = 'line 1\n'
+        line2 = 'line 2\n'
+        line3 = 'line 3\n'
+        dict.line_content.extend([line1, line2, line3])
+        parser.convert_line_content_to_block_content(dict)
+        parser.remove_line_endings_from_block_content(dict)
+        assert dict.block_content == 'line 1 line 2 line 3'
 
     def test_extract_block_comments(self):
         dict = CppDict()
@@ -441,6 +397,54 @@ class TestCppParser():
             '\\*----------------------------------------------------------------------------*/'
         )
 
+    def test_extract_string_literals(self):
+        dict = CppDict()
+        parser = CppParser()
+        text_block_in = (
+            'This is a text block\n'
+            'with multiple lines. Within this text block, there are inline substrings with single quotes.\n'
+            'Such substrings we identify as string literals and substitute them with a placeholder\n'
+            'in the form S T R I N G L I T E R A L 0 0 0 0 0 0.  Lets look at some examples in the following three lines:\n'
+            'This is a line with \'a string literal1\'\n'
+            'This is a line with \'a string literal2\' and some blabla thereafter.\n'
+            'This is a line with \' a string literal3 with leading and trailing spaces \'\n'
+            '\'This line starts with a string literal4\' and then has some blabla thereafter.\n'
+            '\'This line is nothing else than a string literal5\''
+            'This is a line with \"a string literal6 in double quotes\". Although having double quotes, it is still identified as a string literal because it does not contain a $ character.\n'
+            'This is a line with an expression, e.g. \"$varName2 + 4\". Expressions are double quoted strings that contain minimum one $ character (denoting a reference).\n'
+            'And here we close our small test with a final line with no string literal at all'
+        )
+
+        text_block_assert = (
+            'This is a text block\n'
+            'with multiple lines. Within this text block, there are inline substrings with single quotes.\n'
+            'Such substrings we identify as string literals and substitute them with a placeholder\n'
+            'in the form S T R I N G L I T E R A L 0 0 0 0 0 0.  Lets look at some examples in the following three lines:\n'
+            'This is a line with STRINGLITERAL000000\n'
+            'This is a line with STRINGLITERAL000000 and some blabla thereafter.\n'
+            'This is a line with STRINGLITERAL000000\n'
+            'STRINGLITERAL000000 and then has some blabla thereafter.\n'
+            'STRINGLITERAL000000'
+            'This is a line with STRINGLITERAL000000. Although having double quotes, it is still identified as a string literal because it does not contain a $ character.\n'
+            'This is a line with an expression, e.g. \"$varName2 + 4\". Expressions are double quoted strings that contain minimum one $ character (denoting a reference).\n'
+            'And here we close our small test with a final line with no string literal at all'
+        )
+
+        dict.block_content = text_block_in
+        parser.extract_string_literals(dict)
+        text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
+        string_diff(text_block_out, text_block_assert)
+        assert text_block_out == text_block_assert
+        assert len(dict.string_literals) == 6
+        assert list(dict.string_literals.values())[0] == 'a string literal1'
+        assert list(dict.string_literals.values())[1] == 'a string literal2'
+        assert list(dict.string_literals.values()
+                    )[2] == ' a string literal3 with leading and trailing spaces '
+        assert list(dict.string_literals.values())[3] == 'This line starts with a string literal4'
+        assert list(dict.string_literals.values()
+                    )[4] == 'This line is nothing else than a string literal5'
+        assert list(dict.string_literals.values())[5] == 'a string literal6 in double quotes'
+
     def test_extract_expressions(self):
         dict = CppDict()
         parser = CppParser()
@@ -458,8 +462,8 @@ class TestCppParser():
             '   key_6       "$varName2 + $varName3 + $varName1" and some blabla thereafter\n'
             '   key_7       $varName1\n'
             'The following example will NOT be identified as expression but as string literal:\n'
-            '   key_8       \'$varName1\'\n'
-            '   key_9       "not_a_nExpression4"\n'
+            '   key_8       \'$varName1 is not an expression but a string literal because it is in single instead of double quotes\'\n'
+            '   key_9       "not an expression but a string literal as it does not contain a Dollar character"\n'
             'extract_expressions() will extract expressions and substitute them with a placeholder\n'
             'in the form E X P R E S S I O N 0 0 0 0 0 0.'
             'The actual evaluation of an expression is not part of extract_expressions(). The evaluation is done within ().'
@@ -480,7 +484,7 @@ class TestCppParser():
             '   key_7       EXPRESSION000000\n'
             'The following example will NOT be identified as expression but as string literal:\n'
             '   key_8       STRINGLITERAL000000\n'
-            '   key_9       "not_a_nExpression4"\n'
+            '   key_9       STRINGLITERAL000000\n'
             'extract_expressions() will extract expressions and substitute them with a placeholder\n'
             'in the form E X P R E S S I O N 0 0 0 0 0 0.'
             'The actual evaluation of an expression is not part of extract_expressions(). The evaluation is done within ().'

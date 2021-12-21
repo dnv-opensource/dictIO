@@ -459,19 +459,62 @@ class CppParser(Parser):
         The extracted string literals are stored in .string_literals as key value pairs {index:string_literal}.
         index, therein, corresponds to the integer number in STRINGLITERAL000000.
         '''
-        string_literals = re.findall(r'\'.*?\'', dict.block_content, re.MULTILINE)
 
-        dict.string_literals = {
-            self.counter(): __class__.remove_quotes_from_string(s)
-            for s in string_literals
-        }
+        # Step 1: Find single quoted string literals in .block_content
+        search_pattern = r'\'.*?\''
+        string_literals = re.findall(search_pattern, dict.block_content, re.MULTILINE)
+        for string_literal in string_literals:
 
-        for index, string_literal in dict.string_literals.items():
+            index = self.counter()
+            placeholder = 'STRINGLITERAL%06i' % index
+
+            # Replace all occurances of the string literal in .block_content with the placeholder (STRINGLITERAL000000)
+            # Note: For re.sub() to work properly we need to escape all special characters
+            search_pattern = re.compile(re.escape(string_literal))
             dict.block_content = re.sub(
-                '\'' + re.escape(string_literal) + '\'',
-                'STRINGLITERAL%06i' % index,
-                dict.block_content
+                search_pattern, placeholder, dict.block_content
+            )                                                       # replace string literal in .block_content with placeholder
+
+            # Register the string literal in .string_literals
+            dict.string_literals.update(
+                {index: __class__.remove_quotes_from_string(string_literal)}
             )
+
+        # dict.string_literals = {
+        #     self.counter(): __class__.remove_quotes_from_string(s)
+        #     for s in string_literals
+        # }
+
+        # for index, string_literal in dict.string_literals.items():
+        #     dict.block_content = re.sub(
+        #         '\'' + re.escape(string_literal) + '\'',
+        #         'STRINGLITERAL%06i' % index,
+        #         dict.block_content
+        #     )
+
+        # Step 2: Find double quoted string literals in .block_content
+        # Double quoted strings are identified as string literals only in case they do not contain a $ character.
+        # (double quoted strings containing a $ character are considered expressions, not string literals.)
+        search_pattern = r'\".*?\"'
+        string_literals = re.findall(search_pattern, dict.block_content, re.MULTILINE)
+        for string_literal in string_literals:
+            if '$' not in string_literal:
+
+                index = self.counter()
+                placeholder = 'STRINGLITERAL%06i' % index
+
+                # Replace all occurances of the string literal in .block_content with the placeholder (STRINGLITERAL000000)
+                # Note: For re.sub() to work properly we need to escape all special characters
+                search_pattern = re.compile(re.escape(string_literal))
+                dict.block_content = re.sub(
+                    search_pattern, placeholder, dict.block_content
+                )                                                       # replace expression in .block_content with placeholder
+
+                # Register the string literal in .string_literals
+                dict.string_literals.update(
+                    {index: __class__.remove_quotes_from_string(string_literal)}
+                )
+
         return
 
     def extract_expressions(self, dict: CppDict):
