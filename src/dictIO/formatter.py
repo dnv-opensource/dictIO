@@ -1,16 +1,15 @@
 import io
+import logging
 import re
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, MutableMapping, MutableSequence, Union
 from xml.dom import minidom
 # from lxml.etree import register_namespace
-from xml.etree.ElementTree import (Element, SubElement, Comment, register_namespace, tostring)
-import logging
-
-from dictIO.utils.counter import BorgCounter
+from xml.etree.ElementTree import (Element, SubElement, register_namespace, tostring)
 
 from dictIO.cppDict import CppDict
+from dictIO.utils.counter import BorgCounter
 
 
 __ALL__ = ['Formatter']
@@ -364,8 +363,8 @@ class CppFormatter(Formatter):
             except ValueError:
                 logger.exception(f'include path could not be resolved: {include_path}')
             if rel_path:
-                include = self.format_type(str(rel_path))
-                include_directive = f'#include {include}'
+                include_file_name = self.format_type(str(rel_path))
+                include_directive = f'#include {include_file_name}'
             s = re.sub(search_pattern, include_directive.replace('\\', '\\\\'), s)
 
         return s
@@ -521,12 +520,44 @@ class JsonFormatter(Formatter):
             ensure_ascii=True,
             check_circular=True,
             allow_nan=True,
-            sort_keys=True,
+            sort_keys=False,
             indent=4,
             separators=(',', ':'),
         )
+        if isinstance(dict, CppDict):
+            s = self.insert_includes(dict, s)
         # forced quotes
         # s = re.sub(r'\b([\w\d_]+)\b', '"\\1"', s)
+
+        return s
+
+    def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
+        '''
+        Inserts back all include directives
+        '''
+        from dictIO.utils.strings import remove_quotes
+        for key, (include_directive, include_path) in cpp_dict.includes.items():
+            # Search for the placeholder key in the Json string,
+            # and insert back the original include directive.
+            search_pattern = r'"INCLUDE%06i"\s*:\s*"INCLUDE%06i"' % (key, key)
+
+            include_file_name: str = ''
+            if re.search(r'^\s*#\s*include', include_directive):
+                include_file_name = re.sub(r'(^\s*#\s*include\s*|\s*$)', '', include_directive)
+                include_file_name = remove_quotes(include_file_name)
+
+            rel_path: Union[Path, None] = None
+            try:
+                rel_path = include_path.relative_to(Path.cwd())
+            except ValueError:
+                logger.exception(f'include path could not be resolved: {include_path}')
+            if rel_path:
+                include_file_name = str(rel_path)
+
+            if include_file_name:
+                include_file_name = include_file_name.replace('\\', '\\\\')
+                include_directive = f'"#include":"{include_file_name}"'
+                s = re.sub(search_pattern, include_directive, s)
 
         return s
 
@@ -682,18 +713,18 @@ class XmlFormatter(Formatter):
 
                 elif re.match('BLOCKCOMMENT[0-9]+', key):
                     if re.search('.*0$', key):
-                        #take all except the first one as this is /* C++ dict */
+                        # take all except the first one as this is /* C++ dict */
                         pass
                     else:
                         # @TODO: Implement substitution of BLOCKCOMMENT
-                        #cIndex = int(re.findall('(?<=BLOCKCOMMENT)[0-9]+', key)[0])
-                        #element.append(Comment(item))
+                        # cIndex = int(re.findall('(?<=BLOCKCOMMENT)[0-9]+', key)[0])
+                        # element.append(Comment(item))
                         pass
 
                 elif re.match('LINECOMMENT[0-9]+', key):
                     # @TODO: Implement substitution of LINECOMMENT
-                    #cIndex = int(re.findall('(?<=LINECOMMENT)[0-9;]+', key)[0])
-                    #root_element.append(Comment(re.sub('/', '', self.dict.line_comments[cIndex])))
+                    # cIndex = int(re.findall('(?<=LINECOMMENT)[0-9;]+', key)[0])
+                    # root_element.append(Comment(re.sub('/', '', self.dict.line_comments[cIndex])))
                     pass
 
                 else:

@@ -1,14 +1,12 @@
 import os
 import re
 from copy import deepcopy
-from difflib import ndiff
 from pathlib import Path, PurePath
 
 import pytest
 from dictIO.cppDict import CppDict
 from dictIO.dictReader import DictReader
 from dictIO.dictWriter import DictWriter, create_target_file_name
-from dictIO.formatter import CppFormatter, XmlFormatter
 from dictIO.parser import FoamParser
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.path import silent_remove
@@ -278,6 +276,45 @@ def test_read_cpp_write_foam_with_includes():
     silent_remove(target_file)
 
 
+def test_read_cpp_write_json():
+    # Prepare
+    source_file = Path('test_dictWriter_dict')
+    target_file = Path('parsed.test_dictWriter_dict.json')
+    silent_remove(target_file)
+    dict_read = DictReader.read(source_file, includes=False, comments=False)
+    # Execute
+    DictWriter.write(dict_read, target_file)
+    # Assert
+    assert target_file.exists()
+    dict_reread = DictReader.read(target_file, includes=False, comments=False)
+    assert dict_read == dict_reread
+    assert str(dict_read) == str(dict_reread)
+    # Clean up
+    silent_remove(target_file)
+
+
+def test_read_cpp_write_json_with_includes():
+    # Prepare
+    source_file = Path('test_dictWriter_dict')
+    target_file = Path('parsed.test_dictWriter_dict.json')
+    silent_remove(target_file)
+    dict_read = DictReader.read(source_file, includes=True, comments=False)
+    # Execute
+    DictWriter.write(dict_read, target_file)
+    # Assert
+    assert target_file.exists()
+    dict_reread = DictReader.read(target_file, includes=True, comments=False)
+    assert dict_read == dict_reread
+    assert str(dict_read) == str(dict_reread)
+    # Clean up
+    silent_remove(target_file)
+
+
+# @TODO: The XML tests expectedly fail as our XML parser and formatter
+#        do not support yet the full breadth of dicts.
+#        However, the tests mark a good goal. We can improve the
+#        XML parser and formatter one day to the point these tests pass.
+#        CLAROS, 2021-12-22
 def test_read_cpp_write_xml():
     # Prepare
     source_file = Path('test_dictWriter_dict')

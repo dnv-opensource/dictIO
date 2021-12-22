@@ -6,7 +6,7 @@ from pathlib import Path
 from dictIO.cppDict import CppDict
 from dictIO.dictReader import DictReader
 from dictIO.dictWriter import create_target_file_name
-from dictIO.formatter import CppFormatter, Formatter, XmlFormatter, FoamFormatter
+from dictIO.formatter import CppFormatter, XmlFormatter, FoamFormatter
 from dictIO.utils.path import silent_remove
 
 

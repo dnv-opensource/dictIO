@@ -1,15 +1,15 @@
-import re
+import logging
 import os
+import re
 from pathlib import Path
 from typing import Any, MutableMapping, MutableSequence, Union
 from xml.etree.ElementTree import Element
-import logging
 
 # from lxml.etree import register_namespace
 from lxml.etree import ETCompatXMLParser, fromstring
-from dictIO.utils.counter import BorgCounter
 
 from dictIO.cppDict import CppDict
+from dictIO.utils.counter import BorgCounter
 
 
 __ALL__ = ['Parser']
@@ -1091,7 +1091,6 @@ class FoamParser(CppParser):
         return parsed_dict
 
 
-# @TODO: To be implemented
 class JsonParser(Parser):
     '''
     Dict parser to deserialize a file in json format into a dict.
@@ -1105,7 +1104,6 @@ class JsonParser(Parser):
         # Invoke base class constructor
         super().__init__()
 
-    # @TODO: To be implemented
     def parse_string(
         self,
         string: str,
@@ -1115,36 +1113,46 @@ class JsonParser(Parser):
         '''
         Parses a string in Json dictionary format and deserializes it into a CppDict.
         '''
+        import json
 
         # +++CALL BASE CLASS IMPLEMENTATION+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
         parsed_dict = super().parse_string(string, target_dict, comments)
 
         # +++PARSE DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-        # Place implementation specific code here
-
-        # forced quotes
-        # string = re.sub(r'\b([\w\d_]+)\b', '"\\1"', string)
-        '''
-        # @TODO: To be implemented
-        parsed_dict.data = json.load(
-            file_content,
-            skipkeys=True,
-            ensure_ascii=True,
-            check_circular=True,
-            allow_nan=True,
-            sort_keys=True,
-            indent=4,
-            separators=(',', ':')
-        )
-        '''
+        parsed_dict.data = json.loads(string)
+        self.extract_includes(parsed_dict)
 
         # +++MERGE PARSED DICTIONARY INTO TARGET DICTIONARY+++++++++++++++++++++++++++++++++++++++++
         target_dict.merge(parsed_dict)
 
         # +++RETURN PARSED DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         return parsed_dict
+
+    def extract_includes(self, dict: CppDict):
+        from copy import deepcopy
+        keys: list = list(dict.data.keys())
+        for key in keys:
+            if isinstance(key, str) and re.search(r'^\s*#\s*include', key):
+                include_file_name = str(dict[key])
+                include_file_name = __class__.remove_quotes_from_string(include_file_name)
+
+                include_file = Path.joinpath(dict.path, include_file_name)
+
+                include_file_name = include_file_name.replace('\\', '\\\\')
+                include_directive = f"#include '{include_file_name}'"
+
+                ii = self.counter()
+                dict.includes.update({ii: (include_directive, include_file)})
+
+                del dict[key]
+
+                include_directive_placeholder_key = {f'INCLUDE{ii:06d}': f'INCLUDE{ii:06d}'}
+                data_temp = deepcopy(dict.data)
+                dict.data.clear()
+                dict.data.update(include_directive_placeholder_key)
+                dict.data.update(data_temp)
+
+        return
 
 
 class XmlParser(Parser):
