@@ -596,17 +596,18 @@ class TestCppParser():
         # Execute
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
-        assert len(dict_out) == 10
+        assert len(dict_out) == 11
         assert list(dict_out.keys())[0][:12] == 'BLOCKCOMMENT'
         assert list(dict_out.keys())[1][:7] == 'INCLUDE'
         assert list(dict_out.keys())[2][:11] == 'LINECOMMENT'
         assert list(dict_out.keys())[3] == 'emptyDict'
         assert list(dict_out.keys())[4] == 'emptyList'
         assert list(dict_out.keys())[5] == 'numerals'
-        assert list(dict_out.keys())[6] == 'stringLiterals'
-        assert list(dict_out.keys())[7] == 'nesting'
-        assert list(dict_out.keys())[8] == 'expressions'
-        assert list(dict_out.keys())[9] == 'theDictInAListPitfall'
+        assert list(dict_out.keys())[6] == 'booleans'
+        assert list(dict_out.keys())[7] == 'stringLiterals'
+        assert list(dict_out.keys())[8] == 'nesting'
+        assert list(dict_out.keys())[9] == 'expressions'
+        assert list(dict_out.keys())[10] == 'theDictInAListPitfall'
 
     def test_parse_tokenized_dict_numerals(self):
         # Prepare
@@ -623,6 +624,24 @@ class TestCppParser():
         assert dict_out['numerals']['int1'] == 0
         assert dict_out['numerals']['int2'] == 120
         assert dict_out['numerals']['float1'] == 3.5
+
+    def test_parse_tokenized_dict_booleans(self):
+        # Prepare
+        dict_in = CppDict()
+        SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
+        parser = CppParser()
+        # Execute
+        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        # Assert
+        assert len(dict_out['booleans']) == 4   # bool1, bool2, bool3, bool4
+        assert isinstance(dict_out['booleans']['bool1'], bool)
+        assert isinstance(dict_out['booleans']['bool2'], bool)
+        assert isinstance(dict_out['booleans']['bool3'], bool)
+        assert isinstance(dict_out['booleans']['bool4'], bool)
+        assert dict_out['booleans']['bool1'] is False
+        assert dict_out['booleans']['bool2'] is True
+        assert dict_out['booleans']['bool3'] is False
+        assert dict_out['booleans']['bool4'] is True
 
     def test_parse_tokenized_dict_strings(self):
         # Prepare

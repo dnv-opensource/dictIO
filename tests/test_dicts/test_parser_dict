@@ -23,6 +23,14 @@ numerals
     float1                    3.5;
 }
 
+booleans
+{
+    bool1                     false;
+    bool2                     true;
+    bool3                     False;
+    bool4                     True;
+}
+
 stringLiterals
 {
     string1                   '';
