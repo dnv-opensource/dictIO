@@ -17,10 +17,10 @@ def test_merge_includes():  # sourcery skip: class-extract-method
     dict_in = deepcopy(dict.data)
                             # Preparations done.
                             # Now start the actual test
-    assert dict_in['references']['reference']['value'][:10] == 'EXPRESSION'
-    assert dict_in['references']['expression1']['value'][:10] == 'EXPRESSION'
-    assert dict_in['references']['expression2']['value'][:10] == 'EXPRESSION'
-    assert dict_in['references']['expression3']['value'][:10] == 'EXPRESSION'
+    assert dict_in['expressions']['reference']['value'][:10] == 'EXPRESSION'
+    assert dict_in['expressions']['expression1']['value'][:10] == 'EXPRESSION'
+    assert dict_in['expressions']['expression2']['value'][:10] == 'EXPRESSION'
+    assert dict_in['expressions']['expression3']['value'][:10] == 'EXPRESSION'
     DictReader._merge_includes(dict)
     dict_out = dict.data
                             # check whether test_dictReader_paramDict has been merged
@@ -95,30 +95,30 @@ def test_eval_expressions():
     dict = CppDict()
     SetupHelper.prepare_dict_until(dict_to_prepare=dict, until_step=0)
     dict_in = deepcopy(dict.data)
-    assert dict_in['references']['reference']['value'][:10] == 'EXPRESSION'             # $paramA
-    assert dict_in['references']['expression1']['value'][:10] == 'EXPRESSION'           # "$paramB"
-    assert dict_in['references']['expression2']['value'][:10] == 'EXPRESSION'           # "$paramC + 4"
-    assert dict_in['references']['expression3']['value'][:10] == 'EXPRESSION'           # "$paramC + $paramD"
-    assert dict_in['references']['expressionE']['value'][:10] == 'EXPRESSION'           # $paramE[0]
-    assert dict_in['references']['expressionF']['value'][:10] == 'EXPRESSION'           # $paramF[0][0]
-    assert dict_in['references']['expressionG1']['value'][:10] == 'EXPRESSION'          # "$paramG"
-    assert dict_in['references']['expressionG2']['value'][:10] == 'EXPRESSION'          # "$paramG[0]"
-    assert dict_in['references']['expressionG3']['value'][:10] == 'EXPRESSION'          # "$paramG[1][2]"
-                                                                                        # Preparations done.
+    assert dict_in['expressions']['reference']['value'][:10] == 'EXPRESSION'                # $paramA
+    assert dict_in['expressions']['expression1']['value'][:10] == 'EXPRESSION'              # "$paramB"
+    assert dict_in['expressions']['expression2']['value'][:10] == 'EXPRESSION'              # "$paramC + 4"
+    assert dict_in['expressions']['expression3']['value'][:10] == 'EXPRESSION'              # "$paramC + $paramD"
+    assert dict_in['expressions']['expressionE']['value'][:10] == 'EXPRESSION'              # $paramE[0]
+    assert dict_in['expressions']['expressionF']['value'][:10] == 'EXPRESSION'              # $paramF[0][0]
+    assert dict_in['expressions']['expressionG1']['value'][:10] == 'EXPRESSION'             # "$paramG"
+    assert dict_in['expressions']['expressionG2']['value'][:10] == 'EXPRESSION'             # "$paramG[0]"
+    assert dict_in['expressions']['expressionG3']['value'][:10] == 'EXPRESSION'             # "$paramG[1][2]"
+                                                                                            # Preparations done.
     DictReader._eval_expressions(dict)
     dict_out = dict.data
-                                                                                        # check whether references have been resolved
-    assert dict_out['references']['reference']['value'] == 3.0                          # 3.0
-    assert dict_out['references']['expression1']['value'] == 4.0                        # 4.0
-    assert dict_out['references']['expression2']['value'] == 11.0                       # 7.0 + 4
-    assert dict_out['references']['expression3']['value'] == 7.66                       # 7.0 + 0.66
-    assert dict_out['references']['expressionE']['value'] == 0.1                        # paramE[0]
-    assert dict_out['references']['expressionF']['value'] == 0.3                        # paramF[0][0]
-    assert dict_out['references']['expressionG1']['value'] == [
+                                                                                            # check whether references have been resolved
+    assert dict_out['expressions']['reference']['value'] == 3.0                             # 3.0
+    assert dict_out['expressions']['expression1']['value'] == 4.0                           # 4.0
+    assert dict_out['expressions']['expression2']['value'] == 11.0                          # 7.0 + 4
+    assert dict_out['expressions']['expression3']['value'] == 7.66                          # 7.0 + 0.66
+    assert dict_out['expressions']['expressionE']['value'] == 0.1                           # paramE[0]
+    assert dict_out['expressions']['expressionF']['value'] == 0.3                           # paramF[0][0]
+    assert dict_out['expressions']['expressionG1']['value'] == [
         [10, 'fancy', 3.14, 's'], ['more', 2, 'come']
-    ]                                                                                   # paramG
-    assert dict_out['references']['expressionG2']['value'] == [10, 'fancy', 3.14, 's']  # paramG[0]
-    assert dict_out['references']['expressionG3']['value'] == 'come'                    # paramG[1][2]
+    ]                                                                                       # paramG
+    assert dict_out['expressions']['expressionG2']['value'] == [10, 'fancy', 3.14, 's']     # paramG[0]
+    assert dict_out['expressions']['expressionG3']['value'] == 'come'                       # paramG[1][2]
 
 
 def test_eval_expressions_with_included_keys():

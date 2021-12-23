@@ -603,9 +603,9 @@ class TestCppParser():
         assert list(dict_out.keys())[3] == 'emptyDict'
         assert list(dict_out.keys())[4] == 'emptyList'
         assert list(dict_out.keys())[5] == 'numerals'
-        assert list(dict_out.keys())[6] == 'strings'
+        assert list(dict_out.keys())[6] == 'stringLiterals'
         assert list(dict_out.keys())[7] == 'nesting'
-        assert list(dict_out.keys())[8] == 'references'
+        assert list(dict_out.keys())[8] == 'expressions'
         assert list(dict_out.keys())[9] == 'theDictInAListPitfall'
 
     def test_parse_tokenized_dict_numerals(self):
@@ -632,12 +632,19 @@ class TestCppParser():
         # Execute
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
-        assert len(dict_out['strings']) == 1
-        assert dict_out['strings']['listWithStrings'][0][:13] == 'STRINGLITERAL'
-        assert dict_out['strings']['listWithStrings'][1][:13] == 'STRINGLITERAL'
-        assert dict_out['strings']['listWithStrings'][2][:13] == 'STRINGLITERAL'
-        assert dict_out['strings']['listWithStrings'][3][:13] == 'STRINGLITERAL'
-        assert dict_out['strings']['listWithStrings'][4][:13] == 'STRINGLITERAL'
+        assert len(dict_out['stringLiterals']) == 7
+        assert dict_out['stringLiterals']['string1'][:13] == 'STRINGLITERAL'
+        assert dict_out['stringLiterals']['string2'][:13] == 'STRINGLITERAL'
+        assert dict_out['stringLiterals']['string3'][:13] == 'STRINGLITERAL'
+        assert dict_out['stringLiterals'][
+            'string4'] == 'simpleStringsWithoutSpacesCanAlsoBeDeclaredWithoutQuotes'
+        assert dict_out['stringLiterals']['string5'][:13] == 'STRINGLITERAL'
+        assert dict_out['stringLiterals']['string6'][:13] == 'STRINGLITERAL'
+        assert dict_out['stringLiterals']['listWithStrings'][0][:13] == 'STRINGLITERAL'
+        assert dict_out['stringLiterals']['listWithStrings'][1][:13] == 'STRINGLITERAL'
+        assert dict_out['stringLiterals']['listWithStrings'][2][:13] == 'STRINGLITERAL'
+        assert dict_out['stringLiterals']['listWithStrings'][3][:13] == 'STRINGLITERAL'
+        assert dict_out['stringLiterals']['listWithStrings'][4][:13] == 'STRINGLITERAL'
 
     def test_parse_tokenized_dict_nesting(self):
         # Prepare
@@ -687,7 +694,7 @@ class TestCppParser():
         assert dict_out['nesting']['nestedListWithNestedDict'][2][1] == 32
         assert dict_out['nesting']['nestedListWithNestedDict'][2][2] == 33
 
-    def test_parse_tokenized_dict_references(self):
+    def test_parse_tokenized_dict_expressions(self):
         # Prepare
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
@@ -695,25 +702,25 @@ class TestCppParser():
         # Execute
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
-        assert len(dict_out['references']) == 13                # reference..G3 (level 2)
-        assert len(dict_out['references']['reference']) == 3    # name,value,COMMENT (level 3)
-        assert len(dict_out['references']['expression1']) == 3
-        assert len(dict_out['references']['expression2']) == 3
-        assert len(dict_out['references']['expression3']) == 3
-        assert len(dict_out['references']['expressionE']) == 3
-        assert len(dict_out['references']['expressionF']) == 3
-        assert len(dict_out['references']['expressionG1']) == 3
-        assert len(dict_out['references']['expressionG2']) == 3
-        assert len(dict_out['references']['expressionG3']) == 3
-        assert dict_out['references']['reference']['name'][:13] == 'STRINGLITERAL'
-        assert dict_out['references']['expression1']['value'][:10] == 'EXPRESSION'
-        assert dict_out['references']['expression2']['value'][:10] == 'EXPRESSION'
-        assert dict_out['references']['expression3']['value'][:10] == 'EXPRESSION'
-        assert dict_out['references']['expressionE']['value'][:10] == 'EXPRESSION'
-        assert dict_out['references']['expressionF']['value'][:10] == 'EXPRESSION'
-        assert dict_out['references']['expressionG1']['value'][:10] == 'EXPRESSION'
-        assert dict_out['references']['expressionG2']['value'][:10] == 'EXPRESSION'
-        assert dict_out['references']['expressionG3']['value'][:10] == 'EXPRESSION'
+        assert len(dict_out['expressions']) == 13               # reference..G3 (level 2)
+        assert len(dict_out['expressions']['reference']) == 3   # name,value,COMMENT (level 3)
+        assert len(dict_out['expressions']['expression1']) == 3
+        assert len(dict_out['expressions']['expression2']) == 3
+        assert len(dict_out['expressions']['expression3']) == 3
+        assert len(dict_out['expressions']['expressionE']) == 3
+        assert len(dict_out['expressions']['expressionF']) == 3
+        assert len(dict_out['expressions']['expressionG1']) == 3
+        assert len(dict_out['expressions']['expressionG2']) == 3
+        assert len(dict_out['expressions']['expressionG3']) == 3
+        assert dict_out['expressions']['reference']['name'][:13] == 'STRINGLITERAL'
+        assert dict_out['expressions']['expression1']['value'][:10] == 'EXPRESSION'
+        assert dict_out['expressions']['expression2']['value'][:10] == 'EXPRESSION'
+        assert dict_out['expressions']['expression3']['value'][:10] == 'EXPRESSION'
+        assert dict_out['expressions']['expressionE']['value'][:10] == 'EXPRESSION'
+        assert dict_out['expressions']['expressionF']['value'][:10] == 'EXPRESSION'
+        assert dict_out['expressions']['expressionG1']['value'][:10] == 'EXPRESSION'
+        assert dict_out['expressions']['expressionG2']['value'][:10] == 'EXPRESSION'
+        assert dict_out['expressions']['expressionG3']['value'][:10] == 'EXPRESSION'
 
     def test_parse_tokenized_dict_theDictInAListPitfall(self):
         # This test case adresses issue #6 that Frank raised on Github
@@ -771,12 +778,12 @@ class TestCppParser():
         parser.insert_string_literals(dict)
         # Assert
         dict_out = dict.data
-        assert dict_out['strings']['listWithStrings'][0] == 'string1'
-        assert dict_out['strings']['listWithStrings'][1] == 'string2 has spaces'
-        assert dict_out['strings']['listWithStrings'][2] == 'string3'
-        assert dict_out['strings']['listWithStrings'][
+        assert dict_out['stringLiterals']['listWithStrings'][0] == 'string1'
+        assert dict_out['stringLiterals']['listWithStrings'][1] == 'string2 has spaces'
+        assert dict_out['stringLiterals']['listWithStrings'][2] == 'string3'
+        assert dict_out['stringLiterals']['listWithStrings'][
             3] == 'string4 is ok but note that string5 is empty'
-        assert dict_out['strings']['listWithStrings'][4] == ''
+        assert dict_out['stringLiterals']['listWithStrings'][4] == ''
 
 
 class TestXmlParser():

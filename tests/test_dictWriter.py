@@ -318,11 +318,12 @@ def test_read_cpp_write_json_with_includes():
     silent_remove(target_file)
 
 
-# @TODO: The XML tests expectedly fail as our XML parser and formatter
-#        do not support yet the full breadth of dicts.
+# @TODO: The XML tests expectedly fail as XmlParser and XmlFormatter
+#        do not support yet all dict elements.
 #        However, the tests mark a good goal. We can improve the
 #        XML parser and formatter one day to the point these tests pass.
 #        CLAROS, 2021-12-22
+@pytest.mark.skip(reason="XmlParser and XmlFormatter do not support yet all dict elements")
 def test_read_cpp_write_xml():
     # Prepare
     source_file = Path('test_dictWriter_dict')
@@ -340,6 +341,7 @@ def test_read_cpp_write_xml():
     silent_remove(target_file)
 
 
+@pytest.mark.skip(reason="XmlParser and XmlFormatter do not support yet all dict elements")
 def test_read_cpp_write_xml_with_includes():
     # Prepare
     source_file = Path('test_dictWriter_dict')

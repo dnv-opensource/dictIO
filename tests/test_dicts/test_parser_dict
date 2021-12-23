@@ -18,13 +18,19 @@ emptyList
 
 numerals
 {
-    int1                   0;
-    int2                 120;
-    float1               3.5;
+    int1                      0;
+    int2                      120;
+    float1                    3.5;
 }
 
-strings
+stringLiterals
 {
+    string1                   '';
+    string2                   'string';
+    string3                   'string with spaces';
+    string4                   simpleStringsWithoutSpacesCanAlsoBeDeclaredWithoutQuotes;
+    string5                   'string with single quotes';
+    string6                   "string with double quotes";
     listWithStrings
     (
         'string1'    'string2 has spaces'    'string3'     'string4 is ok but note that string5 is empty'     ''
@@ -69,7 +75,7 @@ nesting
     );
 }
 
-references
+expressions
 {
     reference   // reference
     {
