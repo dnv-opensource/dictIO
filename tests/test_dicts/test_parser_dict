@@ -118,7 +118,7 @@ references
     }
 }
 
-theKeyPitfall
+theDictInAListPitfall
 {
     keyToADict          // This is a key. You can access its value (the subsequent dict {}) as a key'd element              -> exampleDict['keyToADict']
     {                   // This is the key'd element associated with key 'keyToADict'. It is of type dict.

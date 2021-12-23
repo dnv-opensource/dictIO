@@ -606,7 +606,7 @@ class TestCppParser():
         assert list(dict_out.keys())[6] == 'strings'
         assert list(dict_out.keys())[7] == 'nesting'
         assert list(dict_out.keys())[8] == 'references'
-        assert list(dict_out.keys())[9] == 'theKeyPitfall'
+        assert list(dict_out.keys())[9] == 'theDictInAListPitfall'
 
     def test_parse_tokenized_dict_numerals(self):
         # Prepare
@@ -715,7 +715,7 @@ class TestCppParser():
         assert dict_out['references']['expressionG2']['value'][:10] == 'EXPRESSION'
         assert dict_out['references']['expressionG3']['value'][:10] == 'EXPRESSION'
 
-    def test_parse_tokenized_dict_theKeyPitfall(self):
+    def test_parse_tokenized_dict_theDictInAListPitfall(self):
         # This test case adresses issue #6 that Frank raised on Github
         # https://github.com/MaritimeOSPx/ModelVerification/issues/6
 
@@ -726,33 +726,41 @@ class TestCppParser():
         # Execute
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
-        assert len(dict_out['theKeyPitfall']) == 1
-        assert len(dict_out['theKeyPitfall']['keyToADict']) == 1                    # list
+        assert len(dict_out['theDictInAListPitfall']) == 1
+        assert len(dict_out['theDictInAListPitfall']['keyToADict']) == 1                        # list
         assert len(
-            dict_out['theKeyPitfall']['keyToADict']['keyToAList']
-        ) == 7                                                                      # 'notAKey', {}, 'notAKey', 'notAKey', 'notAKey', 'notAKey', {}
-        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][0], str)
-        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][1], dict)
-        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][2], str)
-        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][3], str)
-        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][4], str)
-        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][5], str)
-        assert isinstance(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][6], dict)
-        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][0] == 'notAKey'
-        assert len(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][1]) == 2   # key1, key2
-        assert list(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][1].keys())[0] == 'key1'
-        assert list(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][1].keys())[1] == 'key2'
-        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][1]['key1'] == 'value1'
-        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][1]['key2'] == 'value2'
-        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][2] == 'notAKey'
-        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][3] == 'notAKey'
-        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][4] == 'notAKey'
-        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][5] == 'notAKey'
-        assert len(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][6]) == 2   # key1, key2
-        assert list(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][6].keys())[0] == 'key1'
-        assert list(dict_out['theKeyPitfall']['keyToADict']['keyToAList'][6].keys())[1] == 'key2'
-        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][6]['key1'] == 'value1'
-        assert dict_out['theKeyPitfall']['keyToADict']['keyToAList'][6]['key2'] == 'value2'
+            dict_out['theDictInAListPitfall']['keyToADict']['keyToAList']
+        ) == 7                                                                                  # 'notAKey', {}, 'notAKey', 'notAKey', 'notAKey', 'notAKey', {}
+        assert isinstance(dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][0], str)
+        assert isinstance(dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][1], dict)
+        assert isinstance(dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][2], str)
+        assert isinstance(dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][3], str)
+        assert isinstance(dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][4], str)
+        assert isinstance(dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][5], str)
+        assert isinstance(dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][6], dict)
+        assert dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][0] == 'notAKey'
+        assert len(
+            dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][1]
+        ) == 2                                                                                  # key1, key2
+        assert list(dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][1].keys()
+                    )[0] == 'key1'
+        assert list(dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][1].keys()
+                    )[1] == 'key2'
+        assert dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][1]['key1'] == 'value1'
+        assert dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][1]['key2'] == 'value2'
+        assert dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][2] == 'notAKey'
+        assert dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][3] == 'notAKey'
+        assert dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][4] == 'notAKey'
+        assert dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][5] == 'notAKey'
+        assert len(
+            dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][6]
+        ) == 2                                                                                  # key1, key2
+        assert list(dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][6].keys()
+                    )[0] == 'key1'
+        assert list(dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][6].keys()
+                    )[1] == 'key2'
+        assert dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][6]['key1'] == 'value1'
+        assert dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][6]['key2'] == 'value2'
 
     def test_insert_string_literals(self):
         # Prepare
