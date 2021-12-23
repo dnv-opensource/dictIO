@@ -1,7 +1,12 @@
 /*---------------------------------*- C++ -*----------------------------------*\
 filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
 \*----------------------------------------------------------------------------*/
-#include 'paramDict_not_found'
+#include 'a_paramDict_in_same_folder'
+#include 'subfolder/a_paramDict_in_subfolder_fsl'
+#include '../a_paramDict_in_parent_folder_fsl'
+#include 'subfolder\a_paramDict_in_subfolder_bsl'
+#include '..\a_paramDict_in_parent_folder_bsl'
+
 // This is a line comment at the top of the file
 emptyDict
 {

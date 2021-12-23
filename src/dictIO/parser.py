@@ -391,9 +391,8 @@ class CppParser(Parser):
         with a placeholder in the form #INCLUDE000000 .
         The absolute path to the file referenced in the include directive is determined.
         The original line with its include directive as well as the absolute path to the file to include
-        is then stored as a key-value pair in dict.includes, in the form {index:(include_directive, path)}
-               index, therein, corresponds to the integer number in #INCLUDE000000.
-            2. Just the path in .includeList
+        is then stored as a key-value pair in dict.includes, in the form {index:(include_directive, include_file_name, include_file_path)}
+        index, therein, corresponds to the integer number in #INCLUDE000000.
         '''
 
         for index, line in enumerate(dict.line_content):
@@ -404,13 +403,15 @@ class CppParser(Parser):
                 include_file_name = re.sub(r'(^\s*#\s*include\s*|\s*$)', '', line)
                 include_file_name = __class__.remove_quotes_from_string(include_file_name)
 
-                include_file = Path.joinpath(dict.path, include_file_name)
+                include_file_path = Path.joinpath(dict.path, include_file_name)
 
                 include_directive = line
                 if line[-1] == '\n':
                     include_directive = line[:-1]
 
-                dict.includes.update({ii: (include_directive, include_file)})
+                dict.includes.update(
+                    {ii: (include_directive, include_file_name, include_file_path)}
+                )
 
         return
 
@@ -1130,27 +1131,30 @@ class JsonParser(Parser):
 
     def extract_includes(self, dict: CppDict):
         from copy import deepcopy
-        keys: list = list(dict.data.keys())
+        keys = list(dict.data.keys())
+        include_placeholder_keys = {}
         for key in keys:
             if isinstance(key, str) and re.search(r'^\s*#\s*include', key):
                 include_file_name = str(dict[key])
                 include_file_name = __class__.remove_quotes_from_string(include_file_name)
 
-                include_file = Path.joinpath(dict.path, include_file_name)
+                include_file_path = Path.joinpath(dict.path, include_file_name)
 
-                include_file_name = include_file_name.replace('\\', '\\\\')
-                include_directive = f"#include '{include_file_name}'"
+                include_file_name_temp = include_file_name.replace('\\', '\\\\')
+                include_directive = f"#include '{include_file_name_temp}'"
 
                 ii = self.counter()
-                dict.includes.update({ii: (include_directive, include_file)})
+                dict.includes.update(
+                    {ii: (include_directive, include_file_name, include_file_path)}
+                )
 
+                include_placeholder_keys[f'INCLUDE{ii:06d}'] = f'INCLUDE{ii:06d}'
                 del dict[key]
 
-                include_directive_placeholder_key = {f'INCLUDE{ii:06d}': f'INCLUDE{ii:06d}'}
-                data_temp = deepcopy(dict.data)
-                dict.data.clear()
-                dict.data.update(include_directive_placeholder_key)
-                dict.data.update(data_temp)
+        data_temp = deepcopy(dict.data)
+        dict.data.clear()
+        dict.data.update(include_placeholder_keys)
+        dict.data.update(data_temp)
 
         return
 

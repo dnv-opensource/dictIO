@@ -333,11 +333,13 @@ class TestCppParser():
                 line,
             )) is False
         assert len(dict.includes) == 5
-        path_assert = Path('testDict').absolute()
-        for include_directive, path in dict.includes.values():
+        file_name_assert = 'testDict'
+        file_path_assert = Path('testDict').absolute()
+        for include_directive, include_file_name, include_file_path in dict.includes.values():
             assert bool(re.search(str(r'#\s*include'), str(include_directive))) is True
             assert bool(re.search(str(r'\n'), str(include_directive))) is False
-            assert path == path_assert
+            assert include_file_name == file_name_assert
+            assert include_file_path == file_path_assert
 
     def test_convert_line_content_to_block_content(self):
         dict = CppDict()

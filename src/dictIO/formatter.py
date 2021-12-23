@@ -352,20 +352,14 @@ class CppFormatter(Formatter):
         '''
         Inserts back all include directives
         '''
-        for key, (include_directive, include_path) in cpp_dict.includes.items():
+        for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
             # Search for the placeholder entry we created in parse_tokenized_dict(),
             # and insert back the original include directive.
+            include_file_name = include_file_name.replace('\\', '\\\\')
+            include_file_name = self.format_type(include_file_name)
+            include_directive = f'#include {include_file_name}'
             search_pattern = r'INCLUDE%06i\s+INCLUDE%06i;' % (key, key)
-            rel_path: Union[Path, None] = None
-            try:
-                # rel_path = Path.cwd().relative_to(include_path)
-                rel_path = include_path.relative_to(Path.cwd())
-            except ValueError:
-                logger.exception(f'include path could not be resolved: {include_path}')
-            if rel_path:
-                include_file_name = self.format_type(str(rel_path))
-                include_directive = f'#include {include_file_name}'
-            s = re.sub(search_pattern, include_directive.replace('\\', '\\\\'), s)
+            s = re.sub(search_pattern, include_directive, s)
 
         return s
 
@@ -526,8 +520,6 @@ class JsonFormatter(Formatter):
         )
         if isinstance(dict, CppDict):
             s = self.insert_includes(dict, s)
-        # forced quotes
-        # s = re.sub(r'\b([\w\d_]+)\b', '"\\1"', s)
 
         return s
 
@@ -536,28 +528,14 @@ class JsonFormatter(Formatter):
         Inserts back all include directives
         '''
         from dictIO.utils.strings import remove_quotes
-        for key, (include_directive, include_path) in cpp_dict.includes.items():
+
+        for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
             # Search for the placeholder key in the Json string,
             # and insert back the original include directive.
+            include_file_name = include_file_name.replace('\\', '/')
+            include_directive = f'"#include{key:06d}":"{include_file_name}"'
             search_pattern = r'"INCLUDE%06i"\s*:\s*"INCLUDE%06i"' % (key, key)
-
-            include_file_name: str = ''
-            if re.search(r'^\s*#\s*include', include_directive):
-                include_file_name = re.sub(r'(^\s*#\s*include\s*|\s*$)', '', include_directive)
-                include_file_name = remove_quotes(include_file_name)
-
-            rel_path: Union[Path, None] = None
-            try:
-                rel_path = include_path.relative_to(Path.cwd())
-            except ValueError:
-                logger.exception(f'include path could not be resolved: {include_path}')
-            if rel_path:
-                include_file_name = str(rel_path)
-
-            if include_file_name:
-                include_file_name = include_file_name.replace('\\', '\\\\')
-                include_directive = f'"#include":"{include_file_name}"'
-                s = re.sub(search_pattern, include_directive, s)
+            s = re.sub(search_pattern, include_directive, s)
 
         return s
 

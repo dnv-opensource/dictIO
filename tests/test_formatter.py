@@ -218,17 +218,18 @@ class TestCppFormatter():
 
     def test_insert_includes(self):
         # Prepare
-        include_line_in = '#include "test formatter paramDict"'
-        include_path_in = Path('test formatter paramDict').absolute()
+        include_directive_in = '#include "test formatter paramDict"'
+        include_file_name_in = 'test formatter paramDict'
+        include_file_path_in = Path('test formatter paramDict').absolute()
 
         dict = CppDict()
-        dict.includes[102] = (include_line_in, include_path_in)
+        dict.includes[102] = (include_directive_in, include_file_name_in, include_file_path_in)
 
         blockcomment_placeholder = 'BLOCKCOMMENT000101            BLOCKCOMMENT000101;'
         include_placeholder = 'INCLUDE000102            INCLUDE000102;'
 
         str_in = blockcomment_placeholder + '\n' + include_placeholder + '\n'
-        str_assert = str_in.replace(include_placeholder, include_line_in.replace('"', '\''))
+        str_assert = str_in.replace(include_placeholder, include_directive_in.replace('"', '\''))
 
         formatter = CppFormatter()
 
@@ -386,17 +387,18 @@ class TestFoamFormatter():
 
     def test_insert_includes(self):
         # Prepare
-        include_line_in = "#include 'test formatter paramDict'"
-        include_path_in = Path('test formatter paramDict').absolute()
+        include_directive_in = "#include 'test formatter paramDict'"
+        include_file_name_in = 'test formatter paramDict'
+        include_file_path_in = Path('test formatter paramDict').absolute()
 
         dict = CppDict()
-        dict.includes[102] = (include_line_in, include_path_in)
+        dict.includes[102] = (include_directive_in, include_file_name_in, include_file_path_in)
 
         blockcomment_placeholder = 'BLOCKCOMMENT000101            BLOCKCOMMENT000101;'
         include_placeholder = 'INCLUDE000102            INCLUDE000102;'
 
         str_in = blockcomment_placeholder + '\n' + include_placeholder + '\n'
-        str_assert = str_in.replace(include_placeholder, include_line_in.replace('\'', '"'))
+        str_assert = str_in.replace(include_placeholder, include_directive_in.replace('\'', '"'))
 
         formatter = FoamFormatter()
 

@@ -125,7 +125,7 @@ class DictReader():
 
         # Inner function: Merge all includes, recursively
         def _merge_includes_recursive(dict: CppDict):
-            for _, path in dict.includes.values():
+            for _, _, path in dict.includes.values():
                 prove_recursive_include = djv(path)
                 if prove_recursive_include is True:
                     logger.warning(f'Recursive include detected. Merging of {path} aborted.')

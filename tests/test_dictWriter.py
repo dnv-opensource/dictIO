@@ -301,6 +301,14 @@ def test_read_cpp_write_json_with_includes():
     dict_read = DictReader.read(source_file, includes=True, comments=False)
     # Execute
     DictWriter.write(dict_read, target_file)
+    # One adjustment is needed:
+    # Json cannot process bsl's. For this reason, all includes in Json are stored with fsl's.
+    # For the comparison to work, we hence need to tweak the includes in the original dict to fsl's only.
+    for key in dict_read.includes:
+        include_directive, include_file_name, include_file_path = dict_read.includes[key]
+        include_directive = include_directive.replace('\\', '/')
+        include_file_name = include_file_name.replace('\\', '/')
+        dict_read.includes[key] = (include_directive, include_file_name, include_file_path)
     # Assert
     assert target_file.exists()
     dict_reread = DictReader.read(target_file, includes=True, comments=False)
