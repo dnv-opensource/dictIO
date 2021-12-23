@@ -20,21 +20,6 @@ class TestFormatter():
 
 class TestCppFormatter():
 
-    def test_to_string(self):
-        # Prepare dict until and including ()
-        dict = CppDict()
-        SetupHelper.prepare_dict(dict_to_prepare=dict)
-        dict_in = deepcopy(dict.data)
-        formatter = CppFormatter()
-        # Execute
-        str_out = str()
-        str_out += formatter.format_dict(dict.data)
-        str_out += formatter.insert_block_comments(dict, str_out)
-        assert dict.data == dict_in     # assert that no whatsoever changes have been made to the  dict itself
-        target_file = os.path.join(dict.path, 'parsed.' + dict.name)
-        with open(target_file, 'w') as f:
-            f.write(str_out)
-
     def test_format_type_string(self):
         formatter = CppFormatter()
         str_in = 'string'
@@ -449,6 +434,8 @@ class TestXmlFormatter():
     def test_to_string(self):
         # Prepare dict until and including ()
         source_file = Path('test_formatter_dict')
+        target_file = create_target_file_name(source_file, prefix='parsed', format='xml')
+        silent_remove(target_file)
         dict = DictReader.read(source_file)
         xml_opts = {
             '_nameSpaces': {
@@ -462,11 +449,13 @@ class TestXmlFormatter():
         # Execute
         str_out = str()
         str_out += formatter.to_string(dict)
-        # assert dict.data == dict_in     # assert that no whatsoever changes have been made to the  dict itself
-        target_file = create_target_file_name(source_file, prefix='parsed', format='xml')
-        silent_remove(target_file)
+        # Assert
+        # @TODO: It seems nothing is de facto tested tested (asserted) here.
+        # -> Needs to checked and properly implemented. CLAROS, 2021-12-23
         with open(target_file, 'w') as f:
             f.write(str_out)
+        # Clean up
+        silent_remove(target_file)
 
 
 class SetupHelper():
