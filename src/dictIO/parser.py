@@ -178,7 +178,7 @@ class Parser():
         if arg in ['-', '_', '.']:
             return arg
 
-        # String numerals shall be converted to numbers (int and float)
+        # String numbers shall be converted to numbers (int and float)
         if re.search(r'^[+-]?\d+$', arg):                           # int
             return int(arg)
         if re.search(r'^[+-]?(\d+(\.\d*)?|\.\d+)$', arg):           # float
@@ -187,13 +187,19 @@ class Parser():
             return float(arg)
 
         # Booleans and None types that are masked as strings
-        # (such as 'False', 'false', 'True', 'true' and 'None')
+        # ('True', 'true', 'False', 'false', 'ON', 'on', 'OFF', 'off', 'None', 'none', 'NULL', 'null')
         # shall be converted to its native Boolean or None type, respectively
-        if re.search(r'^(True)$|^(true)$', arg.strip()):    # bool True
+        if re.search(r'^(true)$', arg.strip().lower()):     # True
             return True
-        if re.search(r'^(False)$|^(false)$', arg.strip()):  # bool False
+        if re.search(r'^(false)$', arg.strip().lower()):    # False
             return False
-        if re.search(r'^(None)$|^(none)$', arg.strip()):    # None
+        if re.search(r'^(on)$', arg.strip().lower()):       # OpenFOAM 'on' -> True
+            return True
+        if re.search(r'^(off)$', arg.strip().lower()):      # OpenFOAM 'off' -> False
+            return False
+        if re.search(r'^(none)$', arg.strip().lower()):     # None
+            return None
+        if re.search(r'^(null)$', arg.strip().lower()):     # C++ 'NULL' or JSON 'null' -> None
             return None
 
         # Any other string: return 'as is', but make sure extra quotes, if so, are stripped.

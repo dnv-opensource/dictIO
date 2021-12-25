@@ -164,6 +164,22 @@ class TestParser():
         bool_in = '  False  '
         bool_out = parser.parse_type(bool_in)
         assert bool_out is False
+        bool_in = 'ON'
+        bool_out = parser.parse_type(bool_in)
+        assert isinstance(bool_out, bool)
+        assert bool_out is True
+        bool_in = 'OFF'
+        bool_out = parser.parse_type(bool_in)
+        assert isinstance(bool_out, bool)
+        assert bool_out is False
+        bool_in = 'on'
+        bool_out = parser.parse_type(bool_in)
+        assert isinstance(bool_out, bool)
+        assert bool_out is True
+        bool_in = 'off'
+        bool_out = parser.parse_type(bool_in)
+        assert isinstance(bool_out, bool)
+        assert bool_out is False
 
     def test_parse_type_none(self):
         parser = Parser()
@@ -181,8 +197,25 @@ class TestParser():
         none_in = '  None  '
         none_out = parser.parse_type(none_in)
         assert none_out is None
+        none_in = 'NULL'
+        none_out = parser.parse_type(none_in)
+        assert not isinstance(none_out, str)
+        assert none_out is None
+        none_in = 'null'
+        none_out = parser.parse_type(none_in)
+        assert not isinstance(none_out, str)
+        assert none_out is None
+        assert none_out is None
+        none_in = 'thisisnotnull'
+        none_out = parser.parse_type(none_in)
+        assert isinstance(none_out, str)
+        assert none_out == none_in
+        none_in = 'nullwithsomestuffthereafterisneithernull'
+        none_out = parser.parse_type(none_in)
+        assert isinstance(none_out, str)
+        assert none_out == none_in
 
-    def test_parse_type_string_numerals(self):
+    def test_parse_type_string_numbers(self):
         parser = Parser()
         str_in = '1234'
         int_out = parser.parse_type(str_in)
@@ -596,34 +629,19 @@ class TestCppParser():
         # Execute
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
-        assert len(dict_out) == 11
+        assert len(dict_out) == 12
         assert list(dict_out.keys())[0][:12] == 'BLOCKCOMMENT'
         assert list(dict_out.keys())[1][:7] == 'INCLUDE'
         assert list(dict_out.keys())[2][:11] == 'LINECOMMENT'
         assert list(dict_out.keys())[3] == 'emptyDict'
         assert list(dict_out.keys())[4] == 'emptyList'
-        assert list(dict_out.keys())[5] == 'numerals'
-        assert list(dict_out.keys())[6] == 'booleans'
-        assert list(dict_out.keys())[7] == 'stringLiterals'
-        assert list(dict_out.keys())[8] == 'nesting'
-        assert list(dict_out.keys())[9] == 'expressions'
-        assert list(dict_out.keys())[10] == 'theDictInAListPitfall'
-
-    def test_parse_tokenized_dict_numerals(self):
-        # Prepare
-        dict_in = CppDict()
-        SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
-        parser = CppParser()
-        # Execute
-        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
-        # Assert
-        assert len(dict_out['numerals']) == 3   # int1,int2,float1
-        assert isinstance(dict_out['numerals']['int1'], int)
-        assert isinstance(dict_out['numerals']['int2'], int)
-        assert isinstance(dict_out['numerals']['float1'], float)
-        assert dict_out['numerals']['int1'] == 0
-        assert dict_out['numerals']['int2'] == 120
-        assert dict_out['numerals']['float1'] == 3.5
+        assert list(dict_out.keys())[5] == 'booleans'
+        assert list(dict_out.keys())[6] == 'numbers'
+        assert list(dict_out.keys())[7] == 'nones'
+        assert list(dict_out.keys())[8] == 'strings'
+        assert list(dict_out.keys())[9] == 'nesting'
+        assert list(dict_out.keys())[10] == 'expressions'
+        assert list(dict_out.keys())[11] == 'theDictInAListPitfall'
 
     def test_parse_tokenized_dict_booleans(self):
         # Prepare
@@ -633,15 +651,53 @@ class TestCppParser():
         # Execute
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
-        assert len(dict_out['booleans']) == 4   # bool1, bool2, bool3, bool4
+        assert len(dict_out['booleans']) == 8   # bool1, bool2, ..., bool8
         assert isinstance(dict_out['booleans']['bool1'], bool)
         assert isinstance(dict_out['booleans']['bool2'], bool)
         assert isinstance(dict_out['booleans']['bool3'], bool)
         assert isinstance(dict_out['booleans']['bool4'], bool)
-        assert dict_out['booleans']['bool1'] is False
-        assert dict_out['booleans']['bool2'] is True
-        assert dict_out['booleans']['bool3'] is False
-        assert dict_out['booleans']['bool4'] is True
+        assert isinstance(dict_out['booleans']['bool5'], bool)
+        assert isinstance(dict_out['booleans']['bool6'], bool)
+        assert isinstance(dict_out['booleans']['bool7'], bool)
+        assert isinstance(dict_out['booleans']['bool8'], bool)
+        assert dict_out['booleans']['bool1'] is True
+        assert dict_out['booleans']['bool2'] is False
+        assert dict_out['booleans']['bool3'] is True
+        assert dict_out['booleans']['bool4'] is False
+        assert dict_out['booleans']['bool5'] is True
+        assert dict_out['booleans']['bool6'] is False
+        assert dict_out['booleans']['bool7'] is True
+        assert dict_out['booleans']['bool8'] is False
+
+    def test_parse_tokenized_dict_numbers(self):
+        # Prepare
+        dict_in = CppDict()
+        SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
+        parser = CppParser()
+        # Execute
+        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        # Assert
+        assert len(dict_out['numbers']) == 3    # int1,int2,float1
+        assert isinstance(dict_out['numbers']['int1'], int)
+        assert isinstance(dict_out['numbers']['int2'], int)
+        assert isinstance(dict_out['numbers']['float1'], float)
+        assert dict_out['numbers']['int1'] == 0
+        assert dict_out['numbers']['int2'] == 120
+        assert dict_out['numbers']['float1'] == 3.5
+
+    def test_parse_tokenized_dict_nones(self):
+        # Prepare
+        dict_in = CppDict()
+        SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
+        parser = CppParser()
+        # Execute
+        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        # Assert
+        assert len(dict_out['nones']) == 4  # none1, none2, none3, none4
+        assert dict_out['nones']['none1'] is None
+        assert dict_out['nones']['none2'] is None
+        assert dict_out['nones']['none3'] is None
+        assert dict_out['nones']['none4'] is None
 
     def test_parse_tokenized_dict_strings(self):
         # Prepare
@@ -651,19 +707,19 @@ class TestCppParser():
         # Execute
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
-        assert len(dict_out['stringLiterals']) == 7
-        assert dict_out['stringLiterals']['string1'][:13] == 'STRINGLITERAL'
-        assert dict_out['stringLiterals']['string2'][:13] == 'STRINGLITERAL'
-        assert dict_out['stringLiterals']['string3'][:13] == 'STRINGLITERAL'
-        assert dict_out['stringLiterals'][
-            'string4'] == 'simpleStringsWithoutSpacesCanAlsoBeDeclaredWithoutQuotes'
-        assert dict_out['stringLiterals']['string5'][:13] == 'STRINGLITERAL'
-        assert dict_out['stringLiterals']['string6'][:13] == 'STRINGLITERAL'
-        assert dict_out['stringLiterals']['listWithStrings'][0][:13] == 'STRINGLITERAL'
-        assert dict_out['stringLiterals']['listWithStrings'][1][:13] == 'STRINGLITERAL'
-        assert dict_out['stringLiterals']['listWithStrings'][2][:13] == 'STRINGLITERAL'
-        assert dict_out['stringLiterals']['listWithStrings'][3][:13] == 'STRINGLITERAL'
-        assert dict_out['stringLiterals']['listWithStrings'][4][:13] == 'STRINGLITERAL'
+        assert len(dict_out['strings']) == 7
+        assert dict_out['strings']['string1'][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['string2'][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['string3'][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['string4'
+                                   ] == 'singleWordsWithoutSpacesCanAlsoBeDeclaredWithoutQuotes'
+        assert dict_out['strings']['string5'][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['string6'][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][0][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][1][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][2][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][3][:13] == 'STRINGLITERAL'
+        assert dict_out['strings']['listWithStrings'][4][:13] == 'STRINGLITERAL'
 
     def test_parse_tokenized_dict_nesting(self):
         # Prepare
@@ -797,12 +853,12 @@ class TestCppParser():
         parser.insert_string_literals(dict)
         # Assert
         dict_out = dict.data
-        assert dict_out['stringLiterals']['listWithStrings'][0] == 'string1'
-        assert dict_out['stringLiterals']['listWithStrings'][1] == 'string2 has spaces'
-        assert dict_out['stringLiterals']['listWithStrings'][2] == 'string3'
-        assert dict_out['stringLiterals']['listWithStrings'][
+        assert dict_out['strings']['listWithStrings'][0] == 'string1'
+        assert dict_out['strings']['listWithStrings'][1] == 'string2 has spaces'
+        assert dict_out['strings']['listWithStrings'][2] == 'string3'
+        assert dict_out['strings']['listWithStrings'][
             3] == 'string4 is ok but note that string5 is empty'
-        assert dict_out['stringLiterals']['listWithStrings'][4] == ''
+        assert dict_out['strings']['listWithStrings'][4] == ''
 
 
 class TestXmlParser():

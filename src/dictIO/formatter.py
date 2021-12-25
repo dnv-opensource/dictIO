@@ -65,7 +65,68 @@ class Formatter():
         '''
         Formats single value types (str, int, float, boolean and None)
         '''
-        return ''
+        # Non-string types:
+        # Return the string representation of the type without additional quotes.
+        if not isinstance(arg, str):
+            if arg is None:
+                return self.format_none()
+            elif isinstance(arg, bool):
+                return self.format_bool(arg)
+            elif isinstance(arg, int):
+                return self.format_int(arg)
+            elif isinstance(arg, float):
+                return self.format_float(arg)
+            else:
+                return str(arg)
+
+        # String type:
+        return self.format_string(arg)
+
+    def format_bool(self, arg: bool) -> str:
+        return str(arg)
+
+    def format_int(self, arg: int) -> str:
+        return str(arg)
+
+    def format_float(self, arg: float) -> str:
+        return str(arg)
+
+    def format_none(self) -> str:
+        return str(None)
+
+    def format_string(self, arg: str) -> str:
+        if re.search(r'[$]', arg):                  # reference or expression
+            if re.search(r'[^$a-zA-Z0-9_]', arg):   # contains non-word characters -> expression
+                return self.format_expression_string(arg)
+            else:                                   # no non-word characters -> reference
+                return self.format_reference_string(arg)
+        elif arg == '':                             # empty string
+            return self.format_empty_string(arg)
+        elif re.search(r'[\s:/\\]', arg):           # contains spaces or path -> complex string
+            return self.format_complex_string(arg)
+        else:                                       # single word string
+            return self.format_single_word_string(arg)
+
+    def format_empty_string(self, arg: str) -> str:
+        return arg
+
+    def format_single_word_string(self, arg: str) -> str:
+        return arg
+
+    def format_complex_string(self, arg: str) -> str:
+        return arg
+
+    def format_reference_string(self, arg: str) -> str:
+        return arg
+
+    def format_expression_string(self, arg: str) -> str:
+        return arg
+
+    def add_single_quotes(self, arg: str) -> str:
+        return '\'' + arg + '\''
+
+    def add_double_quotes(self, arg: str) -> str:
+        return '"' + arg + '"'
 
 
 class CppFormatter(Formatter):
@@ -271,26 +332,41 @@ class CppFormatter(Formatter):
 
         return s
 
-    def format_type(self, arg: Any) -> str:
-        '''
-        Formats single value types (str, int, float, boolean and None)
-        '''
-        # Non-string types:
-        # Return the string representation of the type without additional quotes.
-        if not isinstance(arg, str):
-            return str(arg)
+    def format_bool(self, arg: bool) -> str:
+        return str(arg).lower()
 
-        # String type:
-        # Add double quotes if ..
-        # ..string contains a keyword AND a non-Word character (single keywords do not need quotes)
-        if re.search(r'[$]', arg) and re.search(r'[^$a-zA-Z0-9_]', arg):
-            return '"' + arg + '"'
-        # Add single quotes if..
-        # ..string is empty, contains spaces or is a path
-        if arg == '' or re.search(r'[\s:/\\]', arg):
-            return '\'' + arg + '\''
-        else:
-            return arg
+    def format_none(self) -> str:
+        return 'NULL'
+
+    def format_empty_string(self, arg: str) -> str:
+        return self.add_single_quotes(arg)
+
+    def format_complex_string(self, arg: str) -> str:
+        return self.add_single_quotes(arg)
+
+    def format_expression_string(self, arg: str) -> str:
+        return self.add_double_quotes(arg)
+
+    # def format_type(self, arg: Any) -> str:
+    #     '''
+    #     Formats single value types (str, int, float, boolean and None)
+    #     '''
+    #     # Non-string types:
+    #     # Return the string representation of the type without additional quotes.
+    #     if not isinstance(arg, str):
+    #         return str(arg)
+
+    #     # String type:
+    #     # Add double quotes if ..
+    #     # ..string contains a keyword AND a non-Word character (single keywords do not need quotes)
+    #     if re.search(r'[$]', arg) and re.search(r'[^$a-zA-Z0-9_]', arg):
+    #         return '"' + arg + '"'
+    #     # Add single quotes if..
+    #     # ..string is empty, contains spaces or is a path
+    #     if arg == '' or re.search(r'[\s:/\\]', arg):
+    #         return '\'' + arg + '\''
+    #     else:
+    #         return arg
 
     def insert_block_comments(self, dict: CppDict, s: str) -> str:
         '''
@@ -442,17 +518,26 @@ class FoamFormatter(CppFormatter):
 
         return s
 
-    def format_type(self, arg: Any) -> str:
-        '''
-        Formats single value types (str, int, float, boolean and None)
-        '''
-        # Call base class implementation (CppFormatter)
-        arg = super().format_type(arg)
+    def format_empty_string(self, arg: str) -> str:
+        return self.add_double_quotes(arg)
 
-        # Substitute single quotes by double quotes.
-        arg = re.sub('\'', '"', arg)
+    def format_complex_string(self, arg: str) -> str:
+        return self.add_double_quotes(arg)
 
-        return arg
+    def format_expression_string(self, arg: str) -> str:
+        return self.add_double_quotes(arg)
+
+    # def format_type(self, arg: Any) -> str:
+    #     '''
+    #     Formats single value types (str, int, float, boolean and None)
+    #     '''
+    #     # Call base class implementation (CppFormatter)
+    #     arg = super().format_type(arg)
+
+    #     # Substitute single quotes by double quotes.
+    #     arg = re.sub('\'', '"', arg)
+
+    #     return arg
 
     def make_default_block_comment(self, block_comment: str = '') -> str:
         # If there is no ' C++ ' and 'OpenFoam' contained in block_comment,
@@ -527,8 +612,6 @@ class JsonFormatter(Formatter):
         '''
         Inserts back all include directives
         '''
-        from dictIO.utils.strings import remove_quotes
-
         for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
             # Search for the placeholder key in the Json string,
             # and insert back the original include directive.

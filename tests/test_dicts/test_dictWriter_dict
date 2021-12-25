@@ -16,25 +16,36 @@ emptyList
 (
 
 );
-numerals
+booleans
+{
+    bool1                     true;
+    bool2                     false;
+    bool3                     True;
+    bool4                     False;
+    bool5                     on;
+    bool6                     off;
+    bool7                     ON;
+    bool8                     OFF;
+}
+numbers
 {
     int1                      0;
     int2                      120;
     float1                    3.5;
 }
-booleans
+nones
 {
-    bool1                     false;
-    bool2                     true;
-    bool3                     False;
-    bool4                     True;
+    none1                     None;
+    none2                     none;
+    none3                     NULL;
+    none4                     null;
 }
-stringLiterals
+strings
 {
     string1                   '';
     string2                   'string';
     string3                   'string with spaces';
-    string4                   simpleStringsWithoutSpacesCanAlsoBeDeclaredWithoutQuotes;
+    string4                   singleWordsWithoutSpacesCanAlsoBeDeclaredWithoutQuotes;
     string5                   'string with single quotes';
     string6                   "string with double quotes";
     listWithStrings
