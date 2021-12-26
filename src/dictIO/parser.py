@@ -247,9 +247,7 @@ class Parser():
             # Removes only leading and trailing quotes. Quotes inside a string are kept.
             search_pattern = re.compile(r'(^[\'\\"]{1}|[\'\\"]{1}$)')
 
-        # Remove quotes and return
-        arg = re.sub(search_pattern, '', arg)
-        return arg
+        return re.sub(search_pattern, '', arg)
 
     @staticmethod
     def remove_quotes_from_strings(
@@ -780,13 +778,13 @@ class CppParser(Parser):
                     if len(temp_tokens) < 3:
                         # is empty (contains only opening and closing bracket)
                         # update parsed_dict with just the empty list
-                        parsed_dict.update({name: []})
+                        parsed_dict[name] = []
                     else:
                         # has content
                         # parse the nested list
                         nested_list = self.parse_tokenized_list(dict, temp_tokens, level=level + 1)
                         # update parsed_dict with the nested list
-                        parsed_dict.update({name: nested_list})
+                        parsed_dict[name] = nested_list
 
                 #  dict:
                 elif temp_tokens[0][1] == '{':
@@ -795,7 +793,7 @@ class CppParser(Parser):
                         dict, temp_tokens[1:-1], level=level + 1
                     )
                     # update parsed_dict with the nested dict
-                    parsed_dict.update({name: nested_dict})
+                    parsed_dict[name] = nested_dict
 
                 # All done: Identified data struct is parsed, translated into its corresponding type,
                 # and local parsed_dict is updated.
@@ -842,7 +840,7 @@ class CppParser(Parser):
                     # read the value (second token, by convention)
                     value = self.parse_type(temp_tokens[1][1])
                     # update parsed_dict with the parsed key value pair
-                    # Note: Following call to .update would be greedy, if parsed_dict would be declared as global variable.
+                    # Note: Following update would be greedy, if parsed_dict would be declared as global variable.
                     # This exactly is why parsed_dict is declared as local variable in parse_tokenized_dict().
                     # Doing so, an empty local dict is created with each call to parse_tokenized_dict(),
                     # and that is, also with each RECURSIVE call.
@@ -850,9 +848,8 @@ class CppParser(Parser):
                     # data struct, updating a key effects the current (and local) parsed_dict only.
                     # Every key hence is being updated exclusively within its own local context; ambiguous occurences of keys are avoided.
                     if isinstance(name, int):
-                        print('shit')
-                        pass
-                    parsed_dict.update({name: value})
+                        logger.error(f"unexpected type of key 'name': int (value: {name}).")
+                    parsed_dict[name] = value
 
             # Comment
             # As comments cannot be stored "inline" in a structured dictionary
@@ -863,12 +860,12 @@ class CppParser(Parser):
             # The original comments are back-inserted later in insert_block_comments() and insert_line_comments(), respectively.
             # For now, create an entry with the placeholder string of the comment assigned to both, key and value.
             elif re.match('^.*COMMENT.*$', str(tokens[token_index][1])):
-                parsed_dict.update({tokens[token_index][1]: tokens[token_index][1]})
+                parsed_dict[tokens[token_index][1]] = tokens[token_index][1]
 
             # Include directive
             # Create an entry with the placeholder string of the include directive assigned to both, key and value.
             elif re.match('^.*INCLUDE.*$', str(tokens[token_index][1])):
-                parsed_dict.update({tokens[token_index][1]: tokens[token_index][1]})
+                parsed_dict[tokens[token_index][1]] = tokens[token_index][1]
 
             # -(Unknown element)
             else:
@@ -889,7 +886,7 @@ class CppParser(Parser):
         '''
         Parses a tokenized list and returns the parsed list.
         '''
-        # sourcery skip: remove-redundant-if, remove-redundant-pass
+        # sourcery skip: remove-empty-nested-block, remove-redundant-if, remove-redundant-pass
 
         # Parse all tokens, identify the element within the tokenized list each token represents or belongs to,
         # translate related tokens into the element's type and store it in local list (parsed_list).
@@ -945,7 +942,7 @@ class CppParser(Parser):
                 # list:
                 if temp_tokens[-1][1] == ')':
                     # nothing to proof.  A list nested inside a list simply ends with ')'.
-                    # Note: This is different for a list nested insode a dict: Then, the closing
+                    # Note: This is different for a list nested inside a dict: Then, the closing
                     # bracket of the list must be followed by ';' (because, basically, the list is then the 'value'
                     # part of a key value pair inside the dict. And key value pairs syntactically close with ';')
                     pass
@@ -1213,7 +1210,7 @@ class XmlParser(Parser):
         # Read namespaces from XML string
         namespaces = dict(root_element.nsmap) or namespaces
         # Reformat 'None' keys in namespaces to empty string keys
-        temp_keys_copy = [key for key in namespaces]
+        temp_keys_copy = list(namespaces)
         for key in temp_keys_copy:
             if key is None:
                 try:
@@ -1233,17 +1230,13 @@ class XmlParser(Parser):
 
         # Document XML options inside the dict
         try:
-            parsed_dict.data.update(
-                {
-                    '_xmlOpts': {
-                        '_nameSpaces': namespaces,
-                        '_rootTag': root_tag,
-                        '_rootAttributes': {k: v
-                                            for k, v in root_element.attrib.items()},
-                        '_addNodeNumbering': self.add_node_numbering,
-                    }
-                }
-            )
+            parsed_dict.data['_xmlOpts'] = {
+                '_nameSpaces': namespaces,
+                '_rootTag': root_tag,
+                '_rootAttributes': dict(root_element.attrib.items()),
+                '_addNodeNumbering': self.add_node_numbering,
+            }
+
         except Exception:
             logger.exception('XmlParser.parseString(): Cannot write _nameSpaces to _xmlOpts')
 
@@ -1289,31 +1282,30 @@ class XmlParser(Parser):
             # The recursive part.
             # If there is a nested list, step in and resolve,
             # otherwise append node text to dict.
-            if len(list(nodes[index])) == 0:
-                # Node contains no chid nodes <NODE ATTRIB=STRING \>
-                if nodes[index].text is None or re.search(r'^[\s\n\r]*$', nodes[index].text or ''):
-                    # Node has either no content or contains an empty string <NODE ATTRIB=STRING><\NODE>
-                    # However, in order to be able to attach attributes to a node,
-                    # we still need to create a dict for the node, even if the node has no content.
-                    content_dict.update({node_tag: None})
-                else:
-                    # Node has content.
-                    # Unfortunately, multiline text is not properly represented by the text attribute of the Node class:
-                    # The indentation is made part of each line, which is nonsense.
-                    # Hence a small workaround: We split into lines, strip each line to get rid of the indentation,
-                    # and finally rebuild the text by concatenating the stripped lines.
-                    text = nodes[index].text
-                    if text is not None:
-                        original_lines = text.splitlines(keepends=True)
-                        stripped_lines = [line.strip() for line in original_lines]
-                        text = ('\n'.join(stripped_lines)).strip()
-                    else:
-                        text = ''
-                    content_dict.update({node_tag: {'_content': text}})
+            if list(nodes[index]):
+                # node contains child nodes
+                content_dict[node_tag] = self.parse_nodes(nodes[index], namespaces)
+
+            elif nodes[index].text is None or re.search(r'^[\s\n\r]*$', nodes[index].text or ''):
+                # Node has either no content or contains an empty string <NODE ATTRIB=STRING><\NODE>
+                # However, in order to be able to attach attributes to a node,
+                # we still need to create a dict for the node, even if the node has no content.
+                content_dict[node_tag] = None
 
             else:
-                # node contains child nodes
-                content_dict.update({node_tag: self.parse_nodes(nodes[index], namespaces)})
+                # Node has content.
+                # Unfortunately, multiline text is not properly represented by the text attribute of the Node class:
+                # The indentation is made part of each line, which is nonsense.
+                # Hence a small workaround: We split into lines, strip each line to get rid of the indentation,
+                # and finally rebuild the text by concatenating the stripped lines.
+                text = nodes[index].text
+                if text is not None:
+                    original_lines = text.splitlines(keepends=True)
+                    stripped_lines = [line.strip() for line in original_lines]
+                    text = ('\n'.join(stripped_lines)).strip()
+                else:
+                    text = ''
+                content_dict[node_tag] = {'_content': text}
 
             # If the node contains attributes: Save the attributes
             # and merge with the contents
@@ -1324,7 +1316,7 @@ class XmlParser(Parser):
                     '_attributes':
                     {k: str(v)
                      for k, v in nodes[index].attrib.items()
-                     if len(str(v)) != 0}
+                     if str(v) != ''}
                 }
 
                 if content_dict[node_tag] is None:

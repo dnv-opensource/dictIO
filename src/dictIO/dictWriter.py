@@ -69,7 +69,7 @@ class DictWriter():
 
         # Determine target file name
         if target_file is None:
-            if isinstance(source_dict, CppDict):
+            if isinstance(source_dict, CppDict) and source_dict.source_file:
                 target_file = create_target_file_name(source_dict.source_file)
             else:
                 logger.error(

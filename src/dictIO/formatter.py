@@ -347,27 +347,6 @@ class CppFormatter(Formatter):
     def format_expression_string(self, arg: str) -> str:
         return self.add_double_quotes(arg)
 
-    # def format_type(self, arg: Any) -> str:
-    #     '''
-    #     Formats single value types (str, int, float, boolean and None)
-    #     '''
-    #     # Non-string types:
-    #     # Return the string representation of the type without additional quotes.
-    #     if not isinstance(arg, str):
-    #         return str(arg)
-
-    #     # String type:
-    #     # Add double quotes if ..
-    #     # ..string contains a keyword AND a non-Word character (single keywords do not need quotes)
-    #     if re.search(r'[$]', arg) and re.search(r'[^$a-zA-Z0-9_]', arg):
-    #         return '"' + arg + '"'
-    #     # Add single quotes if..
-    #     # ..string is empty, contains spaces or is a path
-    #     if arg == '' or re.search(r'[\s:/\\]', arg):
-    #         return '\'' + arg + '\''
-    #     else:
-    #         return arg
-
     def insert_block_comments(self, dict: CppDict, s: str) -> str:
         '''
         Replaces all BLOCKCOMMENT placeholders in s with the actual block_comments saved in dict
@@ -464,7 +443,7 @@ class CppFormatter(Formatter):
             match = re.search('[\r\n]*$', line)
             if match:
                 line_ending = match.group(0)
-                line_without_ending = line[0:len(line) - len(line_ending)]
+                line_without_ending = line[:len(line) - len(line_ending)]
                 line_without_trailingspaces = re.sub(
                     r'\s+$', '', line_without_ending
                 ) + line_ending
@@ -499,7 +478,7 @@ class FoamFormatter(CppFormatter):
 
         # Remove all dict entries starting with underscore
         def remove_underscore_keys_recursive(dict: MutableMapping):
-            keys = [key for key in dict.keys()]
+            keys = list(dict.keys())
             for key in keys:
                 if str(key).startswith('_'):
                     del dict[key]
@@ -526,18 +505,6 @@ class FoamFormatter(CppFormatter):
 
     def format_expression_string(self, arg: str) -> str:
         return self.add_double_quotes(arg)
-
-    # def format_type(self, arg: Any) -> str:
-    #     '''
-    #     Formats single value types (str, int, float, boolean and None)
-    #     '''
-    #     # Call base class implementation (CppFormatter)
-    #     arg = super().format_type(arg)
-
-    #     # Substitute single quotes by double quotes.
-    #     arg = re.sub('\'', '"', arg)
-
-    #     return arg
 
     def make_default_block_comment(self, block_comment: str = '') -> str:
         # If there is no ' C++ ' and 'OpenFoam' contained in block_comment,
@@ -713,7 +680,7 @@ class XmlFormatter(Formatter):
         root_element = Element('{%s}%s' % (xsd_uri, root_tag), attrib=attributes)
         if self.integrate_attributes:
             # integrate attributes in root element
-            root_element.attrib = {k: str(v) for k, v in attributes.items() if len(str(v)) != 0}
+            root_element.attrib = {k: str(v) for k, v in attributes.items() if str(v) != ''}
 
         self.populate_into_element(root_element, dict, xsd_uri)
 
@@ -731,18 +698,19 @@ class XmlFormatter(Formatter):
         element: Element,
         arg: Union[MutableMapping, MutableSequence, Any],
         xsd_uri: str = None
-    ):
+    ):                                                      # sourcery skip: remove-pass-body, remove-pass-elif, remove-redundant-pass
         '''
         Populates arg into the XML element node.
         If arg is a dict or list, method will call itself recursively until all nested content within the dict or list
         is populated into nested elements, eventually creating an XML dom.
         ToDo:   LINECOMMENT
         '''
+
         if isinstance(arg, MutableSequence):
             element.text = ' '.join(str(x) for x in arg)
 
         elif isinstance(arg, MutableMapping):
-            child_nodes = [key for key in arg.keys()]
+            child_nodes = list(arg.keys())
 
             for index, (key, item) in enumerate(arg.items()):
 
@@ -765,7 +733,7 @@ class XmlFormatter(Formatter):
                         k: str(v).lower() if re.match('^(true|false)$', str(v), re.I) else str(v)
                         for k,
                         v in item.items()
-                        if len(str(v)) != 0
+                        if str(v) != ''
                     }
 
                 elif re.match('^(_.*[Oo]pts|INCLUDE)', key):

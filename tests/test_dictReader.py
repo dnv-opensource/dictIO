@@ -219,49 +219,39 @@ def test_reread_string_literals():
 
 
 # @TODO: To be implemented
+@pytest.mark.skip(reason='To be implemented')
 def test_remove_comment_keys():
     pass
 
 
 # @TODO: To be implemented
+@pytest.mark.skip(reason='To be implemented')
 def test_remove_include_keys():
     pass
-
-
-# def test_read_config_dict():
-#     silentRemove('parsed.test_dictReader_paramDict')
-#     silentRemove('parsed.test_dict')
-#     file_name = Path('test_dict')
-#     dict = DictReader.read(file_name)
-#     assert not os.path.exists('parsed.test_dictReader_paramDict')
-#     assert not os.path.exists('parsed.test_dict')
-#     dict = DictReader.read(file_name)
-#     assert not os.path.exists('parsed.test_dictReader_paramDict')
-#     assert os.path.exists('parsed.test_dict')
 
 
 def test_reread_parsed_dict():
     # Prepare
     source_file = Path('test_dictReader_dict')
     parsed_file = Path('parsed.test_dictReader_dict')
-    parsed_file_paramDict = Path('parsed.test_dictReader_Paramdict')
+    parsed_file_param_dict = Path('parsed.test_dictReader_Paramdict')
     parsed_file_wrong = Path('parsed.parsed.test_dictReader_dict')
-    parsed_file_paramDict_wrong = Path('parsed.parsed.test_dictReader_Paramdict')
+    parsed_file_param_dict_wrong = Path('parsed.parsed.test_dictReader_Paramdict')
     silent_remove(parsed_file)
-    silent_remove(parsed_file_paramDict)
+    silent_remove(parsed_file_param_dict)
     silent_remove(parsed_file_wrong)
-    silent_remove(parsed_file_paramDict_wrong)
+    silent_remove(parsed_file_param_dict_wrong)
 
     dict = DictReader.read(source_file)
     parsed_file_name = create_target_file_name(source_file, 'parsed')
     silent_remove(parsed_file_name)
     DictWriter.write(dict, parsed_file_name)
     assert parsed_file.exists()
-    assert not parsed_file_paramDict.exists()
+    assert not parsed_file_param_dict.exists()
     source_file = parsed_file
     dict = DictReader.read(source_file)
     assert parsed_file.exists()
-    assert not parsed_file_paramDict.exists()
+    assert not parsed_file_param_dict.exists()
     # no piping parsed prefix anymore: parsed.parsed.test_dictReader_dict
     assert not os.path.exists('parsed.parsed.test_dictReader_dict')
     assert not os.path.exists('parsed.parsed.test_dictReader_Paramdict')

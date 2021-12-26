@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-from dictIO.dictParser import DictParser
 from dictIO.cli.dictParser import _validate_scope
+from dictIO.dictParser import DictParser
 from dictIO.dictReader import DictReader
 from dictIO.dictWriter import create_target_file_name
 from dictIO.utils.path import silent_remove
@@ -70,15 +70,15 @@ def test_parse_dict_foam_format():
     source_file = Path('test_dictParser_dict')
     parsed_file = Path('parsed.test_dictParser_dict')
     parsed_file_foam = Path('parsed.test_dictParser_dict.foam')
-    parsed_file_paramDict = Path('parsed.test_dictParser_paramDict')
+    parsed_file_param_dict = Path('parsed.test_dictParser_paramDict')
     silent_remove(parsed_file)
     silent_remove(parsed_file_foam)
-    silent_remove(parsed_file_paramDict)
+    silent_remove(parsed_file_param_dict)
     # Execute
     DictParser.parse(source_file, output='foam')
     # Assert
     assert not parsed_file.exists()
-    assert not parsed_file_paramDict.exists()
+    assert not parsed_file_param_dict.exists()
     assert parsed_file_foam.exists()
     # Clean up
     silent_remove(parsed_file_foam)

@@ -2,17 +2,20 @@ import re
 from copy import deepcopy
 from pathlib import Path
 
+import pytest
 from dictIO.cppDict import CppDict
 from dictIO.dictReader import DictReader
 from dictIO.dictWriter import create_target_file_name
-from dictIO.formatter import CppFormatter, XmlFormatter, FoamFormatter
+from dictIO.formatter import CppFormatter, FoamFormatter, XmlFormatter
 from dictIO.utils.path import silent_remove
 
 
 # @TODO: To be implemented
+@pytest.mark.skip(reason='To be implemented')
 class TestFormatter():
 
     # @TODO: To be implemented
+    @pytest.mark.skip(reason='To be implemented')
     def test_returned_formatter_type(self):
         pass
 
@@ -124,8 +127,7 @@ class TestCppFormatter():
 
         # THE STANDARD CASE: The dictionary contains 1 (ONE) BLOCK COMMENT
         # Prepare the dict
-        dict.block_comments = {}
-        dict.block_comments.update({101: as_is_block_comment})
+        dict.block_comments = {101: as_is_block_comment}
         # Prepare the input
         str_in = placeholder1 + '\n' + str_in_template
         # Prepare what we expect as output
@@ -151,10 +153,12 @@ class TestCppFormatter():
 
         # A NON-STANDARD CASE: The dictionary contains 3 (THREE) BLOCK COMMENTS, ALL IDENTICAL
         # Prepare the dict
-        dict.block_comments = {}
-        dict.block_comments.update({101: as_is_block_comment})
-        dict.block_comments.update({102: as_is_block_comment})
-        dict.block_comments.update({103: as_is_block_comment})
+        dict.block_comments = {
+            101: as_is_block_comment,
+            102: as_is_block_comment,
+            103: as_is_block_comment,
+        }
+
         # Prepare the input
         str_in = placeholder1 + '\n' + placeholder2 + '\n' + placeholder3 + '\n' + str_in_template
         # Prepare what we expect as output
@@ -169,10 +173,12 @@ class TestCppFormatter():
 
         # A NON-STANDARD CASE: The dictionary contains 3 (THREE) BLOCK COMMENTS, NON IDENTICAL
         # Prepare the dict
-        dict.block_comments = {}
-        dict.block_comments.update({101: as_is_block_comment})
-        dict.block_comments.update({102: default_block_comment})
-        dict.block_comments.update({103: as_is_block_comment})
+        dict.block_comments = {
+            101: as_is_block_comment,
+            102: default_block_comment,
+            103: as_is_block_comment,
+        }
+
         # Prepare the input
         str_in = placeholder1 + '\n' + placeholder2 + '\n' + placeholder3 + '\n' + str_in_template
         # Prepare what we expect as output
@@ -189,7 +195,7 @@ class TestCppFormatter():
         block_comment_tampered = re.sub(r'\s[Cc]\+{2}\s', ' C# ', as_is_block_comment)
         # Prepare the dict
         dict.block_comments = {}
-        dict.block_comments.update({101: block_comment_tampered})
+        dict.block_comments[101] = block_comment_tampered
         # Prepare the input
         str_in = placeholder1 + '\n' + str_in_template
         # Prepare what we expect as output
@@ -229,20 +235,18 @@ class TestCppFormatter():
         line_comment_in = "// This is a line comment"
         formatter = CppFormatter()
         # Prepare input templates
-        str_in_template = formatter.format_dict(
-            dict.data
-        )                                           # as we used test_simpleDict, str_in does not have a block comment yet
+        str_in_template = formatter.format_dict(dict.data)
+        # as we used test_formatter_dict, str_in does not have a block comment yet
         placeholder1 = 'BLOCKCOMMENT000101            BLOCKCOMMENT000101;'
         placeholder2 = 'INCLUDE000102            INCLUDE000102;'
         placeholder3 = 'LINECOMMENT000103            LINECOMMENT000103;'
-                                                    # Prepare the dict
-        dict.line_comments = {}
-        dict.line_comments.update({103: line_comment_in})
-                                                    # Prepare the input
+        # Prepare the dict
+        dict.line_comments = {103: line_comment_in}
+        # Prepare the input
         str_in = placeholder1 + '\n' + placeholder2 + '\n' + placeholder3 + '\n' + str_in_template
-                                                    # Prepare what we expect as output
+        # Prepare what we expect as output
         str_assert = str_in.replace(placeholder3, line_comment_in)
-                                                    # Run the test
+        # Run the test
         str_out = formatter.insert_line_comments(dict, str_in)
         assert str_out == str_assert
 
@@ -392,6 +396,7 @@ class TestFoamFormatter():
         assert str_out == str_assert
 
     def test_ensure_string_does_not_contain_single_quotes(self):
+        # sourcery skip: class-extract-method
         # Prepare dict until and including ()
         dict = DictReader.read(Path('test_formatter_dict'), comments=True)
         formatter = FoamFormatter()

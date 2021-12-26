@@ -104,7 +104,7 @@ class CppDict(UserDict):
             dict = self.data
 
         # IDENTIFY all placeholders on current level
-        keys_on_this_level = [key for key in dict.keys()]
+        keys_on_this_level = list(dict.keys())
         block_comments_on_this_level = []
         includes_on_this_level = []
         line_comments_on_this_level = []

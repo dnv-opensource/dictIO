@@ -12,6 +12,7 @@ from dictIO.utils.strings import string_diff
 class TestParser():
 
     # @TODO: To be implemented
+    @pytest.mark.skip(reason='To be implemented')
     def test_getParser(self):
         pass
 
