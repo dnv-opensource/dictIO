@@ -146,22 +146,22 @@ expressions
 
 theDictInAListPitfall
 {
-    keyToADict          // This is a key. You can access its value (the subsequent dict {}) as a key'd element              -> exampleDict['keyToADict']
-    {                   // This is the key'd element associated with key 'keyToADict'. It is of type dict.
-        keyToAList          // This is a key. You can access its value (the subsequent list ()) as a key'd element              -> exampleDict['keyToADict']['keyToAList']
-        (                   // This is the key'd element associated with key 'keyToAList'. It is of type list.
+    keyToADict                  // This is a key. You can access its value (the subsequent dict {}) as a key'd element              -> exampleDict['keyToADict']
+    {                           // This is the key'd element associated with key 'keyToADict'. It is of type dict.
+        keyToAList              // This is a key. You can access its value (the subsequent list ()) as a key'd element              -> exampleDict['keyToADict']['keyToAList']
+        (                       // This is the key'd element associated with key 'keyToAList'. It is of type list.
             notAKey             // This is NOT a key. It is a list element of type string. You can access it by its index           -> exampleDict['keyToADict']['keyToAList'][0]
             {                   // This is NOT a key'd element. It is a list element of type dict. You can access it by its index   -> exampleDict['keyToADict']['keyToAList'][1]
-                key1 value1;        // This is a key'd element inside the surrounding dict                                              -> exampleDict['keyToADict']['keyToAList'][1]['key1']
-                key2 value2;        // This is a key'd element inside the surrounding dict                                              -> exampleDict['keyToADict']['keyToAList'][1]['key2']
+                key1 value1;    // This is a key'd element inside the surrounding dict                                              -> exampleDict['keyToADict']['keyToAList'][1]['key1']
+                key2 value2;    // This is a key'd element inside the surrounding dict                                              -> exampleDict['keyToADict']['keyToAList'][1]['key2']
             }
             notAKey             // another list element                                                                             -> exampleDict['keyToADict']['keyToAList'][2]
             notAKey             // yet another list element                                                                         -> exampleDict['keyToADict']['keyToAList'][3]
             notAKey             // yet .. well, you got the point ..                                                                -> exampleDict['keyToADict']['keyToAList'][4]
             notAKey             // NOT A KEY !!                                                                                     -> exampleDict['keyToADict']['keyToAList'][5]
             {                   // another list element of type dict                                                                -> exampleDict['keyToADict']['keyToAList'][6]
-                key1 value1;        // This is a key'd element inside the surrounding dict                                              -> exampleDict['keyToADict']['keyToAList'][6]['key1']
-                key2 value2;        // This is a key'd element inside the surrounding dict                                              -> exampleDict['keyToADict']['keyToAList'][6]['key2']
+                key1 value1;    // This is a key'd element inside the surrounding dict                                              -> exampleDict['keyToADict']['keyToAList'][6]['key1']
+                key2 value2;    // This is a key'd element inside the surrounding dict                                              -> exampleDict['keyToADict']['keyToAList'][6]['key2']
             }
         );
     }
