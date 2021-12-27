@@ -96,28 +96,28 @@ parameters
     parameterA
     {
         name                  parameterA;
-        value                 '$paramA';
+        value                 $paramA;
         // Simple reference to a variable. References are prefixed with $.
     }
     // parameter B
     parameterB
     {
         name                  parameterB;
-        value                 '$paramB';
+        value                 $paramB;
         // Expression. However, result of this expression is same as using a simple reference without double quotes.
     }
     // parameter C
     parameterC
     {
         name                  parameterC;
-        value                 '$paramC + 4';
+        value                 "$paramC + 4";
         // Expression with one reference and one constant.
     }
     // parameter D
     parameterD
     {
         name                  parameterD;
-        value                 '$paramC + $paramD';
+        value                 "$paramC + $paramD";
         // Expression with two references.
     }
     parameterE
@@ -135,19 +135,19 @@ parameters
     parameterG1
     {
         name                  parameterG1;
-        value                 '$paramG';
+        value                 $paramG;
         // Assume variable paramG defines a two-dimensional matrix (i.e. implemented as a list of lists)
     }
     parameterG2
     {
         name                  parameterG2;
-        value                 '$paramG[0]';
+        value                 $paramG[0];
         // ..then $paramG[0] is a reference to a specific row in the matrix (=returning a list)
     }
     parameterG3
     {
         name                  parameterG3;
-        value                 '$paramG[1][2]';
+        value                 $paramG[1][2];
         // ..and $paramG[1][2] is a reference to a specific value in the matrix
     }
 }

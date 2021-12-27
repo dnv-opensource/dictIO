@@ -59,6 +59,12 @@ class TestCppFormatter():
         str_in = '$keyword1'
         str_assert = str_in
         str_out = formatter.format_type(str_in)
+        str_in = '$keyword1[0]'
+        str_assert = str_in
+        str_out = formatter.format_type(str_in)
+        str_in = '$keyword1[1][2]'
+        str_assert = str_in
+        str_out = formatter.format_type(str_in)
         assert str_out == str_assert
         str_in = '$keyword+1'
         str_assert = '"' + str_in + '"'

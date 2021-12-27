@@ -485,18 +485,6 @@ class CppParser(Parser):
                 {index: __class__.remove_quotes_from_string(string_literal)}
             )
 
-        # dict.string_literals = {
-        #     self.counter(): __class__.remove_quotes_from_string(s)
-        #     for s in string_literals
-        # }
-
-        # for index, string_literal in dict.string_literals.items():
-        #     dict.block_content = re.sub(
-        #         '\'' + re.escape(string_literal) + '\'',
-        #         'STRINGLITERAL%06i' % index,
-        #         dict.block_content
-        #     )
-
         # Step 2: Find double quoted string literals in .block_content
         # Double quoted strings are identified as string literals only in case they do not contain a $ character.
         # (double quoted strings containing a $ character are considered expressions, not string literals.)
@@ -530,51 +518,45 @@ class CppParser(Parser):
         # Expressions are double quoted strings that contain minimum one reference.
         # References are denoted using the '$' syntax familiar from shell programming.
         # Any key'd entries in a dict are considered variables and can be referenced.
-        search_pattern = r'\".*?\"'
+        search_pattern = r'"[^"]*\$.*?"'
         expressions = re.findall(search_pattern, dict.block_content, re.MULTILINE)
         for expression in expressions:
-            if '$' in expression:
-
-                index = self.counter()
-                placeholder = 'EXPRESSION%06i' % index
-
-                # Replace all occurances of the expression in .block_content with the placeholder (EXPRESSION000000)
-                # Note: For re.sub() to work properly we need to escape all special characters
-                # (covering both '$' as well as any mathematical operators in the expression)
-                search_pattern = re.compile(re.escape(expression))
-                dict.block_content = re.sub(
-                    search_pattern, placeholder, dict.block_content
-                )                                                       # replace expression in .block_content with placeholder
-
-                # Register the expression in .expressions
-                expression = re.sub(r'\"', '', expression)
-                dict.expressions.update(
-                    {index: {
-                        'index': index, 'expression': expression, 'name': placeholder
-                    }}
-                )
-
-        # Step 2: Find remaining 'single' references in .block_content (single references to key'd entries that are NOT in double quotes).
-        search_pattern = r'\$\w[\w\[\]]+'
-        references = re.findall(search_pattern, dict.block_content, re.MULTILINE)
-        for reference in references:
 
             index = self.counter()
             placeholder = 'EXPRESSION%06i' % index
 
-            # Replace all occurances of the reference in .block_content with the placeholder (EXPRESSION000000)
-            # Note: For re.sub() to work properly we need to escape the '$'
-            search_pattern = re.compile(re.escape(reference))
+            # Replace all occurances of the expression in .block_content with the placeholder (EXPRESSION000000)
+            # Note: For re.sub() to work properly we need to escape all special characters
+            # (covering both '$' as well as any mathematical operators in the expression)
+            search_pattern = re.compile(re.escape(expression))
             dict.block_content = re.sub(
                 search_pattern, placeholder, dict.block_content
-            )                                                       # replace reference in .block_content with placeholder
+            )                                                       # replace expression in .block_content with placeholder
 
+            # Register the expression in .expressions
+            expression = re.sub(r'\"', '', expression)
+            dict.expressions.update(
+                {index: {
+                    'index': index, 'expression': expression, 'name': placeholder
+                }}
+            )
+
+        # Step 2: Find references in .block_content (single references to key'd entries that are NOT in double quotes).
+        search_pattern = r'\$\w[\w\[\]]+'
+        match = re.search(search_pattern, dict.block_content, re.MULTILINE)
+        while match:
+            reference = match[0]
+            index = self.counter()
+            placeholder = 'EXPRESSION%06i' % index
+            # Replace the found reference in .block_content with the placeholder (EXPRESSION000000)
+            dict.block_content = match.re.sub(placeholder, dict.block_content, count=1)
             # Register the reference as expression in .expressions
             dict.expressions.update(
                 {index: {
                     'index': index, 'expression': reference, 'name': placeholder
                 }}
             )
+            match = re.search(search_pattern, dict.block_content, re.MULTILINE)
 
         return
 

@@ -490,16 +490,18 @@ class TestCppParser():
             'is a string surrounded by double quotes and containing at least one reference to a variable starting with $.\n'
             'Such strings are identified as expressions. Expressions will be evaluated by DictReader.\n'
             'The following examples will be identified as expressions:\n'
-            '   key_1       "$varName1"\n'
-            '   key_2       "$varName2 + 4"\n'
-            '   key_3       "4 + $varName2"\n'
-            '   key_4       "$varName2 + $varName3" and some blabla thereafter\n'
-            '   key_5       "$varName1 + $varName2 + $varName3" and some blabla thereafter\n'
-            '   key_6       "$varName2 + $varName3 + $varName1" and some blabla thereafter\n'
-            '   key_7       $varName1\n'
+            '   reference1      $varName1\n'
+            '   reference2      $varName1[0]\n'
+            '   reference3      $varName1[1][2]\n'
+            '   expression1     "$varName1"\n'
+            '   expression2     "$varName2 + 4"\n'
+            '   expression3     "4 + $varName2"\n'
+            '   expression4     "$varName2 + $varName3" and some blabla thereafter\n'
+            '   expression5     "$varName1 + $varName2 + $varName3" and some blabla thereafter\n'
+            '   expression6     "$varName2 + $varName3 + $varName1" and some blabla thereafter\n'
             'The following example will NOT be identified as expression but as string literal:\n'
-            '   key_8       \'$varName1 is not an expression but a string literal because it is in single instead of double quotes\'\n'
-            '   key_9       "not an expression but a string literal as it does not contain a Dollar character"\n'
+            '   string1         \'$varName1 is not an expression but a string literal because it is in single instead of double quotes\'\n'
+            '   string2         "not an expression but a string literal as it does not contain a Dollar character"\n'
             'extract_expressions() will extract expressions and substitute them with a placeholder\n'
             'in the form E X P R E S S I O N 0 0 0 0 0 0.'
             'The actual evaluation of an expression is not part of extract_expressions(). The evaluation is done within ().'
@@ -511,16 +513,18 @@ class TestCppParser():
             'is a string surrounded by double quotes and containing at least one reference to a variable starting with $.\n'
             'Such strings are identified as expressions. Expressions will be evaluated by DictReader.\n'
             'The following examples will be identified as expressions:\n'
-            '   key_1       EXPRESSION000000\n'
-            '   key_2       EXPRESSION000000\n'
-            '   key_3       EXPRESSION000000\n'
-            '   key_4       EXPRESSION000000 and some blabla thereafter\n'
-            '   key_5       EXPRESSION000000 and some blabla thereafter\n'
-            '   key_6       EXPRESSION000000 and some blabla thereafter\n'
-            '   key_7       EXPRESSION000000\n'
+            '   reference1      EXPRESSION000000\n'
+            '   reference2      EXPRESSION000000\n'
+            '   reference3      EXPRESSION000000\n'
+            '   expression1     EXPRESSION000000\n'
+            '   expression2     EXPRESSION000000\n'
+            '   expression3     EXPRESSION000000\n'
+            '   expression4     EXPRESSION000000 and some blabla thereafter\n'
+            '   expression5     EXPRESSION000000 and some blabla thereafter\n'
+            '   expression6     EXPRESSION000000 and some blabla thereafter\n'
             'The following example will NOT be identified as expression but as string literal:\n'
-            '   key_8       STRINGLITERAL000000\n'
-            '   key_9       STRINGLITERAL000000\n'
+            '   string1         STRINGLITERAL000000\n'
+            '   string2         STRINGLITERAL000000\n'
             'extract_expressions() will extract expressions and substitute them with a placeholder\n'
             'in the form E X P R E S S I O N 0 0 0 0 0 0.'
             'The actual evaluation of an expression is not part of extract_expressions(). The evaluation is done within ().'
@@ -532,7 +536,7 @@ class TestCppParser():
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
         assert text_block_out == text_block_assert
         string_diff(text_block_out, text_block_assert)
-        assert len(dict.expressions) == 7
+        assert len(dict.expressions) == 9
 
         assert list(dict.expressions.values())[0]['name'][:10] == 'EXPRESSION'
         assert list(dict.expressions.values())[0]['expression'] == '$varName1'
@@ -556,6 +560,12 @@ class TestCppParser():
 
         assert list(dict.expressions.values())[6]['name'][:10] == 'EXPRESSION'
         assert list(dict.expressions.values())[6]['expression'] == '$varName1'
+
+        assert list(dict.expressions.values())[7]['name'][:10] == 'EXPRESSION'
+        assert list(dict.expressions.values())[7]['expression'] == '$varName1[0]'
+
+        assert list(dict.expressions.values())[8]['name'][:10] == 'EXPRESSION'
+        assert list(dict.expressions.values())[8]['expression'] == '$varName1[1][2]'
 
     def test_separate_delimiters(self):
         dict = CppDict()

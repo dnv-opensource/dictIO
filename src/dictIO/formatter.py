@@ -95,15 +95,15 @@ class Formatter():
         return str(None)
 
     def format_string(self, arg: str) -> str:
-        if re.search(r'[$]', arg):                  # reference or expression
-            if re.search(r'[^$a-zA-Z0-9_]', arg):   # contains non-word characters -> expression
-                return self.format_expression_string(arg)
-            else:                                   # no non-word characters -> reference
+        if re.search(r'[$]', arg):
+            if re.search(r'^\$\w[\w\[\]]+$', arg):  # reference
                 return self.format_reference_string(arg)
+            else:                                   # expression
+                return self.format_expression_string(arg)
         elif arg == '':                             # empty string
             return self.format_empty_string(arg)
         elif re.search(r'[\s:/\\]', arg):           # contains spaces or path -> complex string
-            return self.format_complex_string(arg)
+            return self.format_multi_word_string(arg)
         else:                                       # single word string
             return self.format_single_word_string(arg)
 
@@ -113,7 +113,7 @@ class Formatter():
     def format_single_word_string(self, arg: str) -> str:
         return arg
 
-    def format_complex_string(self, arg: str) -> str:
+    def format_multi_word_string(self, arg: str) -> str:
         return arg
 
     def format_reference_string(self, arg: str) -> str:
@@ -341,7 +341,7 @@ class CppFormatter(Formatter):
     def format_empty_string(self, arg: str) -> str:
         return self.add_single_quotes(arg)
 
-    def format_complex_string(self, arg: str) -> str:
+    def format_multi_word_string(self, arg: str) -> str:
         return self.add_single_quotes(arg)
 
     def format_expression_string(self, arg: str) -> str:
@@ -500,7 +500,7 @@ class FoamFormatter(CppFormatter):
     def format_empty_string(self, arg: str) -> str:
         return self.add_double_quotes(arg)
 
-    def format_complex_string(self, arg: str) -> str:
+    def format_multi_word_string(self, arg: str) -> str:
         return self.add_double_quotes(arg)
 
     def format_expression_string(self, arg: str) -> str:
