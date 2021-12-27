@@ -12,7 +12,7 @@ The basic structure of a C++ dict file consists of
 * include directive(s) [optional]
 * key'd elements (each written as key value pair)
 
-As header and include directives are optional, in its simplest form a C++ dict file contains i.e. just one single key'd element:
+As header and include directives are optional, in its simplest form a C++ dict file can contain just a single key'd element:
 ~~~
 var1     3.14159;
 ~~~
@@ -28,11 +28,11 @@ filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
 
 ## #include Directive(s)
 
-One of the most powerful features of OpenFOAM dictionaries is their ability to be cascaded through the use of #include directives.
+One of the most powerful features of C++ dicts is their ability to be cascaded through the use of #include directives.
 An #include directive declares a (child) dict file to be merged into the (parent) dict when reading.
 
-This allows to separate i.e. a core configuration file and its case specific parameterization:
-While a core configuration dict is kept unchanged, case specific parameterization can be 'injected' by varying only the parameter dict.
+This allows to separate i.e. a case agnostic configuration file from its case specific parameterization:
+While the core configuration dict is kept unchanged, case specific parameterization is accomplished by varying only the parameter dict.
 
 An #include directive consists of the #include statement followed by the path to the dict to be included:
 ~~~
@@ -46,7 +46,7 @@ An #include directive consists of the #include statement followed by the path to
 
 ## Element Types
 
-The following element types are supported in C++ dictionary files read and written by dictIO.
+The following element types are supported in C++ dict files read and written by dictIO.
 The table also indicates to which Python data type they are casted when a dict file is read.
 
 | element type  | example                           | (Python type)     |
@@ -160,10 +160,10 @@ listWithStrings
 
 ## References and Expressions
 
-Any key'd element in a C++ dict file can also be treated as variables that can be pointed to using references.
-A reference is denoted by a $ character followed by the key of the element being referenced, also known as $keyword syntax.
+Any key'd element in a C++ dict file can also be treated as a variable that can be pointed to using references.
+A reference is denoted by a \$ character followed by the key of the element being referenced, also known as $keyword syntax.
 
-References, in turn, can be used within expressions. Expressions are double-quoted strings containing
+References, in turn, can be used inside expressions. Expressions are double-quoted strings containing
 a mathematical expression where at least one operand is a reference.
 
 Below code listing demonstrates the use of references and expressions:
@@ -180,12 +180,13 @@ matrix
 );
 
 reference1      $varA;              // simple reference to a variable. References are prefixed with $.
+reference2      $list[0];           // indexed reference to an item in a list.
+reference3      $matrix[0];         // indexed reference to a specific row in a matrix (=returns a list).
+reference4      $matrix[0][1];      // indexed reference to a specific value in a matrix.
 expression1     "$varA";            // expression. However, result of this expression is same as using a simple reference without double quotes.
 expression2     "$varA + 4";        // expression with one reference and one constant.
 expression3     "$varA + $varB";    // expression with two references.
-expression4     $list[0];           // reference to an item in a list
-expression5     $matrix[0];         // reference to a specific row in a matrix (=returns a list)
-expression5     $matrix[0][1];      // reference to a specific value in a matrix
+expression4     "$list[0] + 3.14";  // expression with an indexed reference.
 ~~~
 
 
@@ -194,9 +195,9 @@ expression5     $matrix[0][1];      // reference to a specific value in a matrix
 Both dicts and lists can be nested.
 In fact, dicts and lists in a C++ dict file can be arbitrarily nested.
 
-While lexically possible, readability of nested data structures quickly suffers. Nesting should hence be used carefully and be reasonably limited in dict files intended to be read and edited by humans, such as configuration files. One very common example where nesting deteriorates human readibility and causes misinterpretation is where a dict is nested inside a list. So commonly in fact that we dedicated an own example to it, see below 'dict-in-a-list-pitfall'
+While lexically possible, readability of nested data structures quickly suffers. In dict files intended to be read and edited by humans, such as configuration files, nesting should hence be used carefully and reasonably limited (an example that commonly causes misinterpretation is where a dict is nested inside a list, see section'The dict-in-a-list-pitfall' further below).
 
-But, as said, from a pure lexical / technical point of view, complex nesting of both dicts and lists is possible. So, in cases where dict files are written and read purely by machines, this can provide additional capabilities.
+From a pure lexical / technical point of view, though, complex nesting of dicts and lists is possible. So, in cases where dict files are written and read purely by machines, this can provide additional capabilities.
 
 ~~~
 nesting
@@ -240,7 +241,7 @@ nesting
 
 ## The dict-in-a-list-pitfall
 
-The maybe most prominent example where nesting of dicts and lists deteriorates human readibility and causes misinterpretation is where a dict is nested inside a list.
+A very prominent example where nesting of dicts and lists deteriorates human readibility and causes misinterpretation is where a dict is nested inside a list.
 Read below example to see why:
 
 ~~~
