@@ -10,6 +10,14 @@ from dictIO.parser import CppParser
 from dictIO.utils.path import silent_remove
 
 
+def test_file_not_found_exception():
+    # Prepare
+    source_file = Path('this_file_does_not_exist')
+    # Execute and Assert
+    with pytest.raises(FileNotFoundError):
+        DictReader.read(source_file)
+
+
 def test_merge_includes():  # sourcery skip: class-extract-method
                             # Prepare dict until and including parse_tokenized_dict()
     dict = CppDict()
