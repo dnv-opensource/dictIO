@@ -31,9 +31,18 @@ class Parser():
 
     @classmethod
     def get_parser(cls, source_file: Path = None):
-        '''
-        Factory method to return a Parser instance matching the file type intended to parse
-        '''
+        """Factory method returning a Parser instance matching the source file type to be parsed
+
+        Parameters
+        ----------
+        source_file : Path, optional
+            name of the source file to be parsed, by default None
+
+        Returns
+        -------
+        Parser
+            specific Parser instance matching the source file type to be parsed
+        """
         # Determine the parser to be used by a two stage process:
 
         # 1. If source_file is passed, choose parser depending on file-ending
@@ -55,10 +64,27 @@ class Parser():
         comments: bool = True,
     ) -> CppDict:
         # sourcery skip: inline-immediately-returned-variable
-        '''
-        Parses a file and deserializes it into a dict.
-        Return type by default is CppDict, unless a specific Parser implementation supports a different dict type.
-        '''
+        """Parses a file and deserializes it into a dict.
+
+        Parameters
+        ----------
+        source_file : Union[str, os.PathLike[str]]
+            name of the dict file to be parsed
+        target_dict : CppDict, optional
+            the target dict the parsed dict file shall be merged into, by default None
+        comments : bool, optional
+            reads comments from source file, by default True
+
+        Returns
+        -------
+        CppDict
+            the parsed dict
+
+        Raises
+        ------
+        FileNotFoundError
+            if source_file does not exist
+        """
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
         source_file = source_file if isinstance(source_file, Path) else Path(source_file)
         if not source_file.exists():
@@ -107,10 +133,24 @@ class Parser():
         comments: bool = True,
     ) -> CppDict:
         # sourcery skip: inline-immediately-returned-variable
-        '''
-        Parses a string and deserializes it into a dict.
-        Return type by default is CppDict, unless a specific Parser implementation supports a different dict type.
-        '''
+        """Parses a string and deserializes it into a dict.
+
+        Note: Override this method when implementing a specific Parser.
+
+        Parameters
+        ----------
+        string : str
+            the string to be parsed (i.e. the content of the file that had been read using parse_file())
+        target_dict : CppDict
+            the target dict the parsed dict file shall be merged into
+        comments : bool, optional
+            reads comments, by default True
+
+        Returns
+        -------
+        CppDict
+            the parsed dict
+        """
 
         # +++VERIFY STRING CONTENT++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -142,9 +182,20 @@ class Parser():
         return parsed_dict
 
     def parse_type(self, arg: Any) -> Any:
-        '''
-        Parses arg containing a single value and returns the native single value type (str, int, float, boolean and None)
-        '''
+        """Parses a single value
+
+        Parses a single value and casts it to its native type (str, int, float, boolean or None).
+
+        Parameters
+        ----------
+        arg : Any
+            the value to be parsed
+
+        Returns
+        -------
+        Any
+            the value casted to its native type (str, int, float, boolean or None)
+        """
 
         # Numbers (int and float) are returned without conversion
         if isinstance(arg, int) and not isinstance(arg, bool):  # int
@@ -209,9 +260,22 @@ class Parser():
     def parse_types(
         self, arg: Union[MutableMapping, MutableSequence]
     ) -> Union[MutableMapping, MutableSequence]:
-        '''
-        Parses a list or dict for contained single values and turns them into their native single value type (str, int, float, boolean and None).
-        '''
+        """Parses multiple values
+
+        Parses all values inside a dict or list and casts them to its native types (str, int, float, boolean or None).
+        The function traverses the passed in dict or list recursively
+        so that all values in also nested dicts and lists are parsed.
+
+        Parameters
+        ----------
+        arg : Union[MutableMapping, MutableSequence]
+            the dict or list containing the values to be parsed
+
+        Returns
+        -------
+        Union[MutableMapping, MutableSequence]
+            the original dict or list, yet with all contained values being casted to its native types (str, int, float, boolean or None).
+        """
         if isinstance(arg, MutableSequence):
             for index, _ in enumerate(arg):
                 if isinstance(arg[index], (MutableMapping, MutableSequence)):
@@ -228,10 +292,28 @@ class Parser():
 
     @staticmethod
     def remove_quotes_from_string(arg: str, all: bool = True) -> str:
-        '''
-        Removes quotes (single or double quotes) from the string object passed in.
-        Not only leading and trailing quotes are removed; also any quotes inside a string, if so, are removed.
-        '''
+        """Removes quotes from a string
+
+        Removes quotes (single and double quotes) from the string object passed in.
+
+        Parameters
+        ----------
+        arg : str
+            the string with quotes
+        all : bool, optional
+            if true, all quotes inside the string will be removed (not only leading and trailing quotes), by default True
+
+        Returns
+        -------
+        str
+            the string with quotes being removed
+
+        Raises
+        ------
+        TypeError
+            if arg is not of type str
+        """
+
         if not isinstance(arg, str):                                                                    # any other type
             raise TypeError(
                 f'{__class__.__name__}.remove_quotes_from_string(): invalid type of paramter arg:\n'
@@ -252,12 +334,28 @@ class Parser():
     def remove_quotes_from_strings(
         arg: Union[MutableMapping, MutableSequence]
     ) -> Union[MutableMapping, MutableSequence]:
-        '''
-        Removes quotes (single or double quotes) from all string elements within the passed in argument arg.
-        arg is expected to be a Mapping or Sequence type (e.g. a dict or list).
-        The function traverses the passed in Mapping or Sequence recursively
-        so that all strings in also nested dicts and lists are handled.
-        '''
+        """Removes quotes from multiple strings
+
+        Removes quotes (single and double quotes) from all string objects inside a dict or list.
+        The function traverses the passed in dict or list recursively
+        so that all strings in also nested dicts and lists are processed.
+
+
+        Parameters
+        ----------
+        arg : Union[MutableMapping, MutableSequence]
+            the dict or list containing strings the quotes in which shall be removed
+
+        Returns
+        -------
+        Union[MutableMapping, MutableSequence]
+            the original dict or list, yet with quotes in all strings being removed
+
+        Raises
+        ------
+        TypeError
+            if arg is not of type MutableMapping or MutableSequence (u.e. dict or list)
+        """
         if not isinstance(arg, (MutableMapping, MutableSequence)):                                      # any other type
             raise TypeError(
                 f'{__class__.__name__}.remove_quotes_from_strings(): invalid type of paramter arg:\n'

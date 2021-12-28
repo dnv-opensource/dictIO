@@ -65,6 +65,11 @@ class DictReader():
         -------
         CppDict
             the read dict
+
+        Raises
+        ------
+        FileNotFoundError
+            if source_file does not exist
         """
 
         # Make sure source_file argument is of type Path. If not, cast it to Path type.

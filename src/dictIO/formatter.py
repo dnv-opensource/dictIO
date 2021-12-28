@@ -28,9 +28,18 @@ class Formatter():
 
     @classmethod
     def get_formatter(cls, target_file: Path = None):
-        '''
-        Factory method to return a Formatter instance matching the output format intended to generate
-        '''
+        """Factory method returning a Formatter instance matching the target file type to be formatted
+
+        Parameters
+        ----------
+        target_file : Path, optional
+            name of the target file to be formatted, by default None
+
+        Returns
+        -------
+        Formatter
+            specific Formatter instance matching the target file type to be formatted
+        """
         # Determine the formatter to be applied by a two stage process:
 
         # 1. If target_file is passed, choose formatter depending on file-ending
@@ -49,22 +58,52 @@ class Formatter():
         self,
         dict: Union[MutableMapping, CppDict],
     ) -> str:
-        '''
-        Creates a string representation of the passed in dict.
-        dict can be of type dict or CppDict.
-        '''
+        """Creates a string representation of the passed in dict.
+
+        Note: Override this method when implementing a specific Formatter.
+
+        Parameters
+        ----------
+        dict : Union[MutableMapping, CppDict]
+            the dict to be formatted
+
+        Returns
+        -------
+        str
+            the formatted string representation
+        """
         return ''
 
     def format_dict(self, arg: Union[MutableMapping, MutableSequence, Any]) -> str:
-        '''
-        Formats a dict or list.
-        '''
+        """Formats a dict or list object.
+
+        Note: Override this method when implementing a specific Formatter.
+
+        Parameters
+        ----------
+        arg : Union[MutableMapping, MutableSequence, Any]
+            the dict or list to be formatted
+
+        Returns
+        -------
+        str
+            the formatted string representation of the passed in dict or list
+        """
         return ''
 
     def format_type(self, arg: Any) -> str:
-        '''
-        Formats single value types (str, int, float, boolean and None)
-        '''
+        """Formats a single value type (str, int, float, boolean or None)
+
+        Parameters
+        ----------
+        arg : Any
+            the value to be formatted
+
+        Returns
+        -------
+        str
+            the formatted string representation of the passed in value
+        """
         # Non-string types:
         # Return the string representation of the type without additional quotes.
         if not isinstance(arg, str):
@@ -83,18 +122,81 @@ class Formatter():
         return self.format_string(arg)
 
     def format_bool(self, arg: bool) -> str:
+        """Formats a boolean
+
+        Note: Override this method for specific formatting of booleans when implementing a Formatter.
+
+        Parameters
+        ----------
+        arg : bool
+            the bool value to be formatted
+
+        Returns
+        -------
+        str
+            the formatted string representation of the passed in bool value
+        """
         return str(arg)
 
     def format_int(self, arg: int) -> str:
+        """Formats an integer
+
+        Note: Override this method for specific formatting of integers when implementing a Formatter.
+
+        Parameters
+        ----------
+        arg : int
+            the int to be formatted
+
+        Returns
+        -------
+        str
+            the formatted string representation of the passed in int
+        """
         return str(arg)
 
     def format_float(self, arg: float) -> str:
+        """Formats a floating point number
+
+        Note: Override this method for specific formatting of floating point numbers when implementing a Formatter.
+
+        Parameters
+        ----------
+        arg : float
+            the float to be formatted
+
+        Returns
+        -------
+        str
+            the formatted string representation of the passed in float
+        """
         return str(arg)
 
     def format_none(self) -> str:
+        """Formats None
+
+        Note: Override this method for specific formatting of None when implementing a Formatter.
+
+        Returns
+        -------
+        str
+            the formatted string representation of None
+        """
         return str(None)
 
     def format_string(self, arg: str) -> str:
+        """Formats a string
+
+        Parameters
+        ----------
+        arg : str
+            the string to be formatted
+
+        Returns
+        -------
+        str
+            the formatted string
+        """
         if re.search(r'[$]', arg):
             if re.search(r'^\$\w[\w\[\]]+$', arg):  # reference
                 return self.format_reference_string(arg)
@@ -108,24 +210,128 @@ class Formatter():
             return self.format_single_word_string(arg)
 
     def format_empty_string(self, arg: str) -> str:
+        """Formats an empty string
+
+        Note: Override this method for specific formatting of empty strings when implementing a Formatter.
+
+        Parameters
+        ----------
+        arg : str
+            the empty string to be formatted
+
+        Returns
+        -------
+        str
+            the formatted empty string
+        """
         return arg
 
     def format_single_word_string(self, arg: str) -> str:
+        """Formats a single word string
+
+        Note: Override this method for specific formatting of single word strings when implementing a Formatter.
+
+        Parameters
+        ----------
+        arg : str
+            the single word string to be formatted
+
+        Returns
+        -------
+        str
+            the formatted single word string
+        """
         return arg
 
     def format_multi_word_string(self, arg: str) -> str:
+        """Formats a multi word string
+
+        Note: Override this method for specific formatting of multi word strings when implementing a Formatter.
+
+        Parameters
+        ----------
+        arg : str
+            the multi word string to be formatted
+
+        Returns
+        -------
+        str
+            the formatted multi word string
+        """
         return arg
 
     def format_reference_string(self, arg: str) -> str:
+        """Formats a reference
+
+        Note: Override this method for specific formatting of references when implementing a Formatter.
+
+        Parameters
+        ----------
+        arg : str
+            the reference to be formatted
+
+        Returns
+        -------
+        str
+            the formatted reference
+        """
         return arg
 
     def format_expression_string(self, arg: str) -> str:
+        """Formats an expression
+
+        Note: Override this method for specific formatting of expressions when implementing a Formatter.
+
+        Parameters
+        ----------
+        arg : str
+            the expression to be formatted
+
+        Returns
+        -------
+        str
+            the formatted expression
+        """
         return arg
 
     def add_single_quotes(self, arg: str) -> str:
+        """Adds single quotes to a string
+
+        Leading and trailing single quotes will added to the passed in string
+        (i.e. it will be wrapped in single quotes).
+        Note: Call this base class method from any specific Formatter implementation
+        to easily add single quotes to a string when formatting.
+
+        Parameters
+        ----------
+        arg : str
+            the string to be wrapped in single quotes
+
+        Returns
+        -------
+        str
+            the string wrapped in single quotes
+        """
         return '\'' + arg + '\''
 
     def add_double_quotes(self, arg: str) -> str:
+        """Adds double quotes to a string
+
+        Leading and trailing double quotes will added to the passed in string
+        (i.e. it will be wrapped in double quotes).
+        Note: Call this base class method from any specific Formatter implementation
+        to easily add double quotes to a string when formatting.
+
+        Parameters
+        ----------
+        arg : str
+            the string to be wrapped in double quotes
+
+        Returns
+        -------
+        str
+            the string wrapped in double quotes
+        """
         return '"' + arg + '"'
 
 
