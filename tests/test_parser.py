@@ -16,6 +16,14 @@ class TestParser():
     def test_getParser(self):
         pass
 
+    def test_file_not_found_exception(self):
+        # Prepare
+        parser = Parser()
+        source_file = Path('this_file_does_not_exist')
+        # Execute and Assert
+        with pytest.raises(FileNotFoundError):
+            parser.parse_file(source_file)
+
     def test_remove_quotes_from_string(self):
         str_in_1 = '\'a string with single quotes\''
         str_in_2 = '\"a string with double quotes\"'
