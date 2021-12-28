@@ -2,7 +2,7 @@
 
 ## Description
 
-The default C++ dictionary format used by dictIO has, by intention, many similarities with the OpenFOAM file format.
+The default C++ dictionary format used by dictIO has, by intention, many similarities with the [OpenFOAM](https://www.openfoam.com/documentation/guides/latest/doc/openfoam-guide-input-types.html) file format.
 However, it is intended to be slightly simpler and more flexible in its lexical structure.
 
 ## Structure
@@ -195,7 +195,7 @@ expression4     "$list[0] + 3.14";  // expression with an indexed reference.
 Both dicts and lists can be nested.
 In fact, dicts and lists in a C++ dict file can be arbitrarily nested.
 
-While lexically possible, readability of nested data structures quickly suffers. In dict files intended to be read and edited by humans, such as configuration files, nesting should hence be used carefully and reasonably limited (an example that commonly causes misinterpretation is where a dict is nested inside a list, see section'The dict-in-a-list-pitfall' further below).
+While lexically possible, readability of nested data structures quickly suffers. In dict files intended to be read and edited by humans, such as configuration files, nesting should hence be used carefully and reasonably limited (an example that commonly causes misinterpretation is where a dict is nested inside a list, see section [The dict-in-a-list Pitfall](#the-dict-in-a-list-pitfall) further below).
 
 From a pure lexical / technical point of view, though, complex nesting of dicts and lists is possible. So, in cases where dict files are written and read purely by machines, this can provide additional capabilities.
 
@@ -239,7 +239,7 @@ nesting
 }
 ~~~
 
-## The dict-in-a-list-pitfall
+## The dict-in-a-list Pitfall
 
 A very prominent example where nesting of dicts and lists deteriorates human readibility and causes misinterpretation is where a dict is nested inside a list.
 Read below example to see why:
