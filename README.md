@@ -17,8 +17,8 @@ python -m pip install dictIO
 ## Core Features
 dictIO supports
 * reading and writing Python dicts in C++ dictionary format​.
-* usage of references and expressions in dict files, which get resolved during reading.
-* usage of cascaded dict files, allowing separatation of a case-agnostic configuration dict and its case-specific parameterization: baseDict + paramDict = caseDict​
+* usage of references and expressions in dict files, dynamically resolved during reading.
+* usage of cascaded dict files, allowing separation of a case-agnostic configuration dict and its case-specific parameterization: baseDict + paramDict = caseDict​
 
 Further, dictIO
 * is widely tolerant in reading different flavours (quotes, preserving comments, etc.)​
