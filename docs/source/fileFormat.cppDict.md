@@ -2,8 +2,7 @@
 
 ## Description
 
-The default C++ dictionary format used by dictIO has, by intention, many similarities with the [OpenFOAM](https://www.openfoam.com/documentation/guides/latest/doc/openfoam-guide-input-types.html) file format.
-However, it is intended to be slightly simpler and more flexible in its lexical structure.
+The default C++ dictionary format used by dictIO shares, by intention, some commonalities with the [OpenFOAM](https://www.openfoam.com/documentation/guides/latest/doc/openfoam-guide-input-types.html) file format, but is kept simpler and more tolerant to different flavours of string formatting.
 
 ## Structure
 
