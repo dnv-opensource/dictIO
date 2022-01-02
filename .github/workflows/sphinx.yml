@@ -60,7 +60,6 @@ jobs:
       - name: Build Sphinx docs
         run: |
           cd docs
-          make clean html
           make html
 
 
