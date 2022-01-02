@@ -84,11 +84,11 @@ jobs:
         run: |
           set -x
           # Delete everything under _gh-pages/ that is from the
-          # primary branch deployment.  Eicludes the other branches
+          # primary branch deployment.  Excludes the other branches
           # _gh-pages/branch-* paths, and not including
           # _gh-pages itself.
           find _gh-pages/ -mindepth 1 ! -path '_gh-pages/branch*' -delete
-          rsync -a _build/dirhtml/ _gh-pages/
+          rsync -a docs/build/html/ _gh-pages/
       # If a push and not on default branch, then copy the build to
       # _gh-pages/branch/$brname (transforming '/' into '--')
       - name: Copy new build (branch)
@@ -102,7 +102,7 @@ jobs:
           brname="${brname##refs/heads/}"
           brdir=${brname//\//--}   # replace '/' with '--'
           rm -rf   _gh-pages/branch/${brdir}
-          rsync -a _build/dirhtml/ _gh-pages/branch/${brdir}
+          rsync -a docs/build/html/ _gh-pages/branch/${brdir}
       # Go through each branch in _gh-pages/branch/, if it's not a
       # ref, then delete it.
       - name: Delete old feature branches
