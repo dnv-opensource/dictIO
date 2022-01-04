@@ -15,7 +15,6 @@ Welcome to dictIO's documentation!
    api
    cli
    fileFormat
-   .. examples
 
 
 
