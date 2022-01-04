@@ -34,7 +34,7 @@ The default C++ dictionary format used by dictIO shares, by intention, some comm
 
 With some limitations, dictIO supports also reading from and writing to [OpenFOAM](https://www.openfoam.com/documentation/guides/latest/doc/openfoam-guide-input-types.html), [Json](https://www.json.org/json-en.html) and [XML](https://www.w3.org/XML/).
 
-_For a detailed documentation of the file format, see the [File Format](fileFormat.md) in dictIO's [documentation][dictIO_docs]._
+_For a detailed documentation of the C++ dictionary file format used by dictIO, see [File Format](fileFormat.md) in [dictIO's documentation][dictIO_docs] on GitHub Pages._
 
 ## Development setup
 
