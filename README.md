@@ -4,20 +4,20 @@ dictIO is a Python package to read and write Python dicts as text files in C++ d
 It was designed to leverage the versatility of text based dictionary files while easing their use in Python through seamless support for Python dicts.
 
 dictIO supports
-* reading and writing Python dicts in C++ dictionary format​.
+* reading and writing Python dicts in C++ dictionary format.
 * usage of references and expressions in dict files, dynamically resolved during reading.
-* usage of cascaded dict files, allowing separation of a case-agnostic configuration dict and its case-specific parameterization: baseDict + paramDict = caseDict​
+* usage of cascaded dict files, allowing separation of a case-agnostic configuration dict and its case-specific parameterization: baseDict + paramDict = caseDict
 
 Further, dictIO
-* is widely tolerant in reading different flavours (quotes, preserving comments, etc.)​
-* can read and write also JSON, XML​ and OpenFOAM (with some limitations)
+* is widely tolerant in reading different flavours (quotes, preserving comments, etc.)
+* can read and write also JSON, XML and OpenFOAM (with some limitations)
 
 ## Installation
 ```sh
 pip install dictIO
 ```
 
-## Usage example
+## Usage Example
 
 dictIO provides a simple, high level API that allows reading and writing Python dicts from/to a dictionary file in essentially one line of code:
 ~~~py
@@ -36,11 +36,11 @@ With some limitations, dictIO supports also reading from and writing to [OpenFOA
 
 _For a detailed documentation of the C++ dictionary file format used by dictIO, see [File Format](fileFormat.md) in [dictIO's documentation][dictIO_docs] on GitHub Pages._
 
-## Development setup
+## Development Setup
 
 1. Install [Python 3.9](https://www.python.org/downloads/release/python-399/)
 
-2. git clone the dictIO repository into your local development directory
+2. git clone the dictIO repository into your local development directory:
 
 ~~~sh
 git clone git://github.com/dnv-opensource/dictIO.git path/to/your/dev/dictIO
