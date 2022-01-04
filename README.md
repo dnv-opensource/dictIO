@@ -19,13 +19,31 @@ pip install dictIO
 
 ## Usage Example
 
-dictIO provides a simple, high level API that allows reading and writing Python dicts from/to a dictionary file in essentially one line of code:
+dictIO provides a simple, high level API that allows reading and writing Python dicts from/to C++ dictionary files:
 ~~~py
 from dictIO import DictReader, DictWriter
 
 my_dict = DictReader.read('myDict')
-DictWriter.write(my_dict, 'myDict')
+DictWriter.write(my_dict, 'parsed.myDict')
 ~~~
+
+The above example reads a dict file, merges any (sub-)dicts included through #include directives, evaluates expressions contained in the dict,
+and finally saves the read and evaluated dict with prefix 'parsed' as 'parsed.myDict'.
+
+This sequence of reading, evaluating and writing a dict is also called 'parsing' in dictIO.
+Because this task is so common, dictIO provides a convenience class for it:
+Using DictParser.parse() the above task can be accomplished in one line of code:
+~~~py
+from dictIO import DictParser
+
+DictParser.parse('myDict')
+~~~
+
+The above task can also be invoked from the command line, using the 'dictParser' command line script installed with dictIO:
+~~~sh
+dictParser myDict
+~~~
+
 _For more examples and usage, please refer to dictIO's [documentation][dictIO_docs]._
 
 
