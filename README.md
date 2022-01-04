@@ -26,7 +26,7 @@ from dictIO import DictReader, DictWriter
 my_dict = DictReader.read('myDict')
 DictWriter.write(my_dict, 'myDict')
 ~~~
-_For more examples and usage, please refer to dictIO's [documentation][docs]._
+_For more examples and usage, please refer to dictIO's [documentation][dictIO_docs]._
 
 
 ## File Format
@@ -34,15 +34,19 @@ The default C++ dictionary format used by dictIO shares, by intention, some comm
 
 With some limitations, dictIO supports also reading from and writing to [OpenFOAM](https://www.openfoam.com/documentation/guides/latest/doc/openfoam-guide-input-types.html), [Json](https://www.json.org/json-en.html) and [XML](https://www.w3.org/XML/).
 
-_For a detailed documentation of the file format, see the [File Format](fileFormat.md) in dictIO's [documentation][docs]._
+_For a detailed documentation of the file format, see the [File Format](fileFormat.md) in dictIO's [documentation][dictIO_docs]._
 
 ## Development setup
 
 1. Install [Python 3.9](https://www.python.org/downloads/release/python-399/)
 
-2. git clone the dictIO repository locally
+2. git clone the dictIO repository into your local development directory
 
-3. In the root folder of your local dictIO clone:
+~~~sh
+git clone git://github.com/dnv-opensource/dictIO.git path/to/your/dev/dictIO
+~~~
+
+3. In the dictIO root folder:
 
 Create a Python virtual environment:
 ~~~sh
@@ -66,16 +70,16 @@ pip install -r requirements.txt
 
 * 0.1.0
     * First release
-* 0.0.9
-    * Work in progress
 
 ## Meta
+
+Copyright (c) 2022 [DNV](https://www.dnv.com) [open source](https://github.com/dnv-opensource)
 
 Frank Lumpitzsch – [@LinkedIn](https://www.linkedin.com/in/frank-lumpitzsch-23013196/) – frank.lumpitzsch@dnv.com
 
 Claas Rostock – [@LinkedIn](https://www.linkedin.com/in/claasrostock/?locale=en_US) – claas.rostock@dnv.com
 
-Seunghyeon Yoo - [@LinkedIn](https://www.linkedin.com/in/seunghyeon-yoo-3625173b/) - seunghyeon.yoo@dnv.com
+Seunghyeon Yoo – [@LinkedIn](https://www.linkedin.com/in/seunghyeon-yoo-3625173b/) – seunghyeon.yoo@dnv.com
 
 Distributed under the MIT license. See [LICENSE](LICENSE.md) for more information.
 
@@ -92,4 +96,6 @@ Distributed under the MIT license. See [LICENSE](LICENSE.md) for more informatio
 For your contribution, please make sure you follow the [STYLEGUIDE](STYLEGUIDE.md) before creating the Pull Request.
 
 <!-- Markdown link & img dfn's -->
-[docs]: https://turbo-adventure-f218cdea.pages.github.io
+[dictIO_docs]: https://turbo-adventure-f218cdea.pages.github.io
+[ospx_docs]: https://literate-guacamole-9daa57bc.pages.github.io
+[farn_docs]: https://crispy-tribble-285142b5.pages.github.io
