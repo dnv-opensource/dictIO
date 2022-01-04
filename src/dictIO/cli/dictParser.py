@@ -192,7 +192,7 @@ def main(
     '''
 
     # Check whether source file exists
-    if not source_file.is_file():
+    if not source_file.exists():
         logger.error(f"dictParser.py: File {source_file} not found.")
         return
 

@@ -67,15 +67,18 @@ class DictParser():
         -------
         Union[CppDict, None]
             the parsed dict
+
+        Raises
+        ------
+        FileNotFoundError
+            if source_file does not exist
         """
 
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
         source_file = source_file if isinstance(source_file, Path) else Path(source_file)
-
-        # Check whether source file exists
-        if not source_file.is_file():
+        if not source_file.exists():
             logger.error(f"DictParser: File {source_file} not found.")
-            return None
+            raise FileNotFoundError(source_file)
 
         logger.info(f"Parse {source_file}..")
 
