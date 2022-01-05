@@ -59,7 +59,7 @@ class DictParser():
         comments : bool, optional
             writes comments to output file, by default True
         scope : MutableSequence[str], optional
-            scope the dict will be reduced to after parsing.'scope' can be EMPTY, a 'STRING' or a list of strings ['STRING1', 'STRING2'], by default None
+            scope the dict will be reduced to after parsing, by default None
         output : str, optional
             format of the output file. Choices are 'cpp', 'foam', 'xml' and 'json'., by default None
 

@@ -1114,14 +1114,14 @@ class CppParser(Parser):
             value = self.parse_type(string_literal)
 
             # Replace all occurences of placeholder within the dictionary with the original string literal.
-            # Note: As iter_find_key() is non-greedy and returns the key of only the first occurance of placeholder it finds,
+            # Note: As find_global_key() is non-greedy and returns the key of only the first occurance of placeholder it finds,
             # we need to loop until we found and replaced all occurances of placholder in the dict
-            # and iter_find_key() does not find any more occurances.
-            global_key = dict.iter_find_key(query=placeholder)
+            # and find_global_key() does not find any more occurances.
+            global_key = dict.find_global_key(query=placeholder)
             while global_key:
                 # Back insert the string literal
-                dict.iter_set_key(global_key, value)
-                global_key = dict.iter_find_key(query=placeholder)
+                dict.set_global_key(global_key, value)
+                global_key = dict.find_global_key(query=placeholder)
         dict.string_literals.clear()
         return
 
