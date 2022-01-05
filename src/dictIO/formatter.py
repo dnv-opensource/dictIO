@@ -797,6 +797,8 @@ class JsonFormatter(Formatter):
 
 
 class XmlFormatter(Formatter):
+    """docstring
+    """
     '''
         <databases>
             <database id='human_resources' type='mysql'>

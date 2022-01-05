@@ -55,6 +55,10 @@ class CppDict(UserDict):
 
     # Override the update() method of UserDict class to include updating CppDict attributes
     def update(self, __m: Mapping, **kwargs) -> None:
+        """Performs an update of the Cpp dict.
+        If a key already exists, the key will be overwritten by update (default action, mode '-w', see also CLI Documentation).
+        To collect each content from every key (existing and new) into the CppDict, merge is used (mode 'a').
+        """
         # sourcery skip: class-extract-method
         # call base class method. This takes care of updating self.data
         super().update(__m, **kwargs)
@@ -69,11 +73,10 @@ class CppDict(UserDict):
         return
 
     def merge(self, dict: MutableMapping):
-        '''
-        Merges the passed in dict into the CppDict instance.
+        """Merges the passed in dict into the CppDict instance.
         In contrast to update(), merge() works recursively. That is, it does not only update the top-level keys of the Cpp instance,
         but also nested dicts, given they are also present in the dict to be merged
-        '''
+        """
         # merge dict into self (=into self.data)
         merge_dicts(self, dict)
         # mergedeep behaves like merge with less (visible) code

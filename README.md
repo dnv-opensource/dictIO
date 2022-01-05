@@ -1,5 +1,5 @@
 # README
-dictIO is a Python package to read and write Python dicts as text files in C++ dictionary (cpp) format.
+dictIO is a Python package to read, write and manipulate dictionary text files.
 
 It was designed to leverage the versatility of text based dictionary files while easing their use in Python through seamless support for Python dicts.
 
