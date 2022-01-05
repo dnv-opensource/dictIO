@@ -56,8 +56,8 @@ The table also indicates to which Python data type they are casted when a dict f
 | string        | aString, 'a string', "a string"   | str               |
 | dict          | {key1 value1; key2 value2;}       | dict              |
 | list          | (1.0 2.0 3.0)                     | list              |
-| reference     | @var1                             | (type of var1)    |
-| expression    | "@var1 + 4"                       | (type of var1)    |
+| reference     | $var1                             | (type of var1)    |
+| expression    | "$var1 + 4"                       | (type of var1)    |
 
 ## Examples
 

@@ -797,10 +797,24 @@ class JsonFormatter(Formatter):
 
 
 class XmlFormatter(Formatter):
-    """docstring
+    """Dict formatter to serialize a dict into a string in xml format
+    Defaults:
+        namespaces:      'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd'
+        root tag:        'NOTSPECIFIED'
+        root attributes: None
+        indent           4
+    Defaults can be overwritten by adding a subdict '_xmlOpts' to dict,
+    containing '_nameSpaces', '_rootTag', '_rootAttributes'.
+    Adding a subdict '_attributes' to a subdict inside dict causes the XmlFormatter to write xml attributes.
+    In contrast to xml, there are some specialties in dict format what need to be customized:
+    | | xml | dict |
+    | - | - | - |
+    | name | root tag | the file name is the 'root tag' and also the dict name |
+    | attributes | | attributes need to be provided in a separate subdict to take action |
+    | style | namespace | style guide |
     """
-    '''
-        <databases>
+
+    """ <databases>
             <database id='human_resources' type='mysql'>
                 <host>localhost</host>
                 <user>usrhr</user>
@@ -823,7 +837,7 @@ class XmlFormatter(Formatter):
             CONS:   implementation is expensive and many functions have to be touched (are affected)
                     will not be used anyways
                     diminishes the main advantage of producing human readable code
-    '''
+    """
 
     def __init__(
         self,
@@ -845,10 +859,9 @@ class XmlFormatter(Formatter):
         self,
         dict: Union[MutableMapping, CppDict],
     ) -> str:
-        '''
-        Creates a string representation of the passed in dict in XML format.
+        """Creates a string representation of the passed in dict in XML format.
         dict can be of type dict or CppDict.
-        '''
+        """
         # Default configuration
         namespaces: MutableMapping = {'xs': 'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd'}
         root_tag: str = 'NOTSPECIFIED'
@@ -907,10 +920,11 @@ class XmlFormatter(Formatter):
         arg: Union[MutableMapping, MutableSequence, Any],
         xsd_uri: str = None
     ):                                                      # sourcery skip: remove-pass-body, remove-pass-elif, remove-redundant-pass
-        '''
-        Populates arg into the XML element node.
+        """Populates arg into the XML element node.
         If arg is a dict or list, method will call itself recursively until all nested content within the dict or list
         is populated into nested elements, eventually creating an XML dom.
+        """
+        '''
         ToDo:   LINECOMMENT
         '''
 
