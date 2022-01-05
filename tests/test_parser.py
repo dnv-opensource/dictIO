@@ -748,11 +748,28 @@ class TestCppParser():
         # Execute
         dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
-        assert len(dict_out['nesting']) == 4
+        assert len(dict_out['nesting']) == 5
         # Assert emptyNestedDict
         assert len(dict_out['nesting']['emptyNestedDict']) == 0
         # Assert emptyNestedList
         assert len(dict_out['nesting']['emptyNestedList']) == 0
+        # Assert nested dict with nested list
+        assert len(dict_out['nesting']['nestedDictWithNestedList']) == 3
+        assert isinstance(dict_out['nesting']['nestedDictWithNestedList']['list1'], list)
+        assert isinstance(dict_out['nesting']['nestedDictWithNestedList']['list2'], list)
+        assert isinstance(dict_out['nesting']['nestedDictWithNestedList']['list3'], list)
+        assert len(dict_out['nesting']['nestedDictWithNestedList']['list1']) == 3
+        assert len(dict_out['nesting']['nestedDictWithNestedList']['list2']) == 3
+        assert len(dict_out['nesting']['nestedDictWithNestedList']['list3']) == 3
+        assert dict_out['nesting']['nestedDictWithNestedList']['list1'][0] == 1.00000000e+00
+        assert dict_out['nesting']['nestedDictWithNestedList']['list1'][1] == 2.20972831e-17
+        assert dict_out['nesting']['nestedDictWithNestedList']['list1'][2] == 3.15717747e-18
+        assert dict_out['nesting']['nestedDictWithNestedList']['list2'][0] == 2.20972831e-17
+        assert dict_out['nesting']['nestedDictWithNestedList']['list2'][1] == 1.00000000e+00
+        assert dict_out['nesting']['nestedDictWithNestedList']['list2'][2] == -7.07290050e-18
+        assert dict_out['nesting']['nestedDictWithNestedList']['list3'][0] == 3.15717747e-18
+        assert dict_out['nesting']['nestedDictWithNestedList']['list3'][1] == -7.07290050e-18
+        assert dict_out['nesting']['nestedDictWithNestedList']['list3'][2] == 1.00000000e+00
         # Assert nested list with nested list
         assert len(dict_out['nesting']['nestedListWithNestedList']) == 3
         assert isinstance(dict_out['nesting']['nestedListWithNestedList'][0], list)
