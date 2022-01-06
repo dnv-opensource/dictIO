@@ -225,7 +225,9 @@ class TestCppFormatter():
         include_placeholder = 'INCLUDE000102            INCLUDE000102;'
 
         str_in = blockcomment_placeholder + '\n' + include_placeholder + '\n'
-        str_assert = str_in.replace(include_placeholder, include_directive_in.replace('"', '\''))
+        str_assert = str_in.replace(
+            include_placeholder, include_directive_in.replace('"', '\'').replace('#', '')
+        )
 
         formatter = CppFormatter()
 

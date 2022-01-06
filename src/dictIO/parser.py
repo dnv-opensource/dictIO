@@ -505,15 +505,15 @@ class CppParser(Parser):
         return
 
     def _extract_includes(self, dict: CppDict):
-        """Finds and extracts #include directives from dict.line_content, and replaces them with Placeholders.
+        """Finds and extracts include directives from dict.line_content, and replaces them with Placeholders.
 
-        Finds #includes directives (#include file), extracts them,
+        Finds include directives (include file), extracts them,
         and replaces the complete line where the include directive was found
-        with a placeholder in the form #INCLUDE000000.
+        with a placeholder in the form INCLUDE000000.
         The absolute path to the file referenced in the include directive is determined.
         The original line with its include directive as well as the absolute path to the file to include
         is then stored as a key-value pair in dict.includes, in the form {index:(include_directive, include_file_name, include_file_path)}
-        index, therein, corresponds to the integer number in #INCLUDE000000.
+        index, therein, corresponds to the integer number in INCLUDE000000.
 
         Parameters
         ----------
@@ -522,11 +522,13 @@ class CppParser(Parser):
         """
 
         for index, line in enumerate(dict.line_content):
-            if re.search(r'^\s*#\s*include', line):
+            if re.search(r'(^\s*#\s*include|^\s{0,3}include)', line):
                 ii = self.counter()
                 dict.line_content[index] = 'INCLUDE%06i\n' % ii
 
-                include_file_name = re.sub(r'(^\s*#\s*include\s*|\s*$)', '', line)
+                include_file_name = re.sub(
+                    r'((^\s*#\s*include\s*|^\s{0,3}include\s*)|\s*$)', '', line
+                )
                 include_file_name = __class__.remove_quotes_from_string(include_file_name)
 
                 include_file_path = Path.joinpath(dict.path, include_file_name)
@@ -1294,14 +1296,14 @@ class JsonParser(Parser):
         keys = list(dict.data.keys())
         include_placeholder_keys = {}
         for key in keys:
-            if isinstance(key, str) and re.search(r'^\s*#\s*include', key):
+            if isinstance(key, str) and re.search(r'(^\s*#\s*include|^\s{0,3}include)', key):
                 include_file_name = str(dict[key])
                 include_file_name = __class__.remove_quotes_from_string(include_file_name)
 
                 include_file_path = Path.joinpath(dict.path, include_file_name)
 
                 include_file_name_temp = include_file_name.replace('\\', '\\\\')
-                include_directive = f"#include '{include_file_name_temp}'"
+                include_directive = f"include '{include_file_name_temp}'"
 
                 ii = self.counter()
                 dict.includes.update(

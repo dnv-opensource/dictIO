@@ -50,7 +50,7 @@ class DictParser():
         source_file : Union[str, os.PathLike[str]]
             name of the dict file to be parsed
         includes : bool, optional
-            merge sub-dicts being referenced through #include directives, by default True
+            merge sub-dicts being referenced through include directives, by default True
         mode : str, optional
             append to output file ('a') or overwrite output file ('w'), by default 'w'
         order : bool, optional

@@ -626,7 +626,7 @@ class CppFormatter(Formatter):
             # and insert back the original include directive.
             include_file_name = include_file_name.replace('\\', '\\\\')
             include_file_name = self.format_type(include_file_name)
-            include_directive = f'#include {include_file_name}'
+            include_directive = f'include {include_file_name}'
             search_pattern = r'INCLUDE%06i\s+INCLUDE%06i;' % (key, key)
             s = re.sub(search_pattern, include_directive, s)
 
@@ -756,6 +756,20 @@ class FoamFormatter(CppFormatter):
             block_comment = default_block_comment
         return block_comment
 
+    def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
+        """Inserts back all include directives
+        """
+        for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
+            # Search for the placeholder entry we created in _parse_tokenized_dict(),
+            # and insert back the original include directive.
+            include_file_name = include_file_name.replace('\\', '\\\\')
+            include_file_name = self.format_type(include_file_name)
+            include_directive = f'#include {include_file_name}'
+            search_pattern = r'INCLUDE%06i\s+INCLUDE%06i;' % (key, key)
+            s = re.sub(search_pattern, include_directive, s)
+
+        return s
+
 
 class JsonFormatter(Formatter):
     """Formatter to serialize a dict into a string in JSON dictionary format
@@ -812,7 +826,7 @@ class JsonFormatter(Formatter):
             # Search for the placeholder key in the Json string,
             # and insert back the original include directive.
             include_file_name = include_file_name.replace('\\', '/')
-            include_directive = f'"#include{key:06d}":"{include_file_name}"'
+            include_directive = f'"include{key:06d}":"{include_file_name}"'
             search_pattern = r'"INCLUDE%06i"\s*:\s*"INCLUDE%06i"' % (key, key)
             s = re.sub(search_pattern, include_directive, s)
 

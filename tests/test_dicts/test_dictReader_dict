@@ -2,7 +2,7 @@
 filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
 \*----------------------------------------------------------------------------*/
 
-#include 'test_dictReader_paramDict'
+include 'test_dictReader_paramDict'
 
 expressions
 {

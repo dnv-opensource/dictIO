@@ -51,7 +51,7 @@ class DictReader():
         source_file : Union[str, os.PathLike[str]]
             name of the dict file to be read
         includes : bool, optional
-            merge sub-dicts being referenced through #include directives, by default True
+            merge sub-dicts being referenced through include directives, by default True
         order : bool, optional
             sort the read dict, by default False
         comments : bool, optional
@@ -87,7 +87,7 @@ class DictReader():
         # Parse the dict file and transform it into a CppDict
         parsed_dict = parser.parse_file(source_file, comments=comments)
 
-        # Merge dict files included through #include directives, if not actively refrained through opts
+        # Merge dict files included through include directives, if not actively refrained through opts
         if includes:
             __class__._merge_includes(parsed_dict, comments=comments)
 
@@ -109,7 +109,7 @@ class DictReader():
 
         # Remove includes from the parsed dictionary if requested through opts
         # @TODO: Really necessary?
-        # generally a good idea to have a switch suppressing #include ... in output
+        # generally a good idea to have a switch suppressing include ... in output
         # gives the option to disable include (foam required)
         # also to consider: is it really neccessary to have the included dict merged in to current dict.data?
         # if we could avoid that we get a more readable structure, even after some farn operations
@@ -121,7 +121,7 @@ class DictReader():
     @staticmethod
     def _merge_includes(dict: CppDict, comments: bool = True):
         '''
-        Parses and merges any (child) dicts that are referenced in the C++ dict through #include directives
+        Parses and merges any (child) dicts that are referenced in the C++ dict through include directives
         '''
         # Create dejavue string watchdog
         djv = DejaVue()
@@ -141,7 +141,7 @@ class DictReader():
                     if len(included_dict.includes) != 0:
                         _merge_includes_recursive(
                             included_dict
-                        )                           # recursion in case the included dict also had #include directives
+                        )                           # recursion in case the included dict also had include directives
                     dict.merge(included_dict)       # merge the included (child) dict into dict
             return
 

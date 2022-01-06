@@ -2,4 +2,4 @@
 filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
 \*----------------------------------------------------------------------------*/
 
-#include 'test_dictParser_paramDict'
+include 'test_dictParser_paramDict'

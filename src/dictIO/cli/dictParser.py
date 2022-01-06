@@ -23,7 +23,7 @@ def _argparser() -> argparse.ArgumentParser:
         prefix_chars='-',
         add_help=True,
         description=(
-            'Reads a dict file, merges sub-dicts referenced through #include directives,\n'
+            'Reads a dict file, merges sub-dicts referenced through include directives,\n'
             'evaluates variables and expressions,\n'
             "and finally saves the parsed dict with prefix 'parsed', i.e. parsed.<DICTNAME>."
             'The format of the output file will by default be C++ dict format, but can optionally be\n'
@@ -43,7 +43,7 @@ def _argparser() -> argparse.ArgumentParser:
         '--ignore-includes',
         action='store_true',
         help=(
-            "ignore include directives (e.g. #include './SUBDICT').\n"
+            "ignore include directives (e.g. include './SUBDICT').\n"
             'This suppresses merging of sub-dicts. '
         ),
         default=False,

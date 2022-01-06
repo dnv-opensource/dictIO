@@ -1,7 +1,7 @@
 /*---------------------------------*- C++ -*----------------------------------*\
 filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
 \*----------------------------------------------------------------------------*/
-#include 'a_paramDict_in_same_folder'
+include 'a_paramDict_in_same_folder'
 // This is a line comment at the top of the file
 emptyDict
 {

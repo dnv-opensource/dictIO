@@ -357,28 +357,33 @@ class TestCppParser():
     def test_extract_includes(self):
         dict = CppDict()
         parser = CppParser()
-        line1 = 'a line with no include directive\n'
-        line2 = '#include testDict\n'
-        line3 = '#include \'testDict\'\n'
-        line4 = '#include \"testDict\"\n'
-        # line4 = '#include testDict with some dummy content thereafter\n'   # this is currently not covered by _extract_includes() and would fail
-        line5 = '   #include testDict   \n'
-        line6 = '   # include testDict   \n'
-        line7 = 'a line with no include directive\n'
-        dict.line_content.extend([line1, line2, line3, line4, line5, line6, line7])
-        assert len(dict.line_content) == 7
+        # include directives with prefix '#'
+        line1 = '#include testDict\n'
+        line2 = '#include \'testDict\'\n'
+        line3 = '#include \"testDict\"\n'
+        line4 = '   #include testDict   \n'
+        line5 = '   # include testDict   \n'
+        line6 = 'include testDict\n'
+        # include directives without prefix '#'
+        line7 = '   include testDict\n'                 # up to 3 spaces is ok
+        line8 = '    include testDict\n'                # 4 or more spaces invalidates the include directive.  This as a simple measure to not evaluate keys inside dicts as an include directive.
+        line9 = 'a line with no valid include directive\n'
+                                                        # next is currently not supported by _extract_includes() and would fail
+                                                        # line10 = 'include testDict with some dummy content thereafter\n'
+        dict.line_content.extend([line1, line2, line3, line4, line5, line6, line7, line8, line9])
+        assert len(dict.line_content) == 9
         parser._extract_includes(dict)
-        assert len(dict.line_content) == 7
+        assert len(dict.line_content) == 9
         for line in dict.line_content:
             assert bool(re.search(
-                r'#include',
+                r'(^\s*#\s*include|^\s{0,3}include)',
                 line,
             )) is False
-        assert len(dict.includes) == 5
+        assert len(dict.includes) == 7
         file_name_assert = 'testDict'
         file_path_assert = Path('testDict').absolute()
         for include_directive, include_file_name, include_file_path in dict.includes.values():
-            assert bool(re.search(str(r'#\s*include'), str(include_directive))) is True
+            assert bool(re.search(str(r'(#\s*include|include)'), str(include_directive))) is True
             assert bool(re.search(str(r'\n'), str(include_directive))) is False
             assert include_file_name == file_name_assert
             assert include_file_path == file_path_assert
