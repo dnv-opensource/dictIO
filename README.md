@@ -27,7 +27,7 @@ my_dict = DictReader.read('myDict')
 DictWriter.write(my_dict, 'parsed.myDict')
 ~~~
 
-The above example reads a dict file, merges any (sub-)dicts included through #include directives, evaluates expressions contained in the dict,
+The above example reads a dict file, merges any (sub-)dicts included through include directives, evaluates expressions contained in the dict,
 and finally saves the read and evaluated dict with prefix 'parsed' as 'parsed.myDict'.
 
 This sequence of reading, evaluating and writing a dict is also called 'parsing' in dictIO.

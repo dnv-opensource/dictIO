@@ -25,21 +25,21 @@ filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
 \*----------------------------------------------------------------------------*/
 ~~~
 
-## #include Directive(s)
+## include Directive(s)
 
-One of the most powerful features of C++ dicts is their ability to be cascaded through the use of #include directives.
-An #include directive declares a (child) dict file to be merged into the (parent) dict when reading.
+One of the most powerful features of C++ dicts is their ability to be cascaded through the use of include directives.
+An include directive declares a (child) dict file to be merged into the (parent) dict when reading.
 
 This allows to separate i.e. a case agnostic configuration file from its case specific parameterization:
 While the core configuration dict is kept unchanged, case specific parameterization is accomplished by varying only the parameter dict.
 
-An #include directive consists of the #include statement followed by the path to the dict to be included:
+An include directive consists of the include statement followed by the path to the dict to be included:
 ~~~cpp
-#include 'a_paramDict_in_same_folder'
-#include 'subfolder/a_paramDict_in_subfolder'  // Posix style with forward slashes is recommended (will work also on Windows)
-#include '../a_paramDict_in_parent_folder'
-#include 'subfolder\a_paramDict_in_subfolder'  // also ok, but not recommended
-#include '..\a_paramDict_in_parent_folder'
+include 'a_paramDict_in_same_folder'
+include 'subfolder/a_paramDict_in_subfolder'  // Posix style with forward slashes is recommended (will work also on Windows)
+include '../a_paramDict_in_parent_folder'
+include 'subfolder\a_paramDict_in_subfolder'  // also ok, but not recommended
+include '..\a_paramDict_in_parent_folder'
 ~~~
 
 
