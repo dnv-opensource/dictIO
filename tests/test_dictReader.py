@@ -19,7 +19,7 @@ def test_file_not_found_exception():
 
 
 def test_merge_includes():  # sourcery skip: class-extract-method
-                            # Prepare dict until and including parse_tokenized_dict()
+                            # Prepare dict until and including _parse_tokenized_dict()
     dict = CppDict()
     SetupHelper.prepare_dict_until(dict_to_prepare=dict)
     dict_in = deepcopy(dict.data)

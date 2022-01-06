@@ -2,7 +2,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
-from dictIO.cppDict import CppDict, iter_find_key, iter_set_key, order_keys
+from dictIO.cppDict import CppDict, find_global_key, set_global_key, order_keys
 from dictIO.parser import CppParser
 
 
@@ -34,7 +34,7 @@ def test_init_with_file():
     assert dict.source_file == Path.cwd() / 'someDict'
 
 
-def test_iter_find_key():
+def test_find_global_key():
     str_in_1 = 'PLACEHOLDER000001'
     str_in_2 = 'PLACEHOLDER000002'
     str_in_3 = 'PLACEHOLDER000003'
@@ -129,34 +129,34 @@ def test_iter_find_key():
     assert dict_in[keyldl][0][keyl][1] == str_in_2
     assert dict_in[keyldl][0][keyl][2] == str_in_3
 
-    # Execute iter_find_key and iter_set_key
+    # Execute find_global_key and set_global_key
     dict_out = deepcopy(dict_in)
     str_out_1 = 'string 1'
     str_out_2 = 'string 2'
     str_out_3 = 'string 3'
-    global_key = iter_find_key(arg=dict_out, query=str_in_1)
+    global_key = find_global_key(arg=dict_out, query=str_in_1)
     i = 0
     while global_key:
         i += 1
         # Substitute str_in_1 with str_out_1
-        dict_out = iter_set_key(arg=dict_out, global_key=global_key, value=str_out_1)
-        global_key = iter_find_key(arg=dict_out, query=str_in_1)
+        set_global_key(arg=dict_out, global_key=global_key, value=str_out_1)
+        global_key = find_global_key(arg=dict_out, query=str_in_1)
     assert i == 7
-    global_key = iter_find_key(arg=dict_out, query=str_in_2)
+    global_key = find_global_key(arg=dict_out, query=str_in_2)
     i = 0
     while global_key:
         i += 1
         # Substitute str_in_2 with str_out_2
-        dict_out = iter_set_key(arg=dict_out, global_key=global_key, value=str_out_2)
-        global_key = iter_find_key(arg=dict_out, query=str_in_2)
+        set_global_key(arg=dict_out, global_key=global_key, value=str_out_2)
+        global_key = find_global_key(arg=dict_out, query=str_in_2)
     assert i == 7
-    global_key = iter_find_key(arg=dict_out, query=str_in_3)
+    global_key = find_global_key(arg=dict_out, query=str_in_3)
     i = 0
     while global_key:
         i += 1
         # Substitute str_in_3 with str_out_3
-        dict_out = iter_set_key(arg=dict_out, global_key=global_key, value=str_out_3)
-        global_key = iter_find_key(arg=dict_out, query=str_in_3)
+        set_global_key(arg=dict_out, global_key=global_key, value=str_out_3)
+        global_key = find_global_key(arg=dict_out, query=str_in_3)
     assert i == 7
 
     # Assert structure of dict_out

@@ -10,8 +10,8 @@ Welcome to dictIO's documentation!
    :maxdepth: 4
    :caption: Contents:
 
-   readme_link
-   license_link
+   README
+   LICENSE
    api
    cli
    fileFormat

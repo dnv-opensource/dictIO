@@ -346,7 +346,7 @@ class TestCppParser():
         line4 = 'a line with no line comment\n'
         dict.line_content.extend([line1, line2, line3, line4])
         assert len(dict.line_content) == 4
-        parser.extract_line_comments(dict, comments=True)
+        parser._extract_line_comments(dict, comments=True)
         assert len(dict.line_content) == 4
         for line in dict.line_content:
             assert re.search(r'//', line) is None
@@ -361,13 +361,13 @@ class TestCppParser():
         line2 = '#include testDict\n'
         line3 = '#include \'testDict\'\n'
         line4 = '#include \"testDict\"\n'
-        # line4 = '#include testDict with some dummy content thereafter\n'   # this is currently not covered by extract_includes and would fail
+        # line4 = '#include testDict with some dummy content thereafter\n'   # this is currently not covered by _extract_includes() and would fail
         line5 = '   #include testDict   \n'
         line6 = '   # include testDict   \n'
         line7 = 'a line with no include directive\n'
         dict.line_content.extend([line1, line2, line3, line4, line5, line6, line7])
         assert len(dict.line_content) == 7
-        parser.extract_includes(dict)
+        parser._extract_includes(dict)
         assert len(dict.line_content) == 7
         for line in dict.line_content:
             assert bool(re.search(
@@ -391,7 +391,7 @@ class TestCppParser():
         line2 = 'line 2\n'
         line3 = 'line 3\n'
         dict.line_content.extend([line1, line2, line3])
-        parser.convert_line_content_to_block_content(dict)
+        parser._convert_line_content_to_block_content(dict)
         assert dict.block_content == 'line 1\nline 2\nline 3\n'
 
     def test_remove_line_endings_from_block_content(self):
@@ -402,8 +402,8 @@ class TestCppParser():
         line2 = 'line 2\n'
         line3 = 'line 3\n'
         dict.line_content.extend([line1, line2, line3])
-        parser.convert_line_content_to_block_content(dict)
-        parser.remove_line_endings_from_block_content(dict)
+        parser._convert_line_content_to_block_content(dict)
+        parser._remove_line_endings_from_block_content(dict)
         assert dict.block_content == 'line 1 line 2 line 3'
 
     def test_extract_block_comments(self):
@@ -430,7 +430,7 @@ class TestCppParser():
         )
 
         dict.block_content = text_block_in
-        parser.extract_block_comments(dict, comments=True)
+        parser._extract_block_comments(dict, comments=True)
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
         assert text_block_out == text_block_assert
         string_diff(text_block_out, text_block_assert)
@@ -475,7 +475,7 @@ class TestCppParser():
         )
 
         dict.block_content = text_block_in
-        parser.extract_string_literals(dict)
+        parser._extract_string_literals(dict)
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
         string_diff(text_block_out, text_block_assert)
         assert text_block_out == text_block_assert
@@ -510,9 +510,9 @@ class TestCppParser():
             'The following example will NOT be identified as expression but as string literal:\n'
             '   string1         \'$varName1 is not an expression but a string literal because it is in single instead of double quotes\'\n'
             '   string2         "not an expression but a string literal as it does not contain a Dollar character"\n'
-            'extract_expressions() will extract expressions and substitute them with a placeholder\n'
+            '_extract_expressions() will extract expressions and substitute them with a placeholder\n'
             'in the form E X P R E S S I O N 0 0 0 0 0 0.'
-            'The actual evaluation of an expression is not part of extract_expressions(). The evaluation is done within ().'
+            'The actual evaluation of an expression is not part of _extract_expressions(). The evaluation is done within ().'
         )
 
         text_block_assert = (
@@ -533,14 +533,14 @@ class TestCppParser():
             'The following example will NOT be identified as expression but as string literal:\n'
             '   string1         STRINGLITERAL000000\n'
             '   string2         STRINGLITERAL000000\n'
-            'extract_expressions() will extract expressions and substitute them with a placeholder\n'
+            '_extract_expressions() will extract expressions and substitute them with a placeholder\n'
             'in the form E X P R E S S I O N 0 0 0 0 0 0.'
-            'The actual evaluation of an expression is not part of extract_expressions(). The evaluation is done within ().'
+            'The actual evaluation of an expression is not part of _extract_expressions(). The evaluation is done within ().'
         )
 
         dict.block_content = text_block_in
-        parser.extract_string_literals(dict)
-        parser.extract_expressions(dict)
+        parser._extract_string_literals(dict)
+        parser._extract_expressions(dict)
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
         assert text_block_out == text_block_assert
         string_diff(text_block_out, text_block_assert)
@@ -581,8 +581,8 @@ class TestCppParser():
         text_block_in = (
             'This is a text block\n'
             'with multiple lines. Within this text block there are distinct chars that shall be identified as delimiters.\n'
-            'All chars that shall be identified delimiters are passed to separate_delimiters as a list of chars.\n'
-            'separate_delimiters parses .block_content for occurences of these delimiters and strips any spaces surrounding the\n'
+            'All chars that shall be identified delimiters are passed to _separate_delimiters as a list of chars.\n'
+            '_separate_delimiters parses .block_content for occurences of these delimiters and strips any spaces surrounding the\n'
             'delimiter to exactly one single space before and one single space after the delimiter.\n'
             'It further removes all line endings from .block_content and eventually replaces them with single spaces.\n'
             'This is a preparatory step to ensure proper splitting at the delimiters when decomposing .block_content into tokens.\n'
@@ -596,8 +596,8 @@ class TestCppParser():
         text_block_assert = (
             'This is a text block '
             'with multiple lines. Within this text block there are distinct chars that shall be identified as delimiters. '
-            'All chars that shall be identified delimiters are passed to separate_delimiters as a list of chars. '
-            'separate_delimiters parses .block_content for occurences of these delimiters and strips any spaces surrounding the '
+            'All chars that shall be identified delimiters are passed to _separate_delimiters as a list of chars. '
+            '_separate_delimiters parses .block_content for occurences of these delimiters and strips any spaces surrounding the '
             'delimiter to exactly one single space before and one single space after the delimiter. '
             'It further removes all line endings from .block_content and eventually replaces them with single spaces. '
             'This is a preparatory step to ensure proper splitting at the delimiters when decomposing .block_content into tokens. '
@@ -610,12 +610,12 @@ class TestCppParser():
         )
         dict.block_content = text_block_in
         # Execute
-        parser.separate_delimiters(dict, dict.delimiters)
+        parser._separate_delimiters(dict, dict.delimiters)
         # Assert
         assert dict.block_content == text_block_assert
         string_diff(dict.block_content, text_block_assert)
         # In addition, test whether re.split('\s', block_content) results in tokens containing one single word each
-        # because this exactly is what separate_delimiters() is meant to ensure
+        # because this exactly is what _separate_delimiters() is meant to ensure
         dict.tokens = [(0, i) for i in re.split(r'\s', dict.block_content)]
         assert len(dict.tokens) == 184
         for _, token in dict.tokens:
@@ -636,7 +636,7 @@ class TestCppParser():
         tokens_assert = list(zip(levels_assert, tokens))
         dict.tokens = tokens_in
         # Execute
-        parser.determine_token_hierarchy(dict)
+        parser._determine_token_hierarchy(dict)
         # Assert
         assert dict.tokens == tokens_assert
 
@@ -646,7 +646,7 @@ class TestCppParser():
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
-        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
         assert len(dict_out) == 12
         assert list(dict_out.keys())[0][:12] == 'BLOCKCOMMENT'
@@ -668,7 +668,7 @@ class TestCppParser():
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
-        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
         assert len(dict_out['booleans']) == 8   # bool1, bool2, ..., bool8
         assert isinstance(dict_out['booleans']['bool1'], bool)
@@ -694,7 +694,7 @@ class TestCppParser():
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
-        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
         assert len(dict_out['numbers']) == 3    # int1,int2,float1
         assert isinstance(dict_out['numbers']['int1'], int)
@@ -710,7 +710,7 @@ class TestCppParser():
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
-        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
         assert len(dict_out['nones']) == 4  # none1, none2, none3, none4
         assert dict_out['nones']['none1'] is None
@@ -724,7 +724,7 @@ class TestCppParser():
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
-        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
         assert len(dict_out['strings']) == 7
         assert dict_out['strings']['string1'][:13] == 'STRINGLITERAL'
@@ -746,7 +746,7 @@ class TestCppParser():
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
-        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
         assert len(dict_out['nesting']) == 5
         # Assert emptyNestedDict
@@ -811,7 +811,7 @@ class TestCppParser():
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
-        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
         assert len(dict_out['expressions']) == 13               # reference..G3 (level 2)
         assert len(dict_out['expressions']['reference']) == 3   # name,value,COMMENT (level 3)
@@ -842,7 +842,7 @@ class TestCppParser():
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9, comments=False)
         parser = CppParser()
         # Execute
-        dict_out = parser.parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
         assert len(dict_out['theDictInAListPitfall']) == 1
         assert len(dict_out['theDictInAListPitfall']['keyToADict']) == 1                        # list
@@ -886,7 +886,7 @@ class TestCppParser():
         SetupHelper.prepare_dict_until(dict_to_prepare=dict, until_step=10)
         parser = CppParser()
         # Execute
-        parser.insert_string_literals(dict)
+        parser._insert_string_literals(dict)
         # Assert
         dict_out = dict.data
         assert dict_out['strings']['listWithStrings'][0] == 'string1'
@@ -1014,18 +1014,18 @@ class SetupHelper():
         parser = CppParser()
 
         funcs = [
-            (parser.extract_line_comments, dict_to_prepare, comments),          # Step 00
-            (parser.extract_includes, dict_to_prepare),                         # Step 01
-            (parser.convert_line_content_to_block_content, dict_to_prepare),    # Step 02
-            (parser.extract_block_comments, dict_to_prepare, comments),         # Step 03
-            (parser.remove_line_endings_from_block_content, dict_to_prepare),   # Step 04
-            (parser.extract_string_literals, dict_to_prepare),                  # Step 05
-            (parser.extract_expressions, dict_to_prepare),                      # Step 06
-            (parser.separate_delimiters, dict_to_prepare),                      # Step 07
-            (parser.convert_block_content_to_tokens, dict_to_prepare),          # Step 08
-            (parser.determine_token_hierarchy, dict_to_prepare),                # Step 09
-            (parser.convert_tokens_to_dict, dict_to_prepare),                   # Step 10
-            (parser.insert_string_literals, dict_to_prepare),                   # Step 11
+            (parser._extract_line_comments, dict_to_prepare, comments),         # Step 00
+            (parser._extract_includes, dict_to_prepare),                        # Step 01
+            (parser._convert_line_content_to_block_content, dict_to_prepare),   # Step 02
+            (parser._extract_block_comments, dict_to_prepare, comments),        # Step 03
+            (parser._remove_line_endings_from_block_content, dict_to_prepare),  # Step 04
+            (parser._extract_string_literals, dict_to_prepare),                 # Step 05
+            (parser._extract_expressions, dict_to_prepare),                     # Step 06
+            (parser._separate_delimiters, dict_to_prepare),                     # Step 07
+            (parser._convert_block_content_to_tokens, dict_to_prepare),         # Step 08
+            (parser._determine_token_hierarchy, dict_to_prepare),               # Step 09
+            (parser._convert_tokens_to_dict, dict_to_prepare),                  # Step 10
+            (parser._insert_string_literals, dict_to_prepare),                  # Step 11
         ]
 
         for i in range(until_step + 1):

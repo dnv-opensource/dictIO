@@ -57,7 +57,7 @@ class DictReader():
         comments : bool, optional
             reads comments from source file, by default True
         scope : MutableSequence[str], optional
-            scope the dict will be reduced to after reading.'scope' can be EMPTY, a 'STRING' or a list of strings ['STRING1', 'STRING2'], by default None
+            scope the dict will be reduced to after reading, by default None
         parser : Parser, optional
             Parser object to be used, by default None
 
@@ -97,7 +97,7 @@ class DictReader():
         # Reduce scope of the dict if requested through opts
         if scope:
             # We need here safety hook when specified scope is not found: simply stop (not continue with whole content!)
-            if parsed_dict.iter_key_exists(scope):
+            if parsed_dict.global_key_exists(scope):
                 parsed_dict.reduce_scope(scope)
             else:
                 logger.error(f'scope {scope} does not exist in dictionary')
@@ -247,11 +247,11 @@ class DictReader():
                             'DictReader.(): evaluation of \"%s\" not yet possible' % expression
                         )
                 if eval_successful:
-                    global_key = dict.iter_find_key(query=placeholder)
+                    global_key = dict.find_global_key(query=placeholder)
                     while global_key:
                         # Substitute the placeholder in the dict with the result of the evaluated expression
-                        dict.iter_set_key(global_key, value=eval_result)
-                        global_key = dict.iter_find_key(query=placeholder)
+                        dict.set_global_key(global_key, value=eval_result)
+                        global_key = dict.find_global_key(query=placeholder)
                     del dict.expressions[key]
                 else:
                     # update the item in dict.expressions with the (at least partly) resolved expression
@@ -279,11 +279,11 @@ class DictReader():
         for key, item in dict.expressions.items():
             placeholder = str(item['name'])
             expression = str(item['expression'])
-            global_key = dict.iter_find_key(query=placeholder)
+            global_key = dict.find_global_key(query=placeholder)
             while global_key:
                 # Substitute the placeholder with the original (or at least partly resolved) expression
-                dict.iter_set_key(global_key, value=expression)
-                global_key = dict.iter_find_key(query=placeholder)
+                dict.set_global_key(global_key, value=expression)
+                global_key = dict.find_global_key(query=placeholder)
         dict.expressions.clear()
 
         return

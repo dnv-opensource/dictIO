@@ -66,14 +66,14 @@ Below examples demonstrate the different element types supported in a C++ dict f
 ### booleans
 
 ~~~cpp
-bool1           true;           // True
-bool2           false;          // False
-bool3           True;           // True
-bool4           False;          // False
-bool5           on;             // True
-bool6           off;            // False
-bool7           ON;             // True
-bool8           OFF;            // False
+    bool1           true;           // True
+    bool2           false;          // False
+    bool3           True;           // True
+    bool4           False;          // False
+    bool5           on;             // True
+    bool6           off;            // False
+    bool7           ON;             // True
+    bool8           OFF;            // False
 ~~~
 
 ### numbers
@@ -96,7 +96,7 @@ none4           null;           // None
 
 ### strings
 
-~~~cpp
+~~~js
 string1         '';
 string2         'string';
 string3         'string with spaces';
@@ -107,7 +107,7 @@ string6         "string with double quotes";
 
 ### dicts
 
-~~~cpp
+~~~js
 emptyDict
 {
 
@@ -132,7 +132,7 @@ dictWithStrings
 
 ### lists
 
-~~~cpp
+~~~js
 emptyList
 (
 

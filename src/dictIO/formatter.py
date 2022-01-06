@@ -18,10 +18,10 @@ logger = logging.getLogger(__name__)
 
 
 class Formatter():
-    '''
-    Abstract Base Class for dict formatters.
-    Dict formatters serialize a dict into a string, applying a specific format.
-    '''
+    """Abstract Base Class for formatters.
+
+    Formatters serialize a dict into a string applying a specific format.
+    """
 
     def __init__(self):
         self.counter = BorgCounter()
@@ -65,12 +65,12 @@ class Formatter():
         Parameters
         ----------
         dict : Union[MutableMapping, CppDict]
-            the dict to be formatted
+            dict to be formatted
 
         Returns
         -------
         str
-            the formatted string representation
+            string representation of the dict
         """
         return ''
 
@@ -336,9 +336,8 @@ class Formatter():
 
 
 class CppFormatter(Formatter):
-    '''
-    Dict formatter to serialize a dict into a string in C++ dictionary format
-    '''
+    """Formatter to serialize a dict into a string in C++ dictionary format
+    """
 
     def __init__(self):
         '''
@@ -351,10 +350,18 @@ class CppFormatter(Formatter):
         self,
         dict: Union[MutableMapping, CppDict],
     ) -> str:
-        '''
-        Creates a string representation of the passed in dict in C++ dictionary format.
-        dict can be of type dict or CppDict.
-        '''
+        """Creates a string representation of the passed in dict in C++ dictionary format.
+
+        Parameters
+        ----------
+        dict : Union[MutableMapping, CppDict]
+            dict to be formatted
+
+        Returns
+        -------
+        str
+            string representation of the dict in C++ dictionary format
+        """
         s = super().to_string(dict)
 
         # Create the string representation of the dictionary in its basic structure.
@@ -413,9 +420,8 @@ class CppFormatter(Formatter):
         end: str = '\n',
         ancestry=MutableMapping,
     ) -> str:
-        '''
-        Formats a dict or list in C++ dictionary format.
-        '''
+        """Formats a dict or list object.
+        """
         total_indent = 30
         s = str()
         indent = sep * tab_len * level
@@ -554,10 +560,11 @@ class CppFormatter(Formatter):
         return self.add_double_quotes(arg)
 
     def insert_block_comments(self, dict: CppDict, s: str) -> str:
-        '''
+        """Inserts back all block comments
+
         Replaces all BLOCKCOMMENT placeholders in s with the actual block_comments saved in dict
         str s is expected to contain the CppDict's block_content containing block comment placeholders to substitute (BLOCKCOMMENT... BLOCKCOMMENT...)
-        '''
+        """
 
         # Replace all BLOCKCOMMENT placeholders in s with the actual block_comments saved in dict
         block_comments_inserted_so_far = ''
@@ -577,7 +584,7 @@ class CppFormatter(Formatter):
             if re.search(re.escape(block_comment), block_comments_inserted_so_far):
                 block_comment = ''
 
-            # Search for the placeholder entry we created in parse_tokenized_dict(),
+            # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original block_comment.
             search_pattern = r'BLOCKCOMMENT%06i\s+BLOCKCOMMENT%06i;' % (key, key)
             if len(
@@ -596,6 +603,8 @@ class CppFormatter(Formatter):
         return s
 
     def make_default_block_comment(self, block_comment: str = '') -> str:
+        """Creates the default block comment (header) for files in C++ dictionary format
+        """
         # If there is no ' C++ ' contained in block_comment,
         # then insert the C++ default block comment in front:
         # sourcery skip: move-assign
@@ -610,11 +619,10 @@ class CppFormatter(Formatter):
         return block_comment
 
     def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
-        '''
-        Inserts back all include directives
-        '''
+        """Inserts back all include directives
+        """
         for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
-            # Search for the placeholder entry we created in parse_tokenized_dict(),
+            # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original include directive.
             include_file_name = include_file_name.replace('\\', '\\\\')
             include_file_name = self.format_type(include_file_name)
@@ -625,11 +633,10 @@ class CppFormatter(Formatter):
         return s
 
     def insert_line_comments(self, cpp_dict: CppDict, s: str) -> str:
-        '''
-        Inserts back all line comments
-        '''
+        """Inserts back all line directives
+        """
         for key, line_comment in cpp_dict.line_comments.items():
-            # Search for the placeholder entry we created in parse_tokenized_dict(),
+            # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original block_comment.
             search_pattern = r'LINECOMMENT%06i\s+LINECOMMENT%06i;' % (key, key)
             s = re.sub(search_pattern, line_comment, s)
@@ -637,10 +644,11 @@ class CppFormatter(Formatter):
         return s
 
     def remove_trailing_spaces(self, s: str) -> str:
-        '''
-        Reads all lines from stringObj, removes trailing spaces from each line and
-        returns a new string carrying all lines with trailing spaces removed.
-        '''
+        """Removes trailing spaces from all lines
+
+        Reads all lines from the passed in string, removes trailing spaces from each line and
+        returns a new string with trailing spaces removed.
+        """
         stream = io.StringIO(newline=None)
         stream.write(s)
         stream.seek(0)
@@ -658,9 +666,8 @@ class CppFormatter(Formatter):
 
 
 class FoamFormatter(CppFormatter):
-    '''
-    Dict formatter to serialize a dict into a string in foam dictionary format
-    '''
+    """Formatter to serialize a dict into a string in OpenFOAM dictionary format
+    """
 
     def __init__(self):
         '''
@@ -673,10 +680,18 @@ class FoamFormatter(CppFormatter):
         self,
         dict: Union[MutableMapping, CppDict],
     ) -> str:
-        '''
-        Creates a string representation of the passed in dict in foam dictionary format.
-        dict can be of type dict or CppDict.
-        '''
+        """Creates a string representation of the passed in dict in OpenFOAM dictionary format.
+
+        Parameters
+        ----------
+        dict : Union[MutableMapping, CppDict]
+            dict to be formatted
+
+        Returns
+        -------
+        str
+            string representation of the dict in OpenFOAM dictionary format
+        """
 
         # Foam dicts are, in contrast to C++ dicts, restricted in what they shall contain.
         # The dict content is hence reduced to what Foam is able to interpret.
@@ -713,6 +728,8 @@ class FoamFormatter(CppFormatter):
         return self.add_double_quotes(arg)
 
     def make_default_block_comment(self, block_comment: str = '') -> str:
+        """Creates the default block comment (header) for files in OpenFOAM dictionary format
+        """
         # If there is no ' C++ ' and 'OpenFoam' contained in block_comment,
         # then insert the OpenFOAM default block comment in front:
         default_block_comment = (
@@ -741,9 +758,8 @@ class FoamFormatter(CppFormatter):
 
 
 class JsonFormatter(Formatter):
-    '''
-    Dict formatter to serialize a dict into a string in json format
-    '''
+    """Formatter to serialize a dict into a string in JSON dictionary format
+    """
 
     def __init__(self):
         '''
@@ -756,11 +772,19 @@ class JsonFormatter(Formatter):
         self,
         dict: Union[MutableMapping, CppDict],
     ) -> str:
+        """Creates a string representation of the passed in dict in JSON dictionary format.
+
+        Parameters
+        ----------
+        dict : Union[MutableMapping, CppDict]
+            dict to be formatted
+
+        Returns
+        -------
+        str
+            string representation of the dict in JSON dictionary format
+        """
         # sourcery skip: inline-immediately-returned-variable
-        '''
-        Creates a string representation of the passed in dict in json format.
-        dict can be of type dict or CppDict.
-        '''
         import json
 
         # For the json dump, we need to distinguish between whether the passed in dict is of type dict or CppDict.
@@ -782,9 +806,8 @@ class JsonFormatter(Formatter):
         return s
 
     def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
-        '''
-        Inserts back all include directives
-        '''
+        """Inserts back all include directives
+        """
         for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
             # Search for the placeholder key in the Json string,
             # and insert back the original include directive.
@@ -797,24 +820,27 @@ class JsonFormatter(Formatter):
 
 
 class XmlFormatter(Formatter):
-    """Dict formatter to serialize a dict into a string in xml format
+    """Formatter to serialize a dict into a string in xml format
+
     Defaults:
-        namespaces:      'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd'
-        root tag:        'NOTSPECIFIED'
-        root attributes: None
-        indent           4
+        namespaces:      'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd' \n
+        root tag:        'NOTSPECIFIED' \n
+        root attributes: None \n
+        indent:          4
+
     Defaults can be overwritten by adding a subdict '_xmlOpts' to dict,
     containing '_nameSpaces', '_rootTag', '_rootAttributes'.
+
     Adding a subdict '_attributes' to a subdict inside dict causes the XmlFormatter to write xml attributes.
     In contrast to xml, there are some specialties in dict format what need to be customized:
-    | | xml | dict |
+
+    | - | xml | dict |
     | - | - | - |
     | name | root tag | the file name is the 'root tag' and also the dict name |
     | attributes | | attributes need to be provided in a separate subdict to take action |
     | style | namespace | style guide |
     """
-
-    """ <databases>
+    ''' <databases>
             <database id='human_resources' type='mysql'>
                 <host>localhost</host>
                 <user>usrhr</user>
@@ -837,7 +863,7 @@ class XmlFormatter(Formatter):
             CONS:   implementation is expensive and many functions have to be touched (are affected)
                     will not be used anyways
                     diminishes the main advantage of producing human readable code
-    """
+    '''
 
     def __init__(
         self,
@@ -860,7 +886,16 @@ class XmlFormatter(Formatter):
         dict: Union[MutableMapping, CppDict],
     ) -> str:
         """Creates a string representation of the passed in dict in XML format.
-        dict can be of type dict or CppDict.
+
+        Parameters
+        ----------
+        dict : Union[MutableMapping, CppDict]
+            dict to be formatted
+
+        Returns
+        -------
+        str
+            string representation of the dict in XML format
         """
         # Default configuration
         namespaces: MutableMapping = {'xs': 'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd'}
@@ -918,15 +953,25 @@ class XmlFormatter(Formatter):
         self,
         element: Element,
         arg: Union[MutableMapping, MutableSequence, Any],
-        xsd_uri: str = None
-    ):                                                      # sourcery skip: remove-pass-body, remove-pass-elif, remove-redundant-pass
+        xsd_uri: str = None,
+    ):
         """Populates arg into the XML element node.
+
         If arg is a dict or list, method will call itself recursively until all nested content within the dict or list
         is populated into nested elements, eventually creating an XML dom.
+
+        Parameters
+        ----------
+        element : Element
+            element which will be populated
+        arg : Union[MutableMapping, MutableSequence, Any]
+            value to be populated into the element
+        xsd_uri : str, optional
+            xsd uri, by default None
         """
-        '''
-        ToDo:   LINECOMMENT
-        '''
+        # sourcery skip: remove-pass-body, remove-pass-elif, remove-redundant-pass
+
+        # @TODO: LINECOMMENTs not handled yet
 
         if isinstance(arg, MutableSequence):
             element.text = ' '.join(str(x) for x in arg)

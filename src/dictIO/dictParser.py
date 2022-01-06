@@ -14,10 +14,7 @@ class DictParser():
     """Parser for dictionaries in C++ dictionary format, as well as JSON and XML
 
     DictParser is a convenience class.
-    Its parse() method combines the otherwise atomic operations
-    of DictReader.read() and DictWriter.write() in one chunk:
-    1: parsed_dict = DictReader.read(source_file)
-    2: DictWriter.write(parsed_dict, target_file, mode='a')
+    DictParser.parse() combines the operations of DictReader.read() and DictWriter.write() .
     """
 
     def __init__(self):
@@ -35,10 +32,12 @@ class DictParser():
     ) -> Union[CppDict, None]:
         """Parses a dictionary file and saves it with prefix 'parsed.'
 
-        parse() combines the otherwise atomic operations
+        DictParser.parse() combines the otherwise atomic operations
         of DictReader.read() and DictWriter.write() in one chunk:
+
         1: parsed_dict = DictReader.read(source_file)
-        2: DictWriter.write(parsed_dict, target_file, mode='a')
+
+        2: DictWriter.write(parsed_dict, target_file)
 
         The parsed dict is saved with prefix 'parsed.'
         Example: Parsing source file 'xyz' will result in parsed file 'parsed.xyz' being generated.
@@ -59,7 +58,7 @@ class DictParser():
         comments : bool, optional
             writes comments to output file, by default True
         scope : MutableSequence[str], optional
-            scope the dict will be reduced to after parsing.'scope' can be EMPTY, a 'STRING' or a list of strings ['STRING1', 'STRING2'], by default None
+            scope the dict will be reduced to after parsing, by default None
         output : str, optional
             format of the output file. Choices are 'cpp', 'foam', 'xml' and 'json'., by default None
 
