@@ -57,11 +57,15 @@ class CppDict(UserDict):
         """Updates top-level keys with the keys from the passed in dict.
 
         Overrides the update() method of UserDict base class in order to include also CppDict class attributes in the update.
+
         If a key already exists, it will be substituted by the key from the passed in dict.
         In order to not substitute top-level keys but recursively merge (potentially nested) content from passed in dict into the existing, use merge() instead.
+
         Note:
-        The behaviour of update() corresponds to default mode '-w' in the dictParser command line interface.
-        The behaviour of merge() corresponds to mode '-a' in the dictParser command line interface. See also CLI Documentation.
+
+        The behaviour of update() corresponds with default mode '-w' in the dictParser command line interface.
+
+        The behaviour of merge() corresponds with mode '-a' in the dictParser command line interface. See also CLI Documentation.
 
         Parameters
         ----------

@@ -19,7 +19,7 @@
 * 1 blank line within class, between class methods
 * Use blank lines for logic separation of functionality within functions/methods wherever it is justified
 * No whitespace adjacent to parentheses, brackets, or braces
-~~~
+~~~py
     # Bad
     spam( items[ 1 ], { key1 : arg1, key2 : arg2 }, )
 
@@ -30,7 +30,7 @@
     spam(items[1], {key1:arg1, key2:arg2}, [])
 ~~~
 * Surround operators with single whitespace on either side.
-~~~
+~~~py
     # Bad
     x<1
 
@@ -39,7 +39,7 @@
 ~~~
 * Never end your lines with a semicolon, and do not use a semicolon to put two statements on the same line
 * When branching, always start a new block on a new line
-~~~
+~~~py
     # Bad
     if flag: return None
 
@@ -48,7 +48,7 @@
         return None
 ~~~
 * Similarly to branching, do not write methods on one line in any case:
-~~~
+~~~py
     # Bad
     def do_something(self): print('Something')
 
@@ -61,7 +61,7 @@
 
 ## Line Breaks
 * If function arguments do not fit into the specified line length, move them to a new line with indentation
-~~~
+~~~py
     # Bad
     def long_function_name(var_one, var_two, var_three,
         var_four):
@@ -89,7 +89,7 @@
         print(var_one)
 ~~~
 * Move concatenated logical conditions to new lines if the line does not fit the maximum line size. This will help you understand the condition by looking from top to bottom. Poor formatting makes it difficult to read and understand complex predicates.
-~~~
+~~~py
     # Good
     if (this_is_one_thing
         and that_is_another_thing
@@ -100,7 +100,7 @@
         do_something()
 ~~~
 * Where binary operations stretch multiple lines, break lines before the binary operators, not thereafter
-~~~
+~~~py
     # Bad
     GDP = (private_consumption +
            gross_investment +
@@ -118,7 +118,7 @@
     )
 ~~~
 * Chaining methods should be broken up on multiple lines for better readability
-~~~
+~~~py
     (df.write \
         .format('jdbc')
         .option('url', 'jdbc:postgresql:dbserver')
@@ -129,7 +129,7 @@
     )
 ~~~
 * Add a trailing comma to sequences of items when the closing container token ], ), or } does not appear on the same line as the final element
-~~~
+~~~py
     # Bad
     y = [
         0,
@@ -162,7 +162,7 @@
 ## String Formatting
 * When quoting string literals, prefer single-quoted strings over double-quoted strings. When the string itself contains single or double quote characters, however, use the respective other one to avoid backslashes in the string. It improves readability.
 * Use f-strings to format strings:
-~~~
+~~~py
     # Bad
     print('Hello, %s. You are %s years old. You are a %s.' % (name, age, profession))
 
@@ -170,7 +170,7 @@
     print(f'Hello, {name}. You are {age} years old. You are a {profession}.')
 ~~~
 * Use multiline strings,  not \ , since it gets much more readable.
-~~~
+~~~py
     raise AttributeError(
         'Here is a multiline error message'
         'shortened for clarity.'
@@ -194,7 +194,7 @@ Long module names can have words separated by underscores (`really_long_module_n
 
 ## Named Arguments
 * Use named arguments to improve readability and avoid mistakes introduced with future code maintenance
-~~~
+~~~py
     # Bad
     urlget('[http://google.com](http://google.com/)', 20)
 
@@ -203,7 +203,7 @@ Long module names can have words separated by underscores (`really_long_module_n
 ~~~
 * Never use mutable objects as default arguments in Python. If an attribute in a class or a named parameter in a function is of a mutable data type (e.g. a list or dict), never set its default value in the declaration of an object but always set it to None first, and then only later assign the default value in the class's constructor, or the functions body, respectively. Sounds complicated? If you prefer the shortcut, the examples below are your friend.
 If your are interested in the long story including the why‘s, read these discussions on [Reddit](https://old.reddit.com/r/Python/comments/opb7hm/do_not_use_mutable_objects_as_default_arguments/) and [Twitter](https://twitter.com/willmcgugan/status/1419616480971399171).
-~~~
+~~~py
     # Bad
     class Foo:
         items = []
@@ -241,18 +241,18 @@ If your are interested in the long story including the why‘s, read these discu
 * First of all, if the code needs comments to clarify its work, you should think about refactoring it. The best comment to code is the code itself.
 * Describe complex, possibly incomprehensible points and side effects in the comments
 * Separate `#` and the comment with one whitespace
-~~~
+~~~py
     #bad comment
     # good comment
 ~~~
 * Use inline comments sparsely
 * Where used, inline comments shall have 2 whitespaces before the `#` and one whitespace thereafter
-~~~
+~~~py
     x = y + z  # inline comment
     str1 = str2 + str3  # another inline comment
 ~~~
 * If a piece of code is poorly understood, mark the piece with a `@TODO:` tag and your name to support future refactoring:
-~~~
+~~~py
     def get_ancestors_ids(self):
         # @TODO: Do a cache reset while saving the category tree. CLAROS, YYYY-MM-DD
         cache_name = '{0}_ancestors_{1}'.format(self._meta.model_name, self.pk)
@@ -277,7 +277,7 @@ If your are interested in the long story including the why‘s, read these discu
 * In a Docstring, summarize function/method behavior and document its arguments, return value(s), side effects, exceptions raised, and restrictions
 * Wrap Docstrings with triple double quotes (""")
 * The description of the arguments must be indented
-~~~
+~~~py
     def some_method(name, print=False):
         """This function does something
 
@@ -314,7 +314,7 @@ If your are interested in the long story including the why‘s, read these discu
 * Relative imports are forbidden ([PEP-8](https://www.python.org/dev/peps/pep-0008/) only “highly discourages” them). Where absolutely needed, the `from future import absolute_import` syntax should be used (see [PEP-328](https://www.python.org/dev/peps/pep-0328/))
 * Never use wildcard imports (`from <module> import *`). Always be explicit about what you're importing. Namespaces make code easier to read, so use them.
 * Break long imports using parentheses and indent by 4 spaces. Include the trailing comma after the last import and place the closing bracket on a separate line
-~~~
+~~~py
     from my_pkg.utils import (some_utility_method_1, some_utility_method_2,
         some_utility_method_3, some_utility_method_4, some_utility_method_5,
     )
@@ -323,7 +323,7 @@ If your are interested in the long story including the why‘s, read these discu
     1. build-in modules
     2. third-party modules
     3. local application/library specific imports
-~~~
+~~~py
     import os
     import logging
     import typing as T
@@ -336,7 +336,7 @@ If your are interested in the long story including the why‘s, read these discu
     from my_package.my_module import my_function, MyClass
 ~~~
 * Even if a Python file is intended to be used as executable / script file only, it shall still be importable as a module, and its import should not have any side effects. Its main functionality shall hence be in a `main()` function, so that the code can be imported as a module for testing or being reused in the future:
-~~~
+~~~py
     def main():
         ...
 
@@ -349,7 +349,7 @@ If your are interested in the long story including the why‘s, read these discu
 * Use pytest as the preferred testing framework.
 * The name of a test shall clearly express what is being tested.
 * Each test should preferably check only one specific aspect.
-~~~
+~~~py
     # Bad
     def test_smth():
         result = f()
