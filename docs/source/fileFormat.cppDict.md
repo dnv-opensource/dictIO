@@ -96,7 +96,7 @@ none4           null;           // None
 
 ### strings
 
-~~~py
+~~~js
 string1         '';
 string2         'string';
 string3         'string with spaces';
@@ -107,7 +107,7 @@ string6         "string with double quotes";
 
 ### dicts
 
-~~~py
+~~~js
 emptyDict
 {
 
@@ -132,7 +132,7 @@ dictWithStrings
 
 ### lists
 
-~~~py
+~~~js
 emptyList
 (
 
