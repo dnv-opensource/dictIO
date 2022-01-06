@@ -129,24 +129,40 @@ class DictReader():
 
         # Inner function: Merge all includes, recursively
         def _merge_includes_recursive(dict: CppDict):
-            for _, _, path in dict.includes.values():
+
+            # empty dict to merge in temporarily, avoiding dict-has-change-error inside the for loop
+            tmpDict = CppDict()
+
+            # loop over all possible includes
+            for index, (_, _, path) in enumerate(dict.includes.values()):
+
                 prove_recursive_include = djv(path)
+
                 if prove_recursive_include is True:
-                    logger.warning(f'Recursive include detected. Merging of {path} aborted.')
+                    call_chain = '->'.join([p.name for p in djv.strings])
+                    logger.warning(f'Recursive include detected. Merging of {call_chain} into {dict.name} aborted.')
                 elif not path.exists():
                     logger.warning(f'included dict not found. Merging of {path} aborted.')
                 else:
                     parser = Parser.get_parser(path)
-                    included_dict = parser.parse_file(path, dict, comments=comments)
+                    included_dict = parser.parse_file(path, None, comments=comments)
+
+                    # recursion in case the i-th include also has includes
                     if len(included_dict.includes) != 0:
-                        _merge_includes_recursive(
-                            included_dict
-                        )                           # recursion in case the included dict also had #include directives
-                    dict.merge(included_dict)       # merge the included (child) dict into dict
-            return
+                        nested_included_dict = _merge_includes_recursive(included_dict)
+                        #merge second level
+                        tmpDict.merge(nested_included_dict)
+
+                    # merge first level
+                    tmpDict.merge(included_dict)
+
+            # merge all in for loop
+            dict.merge(tmpDict)
+
+            return dict
 
         # Call inner funtion to merge all includes, recursively
-        _merge_includes_recursive(dict)
+        dict.merge(_merge_includes_recursive(dict))
 
         return
 
