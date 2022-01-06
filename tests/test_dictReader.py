@@ -330,35 +330,31 @@ def test_read_dict_in_subfolder_parsed_via_dictparser_cli():
     silent_remove(Path('subfolder/parsed.test_subfolder_dict.foam'))
 
 
-def test_read_circular_includes_in_via_dictparser_cli():
-    import subprocess as sub
+def test_read_circular_includes():
+    # Prepare
+    source_file = Path('circular_include/test_base_dict')
+    # Execute
+    dict = DictReader.read(source_file)
+    # Assert
+    assert dict['baseSubDict']['baseVar1'] == 2
+    assert dict['baseSubDict']['baseVar2'] == 2
+    assert dict['baseSubDict']['baseVar3'] == 4
+    assert dict['baseSubDict']['baseVar4'] == 8
+    assert dict['baseSubDict']['baseVar5'] == 8
 
-    file_name = 'circular_include/test_base_dict'
-    out_file_name = 'circular_include/parsed.test_base_dict'
-    silent_remove(Path(out_file_name))
 
-    exe_string = f'python -m dictIO.cli.dictParser {file_name}'
-    sub_process = sub.Popen(exe_string.strip().split(), stdout=sub.PIPE, stderr=sub.PIPE)
+def test_read_circular_includes_log_warning(caplog):
+    # Prepare
+    source_file = Path('circular_include/test_base_dict')
+    log_level_assert = 'WARNING'
+    log_message_assert = 'Recursive include detected. Merging of test_ref1_dict->test_ref2_dict->test_base_dict->test_ref1_dict into test_base_dict aborted.'
+    # Execute
+    DictReader.read(source_file)
+    # Assert
+    assert len(caplog.records) == 1
+    assert caplog.records[0].levelname == log_level_assert
+    assert caplog.records[0].message == log_message_assert
 
-    # warning?
-    stdout, stderr = sub_process.communicate()
-    assert stderr.decode('utf-8').strip() == "WARNING  Recursive include detected. Merging of test_ref1_dict->test_ref2_dict->test_base_dict->test_ref1_dict into test_base_dict aborted."
-
-    # file exists?
-    assert os.path.exists(out_file_name)
-
-    # file contains?
-    file_name = Path(out_file_name)
-    dict = DictReader.read(file_name)
-    dict_out = dict.data
-    assert dict_out['baseSubDict']['baseVar1'] == 2
-    assert dict_out['baseSubDict']['baseVar2'] == 2
-    assert dict_out['baseSubDict']['baseVar3'] == 4
-    assert dict_out['baseSubDict']['baseVar4'] == 8
-    assert dict_out['baseSubDict']['baseVar5'] == 8
-
-    silent_remove(Path(out_file_name))
-    
 
 class SetupHelper():
 

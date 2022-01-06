@@ -46,6 +46,10 @@ class DejaVue():
 
         return self.djv['retVal']
 
+    @property
+    def strings(self):
+        return self.djv['strings']
+
     def reset(self):
         self.djv['strings'] = []
         self.djv['retVal'] = False

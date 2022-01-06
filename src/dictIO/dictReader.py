@@ -131,16 +131,17 @@ class DictReader():
         def _merge_includes_recursive(dict: CppDict):
 
             # empty dict to merge in temporarily, avoiding dict-has-change-error inside the for loop
-            tmpDict = CppDict()
+            temp_dict = CppDict()
 
             # loop over all possible includes
-            for index, (_, _, path) in enumerate(dict.includes.values()):
-
+            for _, _, path in dict.includes.values():
                 prove_recursive_include = djv(path)
 
                 if prove_recursive_include is True:
                     call_chain = '->'.join([p.name for p in djv.strings])
-                    logger.warning(f'Recursive include detected. Merging of {call_chain} into {dict.name} aborted.')
+                    logger.warning(
+                        f'Recursive include detected. Merging of {call_chain} into {dict.name} aborted.'
+                    )
                 elif not path.exists():
                     logger.warning(f'included dict not found. Merging of {path} aborted.')
                 else:
@@ -150,14 +151,14 @@ class DictReader():
                     # recursion in case the i-th include also has includes
                     if len(included_dict.includes) != 0:
                         nested_included_dict = _merge_includes_recursive(included_dict)
-                        #merge second level
-                        tmpDict.merge(nested_included_dict)
+                        # merge second level
+                        temp_dict.merge(nested_included_dict)
 
                     # merge first level
-                    tmpDict.merge(included_dict)
+                    temp_dict.merge(included_dict)
 
             # merge all in for loop
-            dict.merge(tmpDict)
+            dict.merge(temp_dict)
 
             return dict
 
