@@ -18,9 +18,9 @@ logger = logging.getLogger(__name__)
 
 
 class Formatter():
-    """Abstract Base Class for dict formatters.
+    """Abstract Base Class for formatters.
 
-    Dict formatters serialize a dict into a string applying a specific format.
+    Formatters serialize a dict into a string applying a specific format.
     """
 
     def __init__(self):
@@ -336,7 +336,7 @@ class Formatter():
 
 
 class CppFormatter(Formatter):
-    """Dict formatter to serialize a dict into a string in C++ dictionary format
+    """Formatter to serialize a dict into a string in C++ dictionary format
     """
 
     def __init__(self):
@@ -584,7 +584,7 @@ class CppFormatter(Formatter):
             if re.search(re.escape(block_comment), block_comments_inserted_so_far):
                 block_comment = ''
 
-            # Search for the placeholder entry we created in parse_tokenized_dict(),
+            # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original block_comment.
             search_pattern = r'BLOCKCOMMENT%06i\s+BLOCKCOMMENT%06i;' % (key, key)
             if len(
@@ -622,7 +622,7 @@ class CppFormatter(Formatter):
         """Inserts back all include directives
         """
         for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
-            # Search for the placeholder entry we created in parse_tokenized_dict(),
+            # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original include directive.
             include_file_name = include_file_name.replace('\\', '\\\\')
             include_file_name = self.format_type(include_file_name)
@@ -636,7 +636,7 @@ class CppFormatter(Formatter):
         """Inserts back all line directives
         """
         for key, line_comment in cpp_dict.line_comments.items():
-            # Search for the placeholder entry we created in parse_tokenized_dict(),
+            # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original block_comment.
             search_pattern = r'LINECOMMENT%06i\s+LINECOMMENT%06i;' % (key, key)
             s = re.sub(search_pattern, line_comment, s)
@@ -666,7 +666,7 @@ class CppFormatter(Formatter):
 
 
 class FoamFormatter(CppFormatter):
-    """Dict formatter to serialize a dict into a string in OpenFOAM dictionary format
+    """Formatter to serialize a dict into a string in OpenFOAM dictionary format
     """
 
     def __init__(self):
@@ -758,7 +758,7 @@ class FoamFormatter(CppFormatter):
 
 
 class JsonFormatter(Formatter):
-    """Dict formatter to serialize a dict into a string in JSON dictionary format
+    """Formatter to serialize a dict into a string in JSON dictionary format
     """
 
     def __init__(self):
@@ -820,7 +820,7 @@ class JsonFormatter(Formatter):
 
 
 class XmlFormatter(Formatter):
-    """Dict formatter to serialize a dict into a string in xml format
+    """Formatter to serialize a dict into a string in xml format
 
     Defaults:
         namespaces:      'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd' \n
