@@ -6,7 +6,6 @@ Sphinx>=4.3.0
 myst-parser>=0.15.2
 sphinx-argparse-cli>=1.8.2
 furo
-twine
 
 lxml>=4.6.4
 jsonschema>=4.2.1
