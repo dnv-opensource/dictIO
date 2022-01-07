@@ -834,11 +834,13 @@ class XmlFormatter(Formatter):
     Adding a subdict '_attributes' to a subdict inside dict causes the XmlFormatter to write xml attributes.
     In contrast to xml, there are some specialties in dict format what need to be customized:
 
-    | - | xml | dict |
-    | - | - | - |
-    | name | root tag | the file name is the 'root tag' and also the dict name |
-    | attributes | | attributes need to be provided in a separate subdict to take action |
-    | style | namespace | style guide |
+    | property     | in xml             | sibling in dict |
+    | :----------- | :----------------- | :-------------- |
+    | general name | root tag           | the file name is the 'root tag' and hence the name of the dict |
+    | name         | element name (tag) | sub-dict name (has to be unique) |
+    |              |(multiple occurrences alowed due to attributes) | |
+    | attributes   | as required | attributes need to be provided in a separate subdict "_attributes" to take action |
+    | style        | namespace(s)| style guide, no namespaces (ns can be provided in a subdict "_xmlOpts") |
     """
     ''' <databases>
             <database id='human_resources' type='mysql'>
