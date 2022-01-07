@@ -1,20 +1,21 @@
 # From: https://pypi.org/project/test-github-actions/
 
 name: publish dictIO package to test.pypi
-on: [push, pull_request]
-
-env:
-  DEFAULT_BRANCH: "main"
+on:
+  push:
+    branches:
+      - release
 
 jobs:
   publish-to-test-pypi:
     name: publish to test.pypi
     runs-on: ubuntu-latest
-    environment: development
+    environment: test_pypi
     steps:
       # https://github.com/marketplace/actions/checkout
       - uses: actions/checkout@v2
         with:
+          ref: release
           fetch-depth: 0
           lfs: true
       # https://github.com/marketplace/actions/setup-python
@@ -57,8 +58,6 @@ jobs:
 
       # Build and publish
       - name: Build and publish
-        if: ${{ github.event_name == 'push' }}
-        #if: ${{github.event_name == 'push' && github.ref == 'refs/heads/$defaultBranch' }}
         env:
           TWINE_USERNAME: ${{ secrets.TEST_PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
