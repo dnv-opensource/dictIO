@@ -67,8 +67,8 @@ jobs:
       # BUILD DOCUMENTATION
 
       # Build documentation
+      - uses: ammaraskar/sphinx-problem-matcher@master
       - name: Build Sphinx docs
-        uses: ammaraskar/sphinx-problem-matcher@master
         run: |
           cd docs
           make html
