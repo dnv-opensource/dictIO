@@ -1,6 +1,6 @@
 # From: https://github.com/coderefinery/sphinx-lesson/blob/master/.github/workflows/sphinx.yml
 
-name: sphinx
+name: Build and publish Sphinx documentation on GitHub Pages
 on: push
 
 env:
@@ -9,16 +9,17 @@ env:
   # ^-- If these SPHINXOPTS are enabled, then be strict about the builds and fail on any warnings
 
 jobs:
-  build-and-deploy:
-    name: Build and gh-pages
+  build-and-publish-docs:
+    name: Build and publish Sphinx documentation on GitHub Pages
     runs-on: ubuntu-latest
     steps:
 
       # PREPARE
 
-      # Checkout (the branch that triggered the workflow)
+      # Checkout active branch (the branch that triggered the workflow)
       # https://github.com/marketplace/actions/checkout
-      - uses: actions/checkout@v2
+      - name: Checkout active branch
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
           lfs: true
@@ -66,17 +67,17 @@ jobs:
       # BUILD DOCUMENTATION
 
       # Build documentation
-      - uses: ammaraskar/sphinx-problem-matcher@master
       - name: Build Sphinx docs
+        uses: ammaraskar/sphinx-problem-matcher@master
         run: |
           cd docs
           make html
 
 
-      # SAVE DOCUMENTATION
+      # COPY DOCUMENTATION to gh-pages branch
 
-      # Clone and cleanup old gh-pages branch
-      - name: Clone old gh-pages
+      # Clone and cleanup gh-pages branch
+      - name: Clone gh-pages branch
         run: |
           set -x
           git fetch
@@ -84,8 +85,8 @@ jobs:
           rm -rf _gh-pages/.git/
           mkdir -p _gh-pages/branch/
 
-      # If default branch: copy build to _gh-pages/
-      - name: Copy new build (default branch)
+      # Copy documentation to _gh-pages/  (if push happened on default branch)
+      - name: Copy documentation (default branch)
         if: |
           contains(github.ref, env.DEFAULT_BRANCH)
         run: |
@@ -97,9 +98,9 @@ jobs:
           find _gh-pages/ -mindepth 1 ! -path '_gh-pages/branch*' -delete
           rsync -a docs/build/html/ _gh-pages/
 
-      # If not default branch: copy build to _gh-pages/branch/$brname
-      # ('/' is transformed to '--')
-      - name: Copy new build (branch)
+      # Copy documentation to _gh-pages/branch/$brname  (if push happened on another, non-default branch)
+      # ('/' gets replaced by '--')
+      - name: Copy documentation (non-default branch)
         if: |
           !contains(github.ref, env.DEFAULT_BRANCH)
         run: |
@@ -111,9 +112,9 @@ jobs:
           rm -rf   _gh-pages/branch/${brdir}
           rsync -a docs/build/html/ _gh-pages/branch/${brdir}
 
-      # Go through each subfolder in _gh-pages/branch/
-      # If it is not a ref, delete it.
-      - name: Delete old feature branches
+      # Delete orphaned branch-folders
+      # Go through each subfolder in _gh-pages/branch/. If it is not a ref, delete it.
+      - name: Delete orphaned branch-folders
         if: ${{ github.event_name == 'push' }}
         run: |
           set -x
@@ -131,11 +132,11 @@ jobs:
           touch _gh-pages/.nojekyll
 
 
-      # DEPLOY DOCUMENTATION
+      # PUBLISH DOCUMENTATION
 
-      # Commit gh-pages branch and deploy it to GitHub Pages
+      # Commit gh-pages branch and publish it on GitHub Pages
       # https://github.com/peaceiris/actions-gh-pages
-      - name: Deploy
+      - name: Publish
         uses: peaceiris/actions-gh-pages@v3
         with:
           publish_branch: gh-pages
