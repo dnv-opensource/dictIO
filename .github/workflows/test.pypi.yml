@@ -1,31 +1,38 @@
 # From: https://pypi.org/project/test-github-actions/
 
-name: publish package to test.pypi
+name: Build and publish package on test.pypi
 on:
   push:
     branches:
       - release
 
 jobs:
-  publish-to-test-pypi:
-    name: publish to test.pypi
+  build-and-publish-package:
+    name: Build and publish package on test.pypi
     runs-on: ubuntu-latest
     environment: test_pypi
     steps:
+
+      # PREPARE
+
+      # Checkout release branch
       # https://github.com/marketplace/actions/checkout
-      - uses: actions/checkout@v2
+      - name: Checkout release branch
+        uses: actions/checkout@v2
         with:
           ref: release
           fetch-depth: 0
           lfs: true
+
+      # Install Python
       # https://github.com/marketplace/actions/setup-python
-      # ^-- This gives info on matrix testing.
       - name: Install Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
+
+      # Cache pip
       # https://docs.github.com/en/actions/guides/building-and-testing-python#caching-dependencies
-      # ^-- How to set up caching for pip on Ubuntu
       - name: Cache pip
         uses: actions/cache@v2
         with:
@@ -34,14 +41,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
             ${{ runner.os }}-
+
+      # Install dependencies
       # https://docs.github.com/en/actions/guides/building-and-testing-python#installing-dependencies
-      # ^-- This gives info on installing dependencies with pip
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools
           pip install -r requirements.txt
-          pip install build
-          pip install twine
       - name: Debugging information
         run: |
           echo "github.ref:" ${{github.ref}}
@@ -57,11 +63,28 @@ jobs:
           pip list --not-required
           pip list
 
-      # Build and publish
-      - name: Build and publish
+      # Install build and twine
+      # https://docs.github.com/en/actions/guides/building-and-testing-python#installing-dependencies
+      - name: Install build and twine
+        run: |
+          pip install build
+          pip install twine
+
+
+      # BUILD
+
+      # Build Python package
+      - name: Build
+        run: |
+          python -m build
+
+
+      # PUBLISH
+
+      # Publish Python package on test.pypi
+      - name: Publish on test.pypi
         env:
           TWINE_USERNAME: ${{ secrets.TEST_PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
         run: |
-          python -m build
           python -m twine upload --repository testpypi dist/*
