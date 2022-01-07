@@ -39,6 +39,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools
           pip install -r requirements.txt
+          pip install build
       - name: Debugging information
         run: |
           echo "github.ref:" ${{github.ref}}
