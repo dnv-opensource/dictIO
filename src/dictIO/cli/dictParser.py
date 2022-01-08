@@ -142,7 +142,11 @@ def _argparser() -> argparse.ArgumentParser:
     return parser
 
 
-def cli():
+def main():
+    """Entry point for console script as configured in setup.cfg
+
+    Runs the command line interface and parses arguments and options entered on the console.
+    """
 
     parser = _argparser()
     args = parser.parse_args()
@@ -167,7 +171,8 @@ def cli():
     scope: Union[MutableSequence[str], None] = _validate_scope(args.scope)
     output: Union[str, None] = args.output
 
-    main(
+    # Dispatch to _main(), which takes care of processing the arguments and invoking the API.
+    _main(
         source_file=source_file,
         includes=includes,
         mode=mode,
@@ -178,7 +183,7 @@ def cli():
     )
 
 
-def main(
+def _main(
     source_file: Path,
     includes: bool = True,
     mode: str = 'w',
@@ -187,9 +192,10 @@ def main(
     scope: MutableSequence[str] = None,
     output: str = None,
 ):
-    '''
-    dictParser.py main
-    '''
+    """Entry point for unit tests.
+
+    Processes the arguments parsed by main() on the console and invokes the API.
+    """
 
     # Check whether source file exists
     if not source_file.exists():
@@ -235,4 +241,4 @@ def _validate_scope(scope: Union[str, MutableSequence[str]]) -> Union[MutableSeq
 
 
 if __name__ == '__main__':
-    cli()
+    main()
