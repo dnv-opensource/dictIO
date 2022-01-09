@@ -45,15 +45,15 @@ class DictWriter():
         Parameters
         ----------
         source_dict : Union[MutableMapping, CppDict]
-            the source dict
+            source dict file
         target_file : Union[str, os.PathLike[str]], optional
-            name of the target file, by default None
+            target dict file name, by default None
         mode : str, optional
             append to target file ('a') or overwrite target file ('w'), by default 'w'
         order : bool, optional
-            sort the dict before writing, by default False
+            if True, the dict will be sorted before writing, by default False
         formatter : Formatter, optional
-            Formatter object to be used, by default None
+            formatter to be used, by default None
         """
 
         # Check argument
@@ -124,18 +124,23 @@ def create_target_file_name(
     scope: MutableSequence[str] = None,
     format: str = None,
 ) -> Path:
-    """Helper function to create a well defined target file name
+    """Helper function to create a well defined target file name.
 
-    :param source_file: name of the source file
-    :type source_file: Union[str, os.PathLike[str]]
-    :param prefix: optional prefix to be used, defaults to None
-    :type prefix: str, optional
-    :param scope: optional scope to be reflected in the target file name, defaults to None
-    :type scope: MutableSequence[str], optional
-    :param format: optional format of the target file. Choices are 'cpp', 'foam', 'xml' and 'json'., defaults to None
-    :type format: str, optional
-    :return: the target file name
-    :rtype: Path
+    Parameters
+    ----------
+    source_file : Union[str, os.PathLike[str]]
+        source dict file
+    prefix : str, optional
+        prefix to be used, by default None
+    scope : MutableSequence[str], optional
+        scope to be reflected in the target file name, by default None
+    format : str, optional
+        format of the target dict file. Choices are 'cpp', 'foam', 'xml' and 'json', by default None
+
+    Returns
+    -------
+    Path
+        target dict file name
     """
 
     # Make sure source_file argument is of type Path. If not, cast it to Path type.

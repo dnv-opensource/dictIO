@@ -49,7 +49,7 @@ class DictReader():
         Parameters
         ----------
         source_file : Union[str, os.PathLike[str]]
-            name of the dict file to be read
+            dict file to be read
         includes : bool, optional
             merge sub-dicts being referenced through #include directives, by default True
         order : bool, optional

@@ -48,7 +48,7 @@ class DictParser():
         Parameters
         ----------
         source_file : Union[str, os.PathLike[str]]
-            name of the dict file to be parsed
+            dict file to be parsed
         includes : bool, optional
             merge sub-dicts being referenced through #include directives, by default True
         mode : str, optional

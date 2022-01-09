@@ -18,7 +18,7 @@ def _argparser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         prog='dictParser',
-        usage='%(prog)s [options [args]]',
+        usage='%(prog)s dict [options [args]]',
         epilog='_________________dictParser___________________',
         prefix_chars='-',
         add_help=True,
@@ -33,7 +33,7 @@ def _argparser() -> argparse.ArgumentParser:
 
     parser.add_argument(
         'dict',
-        metavar='DICT',
+        metavar='dict',
         type=str,
         help='name of dict file to be parsed.',
     )
