@@ -1,4 +1,4 @@
-# README
+# dictIO
 dictIO is a Python package to read, write and manipulate dictionary text files.
 
 It was designed to leverage the versatility of text based dictionary files while easing their use in Python through seamless support for Python dicts.
