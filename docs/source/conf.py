@@ -19,11 +19,11 @@ sys.path.insert(0, os.path.abspath('../../src'))
 # -- Project information -----------------------------------------------------
 
 project = 'dictIO'
-copyright = '2021, DNV. Frank Lumpitzsch, Claas Rostock, Seung Hyeon Yoo'
+copyright = '2022, DNV. Frank Lumpitzsch, Claas Rostock, Seung Hyeon Yoo'
 author = 'Frank Lumpitzsch, Claas Rostock, Seung Hyeon Yoo'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.11'
+release = '0.0.12'
 
 # -- General configuration ---------------------------------------------------
 
