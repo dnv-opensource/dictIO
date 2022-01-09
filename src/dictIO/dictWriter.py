@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class DictWriter():
-    """Writer for dictionaries in C++ dictionary format, as well as JSON, XML and OpenFoam
+    """Writer for dictionaries in dictIO dict file format, as well as JSON, XML and OpenFoam
     """
 
     def __init__(self):
@@ -29,15 +29,15 @@ class DictWriter():
         order: bool = False,
         formatter: Formatter = None,
     ):
-        """Writes a dictionary file in C++ dictionary format, as well as JSON, XML and OpenFoam.
+        """Writes a dictionary file in dictIO dict file format, as well as JSON, XML and OpenFoam.
 
-        Writes a C++ dictionary object (parameter source_dict of type CppDict) to target_file.
+        Writes a dictIO dict (parameter source_dict of type CppDict) to target_file.
         Following file formats are supported and interpreted through target_file's file ending:
-        no file ending   ->   C++  dictionary
-        '.cpp'           ->   C++  dictionary
-        '.foam'          ->   Foam dictionary
-        '.json'          ->   Json dictionary
-        '.xml'           ->   XML  dictionary
+        no file ending   ->   dictIO dict file
+        '.cpp'           ->   dictIO dict file
+        '.foam'          ->   Foam dictionary file
+        '.json'          ->   Json dictionary file
+        '.xml'           ->   XML file
         Following modes are supported:
         mode = 'a': append to target file. If the existing file contains a dictionary, write() will append the new dict to the existing through merging.
         mode = 'w': overwrite target file. The existing file will be overwritten. This is the default behaviour.

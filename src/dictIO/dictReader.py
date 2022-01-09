@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class DictReader():
-    """Reader for dictionaries in C++ dictionary format, as well as JSON and XML
+    """Reader for dictionaries in dictIO dict file format, as well as JSON and XML
     """
 
     def __init__(self):
@@ -35,15 +35,15 @@ class DictReader():
         scope: MutableSequence[str] = None,
         parser: Parser = None,
     ) -> CppDict:
-        """Reads a dictionary file in C++ dictionary format, as well as JSON and XML.
+        """Reads a dictionary file in dictIO dict file format, as well as JSON and XML.
 
-        Reads a dict file, parses it and transforms its content into a C++ dictionary object (CppDict).
+        Reads a dict file, parses it and transforms its content into a dictIO dict object (CppDict).
         Following file formats are supported and interpreted through source_file's file ending:
-        no file ending   ->   C++  dictionary
-        '.cpp'           ->   C++  dictionary
-        '.foam'          ->   Foam dictionary
-        '.json'          ->   Json dictionary
-        '.xml'           ->   XML  dictionary
+        no file ending   ->   dictIO dict file
+        '.cpp'           ->   dictIO dict file
+        '.foam'          ->   Foam dictionary file
+        '.json'          ->   Json dictionary file
+        '.xml'           ->   XML file
         Return type is in all cases CppDict
 
         Parameters
@@ -121,7 +121,7 @@ class DictReader():
     @staticmethod
     def _merge_includes(dict: CppDict, comments: bool = True):
         '''
-        Parses and merges any (child) dicts that are referenced in the C++ dict through #include directives
+        Parses and merges any (child) dicts that are referenced in the dict file through #include directives
         '''
         # Create dejavue string watchdog
         djv = DejaVue()

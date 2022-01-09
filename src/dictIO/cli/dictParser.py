@@ -26,7 +26,7 @@ def _argparser() -> argparse.ArgumentParser:
             'Reads a dict file, merges sub-dicts referenced through #include directives,\n'
             'evaluates variables and expressions,\n'
             "and finally saves the parsed dict with prefix 'parsed', i.e. parsed.<DICTNAME>."
-            'The format of the output file will by default be C++ dict format, but can optionally be\n'
+            'The format of the output file will by default be dictIO dict file format, but can optionally be\n'
             'changed to foam, xml or json format.'
         )
     )

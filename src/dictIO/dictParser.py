@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class DictParser():
-    """Parser for dictionaries in C++ dictionary format, as well as JSON and XML
+    """Parser for dictionaries in dictIO dict file format, as well as JSON and XML
 
     DictParser is a convenience class.
     DictParser.parse() combines the operations of DictReader.read() and DictWriter.write() .
@@ -42,7 +42,7 @@ class DictParser():
         The parsed dict is saved with prefix 'parsed.'
         Example: Parsing source file 'xyz' will result in parsed file 'parsed.xyz' being generated.
 
-        The parsed dict will by default be written in C++ dictionary format.
+        The parsed dict will by default be written in dictIO's default dict file format.
         Optionally, output format can be changed to JSON, XML and OpenFOAM.
 
         Parameters
@@ -91,7 +91,7 @@ class DictParser():
         )
         # Create filename for the parsed dict
         target_file = create_target_file_name(source_file, 'parsed', scope, output)
-        # Save the parsed dict as a C++ dictionary
+        # Save the parsed dict as a default dict file
         DictWriter.write(
             source_dict=parsed_dict,
             target_file=target_file,

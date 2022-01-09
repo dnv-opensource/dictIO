@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class CppDict(UserDict):
-    """Data structure for generic C++ dictionaries
+    """Data structure for generic dictionaries
 
     CppDict inherits from UserDict. It can hence be used transparently also in a context
     where a dict or any other MutableMapping type is expected.
@@ -116,7 +116,7 @@ class CppDict(UserDict):
         return
 
     def __str__(self):
-        """string representation of the CppDict instance in C++ dictionary format
+        """string representation of the CppDict instance in dictIO dict file format
 
         Returns
         -------
@@ -124,7 +124,7 @@ class CppDict(UserDict):
             the string representation
         """
         from dictIO.formatter import \
-            CppFormatter  # __str__ shall be formatted in default C++ dictionary format
+            CppFormatter  # __str__ shall be formatted in default dict file format
         formatter = CppFormatter()
         return formatter.to_string(self)
 

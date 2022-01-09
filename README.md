@@ -1,10 +1,10 @@
 # dictIO
 dictIO is a Python package to read, write and manipulate dictionary text files.
 
-It was designed to leverage the versatility of text based dictionary files while easing their use in Python through seamless support for Python dicts.
+It was designed to leverage the versatility of text based dictionary files, or 'dict files' in short, while easing their use in Python through seamless support for Python dicts.
 
 dictIO supports
-* reading and writing Python dicts in C++ dictionary format.
+* reading and writing Python dicts in dict files.
 * usage of references and expressions in dict files, dynamically resolved during reading.
 * usage of cascaded dict files, allowing separation of a case-agnostic configuration dict and its case-specific parameterization: baseDict + paramDict = caseDict
 
@@ -19,7 +19,7 @@ pip install dictIO
 
 ## Usage Example
 
-dictIO provides a simple, high level API that allows reading and writing Python dicts from/to C++ dictionary files:
+dictIO provides a simple, high level API that allows reading and writing Python dicts from/to dict files:
 ~~~py
 from dictIO import DictReader, DictWriter
 
@@ -48,11 +48,11 @@ _For more examples and usage, please refer to dictIO's [documentation][dictIO_do
 
 
 ## File Format
-The default C++ dictionary format used by dictIO shares, by intention, some commonalities with the [OpenFOAM](https://www.openfoam.com/documentation/guides/latest/doc/openfoam-guide-input-types.html) file format, but is kept simpler and more tolerant to different flavours of string formatting.
+The default dictionary file format used by dictIO shares, by intention, some commonalities with the [OpenFOAM](https://www.openfoam.com/documentation/guides/latest/doc/openfoam-guide-input-types.html) file format, but is kept simpler and more tolerant to different flavours of string formatting.
 
 With some limitations, dictIO supports also reading from and writing to [OpenFOAM](https://www.openfoam.com/documentation/guides/latest/doc/openfoam-guide-input-types.html), [Json](https://www.json.org/json-en.html) and [XML](https://www.w3.org/XML/).
 
-_For a detailed documentation of the C++ dictionary file format used by dictIO, see [File Format](fileFormat.md) in [dictIO's documentation][dictIO_docs] on GitHub Pages._
+_For a detailed documentation of the dict file format used by dictIO, see [File Format](fileFormat.md) in [dictIO's documentation][dictIO_docs] on GitHub Pages._
 
 ## Development Setup
 

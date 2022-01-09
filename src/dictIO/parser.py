@@ -379,7 +379,7 @@ class Parser():
 
 
 class CppParser(Parser):
-    """Parser to deserialize a string in C++ dictionary format into a CppDict.
+    """Parser to deserialize a string in dictIO dict file format into a CppDict.
     """
 
     def __init__(self):
@@ -395,7 +395,7 @@ class CppParser(Parser):
         target_dict: CppDict,
         comments: bool = True,
     ) -> CppDict:
-        """Parses a string in C++ dictionary format and deserializes it into a CppDict.
+        """Parses a string in dictIO dict file format and deserializes it into a CppDict.
 
         Parameters
         ----------
