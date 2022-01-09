@@ -838,9 +838,9 @@ class XmlFormatter(Formatter):
     | :----------- | :----------------- | :-------------- |
     | general name | root tag           | the file name is the 'root tag' and hence the name of the dict |
     | name         | element name (tag) | sub-dict name (has to be unique) |
-    |              |(multiple occurrences alowed due to attributes) | |
+    |              | (multiple occurrences allowed due to attributes) | |
     | attributes   | as required | attributes need to be provided in a separate subdict "_attributes" to take action |
-    | style        | namespace(s)| style guide, no namespaces (ns can be provided in a subdict "_xmlOpts") |
+    | style        | namespace(s) | style guide, no namespaces (ns can be provided in a subdict "_xmlOpts") |
     """
     ''' <databases>
             <database id='human_resources' type='mysql'>
