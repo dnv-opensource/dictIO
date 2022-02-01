@@ -1373,8 +1373,13 @@ class XmlParser(Parser):
         # Read root element from XML string
         root_element = fromstring(string.encode('utf-8'), parser)
         # Read root tag from XML string
-        root_tag = root_element.tag or root_tag
-
+        # there is a problem with .tag :
+        # fromstring does not completely push all attributes into .attrib
+        # only version, not xmlns
+        # xmlns remains as {XMLNSCONTENT}ROOTTAG
+        # re.sub to fix that temporarily
+        # solution needed
+        root_tag = re.sub('\{.*\}', '', root_element.tag) or root_tag
         # Read namespaces from XML string
         namespaces = dict(root_element.nsmap) or namespaces
         # Reformat 'None' keys in namespaces to empty string keys
