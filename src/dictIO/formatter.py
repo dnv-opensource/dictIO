@@ -336,7 +336,7 @@ class Formatter():
 
 
 class CppFormatter(Formatter):
-    """Formatter to serialize a dict into a string in C++ dictionary format
+    """Formatter to serialize a dict into a string in dictIO dict file format
     """
 
     def __init__(self):
@@ -350,7 +350,7 @@ class CppFormatter(Formatter):
         self,
         dict: Union[MutableMapping, CppDict],
     ) -> str:
-        """Creates a string representation of the passed in dict in C++ dictionary format.
+        """Creates a string representation of the passed in dict in dictIO dict file format.
 
         Parameters
         ----------
@@ -360,7 +360,7 @@ class CppFormatter(Formatter):
         Returns
         -------
         str
-            string representation of the dict in C++ dictionary format
+            string representation of the dict in dictIO dict file format
         """
         s = super().to_string(dict)
 
@@ -603,7 +603,7 @@ class CppFormatter(Formatter):
         return s
 
     def make_default_block_comment(self, block_comment: str = '') -> str:
-        """Creates the default block comment (header) for files in C++ dictionary format
+        """Creates the default block comment (header) for files in dictIO dict file format
         """
         # If there is no ' C++ ' contained in block_comment,
         # then insert the C++ default block comment in front:
@@ -693,9 +693,9 @@ class FoamFormatter(CppFormatter):
             string representation of the dict in OpenFOAM dictionary format
         """
 
-        # Foam dicts are, in contrast to C++ dicts, restricted in what they shall contain.
+        # Foam dicts are, in contrast to dictIO default dicts, restricted in what they may contain.
         # The dict content is hence reduced to what Foam is able to interpret.
-        # Dict entries that Foam cannot interpret - or would eventually even misinterpret - are hence removed:
+        # Elements that Foam cannot interpret - or would misinterpret - are removed:
 
         # Remove all dict entries starting with underscore
         def remove_underscore_keys_recursive(dict: MutableMapping):
@@ -838,9 +838,9 @@ class XmlFormatter(Formatter):
     | :----------- | :----------------- | :-------------- |
     | general name | root tag           | the file name is the 'root tag' and hence the name of the dict |
     | name         | element name (tag) | sub-dict name (has to be unique) |
-    |              |(multiple occurrences alowed due to attributes) | |
+    |              | (multiple occurrences allowed due to attributes) | |
     | attributes   | as required | attributes need to be provided in a separate subdict "_attributes" to take action |
-    | style        | namespace(s)| style guide, no namespaces (ns can be provided in a subdict "_xmlOpts") |
+    | style        | namespace(s) | style guide, no namespaces (ns can be provided in a subdict "_xmlOpts") |
     """
     ''' <databases>
             <database id='human_resources' type='mysql'>

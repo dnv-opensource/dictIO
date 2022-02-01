@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class DictWriter():
-    """Writer for dictionaries in C++ dictionary format, as well as JSON, XML and OpenFoam
+    """Writer for dictionaries in dictIO dict file format, as well as JSON, XML and OpenFoam
     """
 
     def __init__(self):
@@ -29,15 +29,15 @@ class DictWriter():
         order: bool = False,
         formatter: Formatter = None,
     ):
-        """Writes a dictionary file in C++ dictionary format, as well as JSON, XML and OpenFoam.
+        """Writes a dictionary file in dictIO dict file format, as well as JSON, XML and OpenFoam.
 
-        Writes a C++ dictionary object (parameter source_dict of type CppDict) to target_file.
+        Writes a dictIO dict (parameter source_dict of type CppDict) to target_file.
         Following file formats are supported and interpreted through target_file's file ending:
-        no file ending   ->   C++  dictionary
-        '.cpp'           ->   C++  dictionary
-        '.foam'          ->   Foam dictionary
-        '.json'          ->   Json dictionary
-        '.xml'           ->   XML  dictionary
+        no file ending   ->   dictIO dict file
+        '.cpp'           ->   dictIO dict file
+        '.foam'          ->   Foam dictionary file
+        '.json'          ->   Json dictionary file
+        '.xml'           ->   XML file
         Following modes are supported:
         mode = 'a': append to target file. If the existing file contains a dictionary, write() will append the new dict to the existing through merging.
         mode = 'w': overwrite target file. The existing file will be overwritten. This is the default behaviour.
@@ -45,15 +45,15 @@ class DictWriter():
         Parameters
         ----------
         source_dict : Union[MutableMapping, CppDict]
-            the source dict
+            source dict file
         target_file : Union[str, os.PathLike[str]], optional
-            name of the target file, by default None
+            target dict file name, by default None
         mode : str, optional
             append to target file ('a') or overwrite target file ('w'), by default 'w'
         order : bool, optional
-            sort the dict before writing, by default False
+            if True, the dict will be sorted before writing, by default False
         formatter : Formatter, optional
-            Formatter object to be used, by default None
+            formatter to be used, by default None
         """
 
         # Check argument
@@ -124,18 +124,23 @@ def create_target_file_name(
     scope: MutableSequence[str] = None,
     format: str = None,
 ) -> Path:
-    """Helper function to create a well defined target file name
+    """Helper function to create a well defined target file name.
 
-    :param source_file: name of the source file
-    :type source_file: Union[str, os.PathLike[str]]
-    :param prefix: optional prefix to be used, defaults to None
-    :type prefix: str, optional
-    :param scope: optional scope to be reflected in the target file name, defaults to None
-    :type scope: MutableSequence[str], optional
-    :param format: optional format of the target file. Choices are 'cpp', 'foam', 'xml' and 'json'., defaults to None
-    :type format: str, optional
-    :return: the target file name
-    :rtype: Path
+    Parameters
+    ----------
+    source_file : Union[str, os.PathLike[str]]
+        source dict file
+    prefix : str, optional
+        prefix to be used, by default None
+    scope : MutableSequence[str], optional
+        scope to be reflected in the target file name, by default None
+    format : str, optional
+        format of the target dict file. Choices are 'cpp', 'foam', 'xml' and 'json', by default None
+
+    Returns
+    -------
+    Path
+        target dict file name
     """
 
     # Make sure source_file argument is of type Path. If not, cast it to Path type.
