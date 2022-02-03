@@ -1,5 +1,6 @@
-from pathlib import Path
 import logging
+import sys
+from pathlib import Path
 
 __all__ = ['configure_logging']
 
@@ -23,7 +24,7 @@ def configure_logging(
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)
 
-    console_handler = logging.StreamHandler()
+    console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(log_level_console_numeric)
     console_formatter = logging.Formatter('%(levelname)-8s %(message)s')
     console_handler.setFormatter(console_formatter)
