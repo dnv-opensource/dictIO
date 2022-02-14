@@ -56,7 +56,7 @@ _For a detailed documentation of the dict file format used by dictIO, see [File 
 
 ## Development Setup
 
-1. Install [Python 3.9](https://www.python.org/downloads/release/python-399/)
+1. Install [Python 3.10](https://www.python.org/downloads/release/python-3102/)
 
 2. git clone the dictIO repository into your local development directory:
 
