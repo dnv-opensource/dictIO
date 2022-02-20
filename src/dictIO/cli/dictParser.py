@@ -212,9 +212,7 @@ def _main(
         f"\t output: \t\t\t{output}"
     )
 
-    parsed_dict = DictParser.parse(source_file, includes, mode, order, comments, scope, output)
-
-    if parsed_dict:
+    if DictParser.parse(source_file, includes, mode, order, comments, scope, output):
         logger.info('dictParser.py finished successfully.\n')
     else:
         logger.error('dictParser.py finished with errors.\n')
@@ -224,18 +222,24 @@ def _main(
 
 def _validate_scope(scope: Union[str, MutableSequence[str]]) -> Union[MutableSequence[str], None]:
     validated_scope = None
-    if isinstance(scope, MutableSequence):  # Is 'scope' a list ?
-        validated_scope = scope             # ..great, then no conversion needed
-    elif isinstance(scope, str):            # Is 'scope' a string ?
-        if re.match(r'^\[', scope):         # ..maybe a string that LOOKS like a list?
-            try:                            # Then try to convert that string to a list
-                temp_scope = eval(scope)
-                validated_scope = temp_scope if isinstance(temp_scope, MutableSequence) else None
+    if isinstance(scope, MutableSequence):                      # Is 'scope' a list ?
+        validated_scope = scope                                 # ..great, then no conversion needed
+    elif isinstance(scope, str):                                # Is 'scope' a string ?
+        if re.match(r'^\s*\[', scope):                          # ..maybe a string that LOOKS like a list?
+            try:                                                # Then try to convert that string to a list
+                from dictIO.parser import Parser
+                parser = Parser()
+                scope = scope.strip(' []')
+                keys: MutableSequence = [key.strip() for key in scope.split(',')]
+                parsed_scope = parser.parse_types(keys)
+                validated_scope = parsed_scope if isinstance(
+                    parsed_scope, MutableSequence
+                ) else None
             except Exception:
                 logger.exception('setOptions: misspelled scope: %s' % scope)
-        else:                               # ..ok, string is just a single value. Nevertheless:
-            validated_scope = [scope]       # Store it not as string but as a (one-element) list
-    else:                                   # Value of 'scope' is neither a list nor a string -> set to None
+        else:                                                   # ..ok, string is just a single value. Nevertheless:
+            validated_scope = [scope]                           # Store it not as string but as a (one-element) list
+    else:                                                       # Value of 'scope' is neither a list nor a string -> set to None
         validated_scope = None
     return validated_scope
 
