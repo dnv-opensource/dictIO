@@ -291,7 +291,7 @@ class Parser():
         return arg
 
     @staticmethod
-    def remove_quotes_from_string(arg: str, all: bool = True) -> str:
+    def remove_quotes_from_string(arg: str, all: bool = False) -> str:
         """Removes quotes from a string
 
         Removes quotes (single and double quotes) from the string object passed in.
