@@ -1,5 +1,6 @@
 pytest>=6.2.5
 pytest-cov>=3.0.0
+pytest-randomly>=3.11.0
 yapf>=0.31.0
 flake8>=4.0.1
 pep8-naming>=0.12.1
