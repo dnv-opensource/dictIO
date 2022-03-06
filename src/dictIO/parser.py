@@ -302,6 +302,7 @@ class Parser():
             the string with quotes
         all : bool, optional
             if true, all quotes inside the string will be removed (not only leading and trailing quotes), by default True
+            changed to True to protect inside strings in e.g. farn filter expression "var in ['item1', 'item2']"
 
         Returns
         -------

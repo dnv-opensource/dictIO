@@ -39,9 +39,10 @@ class TestParser():
         str_out_2 = Parser.remove_quotes_from_string(str_in_2)
         assert str_out_2 == 'a string with double quotes'
         str_out_3 = Parser.remove_quotes_from_string(str_in_3)
-        assert str_out_3 == 'a string with inside quotes'
+        # changes here parser.remove_quotes_from_string: "all" to True to protect inside strings in e.g. farn filter expression "var in ['item1', 'item2']"
+        assert str_out_3 == "a string with 'inside' quotes"
         str_out_4 = Parser.remove_quotes_from_string(str_in_4)
-        assert str_out_4 == 'a string with inside double quotes'
+        assert str_out_4 == 'a string with "inside" double quotes'
 
         # Test with argument 'all' = False
         str_out_1 = Parser.remove_quotes_from_string(str_in_1, all=False)
@@ -99,12 +100,13 @@ class TestParser():
 
         str_out_1 = 'a string with single quotes'
         str_out_2 = 'a string with double quotes'
-        str_out_3 = 'a string with inside quotes'
+        str_out_3 = "a string with 'inside' quotes"
 
         dict_out = deepcopy(dict_in)
         Parser.remove_quotes_from_strings(dict_out)
         assert dict_out[key_1] == str_out_1
         assert dict_out[key_2] == str_out_2
+        # changes here parser.remove_quotes_from_string: "all" to True to protect inside strings in e.g. farn filter expression "var in ['item1', 'item2']"
         assert dict_out[key_3] == str_out_3
         assert dict_out[keyd][key_1] == str_out_1
         assert dict_out[keyd][key_2] == str_out_2
