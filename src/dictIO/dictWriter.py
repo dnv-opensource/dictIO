@@ -93,7 +93,7 @@ class DictWriter():
         # Read the existing file and merge the new dict into the existing.
         if mode == 'a' and target_file.exists():
             logger.debug(
-                f"DictWriter.write(): append mode: Read existing target file {target_file} and merge dict {source_dict} into it."
+                f"DictWriter.write(): append mode: Read existing target file {target_file} and merge dict \n{source_dict}\ninto it."
             )
             from dictIO.dictReader import DictReader
             existing_dict = DictReader.read(target_file, order=order)
