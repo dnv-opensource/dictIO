@@ -1,8 +1,5 @@
 {
 	"python.languageServer": "Pylance",
-	"python.venvFolders": [
-		"${workspaceFolder}"
-	],
 	"python.linting.flake8Enabled": true,
 	"python.linting.enabled": true,
 	"editor.formatOnSave": true,
