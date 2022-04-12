@@ -954,15 +954,18 @@ class CppParser(Parser):
                     temp_tokens.append(tokens[token_index - i])
                     i += 1
                 # reverse token list
+
                 temp_tokens = temp_tokens[::-1]
+
                 # Before proceeding with reading key and value, make sure that what was parsed
                 # really represents a key-value pair, consisting of three elements key, value and ';'
                 if not (
                     len(temp_tokens) >= 3 and len(temp_tokens[0]) == 2 and len(temp_tokens[1]) == 2
                 ):
+                    vicinity = '/'+' '.join([tokens[i][1] for i in range(token_index-5, token_index+5)]) + '/'
                     logger.warning(
-                        'CppParser._parse_tokenized_dict(): tokens skipped: %s' %
-                        (str(temp_tokens))
+                        'CppParser._parse_tokenized_dict(): tokens skipped: %s inside %s' %
+                        (str(temp_tokens), vicinity)
                     )
                 else:
                     if len(temp_tokens) > 3:

@@ -25,7 +25,7 @@ class DictWriter():
     def write(
         source_dict: Union[MutableMapping, CppDict],
         target_file: Union[str, os.PathLike[str]] = None,
-        mode: str = 'w',
+        mode: str = 'a',
         order: bool = False,
         formatter: Formatter = None,
     ):
