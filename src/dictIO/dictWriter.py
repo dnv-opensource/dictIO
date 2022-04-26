@@ -39,8 +39,8 @@ class DictWriter():
         '.json'          ->   Json dictionary file
         '.xml'           ->   XML file
         Following modes are supported:
-        mode = 'a': append to target file. If the existing file contains a dictionary, write() will append the new dict to the existing through merging.
-        mode = 'w': overwrite target file. The existing file will be overwritten. This is the default behaviour.
+        mode = 'a': append to target file. If the existing file contains a dictionary, write() will append the new dict to the existing through merging. This is the default behaviour.
+        mode = 'w': overwrite target file. The existing file will be overwritten.
 
         Parameters
         ----------
@@ -49,7 +49,7 @@ class DictWriter():
         target_file : Union[str, os.PathLike[str]], optional
             target dict file name, by default None
         mode : str, optional
-            append to target file ('a') or overwrite target file ('w'), by default 'w'
+            append to target file ('a') or overwrite target file ('w'), by default 'a'
         order : bool, optional
             if True, the dict will be sorted before writing, by default False
         formatter : Formatter, optional
