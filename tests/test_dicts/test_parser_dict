@@ -57,6 +57,12 @@ strings
     );
 }
 
+invalid
+{
+    this is not a valid key value pair because the number of tokens is larger than two;
+    thisIsNeitherAValidKeyValuePairBecuaseThisIsOnlyOneToken;
+}
+
 nesting
 {
     emptyNestedDict

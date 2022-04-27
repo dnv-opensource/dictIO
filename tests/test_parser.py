@@ -33,26 +33,25 @@ class TestParser():
         not_a_str_2 = 1.23
         not_a_str_3 = False
 
-        # Test with argument 'all' = True (default)
+        # Test with argument 'all' = False (default)
         str_out_1 = Parser.remove_quotes_from_string(str_in_1)
         assert str_out_1 == 'a string with single quotes'
         str_out_2 = Parser.remove_quotes_from_string(str_in_2)
         assert str_out_2 == 'a string with double quotes'
         str_out_3 = Parser.remove_quotes_from_string(str_in_3)
-        # changes here parser.remove_quotes_from_string: "all" to True to protect inside strings in e.g. farn filter expression "var in ['item1', 'item2']"
-        assert str_out_3 == "a string with 'inside' quotes"
-        str_out_4 = Parser.remove_quotes_from_string(str_in_4)
-        assert str_out_4 == 'a string with "inside" double quotes'
-
-        # Test with argument 'all' = False
-        str_out_1 = Parser.remove_quotes_from_string(str_in_1, all=False)
-        assert str_out_1 == 'a string with single quotes'
-        str_out_2 = Parser.remove_quotes_from_string(str_in_2, all=False)
-        assert str_out_2 == 'a string with double quotes'
-        str_out_3 = Parser.remove_quotes_from_string(str_in_3, all=False)
         assert str_out_3 == 'a string with \'inside\' quotes'
-        str_out_4 = Parser.remove_quotes_from_string(str_in_4, all=False)
+        str_out_4 = Parser.remove_quotes_from_string(str_in_4)
         assert str_out_4 == 'a string with \"inside\" double quotes'
+
+        # Test with argument 'all' = True
+        str_out_1 = Parser.remove_quotes_from_string(str_in_1, all=True)
+        assert str_out_1 == 'a string with single quotes'
+        str_out_2 = Parser.remove_quotes_from_string(str_in_2, all=True)
+        assert str_out_2 == 'a string with double quotes'
+        str_out_3 = Parser.remove_quotes_from_string(str_in_3, all=True)
+        assert str_out_3 == 'a string with inside quotes'
+        str_out_4 = Parser.remove_quotes_from_string(str_in_4, all=True)
+        assert str_out_4 == 'a string with inside double quotes'
 
         with pytest.raises(TypeError):
             Parser.remove_quotes_from_string(not_a_str_1)   # type: ignore
@@ -650,7 +649,7 @@ class TestCppParser():
         # Execute
         dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
-        assert len(dict_out) == 12
+        assert len(dict_out) == 13
         assert list(dict_out.keys())[0][:12] == 'BLOCKCOMMENT'
         assert list(dict_out.keys())[1][:7] == 'INCLUDE'
         assert list(dict_out.keys())[2][:11] == 'LINECOMMENT'
@@ -660,9 +659,10 @@ class TestCppParser():
         assert list(dict_out.keys())[6] == 'numbers'
         assert list(dict_out.keys())[7] == 'nones'
         assert list(dict_out.keys())[8] == 'strings'
-        assert list(dict_out.keys())[9] == 'nesting'
-        assert list(dict_out.keys())[10] == 'expressions'
-        assert list(dict_out.keys())[11] == 'theDictInAListPitfall'
+        assert list(dict_out.keys())[9] == 'invalid'
+        assert list(dict_out.keys())[10] == 'nesting'
+        assert list(dict_out.keys())[11] == 'expressions'
+        assert list(dict_out.keys())[12] == 'theDictInAListPitfall'
 
     def test_parse_tokenized_dict_booleans(self):
         # Prepare
@@ -741,6 +741,32 @@ class TestCppParser():
         assert dict_out['strings']['listWithStrings'][2][:13] == 'STRINGLITERAL'
         assert dict_out['strings']['listWithStrings'][3][:13] == 'STRINGLITERAL'
         assert dict_out['strings']['listWithStrings'][4][:13] == 'STRINGLITERAL'
+
+    def test_parse_tokenized_dict_invalid(self, caplog):
+        # Prepare
+        dict_in = CppDict()
+        SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
+        parser = CppParser()
+        log_level_assert = 'WARNING'
+        log_message_0_assert = (
+            "CppParser._parse_tokenized_dict(): tokens skipped: "
+            "[(1, 'this'), (1, 'is'), (1, 'not'), (1, 'a'), (1, 'valid'), (1, 'key'), (1, 'value'), (1, 'pair'),"
+            " (1, 'because'), (1, 'the'), (1, 'number'), (1, 'of'), (1, 'tokens'), (1, 'is'), (1, 'larger'), (1, 'than'), (1, 'two'), (1, ';')] "
+            "inside /this is not a valid key value pair because the number of tokens is larger than two ; thisIsNeitherAValidKeyValuePairBecuaseThisIsOnlyOneToken ;/"
+        )
+        log_message_1_assert = (
+            "CppParser._parse_tokenized_dict(): tokens skipped: "
+            "[(1, 'thisIsNeitherAValidKeyValuePairBecuaseThisIsOnlyOneToken'), (1, ';')] "
+            "inside /this is not a valid key value pair because the number of tokens is larger than two ; thisIsNeitherAValidKeyValuePairBecuaseThisIsOnlyOneToken ;/"
+        )
+        # Execute
+        dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        # Assert
+        assert len(dict_out['invalid']) == 0
+        assert len(caplog.records) == 2
+        assert caplog.records[0].levelname == log_level_assert
+        assert caplog.records[0].message == log_message_0_assert
+        assert caplog.records[1].message == log_message_1_assert
 
     def test_parse_tokenized_dict_nesting(self):
         # Prepare

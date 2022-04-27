@@ -35,30 +35,3 @@ def string_diff(line_1, line_2):
 
     line_length = len(diffs)
     print('There %s %s difference%s between text 1 and text 2.' % (('is' if line_length == 1 else 'are'), ('no' if line_length == 0 else str(line_length)), ('' if line_length == 1 else 's')))
-
-
-def plural(argN: int, argS: str=None):
-    '''generate simple case estimator
-    argN: required - number of items in list
-    argS: optional - string to be altered
-    mapping: known alterations, implement more here
-    more sophisticated approach: nltk -> load corpus -> stem -> pluralize
-    '''
-    mapping = [
-        ('', 's'),
-        ('is', 'are'),
-        ('was', 'were')
-    ]
-    storeIndex = 0
-    if argS is not None:
-        # find correct tuple
-        for index, item in enumerate(mapping):
-            if argS in item:
-                storeIndex = index
-                break
-
-    if argN == 1:
-        return mapping[storeIndex][0]
-
-    return mapping[storeIndex][1]
-
