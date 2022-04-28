@@ -291,7 +291,7 @@ class Parser():
         return arg
 
     @staticmethod
-    def remove_quotes_from_string(arg: str, all: bool = True) -> str:
+    def remove_quotes_from_string(arg: str, all: bool = False) -> str:
         """Removes quotes from a string
 
         Removes quotes (single and double quotes) from the string object passed in.
@@ -301,7 +301,7 @@ class Parser():
         arg : str
             the string with quotes
         all : bool, optional
-            if true, all quotes inside the string will be removed (not only leading and trailing quotes), by default True
+            if true, all quotes inside the string will be removed (not only leading and trailing quotes), by default False
 
         Returns
         -------
@@ -855,9 +855,9 @@ class CppParser(Parser):
                 closing_bracket = self._find_companion(dict, tokens[token_index][1])
                 closing_level = tokens[token_index][0]
 
-                # Create a temporary token list for just the nested data struct, containing
+                # Create a temporary data_struct_tokens list for just the nested data struct, containing
                 # all tokens from the opening bracket (first token) to the closing bracket (last token)
-                temp_tokens = []
+                data_struct_tokens = []
                 i = 0
                 last_index = None
                 # Start at opening bracket, go forward and copy the tokens
@@ -868,46 +868,47 @@ class CppParser(Parser):
                     and not re.match('^.*COMMENT.*$', str(tokens[token_index + i][1]))
                 ):
                     last_index = token_index + i
-                    temp_tokens.append(tokens[token_index + i])
+                    data_struct_tokens.append(tokens[token_index + i])
                     i += 1
-                temp_tokens.append(tokens[token_index + i])
+                data_struct_tokens.append(tokens[token_index + i])
 
                 # Do a Syntax-Check at the closing bracket of the data struct.
                 # As the syntax for lists and dicts is different, the syntax check is type specific:
                 # list:
                 # Proof that list properly ends with ';'
                 # (= assert that closing bracket of the list is followed by ';')
-                if temp_tokens[-1][1] == ')' and tokens[token_index + i + 1][1] not in [';', ')']:
+                if data_struct_tokens[-1][1] == ')' and tokens[token_index + i
+                                                               + 1][1] not in [';', ')']:
                     # log error: Missing ';' after list
                     logger.warning(
                         'mis-spelled expression / missing \';\' around \"%s\"' % ' '.join(
-                            [name] + [t[1]
-                                      for t in temp_tokens] + [tokens[token_index + i + 1][1]]
+                            [name] + [t[1] for t in data_struct_tokens]
+                            + [tokens[token_index + i + 1][1]]
                         )
                     )
                 # dict:
-                if temp_tokens[-1][1] == '}':
+                if data_struct_tokens[-1][1] == '}':
                     # Proof that last key value pair in dict ends with ';'
                     # (= assert that second-to-last token is ';')
                     index = -2
                     # ..ok, line comments do not count .. skip them:
-                    while re.match('^.*COMMENT.*$', str(temp_tokens[index][1])):
+                    while re.match('^.*COMMENT.*$', str(data_struct_tokens[index][1])):
                         index -= 1
                     # ..but now: Does the last key value pair end with ';'?
-                    if temp_tokens[index][1] not in ['{', ';', '}']:
+                    if data_struct_tokens[index][1] not in ['{', ';', '}']:
                         # log error: Missing ';' after key value pair
                         logger.error(
                             'mis-spelled expression / missing \';\' around \"%s\"'
-                            % ' '.join([name] + [t[1] for t in temp_tokens])
+                            % ' '.join([name] + [t[1] for t in data_struct_tokens])
                         )
 
                 # Parse the tokenized data struct, translate it into its type (list or dict),
                 # and update parsed_dict with the new list or dict.
                 # Again, the code is type specific depending on whether the parsed data struct is a list or a dict.
                 # list:
-                if temp_tokens[0][1] == '(':
+                if data_struct_tokens[0][1] == '(':
                     # Check whether the list is empty
-                    if len(temp_tokens) < 3:
+                    if len(data_struct_tokens) < 3:
                         # is empty (contains only opening and closing bracket)
                         # update parsed_dict with just the empty list
                         parsed_dict[name] = []
@@ -915,16 +916,16 @@ class CppParser(Parser):
                         # has content
                         # parse the nested list
                         nested_list = self._parse_tokenized_list(
-                            dict, temp_tokens, level=level + 1
+                            dict, data_struct_tokens, level=level + 1
                         )
                         # update parsed_dict with the nested list
                         parsed_dict[name] = nested_list
 
                 #  dict:
-                elif temp_tokens[0][1] == '{':
+                elif data_struct_tokens[0][1] == '{':
                     # parse the nested dict (recursion)
                     nested_dict = self._parse_tokenized_dict(
-                        dict, temp_tokens[1:-1], level=level + 1
+                        dict, data_struct_tokens[1:-1], level=level + 1
                     )
                     # update parsed_dict with the nested dict
                     parsed_dict[name] = nested_dict
@@ -941,38 +942,55 @@ class CppParser(Parser):
 
                 # Read the name (key) and the value from the key value pair
                 # Parse from right to left, starting at the identified ';'
-                # and then copy the tokens into a temporary token list:
-                # (..except line comments, which are skipped)
-                temp_tokens = []
-                i = 0
+                # and then copy the tokens into a temporary key_value_pair_tokens list:
+                key_value_pair_tokens = []
+                key_value_pair_tokens.append(tokens[token_index])                       # ';'
+                key_value_pair_token_level = tokens[token_index][0]
+                i = 1
                 last_index = None
                 while (
-                    not re.match('^.*COMMENT.*$', str(tokens[token_index - i][1]))
-                    and len(temp_tokens) <= 2
+                    token_index - i >= 0
+                    and tokens[token_index - i][0] == key_value_pair_token_level
+                    and not tokens[token_index - i][1] in [';', '}']
+                    and not re.match('^.*COMMENT.*$', str(tokens[token_index - i][1]))
+                    and not re.match('^.*INCLUDE.*$', str(tokens[token_index - i][1]))
                 ):
-                    temp_tokens.append(tokens[token_index - i])
+                    key_value_pair_tokens.append(tokens[token_index - i])
                     i += 1
+
                 # reverse token list
-                temp_tokens = temp_tokens[::-1]
+                key_value_pair_tokens = key_value_pair_tokens[::-1]
+
                 # Before proceeding with reading key and value, make sure that what was parsed
                 # really represents a key-value pair, consisting of three elements key, value and ';'
                 if not (
-                    len(temp_tokens) >= 3 and len(temp_tokens[0]) == 2 and len(temp_tokens[1]) == 2
+                    len(key_value_pair_tokens) == 3 and len(key_value_pair_tokens[0]) == 2
+                    and len(key_value_pair_tokens[1]) == 2
                 ):
+                    # Something is lexically wrong.  Not a valid key-value pair. -> Skip and log warning
+                    context_tokens_index_from = max(0, token_index - 20)
+                    context_tokens_index_to = min(token_index + 20, len(tokens))
+                    context = '/' + ' '.join(
+                        [
+                            tokens[i][1]
+                            for i in range(context_tokens_index_from, context_tokens_index_to)
+                            if len(tokens[i]) > 1
+                        ]
+                    ) + '/'
                     logger.warning(
-                        'CppParser._parse_tokenized_dict(): tokens skipped: %s' %
-                        (str(temp_tokens))
+                        f'CppParser._parse_tokenized_dict(): tokens skipped: {key_value_pair_tokens} inside {context}'
                     )
                 else:
-                    if len(temp_tokens) > 3:
+                    if len(key_value_pair_tokens) > 3:
                         logger.warning(
                             'CppParser._parse_tokenized_dict(): '
-                            'more tokens in key-value pair than expected: %s' % (str(temp_tokens))
+                            'more tokens in key-value pair than expected: %s' %
+                            (str(key_value_pair_tokens))
                         )
                     # read the name (key) (first token, by convention)
-                    name = temp_tokens[0][1]
+                    name = key_value_pair_tokens[0][1]
                     # read the value (second token, by convention)
-                    value = self.parse_type(temp_tokens[1][1])
+                    value = self.parse_type(key_value_pair_tokens[1][1])
                     # update parsed_dict with the parsed key value pair
                     # Note: Following update would be greedy, if parsed_dict would be declared as global variable.
                     # This exactly is why parsed_dict is declared as local variable in _parse_tokenized_dict().
