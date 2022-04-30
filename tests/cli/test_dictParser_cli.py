@@ -1,4 +1,3 @@
-import os
 import sys
 from argparse import ArgumentError
 from dataclasses import dataclass
@@ -6,9 +5,8 @@ from pathlib import Path
 from typing import List, MutableSequence, Union
 
 import pytest
-from dictIO.cli import dictParser
-from dictIO.cli.dictParser import _argparser, _main, _validate_scope, main
-from dictIO.utils.path import silent_remove
+from dictIO.cli.dictParser import _argparser, _validate_scope, main
+from dictIO.dictParser import DictParser
 
 
 @dataclass()
@@ -18,7 +16,7 @@ class CliArgs():
     log: Union[str, None] = None
     log_level: str = 'WARNING'
 
-    dict: Union[str, None] = 'myDict'
+    dict: Union[str, None] = 'test_dictParser_dict'
     ignore_includes: bool = False
     mode: str = 'w'
     order: bool = False
@@ -31,37 +29,40 @@ class CliArgs():
     "inputs, expected",
     [
         ([], ArgumentError),
-        (['myDict'], CliArgs()),
-        (['myDict', '-q'], CliArgs(quiet=True)),
-        (['myDict', '--quiet'], CliArgs(quiet=True)),
-        (['myDict', '-v'], CliArgs(verbose=True)),
-        (['myDict', '--verbose'], CliArgs(verbose=True)),
-        (['myDict', '-qv'], ArgumentError),
-        (['myDict', '--log', 'logFile'], CliArgs(log='logFile')),
-        (['myDict', '--log'], ArgumentError),
-        (['myDict', '--log-level', 'INFO'], CliArgs(log_level='INFO')),
-        (['myDict', '--log-level'], ArgumentError),
-        (['myDict', '-I'], CliArgs(ignore_includes=True)),
-        (['myDict', '--ignore-includes'], CliArgs(ignore_includes=True)),
-        (['myDict', '--mode', 'a'], CliArgs(mode='a')),
-        (['myDict', '--mode'], ArgumentError),
-        (['myDict', '--order'], CliArgs(order=True)),
-        (['myDict', '-o'], ArgumentError),
-        (['myDict', '-C'], CliArgs(ignore_comments=True)),
-        (['myDict', '--ignore-comments'], CliArgs(ignore_comments=True)),
-        (['myDict', '--scope', ''], CliArgs(scope='')),
-        (['myDict', '--scope', 'key'], CliArgs(scope='key')),
-        (['myDict', '--scope', '[key1,key2]'], CliArgs(scope='[key1,key2]')),
-        (['myDict', '--scope', '[key1, key2]'], CliArgs(scope='[key1, key2]')),
-        (['myDict', '--scope', "['key1', 'key2']"], CliArgs(scope="['key1', 'key2']")),
-        (['myDict', '--scope', 'key1', 'key2'], ArgumentError),
-        (['myDict', '--scope'], ArgumentError),
-        (['myDict', '--output', 'cpp'], CliArgs(output='cpp')),
-        (['myDict', '--output', 'foam'], CliArgs(output='foam')),
-        (['myDict', '--output', 'xml'], CliArgs(output='xml')),
-        (['myDict', '--output', 'json'], CliArgs(output='json')),
-        (['myDict', '--output', ''], ArgumentError),
-        (['myDict', '--output'], ArgumentError),
+        (['test_dictParser_dict'], CliArgs()),
+        (['test_dictParser_dict', '-q'], CliArgs(quiet=True)),
+        (['test_dictParser_dict', '--quiet'], CliArgs(quiet=True)),
+        (['test_dictParser_dict', '-v'], CliArgs(verbose=True)),
+        (['test_dictParser_dict', '--verbose'], CliArgs(verbose=True)),
+        (['test_dictParser_dict', '-qv'], ArgumentError),
+        (['test_dictParser_dict', '--log', 'logFile'], CliArgs(log='logFile')),
+        (['test_dictParser_dict', '--log'], ArgumentError),
+        (['test_dictParser_dict', '--log-level', 'INFO'], CliArgs(log_level='INFO')),
+        (['test_dictParser_dict', '--log-level'], ArgumentError),
+        (['test_dictParser_dict', '-I'], CliArgs(ignore_includes=True)),
+        (['test_dictParser_dict', '--ignore-includes'], CliArgs(ignore_includes=True)),
+        (['test_dictParser_dict', '--mode', 'a'], CliArgs(mode='a')),
+        (['test_dictParser_dict', '--mode'], ArgumentError),
+        (['test_dictParser_dict', '--order'], CliArgs(order=True)),
+        (['test_dictParser_dict', '-o'], ArgumentError),
+        (['test_dictParser_dict', '-C'], CliArgs(ignore_comments=True)),
+        (['test_dictParser_dict', '--ignore-comments'], CliArgs(ignore_comments=True)),
+        (['test_dictParser_dict', '--scope', ''], CliArgs(scope='')),
+        (['test_dictParser_dict', '--scope', 'key'], CliArgs(scope='key')),
+        (['test_dictParser_dict', '--scope', '[key1,key2]'], CliArgs(scope='[key1,key2]')),
+        (['test_dictParser_dict', '--scope', '[key1, key2]'], CliArgs(scope='[key1, key2]')),
+        (
+            ['test_dictParser_dict', '--scope', "['key1', 'key2']"],
+            CliArgs(scope="['key1', 'key2']")
+        ),
+        (['test_dictParser_dict', '--scope', 'key1', 'key2'], ArgumentError),
+        (['test_dictParser_dict', '--scope'], ArgumentError),
+        (['test_dictParser_dict', '--output', 'cpp'], CliArgs(output='cpp')),
+        (['test_dictParser_dict', '--output', 'foam'], CliArgs(output='foam')),
+        (['test_dictParser_dict', '--output', 'xml'], CliArgs(output='xml')),
+        (['test_dictParser_dict', '--output', 'json'], CliArgs(output='json')),
+        (['test_dictParser_dict', '--output', ''], ArgumentError),
+        (['test_dictParser_dict', '--output'], ArgumentError),
     ]
 )
 def test_argparser(
@@ -89,8 +90,8 @@ def test_argparser(
 
 
 @dataclass()
-class MainArgs():
-    source_file: Path = Path('myDict')
+class ApiArgs():
+    source_file: Path = Path('test_dictParser_dict')
     includes: bool = True
     mode: str = 'w'
     order: bool = False
@@ -103,40 +104,40 @@ class MainArgs():
     "inputs, expected",
     [
         ([], ArgumentError),
-        (['myDict'], MainArgs()),
-        (['myDict', '-I'], MainArgs(includes=False)),
-        (['myDict', '--ignore-includes'], MainArgs(includes=False)),
-        (['myDict', '--mode', 'a'], MainArgs(mode='a')),
-        (['myDict', '--mode'], ArgumentError),
-        (['myDict', '--order'], MainArgs(order=True)),
-        (['myDict', '-o'], ArgumentError),
-        (['myDict', '-C'], MainArgs(comments=False)),
-        (['myDict', '--ignore-comments'], MainArgs(comments=False)),
-        (['myDict', '--scope', ''], MainArgs(scope=[''])),
-        (['myDict', '--scope', 'key'], MainArgs(scope=['key'])),
-        (['myDict', '--scope', '[key1,key2]'], MainArgs(scope=['key1', 'key2'])),
-        (['myDict', '--scope', '[key1, key2]'], MainArgs(scope=['key1', 'key2'])),
-        (['myDict', '--scope', "['key1', 'key2']"], MainArgs(scope=['key1', 'key2'])),
-        (['myDict', '--scope', 'key1', 'key2'], ArgumentError),
-        (['myDict', '--scope'], ArgumentError),
-        (['myDict', '--output', 'cpp'], MainArgs(output='cpp')),
-        (['myDict', '--output', 'foam'], MainArgs(output='foam')),
-        (['myDict', '--output', 'xml'], MainArgs(output='xml')),
-        (['myDict', '--output', 'json'], MainArgs(output='json')),
-        (['myDict', '--output', ''], ArgumentError),
-        (['myDict', '--output'], ArgumentError),
+        (['test_dictParser_dict'], ApiArgs()),
+        (['test_dictParser_dict', '-I'], ApiArgs(includes=False)),
+        (['test_dictParser_dict', '--ignore-includes'], ApiArgs(includes=False)),
+        (['test_dictParser_dict', '--mode', 'a'], ApiArgs(mode='a')),
+        (['test_dictParser_dict', '--mode'], ArgumentError),
+        (['test_dictParser_dict', '--order'], ApiArgs(order=True)),
+        (['test_dictParser_dict', '-o'], ArgumentError),
+        (['test_dictParser_dict', '-C'], ApiArgs(comments=False)),
+        (['test_dictParser_dict', '--ignore-comments'], ApiArgs(comments=False)),
+        (['test_dictParser_dict', '--scope', ''], ApiArgs(scope=[''])),
+        (['test_dictParser_dict', '--scope', 'key'], ApiArgs(scope=['key'])),
+        (['test_dictParser_dict', '--scope', '[key1,key2]'], ApiArgs(scope=['key1', 'key2'])),
+        (['test_dictParser_dict', '--scope', '[key1, key2]'], ApiArgs(scope=['key1', 'key2'])),
+        (['test_dictParser_dict', '--scope', "['key1', 'key2']"], ApiArgs(scope=['key1', 'key2'])),
+        (['test_dictParser_dict', '--scope', 'key1', 'key2'], ArgumentError),
+        (['test_dictParser_dict', '--scope'], ArgumentError),
+        (['test_dictParser_dict', '--output', 'cpp'], ApiArgs(output='cpp')),
+        (['test_dictParser_dict', '--output', 'foam'], ApiArgs(output='foam')),
+        (['test_dictParser_dict', '--output', 'xml'], ApiArgs(output='xml')),
+        (['test_dictParser_dict', '--output', 'json'], ApiArgs(output='json')),
+        (['test_dictParser_dict', '--output', ''], ArgumentError),
+        (['test_dictParser_dict', '--output'], ArgumentError),
     ]
 )
-def test_main(
+def test_invoke_api(
     inputs: List[str],
-    expected: Union[MainArgs, type],
+    expected: Union[ApiArgs, type],
     monkeypatch,
 ):
     # Prepare
     monkeypatch.setattr(sys, 'argv', ['dictParser'] + inputs)
-    args: MainArgs = MainArgs()
+    args: ApiArgs = ApiArgs()
 
-    def fake_main(
+    def fake_parse(
         source_file: Path,
         includes: bool = True,
         mode: str = 'w',
@@ -153,10 +154,10 @@ def test_main(
         args.scope = scope
         args.output = output
 
-    monkeypatch.setattr(dictParser, '_main', fake_main)
+    monkeypatch.setattr(DictParser, 'parse', fake_parse)
     # Execute
-    if isinstance(expected, MainArgs):
-        args_assert: MainArgs = expected
+    if isinstance(expected, ApiArgs):
+        args_assert: ApiArgs = expected
         main()
         # Assert args
         for key in args_assert.__dataclass_fields__:
@@ -168,18 +169,6 @@ def test_main(
             main()
     else:
         assert False
-
-
-def test_invoke_api():
-    # Prepare
-    silent_remove(Path('parsed.test_dictParser_paramDict'))
-    silent_remove(Path('parsed.test_dictParser_dict'))
-    source_file = Path('test_dictParser_dict')
-    # Execute
-    _main(source_file)
-    # Assert
-    assert not os.path.exists('parsed.test_dictParser_paramDict')
-    assert os.path.exists('parsed.test_dictParser_dict')
 
 
 def test_validate_scope():

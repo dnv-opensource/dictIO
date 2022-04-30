@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 from typing import MutableSequence, Union
 
+from dictIO.cppDict import CppDict
 from dictIO.dictParser import DictParser
 from dictIO.utils.logging import configure_logging
 
@@ -171,32 +172,6 @@ def main():
     scope: Union[MutableSequence[str], None] = _validate_scope(args.scope)
     output: Union[str, None] = args.output
 
-    # Dispatch to _main(), which takes care of processing the arguments and invoking the API.
-    _main(
-        source_file=source_file,
-        includes=includes,
-        mode=mode,
-        order=order,
-        comments=comments,
-        scope=scope,
-        output=output,
-    )
-
-
-def _main(
-    source_file: Path,
-    includes: bool = True,
-    mode: str = 'w',
-    order: bool = False,
-    comments: bool = True,
-    scope: MutableSequence[str] = None,
-    output: str = None,
-):
-    """Entry point for unit tests.
-
-    Processes the arguments parsed by main() on the console and invokes the API.
-    """
-
     # Check whether source file exists
     if not source_file.exists():
         logger.error(f"dictParser.py: File {source_file} not found.")
@@ -212,12 +187,11 @@ def _main(
         f"\t output: \t\t\t{output}"
     )
 
+    # Invoke API
     if DictParser.parse(source_file, includes, mode, order, comments, scope, output):
         logger.info('dictParser.py finished successfully.\n')
     else:
         logger.error('dictParser.py finished with errors.\n')
-
-    return
 
 
 def _validate_scope(scope: Union[str, MutableSequence[str]]) -> Union[MutableSequence[str], None]:

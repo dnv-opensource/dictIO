@@ -7,22 +7,29 @@ from dictIO.dictWriter import create_target_file_name
 from dictIO.utils.path import silent_remove
 
 
-def test_parse_dict():  # sourcery skip: class-extract-method
+def test_parse_dict():
+    # sourcery skip: class-extract-method
+    # Prepare
     silent_remove(Path('parsed.test_dictParser_paramDict'))
     silent_remove(Path('parsed.test_dictParser_dict'))
     silent_remove(Path('parsed.parsed.test_dictParser_paramDict'))
     silent_remove(Path('parsed.parsed.test_dictParser_dict'))
     file_name = Path('test_dictParser_dict')
+    # Execute
     dict = DictParser.parse(file_name)
+    # Assert 1
     assert not os.path.exists('parsed.test_dictParser_paramDict')
     assert os.path.exists('parsed.test_dictParser_dict')
-
+    # Reread parsed dict
     parsed_file_name = create_target_file_name(file_name, 'parsed')
     dict_reread = DictReader.read(parsed_file_name)
+    # Assert 2
     assert dict == dict_reread
     # no piping parsed prefix anymore: parsed.parsed.test_dictParser_dict
     assert not os.path.exists('parsed.parsed.test_dictParser_dict')
     assert not os.path.exists('parsed.parsed.test_dictParser_paramDict')
+    # Clean up
+    silent_remove(Path('parsed.parsed.test_dictParser_dict'))
 
 
 def test_parse_dict_foam_format():
