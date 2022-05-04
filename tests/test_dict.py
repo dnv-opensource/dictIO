@@ -12,7 +12,7 @@ def test_dict():
     return parser.parse_file(Path('test_dict_dict'))
 
 
-def test_init():
+def test_init():    # sourcery skip: avoid-builtin-shadow
     dict = CppDict()
     assert dict.source_file is None
     assert dict.path == Path.cwd()
@@ -24,17 +24,18 @@ def test_init():
     assert dict.block_comments == {}
     assert dict.string_literals == {}
     assert dict.expressions == {}
-    # assert dict.delimiters == ['{','}','[',']','(',')','<','>',';',',']
+                    # assert dict.delimiters == ['{','}','[',']','(',')','<','>',';',',']
     assert dict.delimiters == ['{', '}', '(', ')', '<', '>', ';', ',']
 
 
-def test_init_with_file():
+def test_init_with_file():  # sourcery skip: avoid-builtin-shadow
     dict = CppDict('someDict')
     assert dict.path == Path.cwd()
     assert dict.source_file == Path.cwd() / 'someDict'
 
 
 def test_find_global_key():
+    # Prepare
     str_in_1 = 'PLACEHOLDER000001'
     str_in_2 = 'PLACEHOLDER000002'
     str_in_3 = 'PLACEHOLDER000003'
@@ -198,7 +199,8 @@ def test_find_global_key():
     assert dict_out[keyldl][0][keyl][2] == str_out_3
 
 
-def test_order_keys():
+def test_order_keys():  # sourcery skip: avoid-builtin-shadow
+                        # Prepare
     str_1 = 'string 1'
     str_2 = 'string 2'
     str_3 = 'string 3'

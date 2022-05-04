@@ -8,9 +8,12 @@ import pytest
 from dictIO.cli.dictParser import _argparser, _validate_scope, main
 from dictIO.dictParser import DictParser
 
+# *****Test commandline interface (CLI)************************************************************
+
 
 @dataclass()
 class CliArgs():
+    # Expected default values for the CLI arguments when dictParser gets called via the commandline
     quiet: bool = False
     verbose: bool = False
     log: Union[str, None] = None
@@ -65,7 +68,7 @@ class CliArgs():
         (['test_dictParser_dict', '--output'], ArgumentError),
     ]
 )
-def test_argparser(
+def test_cli(
     inputs: List[str],
     expected: Union[CliArgs, type],
     monkeypatch,
@@ -89,8 +92,12 @@ def test_argparser(
         assert False
 
 
+# *****Ensure the CLI correctly invokes the API****************************************************
+
+
 @dataclass()
 class ApiArgs():
+    # Values that main() is expected to pass to DictParser.parse() by default when invoking the API
     source_file: Path = Path('test_dictParser_dict')
     includes: bool = True
     mode: str = 'w'
@@ -143,8 +150,8 @@ def test_invoke_api(
         mode: str = 'w',
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[str] = None,
-        output: str = None,
+        scope: Union[MutableSequence[str], None] = None,
+        output: Union[str, None] = None,
     ):
         args.source_file = source_file
         args.includes = includes
@@ -169,6 +176,9 @@ def test_invoke_api(
             main()
     else:
         assert False
+
+
+# *****Test _validate_scope() helper function******************************************************
 
 
 def test_validate_scope():

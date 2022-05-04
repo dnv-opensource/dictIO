@@ -236,37 +236,29 @@ class TestParser():
         assert isinstance(float_out, float)
         assert float_out == 1.23
 
-    def test_parse_type_str(self):
+    @pytest.mark.parametrize(
+        "str_in, str_assert",
+        [
+            ('a string', 'a string'),
+            ("'a string'", 'a string'),
+            ('"a string"', 'a string'),
+            ('', ''),
+            ("''", ''),
+            ('""', ''),
+        ],
+    )
+    def test_parse_type_str(self, str_in: str, str_assert: str):
+        '''Make sure additional surrounding quotes of strings, if existing, get removed by parsing'''
+        # Prepare
         parser = Parser()
-        str_in = 'a string'
+        # Execute
         str_out = parser.parse_type(str_in)
+        # Assert
         assert isinstance(str_out, str)
-        assert str_out == str_in
-        str_in_with_single_quotes = '\'' + str_in + '\''
-        str_out = parser.parse_type(str_in_with_single_quotes)
-        assert isinstance(str_out, str)
-        assert str_out == str_in
-        str_in_with_double_quotes = '\"' + str_in + '\"'
-        str_out = parser.parse_type(str_in_with_double_quotes)
-        assert isinstance(str_out, str)
-        assert str_out == str_in
-
-    def test_parse_type_empty_str(self):
-        parser = Parser()
-        str_in = ''
-        str_out = parser.parse_type(str_in)
-        assert isinstance(str_out, str)
-        assert str_out == str_in
-        str_in_with_single_quotes = '\'' + str_in + '\''
-        str_out = parser.parse_type(str_in_with_single_quotes)
-        assert isinstance(str_out, str)
-        assert str_out == str_in
-        str_in_with_double_quotes = '\"' + str_in + '\"'
-        str_out = parser.parse_type(str_in_with_double_quotes)
-        assert isinstance(str_out, str)
-        assert str_out == str_in
+        assert str_out == str_assert
 
     def test_parse_list(self):
+        # Prepare
         parser = Parser()
         str_1 = 'string 1'
         str_2 = 'string 2'
@@ -274,13 +266,6 @@ class TestParser():
         not_a_str_1 = 1234
         not_a_str_2 = 1.23
         not_a_str_3 = False
-
-        string1_eval = parser.parse_type(str_1)
-        string2_eval = parser.parse_type(str_2)
-        string3_eval = parser.parse_type(str_3)
-        not_a_str_1_eval = parser.parse_type(not_a_str_1)
-        not_a_str_2_eval = parser.parse_type(not_a_str_2)
-        not_a_str_3_eval = parser.parse_type(not_a_str_3)
 
         list_nested = [
             str_1,
@@ -299,26 +284,35 @@ class TestParser():
             not_a_str_2,
             not_a_str_3,
         ]
+
+        string1_assert = parser.parse_type(str_1)
+        string2_assert = parser.parse_type(str_2)
+        string3_assert = parser.parse_type(str_3)
+        not_a_str_1_assert = parser.parse_type(not_a_str_1)
+        not_a_str_2_assert = parser.parse_type(not_a_str_2)
+        not_a_str_3_assert = parser.parse_type(not_a_str_3)
+
         list_assert_nested = [
-            string1_eval,
-            string2_eval,
-            string3_eval,
-            not_a_str_1_eval,
-            not_a_str_2_eval,
-            not_a_str_3_eval,
+            string1_assert,
+            string2_assert,
+            string3_assert,
+            not_a_str_1_assert,
+            not_a_str_2_assert,
+            not_a_str_3_assert,
         ]
         list_assert = [
-            string1_eval,
-            string2_eval,
-            string3_eval,
+            string1_assert,
+            string2_assert,
+            string3_assert,
             list_assert_nested,
-            not_a_str_1_eval,
-            not_a_str_2_eval,
-            not_a_str_3_eval,
+            not_a_str_1_assert,
+            not_a_str_2_assert,
+            not_a_str_3_assert,
         ]
 
+        # Execute
         list_out = parser.parse_types(list_in)
-
+        # Assert
         assert list_out is list_in
         assert list_out == list_assert
         assert list_out[3] == list_assert[3]
@@ -339,6 +333,8 @@ class TestParser():
 class TestCppParser():
 
     def test_extract_line_comments(self):
+        # sourcery skip: avoid-builtin-shadow
+        # Prepare
         dict = CppDict()
         parser = CppParser()
         line1 = 'a line with no line comment\n'
@@ -347,15 +343,19 @@ class TestCppParser():
         line4 = 'a line with no line comment\n'
         dict.line_content.extend([line1, line2, line3, line4])
         assert len(dict.line_content) == 4
+        # Execute
         parser._extract_line_comments(dict, comments=True)
+        # Assert
         assert len(dict.line_content) == 4
         for line in dict.line_content:
             assert re.search(r'//', line) is None
         assert len(dict.line_comments) == 2
         for line in dict.line_comments.values():
-            assert re.search(str(r'//'), str(line)) is not None
+            assert re.search('//', str(line)) is not None
 
     def test_extract_includes(self):
+        # sourcery skip: avoid-builtin-shadow
+        # Prepare
         dict = CppDict()
         parser = CppParser()
         line1 = 'a line with no include directive\n'
@@ -368,23 +368,24 @@ class TestCppParser():
         line7 = 'a line with no include directive\n'
         dict.line_content.extend([line1, line2, line3, line4, line5, line6, line7])
         assert len(dict.line_content) == 7
-        parser._extract_includes(dict)
-        assert len(dict.line_content) == 7
-        for line in dict.line_content:
-            assert bool(re.search(
-                r'#include',
-                line,
-            )) is False
-        assert len(dict.includes) == 5
         file_name_assert = 'testDict'
         file_path_assert = Path('testDict').absolute()
+        # Execute
+        parser._extract_includes(dict)
+        # Assert
+        assert len(dict.line_content) == 7
+        for line in dict.line_content:
+            assert '#include' not in line
+        assert len(dict.includes) == 5
         for include_directive, include_file_name, include_file_path in dict.includes.values():
-            assert bool(re.search(str(r'#\s*include'), str(include_directive))) is True
-            assert bool(re.search(str(r'\n'), str(include_directive))) is False
+            assert bool(re.search(r'#\s*include', str(include_directive)))
+            assert not bool(re.search(r'\n', str(include_directive)))
             assert include_file_name == file_name_assert
             assert include_file_path == file_path_assert
 
     def test_convert_line_content_to_block_content(self):
+        # sourcery skip: avoid-builtin-shadow
+        # Prepare
         dict = CppDict()
         parser = CppParser()
         # Three lines with line endings
@@ -392,10 +393,14 @@ class TestCppParser():
         line2 = 'line 2\n'
         line3 = 'line 3\n'
         dict.line_content.extend([line1, line2, line3])
+        # Execute
         parser._convert_line_content_to_block_content(dict)
+        # Assert
         assert dict.block_content == 'line 1\nline 2\nline 3\n'
 
     def test_remove_line_endings_from_block_content(self):
+        # sourcery skip: avoid-builtin-shadow
+        # Prepare
         dict = CppDict()
         parser = CppParser()
         # Three lines with line endings
@@ -404,10 +409,14 @@ class TestCppParser():
         line3 = 'line 3\n'
         dict.line_content.extend([line1, line2, line3])
         parser._convert_line_content_to_block_content(dict)
+        # Execute
         parser._remove_line_endings_from_block_content(dict)
+        # Assert
         assert dict.block_content == 'line 1 line 2 line 3'
 
     def test_extract_block_comments(self):
+        # sourcery skip: avoid-builtin-shadow
+        # Prepare
         dict = CppDict()
         parser = CppParser()
         text_block_in = (
@@ -420,7 +429,6 @@ class TestCppParser():
             'Identified block comments are extracted and replaced by a placeholder\n'
             'in the form B L O C K C O M M E N T 0 0 0 0 0 0 .'
         )
-
         text_block_assert = (
             'This is a text block\n'
             'with multiple lines. Within this text block, there are C++ block comments.\n'
@@ -429,9 +437,10 @@ class TestCppParser():
             'Identified block comments are extracted and replaced by a placeholder\n'
             'in the form B L O C K C O M M E N T 0 0 0 0 0 0 .'
         )
-
         dict.block_content = text_block_in
+        # Execute
         parser._extract_block_comments(dict, comments=True)
+        # Assert
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
         assert text_block_out == text_block_assert
         string_diff(text_block_out, text_block_assert)
@@ -443,6 +452,8 @@ class TestCppParser():
         )
 
     def test_extract_string_literals(self):
+        # sourcery skip: avoid-builtin-shadow
+        # Prepare
         dict = CppDict()
         parser = CppParser()
         text_block_in = (
@@ -459,7 +470,6 @@ class TestCppParser():
             'This is a line with an expression, e.g. \"$varName2 + 4\". Expressions are double quoted strings that contain minimum one $ character (denoting a reference).\n'
             'And here we close our small test with a final line with no string literal at all'
         )
-
         text_block_assert = (
             'This is a text block\n'
             'with multiple lines. Within this text block, there are inline substrings with single quotes.\n'
@@ -474,9 +484,10 @@ class TestCppParser():
             'This is a line with an expression, e.g. \"$varName2 + 4\". Expressions are double quoted strings that contain minimum one $ character (denoting a reference).\n'
             'And here we close our small test with a final line with no string literal at all'
         )
-
         dict.block_content = text_block_in
+        # Execute
         parser._extract_string_literals(dict)
+        # Assert
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
         string_diff(text_block_out, text_block_assert)
         assert text_block_out == text_block_assert
@@ -491,6 +502,8 @@ class TestCppParser():
         assert list(dict.string_literals.values())[5] == 'a string literal6 in double quotes'
 
     def test_extract_expressions(self):
+        # sourcery skip: avoid-builtin-shadow
+        # Prepare
         dict = CppDict()
         parser = CppParser()
         text_block_in = (
@@ -515,7 +528,6 @@ class TestCppParser():
             'in the form E X P R E S S I O N 0 0 0 0 0 0.'
             'The actual evaluation of an expression is not part of _extract_expressions(). The evaluation is done within ().'
         )
-
         text_block_assert = (
             'This is a text block\n'
             'with multiple lines. Within this text block, there are key value pairs where the value\n'
@@ -538,10 +550,11 @@ class TestCppParser():
             'in the form E X P R E S S I O N 0 0 0 0 0 0.'
             'The actual evaluation of an expression is not part of _extract_expressions(). The evaluation is done within ().'
         )
-
         dict.block_content = text_block_in
         parser._extract_string_literals(dict)
+        # Execute
         parser._extract_expressions(dict)
+        # Assert
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
         assert text_block_out == text_block_assert
         string_diff(text_block_out, text_block_assert)
@@ -577,6 +590,8 @@ class TestCppParser():
         assert list(dict.expressions.values())[8]['expression'] == '$varName1[1][2]'
 
     def test_separate_delimiters(self):
+        # sourcery skip: avoid-builtin-shadow
+        # Prepare
         dict = CppDict()
         parser = CppParser()
         text_block_in = (
@@ -623,6 +638,7 @@ class TestCppParser():
             assert len(token) > 0
 
     def test_determine_token_hierarchy(self):
+        # sourcery skip: avoid-builtin-shadow
         # Prepare
         dict = CppDict()
         parser = CppParser()
@@ -909,6 +925,7 @@ class TestCppParser():
         assert dict_out['theDictInAListPitfall']['keyToADict']['keyToAList'][6]['key2'] == 'value2'
 
     def test_insert_string_literals(self):
+        # sourcery skip: avoid-builtin-shadow
         # Prepare
         dict = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict, until_step=10)
@@ -928,7 +945,9 @@ class TestCppParser():
 class TestXmlParser():
 
     def test_default_options(self):
+        # Execute
         parser = XmlParser()
+        # Assert
         assert parser.add_node_numbering is True
         # assert parser.namespaces == {'xs': 'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd'}
         # assert parser.xsd_uri == 'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd'
@@ -937,21 +956,19 @@ class TestXmlParser():
     def test_parse_generic_xml_without_node_numbering(self):
         # Prepare XML string to be parsed
         file_name = Path('test_parser_xml.xml')
-        # Read file content
         str_in = ''
         with open(file_name, 'r') as f:
             str_in = f.read()
-        # Execute
         dict_out = CppDict(file_name)
         parser = XmlParser(add_node_numbering=False)
-        dict_out = parser.parse_string(str_in, dict_out)
-
         content_TAG00_assert = (  # noqa: N806
             'Extensible Markup Language (XML) is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable.\n'
             'Mapping the basic tree model of XML to type systems of programming languages or databases can be difficult, especially when XML is used for exchanging highly structured data between applications, which was not its primary design goal.\n'
             'JSON, YAML, and S-Expressions are frequently proposed as simpler alternatives that focus on representing highly structured data rather than documents, which may contain both highly structured and relatively unstructured content.'
         )
-
+        # Execute
+        dict_out = parser.parse_string(str_in, dict_out)
+        # Assert
         assert dict_out['TAG00']['_content'] == content_TAG00_assert
         assert dict_out['TAG01'] is None
         assert dict_out['TAG02'] is None
@@ -975,22 +992,20 @@ class TestXmlParser():
     def test_parse_generic_xml_with_node_numbering(self):
         # Prepare XML string to be parsed
         file_name = Path('test_parser_xml.xml')
-        # Read file content
         str_in = ''
         with open(file_name, 'r') as f:
             str_in = f.read()
-        # Execute
         dict_out = CppDict(file_name)
         parser = XmlParser(add_node_numbering=True)
-        BorgCounter.reset()
-        dict_out = parser.parse_string(str_in, dict_out)
-
         content_TAG00_assert = (  # noqa: N806
             'Extensible Markup Language (XML) is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable.\n'
             'Mapping the basic tree model of XML to type systems of programming languages or databases can be difficult, especially when XML is used for exchanging highly structured data between applications, which was not its primary design goal.\n'
             'JSON, YAML, and S-Expressions are frequently proposed as simpler alternatives that focus on representing highly structured data rather than documents, which may contain both highly structured and relatively unstructured content.'
         )
-
+        BorgCounter.reset()
+        # Execute
+        dict_out = parser.parse_string(str_in, dict_out)
+        # Assert
         assert dict_out['000000_TAG00']['_content'] == content_TAG00_assert
         assert dict_out['000001_TAG01'] is None
         assert dict_out['000002_TAG02'] is None

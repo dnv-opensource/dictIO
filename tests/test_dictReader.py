@@ -5,9 +5,8 @@ from pathlib import Path, PurePath
 import pytest
 from dictIO.cppDict import CppDict
 from dictIO.dictReader import DictReader
-from dictIO.dictWriter import DictWriter, create_target_file_name
+from dictIO.dictWriter import DictWriter
 from dictIO.parser import CppParser
-from dictIO.utils.path import silent_remove
 
 
 def test_file_not_found_exception():
@@ -18,20 +17,21 @@ def test_file_not_found_exception():
         DictReader.read(source_file)
 
 
-def test_merge_includes():  # sourcery skip: class-extract-method
-                            # Prepare dict until and including _parse_tokenized_dict()
+def test_merge_includes():
+    # sourcery skip: avoid-builtin-shadow, class-extract-method
+    # Prepare dict until and including _parse_tokenized_dict()
     dict = CppDict()
-    SetupHelper.prepare_dict_until(dict_to_prepare=dict)
+    SetupHelper.prepare_dict_until(dict, until_step=-1)
     dict_in = deepcopy(dict.data)
-                            # Preparations done.
-                            # Now start the actual test
+    # Assert dict_in
     assert dict_in['expressions']['reference']['value'][:10] == 'EXPRESSION'
     assert dict_in['expressions']['expression1']['value'][:10] == 'EXPRESSION'
     assert dict_in['expressions']['expression2']['value'][:10] == 'EXPRESSION'
     assert dict_in['expressions']['expression3']['value'][:10] == 'EXPRESSION'
+    # Execute
     DictReader._merge_includes(dict)
     dict_out = dict.data
-                            # check whether test_dictReader_paramDict has been merged
+    # Assert
     assert len(dict_out) == len(dict_in) + 8
     assert dict_out['paramA'] == 3.0
     assert dict_out['paramB'] == 4.0
@@ -43,10 +43,11 @@ def test_merge_includes():  # sourcery skip: class-extract-method
 
 
 def test_resolve_reference():
+    # sourcery skip: avoid-builtin-shadow
     # Prepare dict until and including ()
     dict = CppDict()
-    SetupHelper.prepare_dict_until(dict_to_prepare=dict, until_step=0)
-    # test resolution of non-indexed references
+    SetupHelper.prepare_dict_until(dict, until_step=0)
+    # Assert non-indexed references have been resolved
     assert DictReader._resolve_reference('$paramA', dict) == 3.0
     assert DictReader._resolve_reference('$paramB', dict) == 4.0
     assert DictReader._resolve_reference('$paramC', dict) == 7.0
@@ -81,7 +82,7 @@ def test_resolve_reference():
     assert paramG[1][1] == 2
     assert paramG[1][2] == 'come'
 
-    # test resolution of indexed references
+    # Assert indexed references have been resolved
     assert DictReader._resolve_reference('$paramE[0]', dict) == 0.1
     assert DictReader._resolve_reference('$paramE[1]', dict) == 0.2
     assert DictReader._resolve_reference('$paramE[2]', dict) == 0.4
@@ -99,23 +100,27 @@ def test_resolve_reference():
 
 
 def test_eval_expressions():
+    # sourcery skip: avoid-builtin-shadow
     # Prepare dict until and including ()
     dict = CppDict()
-    SetupHelper.prepare_dict_until(dict_to_prepare=dict, until_step=0)
+    SetupHelper.prepare_dict_until(dict, until_step=0)
     dict_in = deepcopy(dict.data)
-    assert dict_in['expressions']['reference']['value'][:10] == 'EXPRESSION'                # $paramA
-    assert dict_in['expressions']['expression1']['value'][:10] == 'EXPRESSION'              # "$paramB"
-    assert dict_in['expressions']['expression2']['value'][:10] == 'EXPRESSION'              # "$paramC + 4"
-    assert dict_in['expressions']['expression3']['value'][:10] == 'EXPRESSION'              # "$paramC + $paramD"
-    assert dict_in['expressions']['expressionE']['value'][:10] == 'EXPRESSION'              # $paramE[0]
-    assert dict_in['expressions']['expressionF']['value'][:10] == 'EXPRESSION'              # $paramF[0][0]
-    assert dict_in['expressions']['expressionG1']['value'][:10] == 'EXPRESSION'             # "$paramG"
-    assert dict_in['expressions']['expressionG2']['value'][:10] == 'EXPRESSION'             # "$paramG[0]"
-    assert dict_in['expressions']['expressionG3']['value'][:10] == 'EXPRESSION'             # "$paramG[1][2]"
-                                                                                            # Preparations done.
+    # Assert dict_in
+    assert dict_in['expressions']['reference']['value'][:10] == 'EXPRESSION'        # $paramA
+    assert dict_in['expressions']['expression1']['value'][:10] == 'EXPRESSION'      # "$paramB"
+    assert dict_in['expressions']['expression2']['value'][:10] == 'EXPRESSION'      # "$paramC + 4"
+    assert dict_in['expressions']['expression3']['value'][:10] == 'EXPRESSION'      # "$paramC + $paramD"
+    assert dict_in['expressions']['expressionE']['value'][:10] == 'EXPRESSION'      # $paramE[0]
+    assert dict_in['expressions']['expressionF']['value'][:10] == 'EXPRESSION'      # $paramF[0][0]
+    assert dict_in['expressions']['expressionG1']['value'][:10] == 'EXPRESSION'     # "$paramG"
+    assert dict_in['expressions']['expressionG2']['value'][:10] == 'EXPRESSION'     # "$paramG[0]"
+    assert dict_in['expressions']['expressionG3']['value'][:10] == 'EXPRESSION'     # "$paramG[1][2]"
+
+    # Execute
     DictReader._eval_expressions(dict)
     dict_out = dict.data
-                                                                                            # check whether references have been resolved
+
+    # Assert references have been resolved
     assert dict_out['expressions']['reference']['value'] == 3.0                             # 3.0
     assert dict_out['expressions']['expression1']['value'] == 4.0                           # 4.0
     assert dict_out['expressions']['expression2']['value'] == 11.0                          # 7.0 + 4
@@ -130,12 +135,16 @@ def test_eval_expressions():
 
 
 def test_eval_expressions_with_included_keys():
+    # sourcery skip: avoid-builtin-shadow
     # test keys with the same name as included keys
-    file_name = Path('test_dictReader_dict')
-    dict = DictReader.read(file_name, includes=True)
+    # Prepare
+    source_file = Path('test_dictReader_dict')
+
+    # Execute
+    dict = DictReader.read(source_file, includes=True)
     dict_out = dict.data
 
-    # root keys
+    # Assert root keys
     assert dict_out['keyA'] == 3.0                          # $paramA
     assert dict_out['keyB'] == 4.0                          # "$paramB"
     assert dict_out['keyC'] == 7.0                          # "$paramC"
@@ -151,7 +160,7 @@ def test_eval_expressions_with_included_keys():
     assert dict_out['keyM'] == 9.0                          # "3 * $paramA"
     assert dict_out['keyN'] == 7.0                          # "$paramA + $paramB"
 
-    # different key names
+    # Assert different key names
     assert dict_out['differentKeyNames']['keyA'] == 3.0                         # $paramA
     assert dict_out['differentKeyNames']['keyB'] == 4.0                         # "$paramB"
     assert dict_out['differentKeyNames']['keyC'] == 7.0                         # "$paramC"
@@ -167,7 +176,7 @@ def test_eval_expressions_with_included_keys():
     assert dict_out['differentKeyNames']['keyM'] == 9.0                         # "3 * $paramA"
     assert dict_out['differentKeyNames']['keyN'] == 7.0                         # "$paramA + $paramB"
 
-    # same key name as reference name
+    # Assert same key name as reference name
     # Be aware that in the nested dict 'sameKeyNames', paramD becomes reaasigned.
     # This overwrites paramD from included dict due to the flat lookup table provided through dict.variables
     assert dict_out['sameKeyNames']['paramA'] == 3.0                        # $paramA;
@@ -177,7 +186,7 @@ def test_eval_expressions_with_included_keys():
     assert dict_out['sameKeyNames']['paramE'] == 0.2                        # "$paramE[1]";
     assert dict_out['sameKeyNames']['paramF'] == [[0.3, 0.9], [2.7, 8.1]]   # "$paramF";
 
-    # here comes the test for references, what are in a deeper structure of the included dict
+    # Assert references to variables in deeper structure of the included dict
     assert dict_out['keysWithNestedRefs']['nestKeyA'] == 3.0                            # $paramA;
     assert dict_out['keysWithNestedRefs']['nestKeyB'] == 4.0                            # "$paramB";
     assert dict_out['keysWithNestedRefs']['nestKeyC'] == 12.0                           # "$paramA * $paramB";
@@ -200,7 +209,7 @@ def test_eval_expressions_with_included_keys():
     assert dict_out['keysWithNestedRefs']['nestParamL'] == 7.0                          # "$paramE[2] * 10 + $paramA";
     assert dict_out['keysWithNestedRefs']['nestParamM'] == 14.8                         # "$nestParamJ[1][1] + $paramC";
 
-    # keys that do not point to a single expression, but a list of expressions
+    # Assert keys that do not point to a single expression, but a list of expressions
     assert dict_out['keysPointingToAListOfExpressions']['keyToListA'][0] == 3.0     # $paramA;
     assert dict_out['keysPointingToAListOfExpressions']['keyToListA'][1] == 1
     assert dict_out['keysPointingToAListOfExpressions']['keyToListA'][2] == 2
@@ -210,20 +219,23 @@ def test_eval_expressions_with_included_keys():
 
 
 def test_reread_string_literals():
-    # test keys with the same name as imported keys
-    file_name = Path('test_dictReader_dict')
-    dict = DictReader.read(file_name, includes=True)
-    parsed_file_name = create_target_file_name(file_name, 'parsed')
-    silent_remove(parsed_file_name)
-    DictWriter.write(dict, parsed_file_name)
-    assert os.path.exists(parsed_file_name)
-    # Assure that string literals that contain the '$' character are written back and reread with surrounding single quotes.
+    # sourcery skip: avoid-builtin-shadow
+    # Prepare
+    source_file = Path('test_dictReader_dict')
+    parsed_file = Path(f'parsed.{source_file.name}')
+    parsed_file.unlink(missing_ok=True)
+    dict = DictReader.read(source_file, includes=True)
+    DictWriter.write(dict, parsed_file)
+    assert parsed_file.exists()
+    # Execute
+    reread_dict = DictReader.read(parsed_file)
+    # Asset that string literals containing the '$' character are written back and reread with surrounding single quotes.
     # This to avoid that a string literal with single quotes that contains a '$' character gets unintentionally evaluated as expression
     # when rereading a parsed dict.
-    parsed_dict = DictReader.read(Path(parsed_file_name))
-    assert dict.data['differentKeyNames'] == parsed_dict.data['differentKeyNames']
-    assert dict.data['sameKeyNames'] == parsed_dict.data['sameKeyNames']
-    silent_remove(parsed_file_name)
+    assert dict.data['differentKeyNames'] == reread_dict.data['differentKeyNames']
+    assert dict.data['sameKeyNames'] == reread_dict.data['sameKeyNames']
+    # Clean up
+    parsed_file.unlink()
 
 
 # @TODO: To be implemented
@@ -238,35 +250,8 @@ def test_remove_include_keys():
     pass
 
 
-def test_reread_parsed_dict():
-    # Prepare
-    source_file = Path('test_dictReader_dict')
-    parsed_file = Path('parsed.test_dictReader_dict')
-    parsed_file_param_dict = Path('parsed.test_dictReader_Paramdict')
-    parsed_file_wrong = Path('parsed.parsed.test_dictReader_dict')
-    parsed_file_param_dict_wrong = Path('parsed.parsed.test_dictReader_Paramdict')
-    silent_remove(parsed_file)
-    silent_remove(parsed_file_param_dict)
-    silent_remove(parsed_file_wrong)
-    silent_remove(parsed_file_param_dict_wrong)
-
-    dict = DictReader.read(source_file)
-    parsed_file_name = create_target_file_name(source_file, 'parsed')
-    silent_remove(parsed_file_name)
-    DictWriter.write(dict, parsed_file_name)
-    assert parsed_file.exists()
-    assert not parsed_file_param_dict.exists()
-    source_file = parsed_file
-    dict = DictReader.read(source_file)
-    assert parsed_file.exists()
-    assert not parsed_file_param_dict.exists()
-    # no piping parsed prefix anymore: parsed.parsed.test_dictReader_dict
-    assert not os.path.exists('parsed.parsed.test_dictReader_dict')
-    assert not os.path.exists('parsed.parsed.test_dictReader_Paramdict')
-    silent_remove(parsed_file_name)
-
-
 def test_read_foam():
+    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path('test_dictReader_foam')
     # Execute
@@ -277,6 +262,7 @@ def test_read_foam():
 
 
 def test_read_xml():
+    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path('test_dictReader_xml.xml')
     # Execute
@@ -292,45 +278,65 @@ def test_read_xml():
 
 
 def test_read_dict_in_subfolder():
+    # sourcery skip: avoid-builtin-shadow
+    # Prepare
     source_file = Path.cwd() / 'subfolder' / 'test_subfolder_dict'
-    dict_in = DictReader.read(source_file)
-    assert dict_in['valueA'] == 1
-    assert dict_in['valueB'] == 2
+    # Execute
+    dict = DictReader.read(source_file)
+    # Assert
+    assert dict['valueA'] == 1
+    assert dict['valueB'] == 2
 
 
 def test_read_dict_in_subfolder_source_file_given_as_str():
-    source_file_as_path = Path.cwd() / 'subfolder' / 'test_subfolder_dict'
-    source_file_as_str = str(source_file_as_path)
-    dict_in = DictReader.read(source_file_as_str)
-    assert dict_in['valueA'] == 1
-    assert dict_in['valueB'] == 2
+    # sourcery skip: avoid-builtin-shadow
+    # Prepare
+    source_file = Path.cwd().absolute() / 'subfolder' / 'test_subfolder_dict'
+    source_file_as_str = str(source_file)
+    # Execute
+    dict = DictReader.read(source_file_as_str)
+    # Assert
+    assert dict['valueA'] == 1
+    assert dict['valueB'] == 2
 
 
 def test_read_dict_in_subfolder_source_file_given_as_purepath():
-    source_file_as_path = Path.cwd() / 'subfolder' / 'test_subfolder_dict'
-    source_file_as_purepath = PurePath(str(source_file_as_path))
-    dict_in = DictReader.read(source_file_as_purepath)
-    assert dict_in['valueA'] == 1
-    assert dict_in['valueB'] == 2
+    # sourcery skip: avoid-builtin-shadow
+    # Prepare
+    source_file = Path.cwd().absolute() / 'subfolder' / 'test_subfolder_dict'
+    source_file_as_purepath = PurePath(str(source_file))
+    # Execute
+    dict = DictReader.read(source_file_as_purepath)
+    # Assert
+    assert dict['valueA'] == 1
+    assert dict['valueB'] == 2
 
 
 def test_read_dict_in_subfolder_parsed_via_dictparser_cli():
-    file_name = 'subfolder/test_subfolder_dict'
-    silent_remove(Path('subfolder/parsed.test_subfolder_dict'))
-    silent_remove(Path('subfolder/parsed.test_subfolder_dict.foam'))
-    # os.system(f'..\\src\\dictIO\\cli\\dictParser.py --quiet {file_name}')
-    os.system(f' python -m dictIO.cli.dictParser --quiet {file_name}')
-    assert os.path.exists('subfolder/parsed.test_subfolder_dict')
-    assert not os.path.exists('subfolder/parsed.test_subfolder_dict.foam')
-    silent_remove(Path('subfolder/parsed.test_subfolder_dict'))
-    # os.system(f'..\\src\\dictIO\\cli\\dictParser.py --quiet --output=foam {file_name}')
-    os.system(f' python -m dictIO.cli.dictParser --quiet --output=foam {file_name}')
-    assert not os.path.exists('subfolder/parsed.test_subfolder_dict')
-    assert os.path.exists('subfolder/parsed.test_subfolder_dict.foam')
-    silent_remove(Path('subfolder/parsed.test_subfolder_dict.foam'))
+    # Prepare
+    source_file = 'subfolder/test_subfolder_dict'
+    parsed_file = Path('subfolder/parsed.test_subfolder_dict')
+    parsed_file_foam = Path('subfolder/parsed.test_subfolder_dict.foam')
+    parsed_file.unlink(missing_ok=True)
+    parsed_file_foam.unlink(missing_ok=True)
+    # Execute
+    os.system(f'python -m dictIO.cli.dictParser --quiet {source_file}')
+    # Assert
+    assert parsed_file.exists()
+    assert not parsed_file_foam.exists()
+    # Clean up
+    parsed_file.unlink()
+    # Execute
+    os.system(f'python -m dictIO.cli.dictParser --quiet --output=foam {source_file}')
+    # Assert
+    assert not parsed_file.exists()
+    assert parsed_file_foam.exists()
+    # Clean up
+    parsed_file_foam.unlink()
 
 
 def test_read_circular_includes():
+    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path('circular_include/test_base_dict')
     # Execute

@@ -1,51 +1,59 @@
-import os
 from pathlib import Path
 
 from dictIO.dictParser import DictParser
 from dictIO.dictReader import DictReader
-from dictIO.dictWriter import create_target_file_name
-from dictIO.utils.path import silent_remove
 
 
 def test_parse_dict():
-    # sourcery skip: class-extract-method
+    # sourcery skip: avoid-builtin-shadow, class-extract-method
     # Prepare
-    silent_remove(Path('parsed.test_dictParser_paramDict'))
-    silent_remove(Path('parsed.test_dictParser_dict'))
-    silent_remove(Path('parsed.parsed.test_dictParser_paramDict'))
-    silent_remove(Path('parsed.parsed.test_dictParser_dict'))
-    file_name = Path('test_dictParser_dict')
+    source_file = Path('test_dictParser_dict')
+    parsed_dict = Path(f'parsed.{source_file.name}')
+    parsed_param_dict = Path('parsed.test_dictParser_paramDict')    # must NOT exist !
+    parsed_dict.unlink(missing_ok=True)
+    parsed_param_dict.unlink(missing_ok=True)
+
     # Execute
-    dict = DictParser.parse(file_name)
-    # Assert 1
-    assert not os.path.exists('parsed.test_dictParser_paramDict')
-    assert os.path.exists('parsed.test_dictParser_dict')
-    # Reread parsed dict
-    parsed_file_name = create_target_file_name(file_name, 'parsed')
-    dict_reread = DictReader.read(parsed_file_name)
-    # Assert 2
-    assert dict == dict_reread
-    # no piping parsed prefix anymore: parsed.parsed.test_dictParser_dict
-    assert not os.path.exists('parsed.parsed.test_dictParser_dict')
-    assert not os.path.exists('parsed.parsed.test_dictParser_paramDict')
+    DictParser.parse(source_file)
+    # Assert
+    assert parsed_dict.exists()
+    assert not parsed_param_dict.exists()
     # Clean up
-    silent_remove(Path('parsed.parsed.test_dictParser_dict'))
+    parsed_dict.unlink()
+
+
+def test_reread_parsed_dict():
+    # sourcery skip: avoid-builtin-shadow, class-extract-method
+    # Prepare
+    source_file = Path('test_dictParser_dict')
+    parsed_dict = Path(f'parsed.{source_file.name}')
+    parsed_param_dict = Path('parsed.test_dictParser_paramDict')    # must NOT exist !
+    parsed_dict.unlink(missing_ok=True)
+    parsed_param_dict.unlink(missing_ok=True)
+
+    # Execute
+    dict = DictParser.parse(source_file)
+    dict_reread = DictReader.read(parsed_dict)
+    # Assert
+    assert dict == dict_reread
+    # Assert the prefix 'parsed.' does not get piped (i.e. 'parsed.parsed.')
+    assert not Path('parsed.parsed.test_dictParser_dict').exists()
+    assert not Path('parsed.parsed.test_dictParser_paramDict').exists()
+    # Clean up
+    parsed_dict.unlink()
 
 
 def test_parse_dict_foam_format():
     # Prepare
     source_file = Path('test_dictParser_dict')
-    parsed_file = Path('parsed.test_dictParser_dict')
-    parsed_file_foam = Path('parsed.test_dictParser_dict.foam')
-    parsed_file_param_dict = Path('parsed.test_dictParser_paramDict')
-    silent_remove(parsed_file)
-    silent_remove(parsed_file_foam)
-    silent_remove(parsed_file_param_dict)
+    parsed_file = Path(f'parsed.{source_file.name}')
+    parsed_file_foam = Path(f'{parsed_file.name}.foam')
+    parsed_file.unlink(missing_ok=True)
+    parsed_file_foam.unlink(missing_ok=True)
     # Execute
     DictParser.parse(source_file, output='foam')
     # Assert
     assert not parsed_file.exists()
-    assert not parsed_file_param_dict.exists()
     assert parsed_file_foam.exists()
     # Clean up
-    silent_remove(parsed_file_foam)
+    parsed_file_foam.unlink()
