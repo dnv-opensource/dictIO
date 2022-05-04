@@ -2,7 +2,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Any, MutableMapping, MutableSequence, Union
+from typing import Any, MutableMapping, MutableSequence, Tuple, Union
 from xml.etree.ElementTree import Element
 
 # from lxml.etree import register_namespace
@@ -30,7 +30,7 @@ class Parser():
         return
 
     @classmethod
-    def get_parser(cls, source_file: Path = None):
+    def get_parser(cls, source_file: Union[Path, None] = None):
         """Factory method returning a Parser instance matching the source file type to be parsed
 
         Parameters
@@ -60,7 +60,7 @@ class Parser():
     def parse_file(
         self,
         source_file: Union[str, os.PathLike[str]],
-        target_dict: CppDict = None,
+        target_dict: Union[CppDict, None] = None,
         comments: bool = True,
     ) -> CppDict:
         # sourcery skip: inline-immediately-returned-variable
@@ -132,7 +132,7 @@ class Parser():
         target_dict: CppDict,
         comments: bool = True,
     ) -> CppDict:
-        # sourcery skip: inline-immediately-returned-variable
+        # sourcery skip: inline-immediately-returned-variable, lift-return-into-if
         """Parses a string and deserializes it into a CppDict.
 
         Note: Override this method when implementing a specific Parser.
@@ -155,8 +155,8 @@ class Parser():
         # +++VERIFY STRING CONTENT++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         # Check that string is not empty.
-        if (string is None) or (string == ''):
-            logger.warning('Parser.parse_string(): String to parse is empty: %s' % string)
+        if not string:
+            logger.warning(f'Parser.parse_string(): String to parse is empty: {string}')
 
         # Create target dict in case no specific target dict was passed in
         if target_dict is None:
@@ -166,7 +166,10 @@ class Parser():
             target_dict = CppDict()
 
         # Create a local CppDict instance where the stringcontent is temporarily parsed into
-        parsed_dict = CppDict(target_dict.source_file)
+        if target_dict.source_file:
+            parsed_dict = CppDict(target_dict.source_file)
+        else:
+            parsed_dict = target_dict
 
         # +++PARSE DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -219,7 +222,7 @@ class Parser():
 
         # Empty string
         check: str = __class__.remove_quotes_from_string(arg)
-        if check == '':
+        if not check:
             return ''
 
         # Simple placeholder or reserved expressions -> do nothing
@@ -689,8 +692,7 @@ class CppParser(Parser):
 
         # Step 2: Find references in .block_content (single references to key'd entries that are NOT in double quotes).
         search_pattern = r'\$\w[\w\[\]]+'
-        match = re.search(search_pattern, dict.block_content, re.MULTILINE)
-        while match:
+        while match := re.search(search_pattern, dict.block_content, re.MULTILINE):
             reference = match[0]
             index = self.counter()
             placeholder = 'EXPRESSION%06i' % index
@@ -702,8 +704,6 @@ class CppParser(Parser):
                     'index': index, 'expression': reference, 'name': placeholder
                 }}
             )
-            match = re.search(search_pattern, dict.block_content, re.MULTILINE)
-
         return
 
     def _separate_delimiters(self, dict: CppDict, delimiters=None):
@@ -718,8 +718,8 @@ class CppParser(Parser):
         - single spaces
 
         Hence, calling _separate_delimiters() is a preparatory step before
-        decomposing .block_content into a list of tokens with re.split('\s').
-        It ensures that re.split('\s') generates tokens containing one single word each (or a single char delimiter)
+        decomposing .block_content into a list of tokens with re.split('\\s').
+        It ensures that re.split('\\s') generates tokens containing one single word each (or a single char delimiter)
         but not any 'waste' tokens with spaces, tabs or line endings will be deleted.
         """
 
@@ -728,9 +728,7 @@ class CppParser(Parser):
 
         # Insert at least one \s around every char in list
         for char in delimiters:
-            dict.block_content = re.sub(
-                str(r'(\%s)' % char), str(' %s ' % char), dict.block_content
-            )
+            dict.block_content = re.sub(str(r'(\%s)' % char), str(f' {char} '), dict.block_content)
 
         # Substitute all \s+ to \s
         # This turns multiple spaces into one single space.
@@ -810,7 +808,7 @@ class CppParser(Parser):
     def _parse_tokenized_dict(
         self,
         dict: CppDict,
-        tokens: MutableSequence = None,
+        tokens: Union[MutableSequence[Tuple[int, str]], None] = None,
         level: int = 0,
     ) -> dict:
         """Parses a tokenized dict and returns the parsed dict.
@@ -943,17 +941,18 @@ class CppParser(Parser):
                 # Read the name (key) and the value from the key value pair
                 # Parse from right to left, starting at the identified ';'
                 # and then copy the tokens into a temporary key_value_pair_tokens list:
-                key_value_pair_tokens = []
-                key_value_pair_tokens.append(tokens[token_index])                       # ';'
-                key_value_pair_token_level = tokens[token_index][0]
+                key_value_pair_tokens: MutableSequence[Tuple[int,
+                                                             str]] = [tokens[token_index]]  # ';'
+                                                                                            # key_value_pair_tokens.append(tokens[token_index])                       # ';'
+                key_value_pair_token_level: int = tokens[token_index][0]
                 i = 1
                 last_index = None
                 while (
                     token_index - i >= 0
                     and tokens[token_index - i][0] == key_value_pair_token_level
-                    and not tokens[token_index - i][1] in [';', '}']
-                    and not re.match('^.*COMMENT.*$', str(tokens[token_index - i][1]))
-                    and not re.match('^.*INCLUDE.*$', str(tokens[token_index - i][1]))
+                    and tokens[token_index - i][1] not in [';', '}']
+                    and not re.match(r'^.*COMMENT.*$', str(tokens[token_index - i][1]))
+                    and not re.match(r'^.*INCLUDE.*$', str(tokens[token_index - i][1]))
                 ):
                     key_value_pair_tokens.append(tokens[token_index - i])
                     i += 1
@@ -1032,7 +1031,7 @@ class CppParser(Parser):
     def _parse_tokenized_list(
         self,
         dict: CppDict,
-        tokens: MutableSequence = None,
+        tokens: Union[MutableSequence[Tuple[int, str]], None] = None,
         level: int = 0,
     ) -> list:
         """Parses a tokenized list and returns the parsed list.
@@ -1190,11 +1189,9 @@ class CppParser(Parser):
             # Note: As find_global_key() is non-greedy and returns the key of only the first occurance of placeholder it finds,
             # we need to loop until we found and replaced all occurances of placholder in the dict
             # and find_global_key() does not find any more occurances.
-            global_key = dict.find_global_key(query=placeholder)
-            while global_key:
+            while global_key := dict.find_global_key(query=placeholder):
                 # Back insert the string literal
                 dict.set_global_key(global_key, value)
-                global_key = dict.find_global_key(query=placeholder)
         dict.string_literals.clear()
         return
 
@@ -1397,7 +1394,7 @@ class XmlParser(Parser):
         # xmlns remains as {XMLNSCONTENT}ROOTTAG
         # re.sub to fix that temporarily
         # solution needed
-        root_tag = re.sub('\{.*\}', '', root_element.tag) or root_tag
+        root_tag = re.sub(r'\{.*\}', '', root_element.tag) or root_tag
         # Read namespaces from XML string
         namespaces = dict(root_element.nsmap) or namespaces
         # Reformat 'None' keys in namespaces to empty string keys

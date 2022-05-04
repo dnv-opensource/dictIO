@@ -1,3 +1,4 @@
+import contextlib
 import re
 import os
 from copy import deepcopy
@@ -32,8 +33,8 @@ class DictReader():
         includes: bool = True,
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[str] = None,
-        parser: Parser = None,
+        scope: Union[MutableSequence[str], None] = None,
+        parser: Union[Parser, None] = None,
     ) -> CppDict:
         """Reads a dictionary file in dictIO dict file format, as well as JSON and XML.
 
@@ -192,12 +193,10 @@ class DictReader():
             if ref_changed_through_recursion:
                 ref = re.sub(r'(^\$|\[.+$)', '', ref)           # remove leading $ or trailing [
             if indexing:
-                try:
+                with contextlib.suppress(Exception):
                     ret = eval(
-                        'vars[\'%s\']%s' % (ref, indexing)
+                        f"vars['{ref}']{indexing}"
                     )                                           # return the value of the referenced variable (at the specified index, if given)
-                except Exception:
-                    pass
         return ret
 
     @staticmethod
@@ -232,8 +231,9 @@ class DictReader():
                 for ref in refs:
                     if ref in references_resolved:
                         expression = re.sub(
-                            r'%s' % re.escape(ref), str(references_resolved[ref]), expression
+                            f'{re.escape(ref)}', str(references_resolved[ref]), expression
                         )
+
                 eval_successful = False
                 eval_result = None
                 if '$' not in expression:
@@ -248,11 +248,9 @@ class DictReader():
                             'DictReader.(): evaluation of \"%s\" not yet possible' % expression
                         )
                 if eval_successful:
-                    global_key = dict.find_global_key(query=placeholder)
-                    while global_key:
+                    while global_key := dict.find_global_key(query=placeholder):
                         # Substitute the placeholder in the dict with the result of the evaluated expression
                         dict.set_global_key(global_key, value=eval_result)
-                        global_key = dict.find_global_key(query=placeholder)
                     del dict.expressions[key]
                 else:
                     # update the item in dict.expressions with the (at least partly) resolved expression
@@ -280,11 +278,9 @@ class DictReader():
         for key, item in dict.expressions.items():
             placeholder = str(item['name'])
             expression = str(item['expression'])
-            global_key = dict.find_global_key(query=placeholder)
-            while global_key:
+            while global_key := dict.find_global_key(query=placeholder):
                 # Substitute the placeholder with the original (or at least partly resolved) expression
                 dict.set_global_key(global_key, value=expression)
-                global_key = dict.find_global_key(query=placeholder)
         dict.expressions.clear()
 
         return
@@ -298,15 +294,12 @@ class DictReader():
 
         temp_dict = deepcopy(data)
 
-        try:
+        with contextlib.suppress(Exception):
             for key in temp_dict.keys():
                 if isinstance(data[key], MutableMapping):
                     data.update({key: __class__._remove_comment_keys(data[key])})   # recursion
                 elif not re.search(remove, key):
                     data.update({key: temp_dict[key]})
-        except Exception:
-            pass
-
         return
 
     @staticmethod
@@ -318,11 +311,8 @@ class DictReader():
 
         temp_dict = deepcopy(data)
 
-        try:
+        with contextlib.suppress(Exception):
             for key in temp_dict.keys():
                 if re.search(remove, key):
                     data.pop(key)
-        except Exception:
-            pass
-
         return

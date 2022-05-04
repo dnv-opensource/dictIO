@@ -24,10 +24,10 @@ class DictWriter():
     @staticmethod
     def write(
         source_dict: Union[MutableMapping, CppDict],
-        target_file: Union[str, os.PathLike[str]] = None,
+        target_file: Union[str, os.PathLike[str], None] = None,
         mode: str = 'a',
         order: bool = False,
-        formatter: Formatter = None,
+        formatter: Union[Formatter, None] = None,
     ):
         """Writes a dictionary file in dictIO dict file format, as well as JSON, XML and OpenFoam.
 
@@ -46,13 +46,13 @@ class DictWriter():
         ----------
         source_dict : Union[MutableMapping, CppDict]
             source dict file
-        target_file : Union[str, os.PathLike[str]], optional
+        target_file : Union[str, os.PathLike[str], None], optional
             target dict file name, by default None
         mode : str, optional
             append to target file ('a') or overwrite target file ('w'), by default 'a'
         order : bool, optional
             if True, the dict will be sorted before writing, by default False
-        formatter : Formatter, optional
+        formatter : Union[Formatter, None], optional
             formatter to be used, by default None
         """
 
@@ -120,21 +120,21 @@ class DictWriter():
 
 def create_target_file_name(
     source_file: Union[str, os.PathLike[str]],
-    prefix: str = None,
-    scope: MutableSequence[str] = None,
-    format: str = None,
-) -> Path:
+    prefix: Union[str, None] = None,
+    scope: Union[MutableSequence[str], None] = None,
+    format: Union[str, None] = None,
+) -> Path:  # sourcery skip: avoid-builtin-shadow
     """Helper function to create a well defined target file name.
 
     Parameters
     ----------
     source_file : Union[str, os.PathLike[str]]
         source dict file
-    prefix : str, optional
+    prefix : Union[str, None], optional
         prefix to be used, by default None
-    scope : MutableSequence[str], optional
+    scope : Union[MutableSequence[str], None], optional
         scope to be reflected in the target file name, by default None
-    format : str, optional
+    format : Union[str, None], optional
         format of the target dict file. Choices are 'cpp', 'foam', 'xml' and 'json', by default None
 
     Returns
@@ -166,15 +166,15 @@ def create_target_file_name(
     # Prepend prefix, but make sure it is contained in the final filename max once.
     if prefix:
         prefix = prefix.removesuffix('.')   # remove trailing '.', if existing
-        prefix = prefix + '.'
-        file_name = prefix + re.sub(r'^' + prefix, '', file_name)
+        prefix = f'{prefix}.'
+        file_name = prefix + re.sub(f'^{prefix}', '', file_name)
 
     # If an output format is specified: Set file ending to match the output format
     if format:
         # limit to formats that are supported by DictWriter
         if format not in ['', 'cpp', 'foam', 'json', 'xml']:
             format = 'cpp'
-        file_ending = '' if format == 'cpp' else '.' + format
+        file_ending = '' if format == 'cpp' else f'.{format}'
 
     # Add file ending again
     file_name += file_ending

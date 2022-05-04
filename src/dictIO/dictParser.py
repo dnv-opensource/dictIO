@@ -27,8 +27,8 @@ class DictParser():
         mode: str = 'w',
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[str] = None,
-        output: str = None,
+        scope: Union[MutableSequence[str], None] = None,
+        output: Union[str, None] = None,
     ) -> Union[CppDict, None]:
         """Parses a dictionary file and saves it with prefix 'parsed.'
 

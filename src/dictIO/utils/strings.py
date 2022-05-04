@@ -9,15 +9,15 @@ logger = logging.getLogger(__name__)
 
 
 def remove_quotes(string):
-        '''
-        Removes quotes (single or double quotes) from the string object passed in.
-        Not only leading and trailing quotes are removed; also any quotes inside a string, if so, are removed.
-        '''
-        # search_pattern = re.compile(r'(^[\'\\"]{1}|[\'\\"]{1}$)')  #Removes only leading and trailing quotes. Quotes inside a string are kept.
-        search_pattern = re.compile(r'[\'\"]')  # Removes ALL quotes in a string. Meaning, not only leading and trailing quotes, but also quotes inside a string are removed.
-        # Remove quotes and return
-        string = re.sub(search_pattern, '', string)
-        return string
+    '''
+    Removes quotes (single or double quotes) from the string object passed in.
+    Not only leading and trailing quotes are removed; also any quotes inside a string, if so, are removed.
+    '''
+    # search_pattern = re.compile(r'(^[\'\\"]{1}|[\'\\"]{1}$)')  #Removes only leading and trailing quotes. Quotes inside a string are kept.
+    search_pattern = re.compile(r'[\'\"]')  # Removes ALL quotes in a string. Meaning, not only leading and trailing quotes, but also quotes inside a string are removed.
+    # Remove quotes and return
+    string = re.sub(search_pattern, '', string)
+    return string
 
 
 def string_diff(line_1, line_2):
@@ -34,4 +34,6 @@ def string_diff(line_1, line_2):
             diffs.append((item))
 
     line_length = len(diffs)
-    print('There %s %s difference%s between text 1 and text 2.' % (('is' if line_length == 1 else 'are'), ('no' if line_length == 0 else str(line_length)), ('' if line_length == 1 else 's')))
+    print(
+        f"There {'is' if line_length == 1 else 'are'} {'no' if line_length == 0 else str(line_length)} difference{'' if line_length == 1 else 's'} between text 1 and text 2."
+    )

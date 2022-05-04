@@ -1,6 +1,7 @@
 import logging
 import sys
 from pathlib import Path
+from typing import Union
 
 __all__ = ['configure_logging']
 
@@ -9,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def configure_logging(
     log_level_console: str = 'WARNING',
-    log_file: Path = None,
+    log_file: Union[Path, None] = None,
     log_level_file: str = 'WARNING',
 ):                                          # sourcery skip: extract-duplicate-method
 
@@ -19,7 +20,7 @@ def configure_logging(
 
     log_level_file_numeric = getattr(logging, log_level_file.upper(), None)
     if not isinstance(log_level_file_numeric, int):
-        raise ValueError('Invalid log level to file: %s' % log_level_file_numeric)
+        raise ValueError(f'Invalid log level to file: {log_level_file_numeric}')
 
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)

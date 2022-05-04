@@ -3,7 +3,7 @@ import logging
 import re
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, MutableMapping, MutableSequence, Union
+from typing import Any, MutableMapping, MutableSequence, Type, Union
 from xml.dom import minidom
 # from lxml.etree import register_namespace
 from xml.etree.ElementTree import (Element, SubElement, register_namespace, tostring)
@@ -27,7 +27,7 @@ class Formatter():
         self.counter = BorgCounter()
 
     @classmethod
-    def get_formatter(cls, target_file: Path = None):
+    def get_formatter(cls, target_file: Union[Path, None] = None):
         """Factory method returning a Formatter instance matching the target file type to be formatted
 
         Parameters
@@ -202,7 +202,7 @@ class Formatter():
                 return self.format_reference_string(arg)
             else:                                   # expression
                 return self.format_expression_string(arg)
-        elif arg == '':                             # empty string
+        elif not arg:                               # empty string
             return self.format_empty_string(arg)
         elif re.search(r'[\s:/\\]', arg):           # contains spaces or path -> complex string
             return self.format_multi_word_string(arg)
@@ -349,7 +349,7 @@ class CppFormatter(Formatter):
     def to_string(
         self,
         dict: Union[MutableMapping, CppDict],
-    ) -> str:
+    ) -> str:                                   # sourcery skip: avoid-builtin-shadow
         """Creates a string representation of the passed in dict in dictIO dict file format.
 
         Parameters
@@ -418,7 +418,7 @@ class CppFormatter(Formatter):
         sep: str = ' ',
         items_per_line: int = 10,
         end: str = '\n',
-        ancestry=MutableMapping,
+        ancestry: Union[Type[MutableMapping], Type[MutableSequence]] = MutableMapping,
     ) -> str:
         """Formats a dict or list object.
         """
@@ -483,16 +483,16 @@ class CppFormatter(Formatter):
 
                     if last_item_on_this_line:
                         # Add a line ending
-                        s += self.format_dict(value, level=item_level, end='\n')        # (recursion)
-                        last_item_on_this_line = False                                  # (effective with next item)
-                        first_item_on_this_line = True                                  # (effective with next item)
+                        s += self.format_dict(value, level=item_level, end='\n')    # (recursion)
+                        last_item_on_this_line = False                              # (effective with next item)
+                        first_item_on_this_line = True                              # (effective with next item)
                     else:
-                                                                                        # Do not add a line ending. Instead, add an adjusted number of spaces after the item to make indentation look pretty.
+                                                                                    # Do not add a line ending. Instead, add an adjusted number of spaces after the item to make indentation look pretty.
                         s += self.format_dict(
-                            '%s%s' % (value, sep * max(0, (14 - len(str(value))))),
+                            f'{value}{sep * max(0, (14 - len(str(value))))}',
                             level=item_level,
                             end=''
-                        )                                                               # (recursion)
+                        )                                                           # (recursion)
 
             # Closing bracket
             # if list (array) is complete, add semicolon
@@ -529,8 +529,7 @@ class CppFormatter(Formatter):
                 else:
                     value = self.format_type(arg[key])
                     s += self.format_dict(
-                        '%s%s%s;' %
-                        (key, sep * max(8, (total_indent - len(key) - tab_len * level)), value),
+                        f'{key}{sep * max(8, (total_indent - len(key) - tab_len * level))}{value};',
                         level=level
                     )
 
@@ -539,7 +538,7 @@ class CppFormatter(Formatter):
         # dict -> key value pair    or from     list -> single value.
         # arg will hence either be a single item from a list, or a key value pair from a dict.
         else:
-            string = '%s%s' % (indent, arg) + end
+            string = f'{indent}{arg}{end}'
             s += string
 
         return s
@@ -654,9 +653,8 @@ class CppFormatter(Formatter):
         stream.seek(0)
         ns = str()
         for line in stream.readlines():
-            match = re.search('[\r\n]*$', line)
-            if match:
-                line_ending = match.group(0)
+            if match := re.search('[\r\n]*$', line):
+                line_ending = match[0]
                 line_without_ending = line[:len(line) - len(line_ending)]
                 line_without_trailingspaces = re.sub(
                     r'\s+$', '', line_without_ending
@@ -811,7 +809,8 @@ class JsonFormatter(Formatter):
         for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
             # Search for the placeholder key in the Json string,
             # and insert back the original include directive.
-            include_file_name = include_file_name.replace('\\', '/')
+            # include_file_name = include_file_name.replace('\\', '/')
+            include_file_name = include_file_name.replace('\\', '\\\\\\\\')
             include_directive = f'"#include{key:06d}":"{include_file_name}"'
             search_pattern = r'"INCLUDE%06i"\s*:\s*"INCLUDE%06i"' % (key, key)
             s = re.sub(search_pattern, include_directive, s)
@@ -946,7 +945,7 @@ class XmlFormatter(Formatter):
                                          method='xml')).toprettyxml(indent=indent)
         if self.omit_prefix:
             # objectify.deannotate(root, cleanup_namespaces=True)
-            query = '(%s)' % ('|'.join('%s:' % s for s in prefixes))
+            query = f"({'|'.join(f'{s}:' for s in prefixes)})"
             s = re.sub(query, '', s)
 
         return s
@@ -955,7 +954,7 @@ class XmlFormatter(Formatter):
         self,
         element: Element,
         arg: Union[MutableMapping, MutableSequence, Any],
-        xsd_uri: str = None,
+        xsd_uri: Union[str, None] = None,
     ):
         """Populates arg into the XML element node.
 
@@ -971,7 +970,7 @@ class XmlFormatter(Formatter):
         xsd_uri : str, optional
             xsd uri, by default None
         """
-        # sourcery skip: remove-pass-body, remove-pass-elif, remove-redundant-pass
+        # sourcery skip: merge-duplicate-blocks, remove-pass-body, remove-pass-elif, remove-redundant-pass
 
         # @TODO: LINECOMMENTs not handled yet
 

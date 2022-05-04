@@ -1,8 +1,9 @@
+import contextlib
 import re
 import os
 from collections import UserDict
 from pathlib import Path
-from typing import (Any, Mapping, MutableMapping, MutableSequence, Sequence, TypeVar, Union)
+from typing import (Any, Mapping, MutableMapping, MutableSequence, TypeVar, Union)
 import logging
 
 
@@ -21,7 +22,7 @@ class CppDict(UserDict):
     where a dict or any other MutableMapping type is expected.
     """
 
-    def __init__(self, file: Union[str, os.PathLike[str]] = None):
+    def __init__(self, file: Union[str, os.PathLike[str], None] = None):
         super().__init__()  # call base class constructor
 
         self.source_file = None
@@ -132,10 +133,7 @@ class CppDict(UserDict):
         return f'CppDict({self.source_file!r})'
 
     def __eq__(self, other):
-        if isinstance(other, CppDict):
-            return str(self) == str(other)
-        else:
-            return False
+        return str(self) == str(other) if isinstance(other, CppDict) else False
 
     def order_keys(self):
         """alpha-numeric sorting of keys, recursively
@@ -272,7 +270,8 @@ class CppDict(UserDict):
 
         return variables
 
-    def _clean(self, dict: MutableMapping = None):
+    def _clean(self, dict: Union[MutableMapping, None] = None):
+        # sourcery skip: avoid-builtin-shadow
         '''
         Finds and removes doublettes of following PLACEHOLDER keys within self.data
         - BLOCKCOMMENT
@@ -300,7 +299,7 @@ class CppDict(UserDict):
 
         unique_block_comments_on_this_level = []                    # BLOCKCOMMENTs
         for key in block_comments_on_this_level:
-            try:
+            with contextlib.suppress(Exception):
                 id = int(re.findall(r'\d{6}', key)[0])
                 value = str(self.block_comments[id])
                 if value in unique_block_comments_on_this_level:    # Found doublette
@@ -308,11 +307,9 @@ class CppDict(UserDict):
                     del self.block_comments[id]                     # ..AND from self.block_comments (the lookup table)
                 else:                                               # Unique
                     unique_block_comments_on_this_level.append(value)
-            except Exception:
-                pass
         unique_includes_on_this_level = []                          # INCLUDEs
         for key in includes_on_this_level:
-            try:
+            with contextlib.suppress(Exception):
                 id = int(re.findall(r'\d{6}', key)[0])
                 value = self.includes[id]
                 if value in unique_includes_on_this_level:          # Found doublette
@@ -320,11 +317,9 @@ class CppDict(UserDict):
                     del self.includes[id]                           # ..AND from self.includes (the lookup table)
                 else:                                               # Unique
                     unique_includes_on_this_level.append(value)
-            except Exception:
-                pass
         unique_line_comments_on_this_level = []                     # LINECOMMENTs
         for key in line_comments_on_this_level:
-            try:
+            with contextlib.suppress(Exception):
                 id = int(re.findall(r'\d{6}', key)[0])
                 value = self.line_comments[id]
                 if value in unique_line_comments_on_this_level:     # Found doublette
@@ -332,13 +327,10 @@ class CppDict(UserDict):
                     del self.line_comments[id]                      # ..AND from self.line_comments (the lookup table)
                 else:                                               # Unique
                     unique_line_comments_on_this_level.append(value)
-            except Exception:
-                pass
-
-        # RECURSION for nested levels
+                                                                    # RECURSION for nested levels
         for key in dict.keys():
             if isinstance(dict[key], MutableMapping):
-                self._clean(dict[key])  # Recursion
+                self._clean(dict[key])                              # Recursion
 
         return
 
@@ -356,11 +348,13 @@ def order_keys(arg: MutableMapping[_KT, _VT]) -> MutableMapping[_KT, _VT]:
     MutableMapping[_KT, _VT]
         passed in dict with keys sorted
     """
-    if isinstance(arg, dict):
-        sorted_dict = dict(sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0])))
+    if isinstance(arg, MutableMapping):
+        sorted_dict: MutableMapping[_KT, _VT] = dict(
+            sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0]))
+        )
         for key, value in sorted_dict.items():
             if isinstance(value, dict):
-                sorted_dict[key] = order_keys(sorted_dict[key])
+                sorted_dict[key] = order_keys(sorted_dict[key])                                                                # type: ignore
         return sorted_dict
     else:
         logger.warning(
@@ -386,22 +380,20 @@ def find_global_key(arg: Union[MutableMapping, MutableSequence],
         global key thread to the first key the value of which matches the passed in query, if found. Otherwise None.
     """
     global_key = []
-    if isinstance(arg, MutableMapping):                                         # dict
+    if isinstance(arg, MutableMapping):     # dict
         for key, _ in sorted(arg.items()):
             if isinstance(arg[key], (MutableMapping, MutableSequence)):
-                next_level_key = find_global_key(arg=arg[key], query=query)     # Recursion
-                if next_level_key:
+                if next_level_key := find_global_key(arg=arg[key], query=query):
                     global_key.append(key)
                     global_key.extend(next_level_key)
                     break
             elif re.search(query, str(arg[key])):
                 global_key.append(key)
                 break
-    elif isinstance(arg, MutableSequence):                                      # list
+    elif isinstance(arg, MutableSequence):  # list
         for index, _ in enumerate(arg):
             if isinstance(arg[index], (MutableMapping, MutableSequence)):
-                next_level_key = find_global_key(arg=arg[index], query=query)   # Recursion
-                if next_level_key:
+                if next_level_key := find_global_key(arg=arg[index], query=query):
                     global_key.append(index)
                     global_key.extend(next_level_key)
                     break
@@ -504,8 +496,7 @@ def _merge_dicts(target_dict: MutableMapping, dict_to_merge: MutableMapping, ove
 def _insert_expression(value: str, dict: CppDict) -> str:
     if isinstance(value, str) and isinstance(dict,
                                              CppDict) and re.search(r'EXPRESSION\d{6}', value):
-        match_index = re.search(r'\d{6}', value)
-        if match_index:
+        if match_index := re.search(r'\d{6}', value):
             index = int(match_index[0])
             value = dict.expressions[index]['expression'] if index in dict.expressions else value
     return value

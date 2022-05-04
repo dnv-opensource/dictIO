@@ -7,7 +7,6 @@ import re
 from pathlib import Path
 from typing import MutableSequence, Union
 
-from dictIO.cppDict import CppDict
 from dictIO.dictParser import DictParser
 from dictIO.utils.logging import configure_logging
 
@@ -195,6 +194,7 @@ def main():
 
 
 def _validate_scope(scope: Union[str, MutableSequence[str]]) -> Union[MutableSequence[str], None]:
+    # sourcery skip: replace-interpolation-with-fstring
     validated_scope = None
     if isinstance(scope, MutableSequence):                      # Is 'scope' a list ?
         validated_scope = scope                                 # ..great, then no conversion needed
