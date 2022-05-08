@@ -14,7 +14,7 @@ Further, dictIO
 
 ## Installation
 ```sh
-pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ dictIO
+pip install dictIO
 ```
 
 ## Usage Example
