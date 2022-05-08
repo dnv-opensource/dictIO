@@ -114,6 +114,6 @@ Distributed under the MIT license. See [LICENSE](LICENSE.md) for more informatio
 For your contribution, please make sure you follow the [STYLEGUIDE](STYLEGUIDE.md) before creating the Pull Request.
 
 <!-- Markdown link & img dfn's -->
-[dictIO_docs]: https://turbo-adventure-f218cdea.pages.github.io
-[ospx_docs]: https://literate-guacamole-9daa57bc.pages.github.io
-[farn_docs]: https://crispy-tribble-285142b5.pages.github.io
+[dictIO_docs]: https://dnv-opensource.github.io/dictIO/
+[ospx_docs]: https://dnv-opensource.github.io/ospx/
+[farn_docs]: https://dnv-opensource.github.io/farn/
