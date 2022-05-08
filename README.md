@@ -86,8 +86,8 @@ pip install -r requirements.txt
 
 ## Release History
 
-* 0.1.0
-    * First release
+* 0.0.21
+    * Pre-release
 
 ## Meta
 
