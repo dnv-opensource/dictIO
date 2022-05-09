@@ -61,7 +61,7 @@ _For a detailed documentation of the dict file format used by dictIO, see [File 
 2. git clone the dictIO repository into your local development directory:
 
 ~~~sh
-git clone git://github.com/dnv-opensource/dictIO.git path/to/your/dev/dictIO
+git clone https://github.com/dnv-opensource/dictIO path/to/your/dev/dictIO
 ~~~
 
 3. In the dictIO root folder:
