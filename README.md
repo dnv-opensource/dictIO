@@ -97,7 +97,7 @@ _For a detailed documentation of the dict file format used by dictIO, see [File 
 
 ## Release History
 
-* 0.0.21
+* 0.0.22
     * Pre-release
 
 ## Meta
