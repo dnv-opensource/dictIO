@@ -58,30 +58,41 @@ _For a detailed documentation of the dict file format used by dictIO, see [File 
 
 1. Install [Python 3.10](https://www.python.org/downloads/release/python-3102/)
 
-2. git clone the dictIO repository into your local development directory:
+2. Update pip and setuptools:
 
-~~~sh
-git clone https://github.com/dnv-opensource/dictIO path/to/your/dev/dictIO
-~~~
+    ~~~sh
+    $ python -m pip install --upgrade pip setuptools
+    ~~~
 
-3. In the dictIO root folder:
+3. git clone the dictIO repository into your local development directory:
 
-Create a Python virtual environment:
-~~~sh
-python -m venv .venv
-~~~
-Activate the virtual environment:
-~~~sh
-.venv\Scripts\activate
-~~~
-Update pip and setuptools:
-~~~sh
-python -m pip install --upgrade pip setuptools
-~~~
-Install dictIO's dependencies:
-~~~sh
-pip install -r requirements.txt
-~~~
+    ~~~sh
+    git clone https://github.com/dnv-opensource/dictIO path/to/your/dev/dictIO
+    ~~~
+
+4. In the dictIO root folder:
+
+    Create a Python virtual environment:
+    ~~~sh
+    $ python -m venv .venv
+    ~~~
+    Activate the virtual environment: <br>
+    ..on Windows:
+    ~~~sh
+    > .venv\Scripts\activate.bat
+    ~~~
+    ..on Linux:
+    ~~~sh
+    $ source .venv/bin/activate
+    ~~~
+    Update pip and setuptools:
+    ~~~sh
+    $ python -m pip install --upgrade pip setuptools
+    ~~~
+    Install dictIO's dependencies:
+    ~~~sh
+    $ pip install -r requirements.txt
+    ~~~
 
 
 ## Release History
