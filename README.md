@@ -56,7 +56,7 @@ _For a detailed documentation of the dict file format used by dictIO, see [File 
 
 ## Development Setup
 
-1. Install [Python 3.10](https://www.python.org/downloads/release/python-3102/)
+1. Install Python 3.9 or higher, i.e. [Python 3.9](https://www.python.org/downloads/release/python-3912/) or [Python 3.10](https://www.python.org/downloads/release/python-3104/)
 
 2. Update pip and setuptools:
 
@@ -117,9 +117,9 @@ Distributed under the MIT license. See [LICENSE](LICENSE.md) for more informatio
 ## Contributing
 
 1. Fork it (<https://github.com/dnv-opensource/dictIO/fork>)
-2. Create your branch (`git checkout -b fooBar`)
-3. Commit your changes (`git commit -am 'Add some fooBar'`)
-4. Push to the branch (`git push origin fooBar`)
+2. Create your branch (`git checkout -b myBranchName`)
+3. Commit your changes (`git commit -am 'place your commit message here'`)
+4. Push to the branch (`git push origin myBranchName`)
 5. Create a new Pull Request
 
 For your contribution, please make sure you follow the [STYLEGUIDE](STYLEGUIDE.md) before creating the Pull Request.
