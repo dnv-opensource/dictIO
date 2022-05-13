@@ -352,14 +352,14 @@ def test_read_circular_includes():
 def test_read_circular_includes_log_warning(caplog):
     # Prepare
     source_file = Path('circular_include/test_base_dict')
-    log_level_assert = 'WARNING'
-    log_message_assert = 'Recursive include detected. Merging of test_ref1_dict->test_ref2_dict->test_base_dict->test_ref1_dict into test_base_dict aborted.'
+    log_level_expected = 'WARNING'
+    log_message_expected = 'Recursive include detected. Merging of test_ref1_dict->test_ref2_dict->test_base_dict->test_ref1_dict into test_base_dict aborted.'
     # Execute
     DictReader.read(source_file)
     # Assert
     assert len(caplog.records) == 1
-    assert caplog.records[0].levelname == log_level_assert
-    assert caplog.records[0].message == log_message_assert
+    assert caplog.records[0].levelname == log_level_expected
+    assert caplog.records[0].message == log_message_expected
 
 
 class SetupHelper():

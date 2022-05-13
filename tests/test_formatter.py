@@ -39,11 +39,11 @@ class TestCppFormatter():
     def test_format_type_string_no_additional_quotes_expected(self, str_in: str):
         # Prepare
         formatter = CppFormatter()
-        str_assert = str_in
+        str_expected = str_in
         # Execute
         str_out = formatter.format_type(str_in)
         # Assert
-        assert str_out == str_assert
+        assert str_out == str_expected
 
     @pytest.mark.parametrize(
         "str_in",
@@ -57,11 +57,11 @@ class TestCppFormatter():
     def test_format_type_string_additional_single_quotes_expected(self, str_in: str):
         # Prepare
         formatter = CppFormatter()
-        str_assert = f"'{str_in}'"
+        str_expected = f"'{str_in}'"
         # Execute
         str_out = formatter.format_type(str_in)
         # Assert
-        assert str_out == str_assert
+        assert str_out == str_expected
 
     @pytest.mark.parametrize(
         "str_in",
@@ -74,11 +74,11 @@ class TestCppFormatter():
     def test_format_type_string_additional_double_quotes_expected(self, str_in: str):
         # Prepare
         formatter = CppFormatter()
-        str_assert = f'"{str_in}"'
+        str_expected = f'"{str_in}"'
         # Execute
         str_out = formatter.format_type(str_in)
         # Assert
-        assert str_out == str_assert
+        assert str_out == str_expected
 
     def test_insert_block_comments(self):
         # sourcery skip: class-extract-method
@@ -122,28 +122,28 @@ class TestCppFormatter():
         # Prepare
         dict.block_comments = {101: as_is_block_comment}
         str_in = placeholder1 + '\n' + str_in_template
-        str_assert = str_in.replace(placeholder1, as_is_block_comment)
+        str_expected = str_in.replace(placeholder1, as_is_block_comment)
         # Execute
         str_out = formatter.insert_block_comments(dict, str_in)
         # Assert
-        assert str_out == str_assert
+        assert str_out == str_expected
 
         # FALLBACK CASE: The dictionary contains 0 (NO) BLOCK COMMENT
         # Prepare
         dict.block_comments = {}
         str_in = str_in_template
-        str_assert = default_block_comment + '\n' + str_in
+        str_expected = default_block_comment + '\n' + str_in
         # Execute
         str_out = formatter.insert_block_comments(dict, str_in)
         # Assert
-        assert str_out == str_assert
+        assert str_out == str_expected
         # Execute a second time:
         #   Does it still work when we call insert_block_comments() the second time?
         #   Will the default block comment then still be inserted?
         str_in = str_in_template
         str_out = formatter.insert_block_comments(dict, str_in)
         # Assert
-        assert str_out == str_assert
+        assert str_out == str_expected
 
         # NON-STANDARD CASE 1: The dictionary contains 3 (THREE) BLOCK COMMENTS, ALL IDENTICAL
         # Prepare
@@ -153,7 +153,7 @@ class TestCppFormatter():
             103: as_is_block_comment,
         }
         str_in = placeholder1 + '\n' + placeholder2 + '\n' + placeholder3 + '\n' + str_in_template
-        str_assert = (
+        str_expected = (
             str_in.replace(placeholder1,
                            as_is_block_comment).replace(placeholder2,
                                                         '').replace(placeholder3, '')
@@ -161,7 +161,7 @@ class TestCppFormatter():
         # Execute
         str_out = formatter.insert_block_comments(dict, str_in)
         # Assert
-        assert str_out == str_assert
+        assert str_out == str_expected
 
         # NON-STANDARD CASE 2: The dictionary contains 3 (THREE) BLOCK COMMENTS, NON IDENTICAL
         # Prepare
@@ -171,7 +171,7 @@ class TestCppFormatter():
             103: as_is_block_comment,
         }
         str_in = placeholder1 + '\n' + placeholder2 + '\n' + placeholder3 + '\n' + str_in_template
-        str_assert = (
+        str_expected = (
             str_in.replace(placeholder1,
                            as_is_block_comment).replace(placeholder2, default_block_comment
                                                         ).replace(placeholder3, '')
@@ -179,7 +179,7 @@ class TestCppFormatter():
         # Execute
         str_out = formatter.insert_block_comments(dict, str_in)
         # Assert
-        assert str_out == str_assert
+        assert str_out == str_expected
 
         # NON-STANDARD CASE 3: The dictionary contains 1 (ONE) BLOCK COMMENT, BUT IT DOES NOT CONTAIN ' C++ '
         # Prepare
@@ -187,13 +187,13 @@ class TestCppFormatter():
         dict.block_comments = {}
         dict.block_comments[101] = block_comment_tampered
         str_in = placeholder1 + '\n' + str_in_template
-        str_assert = str_in.replace(
+        str_expected = str_in.replace(
             placeholder1, default_block_comment + '\n' + block_comment_tampered
         )
         # Execute
         str_out = formatter.insert_block_comments(dict, str_in)
         # Assert
-        assert str_out == str_assert
+        assert str_out == str_expected
 
     def test_insert_includes(self):
         # sourcery skip: avoid-builtin-shadow
@@ -206,12 +206,12 @@ class TestCppFormatter():
         blockcomment_placeholder = 'BLOCKCOMMENT000101            BLOCKCOMMENT000101;'
         include_placeholder = 'INCLUDE000102            INCLUDE000102;'
         str_in = blockcomment_placeholder + '\n' + include_placeholder + '\n'
-        str_assert = str_in.replace(include_placeholder, include_directive_in.replace('"', '\''))
+        str_expected = str_in.replace(include_placeholder, include_directive_in.replace('"', '\''))
         formatter = CppFormatter()
         # Execute
         str_out = formatter.insert_includes(dict, str_in)
         # Assert
-        assert str_out == str_assert
+        assert str_out == str_expected
 
     def test_insert_line_comments(self):
         # sourcery skip: avoid-builtin-shadow
@@ -226,29 +226,29 @@ class TestCppFormatter():
         placeholder2 = 'INCLUDE000102            INCLUDE000102;'
         placeholder3 = 'LINECOMMENT000103            LINECOMMENT000103;'
         str_in = placeholder1 + '\n' + placeholder2 + '\n' + placeholder3 + '\n' + str_in_template
-        str_assert = str_in.replace(placeholder3, line_comment_in)
+        str_expected = str_in.replace(placeholder3, line_comment_in)
         # Execute
         str_out = formatter.insert_line_comments(dict, str_in)
         # Assert
-        assert str_out == str_assert
+        assert str_out == str_expected
 
     def test_remove_trailing_spaces(self):
         # Prepare
         # Construct 7 test strings, each having a different number of leading and trailing spaces
         str_in_1 = 'a string with one trailing space '
-        str_assert_1 = 'a string with one trailing space'
+        str_expected_1 = 'a string with one trailing space'
         str_in_2 = 'a string with five trailing spaces     '
-        str_assert_2 = 'a string with five trailing spaces'
+        str_expected_2 = 'a string with five trailing spaces'
         str_in_3 = ' a string with one leading space'
-        str_assert_3 = ' a string with one leading space'
+        str_expected_3 = ' a string with one leading space'
         str_in_4 = '     a string with five leading spaces'
-        str_assert_4 = '     a string with five leading spaces'
+        str_expected_4 = '     a string with five leading spaces'
         str_in_5 = ' a string with one leading and one trailing space '
-        str_assert_5 = ' a string with one leading and one trailing space'
+        str_expected_5 = ' a string with one leading and one trailing space'
         str_in_6 = '     a string with five leading and five trailing spaces     '
-        str_assert_6 = '     a string with five leading and five trailing spaces'
+        str_expected_6 = '     a string with five leading and five trailing spaces'
         str_in_7 = 'a string with no leading or trailing spaces'
-        str_assert_7 = 'a string with no leading or trailing spaces'
+        str_expected_7 = 'a string with no leading or trailing spaces'
 
         multi_line_str_in = str()
         multi_line_str_in += str_in_1 + '\n'
@@ -259,33 +259,33 @@ class TestCppFormatter():
         multi_line_str_in += str_in_6 + '\n'
         multi_line_str_in += str_in_7
 
-        multi_line_str_assert = str()
-        multi_line_str_assert += str_assert_1 + '\n'
-        multi_line_str_assert += str_assert_2 + '\n'
-        multi_line_str_assert += str_assert_3 + '\n'
-        multi_line_str_assert += str_assert_4 + '\n'
-        multi_line_str_assert += str_assert_5 + '\n'
-        multi_line_str_assert += str_assert_6 + '\n'
-        multi_line_str_assert += str_assert_7
+        multi_line_str_expected = str()
+        multi_line_str_expected += str_expected_1 + '\n'
+        multi_line_str_expected += str_expected_2 + '\n'
+        multi_line_str_expected += str_expected_3 + '\n'
+        multi_line_str_expected += str_expected_4 + '\n'
+        multi_line_str_expected += str_expected_5 + '\n'
+        multi_line_str_expected += str_expected_6 + '\n'
+        multi_line_str_expected += str_expected_7
 
         formatter = CppFormatter()
 
         # Execute 1
         multi_line_str_out = formatter.remove_trailing_spaces(multi_line_str_in)
         # Assert 1
-        assert multi_line_str_out == multi_line_str_assert
+        assert multi_line_str_out == multi_line_str_expected
 
         # Execute 2: Same test, but this time with the last line having a line ending
         multi_line_str_in += '\n'
-        multi_line_str_assert += '\n'
+        multi_line_str_expected += '\n'
         multi_line_str_out = formatter.remove_trailing_spaces(multi_line_str_in)
         # Assert 2
-        assert multi_line_str_out == multi_line_str_assert
+        assert multi_line_str_out == multi_line_str_expected
 
         # Execute 3: Only one single line
         str_out = formatter.remove_trailing_spaces(str_in_1)
         # Assert 3
-        assert str_out == str_assert_1
+        assert str_out == str_expected_1
 
         # Execute 4: Empty string
         str_in = str()
@@ -375,12 +375,12 @@ class TestFoamFormatter():
         blockcomment_placeholder = 'BLOCKCOMMENT000101            BLOCKCOMMENT000101;'
         include_placeholder = 'INCLUDE000102            INCLUDE000102;'
         str_in = blockcomment_placeholder + '\n' + include_placeholder + '\n'
-        str_assert = str_in.replace(include_placeholder, include_directive_in.replace('\'', '"'))
+        str_expected = str_in.replace(include_placeholder, include_directive_in.replace('\'', '"'))
         formatter = FoamFormatter()
         # Execute
         str_out: str = formatter.insert_includes(dict, str_in)
         # Assert
-        assert str_out == str_assert
+        assert str_out == str_expected
 
     def test_ensure_string_does_not_contain_single_quotes(self):
         # sourcery skip: avoid-builtin-shadow

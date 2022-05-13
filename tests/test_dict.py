@@ -233,38 +233,38 @@ def test_order_keys():  # sourcery skip: avoid-builtin-shadow
         key_4: d_nested,
         key_n_1: not_a_str_1,
     }
-    keys_assert = [key_1, key_2, key_3, key_4, key_n_1, key_n_2, key_n_3]
-    keys_assert_nested = [key_1, key_2, key_3, key_n_1, key_n_2, key_n_3]
+    keys_expected = [key_1, key_2, key_3, key_4, key_n_1, key_n_2, key_n_3]
+    keys_expected_nested = [key_1, key_2, key_3, key_n_1, key_n_2, key_n_3]
 
     dict = CppDict()
     dict.data.update(deepcopy(dict_in))
 
     # 1. negative test: assert dict_in is not alphanumerically ordered
     for (index, key) in enumerate(dict_in):
-        assert key != keys_assert[index]
+        assert key != keys_expected[index]
     for (index, key) in enumerate(dict_in[key_4]):
-        assert key != keys_assert_nested[index]
+        assert key != keys_expected_nested[index]
 
     # 2. negative test: assert dict is not alphanumerically ordered
     for (index, key) in enumerate(dict.data):
-        assert key != keys_assert[index]
+        assert key != keys_expected[index]
     for (index, key) in enumerate(dict.data[key_4]):
-        assert key != keys_assert_nested[index]
+        assert key != keys_expected_nested[index]
 
     dict_out = order_keys(dict_in)  # order_keys function defined in dict.py module
     dict.order_keys()               # order_keys instance method of CppDict class
 
     # 1. positive test for dict_out: assert dict_out is alphanumerically ordered
     for (index, key) in enumerate(dict_out):
-        assert key == keys_assert[index]
+        assert key == keys_expected[index]
     for (index, key) in enumerate(dict_out[key_4]):
-        assert key == keys_assert_nested[index]
+        assert key == keys_expected_nested[index]
 
     # 2. positive test for dict: assert dict.data is alphanumerically ordered
     for (index, key) in enumerate(dict.data):
-        assert key == keys_assert[index]
+        assert key == keys_expected[index]
     for (index, key) in enumerate(dict.data[key_4]):
-        assert key == keys_assert_nested[index]
+        assert key == keys_expected_nested[index]
 
 
 def test_order_keys_of_test_dict(test_dict):

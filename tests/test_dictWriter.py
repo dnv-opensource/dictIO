@@ -385,10 +385,10 @@ class TestCreateTargetFileName():
     def test_target_file_does_not_contain_double_prefix(self):
         # Prepare
         source_file = Path('test_dictWriter_dict')
-        target_file_assert = Path('prefix.test_dictWriter_dict')
+        target_file_expected = Path('prefix.test_dictWriter_dict')
         # Execute
         target_file_first_call = create_target_file_name(source_file, 'prefix')
         target_file_second_call = create_target_file_name(target_file_first_call, 'prefix')
         # Assert
-        assert target_file_first_call == target_file_assert
-        assert target_file_second_call == target_file_assert
+        assert target_file_first_call == target_file_expected
+        assert target_file_second_call == target_file_expected

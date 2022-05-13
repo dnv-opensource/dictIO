@@ -237,7 +237,7 @@ class TestParser():
         assert float_out == 1.23
 
     @pytest.mark.parametrize(
-        "str_in, str_assert",
+        "str_in, str_expected",
         [
             ('a string', 'a string'),
             ("'a string'", 'a string'),
@@ -247,7 +247,7 @@ class TestParser():
             ('""', ''),
         ],
     )
-    def test_parse_type_str(self, str_in: str, str_assert: str):
+    def test_parse_type_str(self, str_in: str, str_expected: str):
         '''Make sure additional surrounding quotes of strings, if existing, get removed by parsing'''
         # Prepare
         parser = Parser()
@@ -255,7 +255,7 @@ class TestParser():
         str_out = parser.parse_type(str_in)
         # Assert
         assert isinstance(str_out, str)
-        assert str_out == str_assert
+        assert str_out == str_expected
 
     def test_parse_list(self):
         # Prepare
@@ -285,37 +285,37 @@ class TestParser():
             not_a_str_3,
         ]
 
-        string1_assert = parser.parse_type(str_1)
-        string2_assert = parser.parse_type(str_2)
-        string3_assert = parser.parse_type(str_3)
-        not_a_str_1_assert = parser.parse_type(not_a_str_1)
-        not_a_str_2_assert = parser.parse_type(not_a_str_2)
-        not_a_str_3_assert = parser.parse_type(not_a_str_3)
+        string1_expected = parser.parse_type(str_1)
+        string2_expected = parser.parse_type(str_2)
+        string3_expected = parser.parse_type(str_3)
+        not_a_str_1_expected = parser.parse_type(not_a_str_1)
+        not_a_str_2_expected = parser.parse_type(not_a_str_2)
+        not_a_str_3_expected = parser.parse_type(not_a_str_3)
 
-        list_assert_nested = [
-            string1_assert,
-            string2_assert,
-            string3_assert,
-            not_a_str_1_assert,
-            not_a_str_2_assert,
-            not_a_str_3_assert,
+        list_expected_nested = [
+            string1_expected,
+            string2_expected,
+            string3_expected,
+            not_a_str_1_expected,
+            not_a_str_2_expected,
+            not_a_str_3_expected,
         ]
-        list_assert = [
-            string1_assert,
-            string2_assert,
-            string3_assert,
-            list_assert_nested,
-            not_a_str_1_assert,
-            not_a_str_2_assert,
-            not_a_str_3_assert,
+        list_expected = [
+            string1_expected,
+            string2_expected,
+            string3_expected,
+            list_expected_nested,
+            not_a_str_1_expected,
+            not_a_str_2_expected,
+            not_a_str_3_expected,
         ]
 
         # Execute
         list_out = parser.parse_types(list_in)
         # Assert
         assert list_out is list_in
-        assert list_out == list_assert
-        assert list_out[3] == list_assert[3]
+        assert list_out == list_expected
+        assert list_out[3] == list_expected[3]
 
     def test_parse_file_into_existing_dict(self):
         # Prepare
@@ -368,8 +368,8 @@ class TestCppParser():
         line7 = 'a line with no include directive\n'
         dict.line_content.extend([line1, line2, line3, line4, line5, line6, line7])
         assert len(dict.line_content) == 7
-        file_name_assert = 'testDict'
-        file_path_assert = Path('testDict').absolute()
+        file_name_expected = 'testDict'
+        file_path_expected = Path('testDict').absolute()
         # Execute
         parser._extract_includes(dict)
         # Assert
@@ -380,8 +380,8 @@ class TestCppParser():
         for include_directive, include_file_name, include_file_path in dict.includes.values():
             assert bool(re.search(r'#\s*include', str(include_directive)))
             assert not bool(re.search(r'\n', str(include_directive)))
-            assert include_file_name == file_name_assert
-            assert include_file_path == file_path_assert
+            assert include_file_name == file_name_expected
+            assert include_file_path == file_path_expected
 
     def test_convert_line_content_to_block_content(self):
         # sourcery skip: avoid-builtin-shadow
@@ -429,7 +429,7 @@ class TestCppParser():
             'Identified block comments are extracted and replaced by a placeholder\n'
             'in the form B L O C K C O M M E N T 0 0 0 0 0 0 .'
         )
-        text_block_assert = (
+        text_block_expected = (
             'This is a text block\n'
             'with multiple lines. Within this text block, there are C++ block comments.\n'
             'C++ block comments have an opening line, the block comment itself, and a closing line. See following example:\n'
@@ -442,8 +442,8 @@ class TestCppParser():
         parser._extract_block_comments(dict, comments=True)
         # Assert
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
-        assert text_block_out == text_block_assert
-        string_diff(text_block_out, text_block_assert)
+        assert text_block_out == text_block_expected
+        string_diff(text_block_out, text_block_expected)
         assert len(dict.block_comments) == 1
         assert list(dict.block_comments.values())[0] == (
             '/*---------------------------------*- C++ -*----------------------------------*\\\n'
@@ -470,7 +470,7 @@ class TestCppParser():
             'This is a line with an expression, e.g. \"$varName2 + 4\". Expressions are double quoted strings that contain minimum one $ character (denoting a reference).\n'
             'And here we close our small test with a final line with no string literal at all'
         )
-        text_block_assert = (
+        text_block_expected = (
             'This is a text block\n'
             'with multiple lines. Within this text block, there are inline substrings with single quotes.\n'
             'Such substrings we identify as string literals and substitute them with a placeholder\n'
@@ -489,8 +489,8 @@ class TestCppParser():
         parser._extract_string_literals(dict)
         # Assert
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
-        string_diff(text_block_out, text_block_assert)
-        assert text_block_out == text_block_assert
+        string_diff(text_block_out, text_block_expected)
+        assert text_block_out == text_block_expected
         assert len(dict.string_literals) == 6
         assert list(dict.string_literals.values())[0] == 'a string literal1'
         assert list(dict.string_literals.values())[1] == 'a string literal2'
@@ -528,7 +528,7 @@ class TestCppParser():
             'in the form E X P R E S S I O N 0 0 0 0 0 0.'
             'The actual evaluation of an expression is not part of _extract_expressions(). The evaluation is done within ().'
         )
-        text_block_assert = (
+        text_block_expected = (
             'This is a text block\n'
             'with multiple lines. Within this text block, there are key value pairs where the value\n'
             'is a string surrounded by double quotes and containing at least one reference to a variable starting with $.\n'
@@ -556,8 +556,8 @@ class TestCppParser():
         parser._extract_expressions(dict)
         # Assert
         text_block_out = re.sub(r'[0-9]{6}', '000000', dict.block_content)
-        assert text_block_out == text_block_assert
-        string_diff(text_block_out, text_block_assert)
+        assert text_block_out == text_block_expected
+        string_diff(text_block_out, text_block_expected)
         assert len(dict.expressions) == 9
 
         assert list(dict.expressions.values())[0]['name'][:10] == 'EXPRESSION'
@@ -609,7 +609,7 @@ class TestCppParser():
             'delimiters burried between other text: bla{bla}bla(bla)bla<bla>bla;bla,bla\n'
             'And here we close our small test with a final line with no delimiter at all'
         )
-        text_block_assert = (
+        text_block_expected = (
             'This is a text block '
             'with multiple lines. Within this text block there are distinct chars that shall be identified as delimiters. '
             'All chars that shall be identified delimiters are passed to _separate_delimiters as a list of chars. '
@@ -628,8 +628,8 @@ class TestCppParser():
         # Execute
         parser._separate_delimiters(dict, dict.delimiters)
         # Assert
-        assert dict.block_content == text_block_assert
-        string_diff(dict.block_content, text_block_assert)
+        assert dict.block_content == text_block_expected
+        string_diff(dict.block_content, text_block_expected)
         # In addition, test whether re.split('\s', block_content) results in tokens containing one single word each
         # because this exactly is what _separate_delimiters() is meant to ensure
         dict.tokens = [(0, i) for i in re.split(r'\s', dict.block_content)]
@@ -649,13 +649,13 @@ class TestCppParser():
         )
         tokens = re.split(r'\s', text_block)
         tokens_in = [(0, token) for token in tokens]
-        levels_assert = [0, 0, 1, 1, 2, 2, 3, 2, 2, 1, 1, 0, 0] * 3
-        tokens_assert = list(zip(levels_assert, tokens))
+        levels_expected = [0, 0, 1, 1, 2, 2, 3, 2, 2, 1, 1, 0, 0] * 3
+        tokens_expected = list(zip(levels_expected, tokens))
         dict.tokens = tokens_in
         # Execute
         parser._determine_token_hierarchy(dict)
         # Assert
-        assert dict.tokens == tokens_assert
+        assert dict.tokens == tokens_expected
 
     def test_parse_tokenized_dict(self):
         # Prepare
@@ -763,14 +763,14 @@ class TestCppParser():
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
-        log_level_assert = 'WARNING'
-        log_message_0_assert = (
+        log_level_expected = 'WARNING'
+        log_message_0_expected = (
             "CppParser._parse_tokenized_dict(): tokens skipped: "
             "[(1, 'this'), (1, 'is'), (1, 'not'), (1, 'a'), (1, 'valid'), (1, 'key'), (1, 'value'), (1, 'pair'),"
             " (1, 'because'), (1, 'the'), (1, 'number'), (1, 'of'), (1, 'tokens'), (1, 'is'), (1, 'larger'), (1, 'than'), (1, 'two'), (1, ';')] "
             "inside /this is not a valid key value pair because the number of tokens is larger than two ; thisIsNeitherAValidKeyValuePairBecuaseThisIsOnlyOneToken ;/"
         )
-        log_message_1_assert = (
+        log_message_1_expected = (
             "CppParser._parse_tokenized_dict(): tokens skipped: "
             "[(1, 'thisIsNeitherAValidKeyValuePairBecuaseThisIsOnlyOneToken'), (1, ';')] "
             "inside /this is not a valid key value pair because the number of tokens is larger than two ; thisIsNeitherAValidKeyValuePairBecuaseThisIsOnlyOneToken ;/"
@@ -780,9 +780,9 @@ class TestCppParser():
         # Assert
         assert len(dict_out['invalid']) == 0
         assert len(caplog.records) == 2
-        assert caplog.records[0].levelname == log_level_assert
-        assert caplog.records[0].message == log_message_0_assert
-        assert caplog.records[1].message == log_message_1_assert
+        assert caplog.records[0].levelname == log_level_expected
+        assert caplog.records[0].message == log_message_0_expected
+        assert caplog.records[1].message == log_message_1_expected
 
     def test_parse_tokenized_dict_nesting(self):
         # Prepare
@@ -961,7 +961,7 @@ class TestXmlParser():
             str_in = f.read()
         dict_out = CppDict(file_name)
         parser = XmlParser(add_node_numbering=False)
-        content_TAG00_assert = (  # noqa: N806
+        content_TAG00_expected = (  # noqa: N806
             'Extensible Markup Language (XML) is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable.\n'
             'Mapping the basic tree model of XML to type systems of programming languages or databases can be difficult, especially when XML is used for exchanging highly structured data between applications, which was not its primary design goal.\n'
             'JSON, YAML, and S-Expressions are frequently proposed as simpler alternatives that focus on representing highly structured data rather than documents, which may contain both highly structured and relatively unstructured content.'
@@ -969,7 +969,7 @@ class TestXmlParser():
         # Execute
         dict_out = parser.parse_string(str_in, dict_out)
         # Assert
-        assert dict_out['TAG00']['_content'] == content_TAG00_assert
+        assert dict_out['TAG00']['_content'] == content_TAG00_expected
         assert dict_out['TAG01'] is None
         assert dict_out['TAG02'] is None
         assert dict_out['TAG03'] is None
@@ -997,7 +997,7 @@ class TestXmlParser():
             str_in = f.read()
         dict_out = CppDict(file_name)
         parser = XmlParser(add_node_numbering=True)
-        content_TAG00_assert = (  # noqa: N806
+        content_TAG00_expected = (  # noqa: N806
             'Extensible Markup Language (XML) is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable.\n'
             'Mapping the basic tree model of XML to type systems of programming languages or databases can be difficult, especially when XML is used for exchanging highly structured data between applications, which was not its primary design goal.\n'
             'JSON, YAML, and S-Expressions are frequently proposed as simpler alternatives that focus on representing highly structured data rather than documents, which may contain both highly structured and relatively unstructured content.'
@@ -1006,7 +1006,7 @@ class TestXmlParser():
         # Execute
         dict_out = parser.parse_string(str_in, dict_out)
         # Assert
-        assert dict_out['000000_TAG00']['_content'] == content_TAG00_assert
+        assert dict_out['000000_TAG00']['_content'] == content_TAG00_expected
         assert dict_out['000001_TAG01'] is None
         assert dict_out['000002_TAG02'] is None
         assert dict_out['000003_TAG03'] is None
