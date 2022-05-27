@@ -2,10 +2,11 @@ import logging
 import os
 from pathlib import Path
 from typing import MutableSequence, Union
-from dictIO.cppDict import CppDict
-from dictIO.dictReader import DictReader
-from dictIO.dictWriter import DictWriter, create_target_file_name
 
+from dictIO import CppDict, DictReader, DictWriter, create_target_file_name
+
+
+__ALL__ = ['DictParser']
 
 logger = logging.getLogger(__name__)
 

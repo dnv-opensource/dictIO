@@ -7,6 +7,16 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ### Changed
 
+* Simplified imports from namespace dictIO. Example:
+    * Old (<= v0.0.22):
+        ~~~py
+        from dictIO.dictParser import DictParser
+        ~~~
+    * New:
+        ~~~py
+        from dictIO import DictParser
+        ~~~
+
 * parser.py
     * Parser.remove_quotes_from_string()
         * Changed default of 'all' argument from True to False<br>

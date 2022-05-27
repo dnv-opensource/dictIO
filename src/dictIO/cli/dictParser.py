@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 from typing import MutableSequence, Union
 
-from dictIO.dictParser import DictParser
+from dictIO import DictParser
 from dictIO.utils.logging import configure_logging
 
 
@@ -201,7 +201,7 @@ def _validate_scope(scope: Union[str, MutableSequence[str]]) -> Union[MutableSeq
     elif isinstance(scope, str):                                # Is 'scope' a string ?
         if re.match(r'^\s*\[', scope):                          # ..maybe a string that LOOKS like a list?
             try:                                                # Then try to convert that string to a list
-                from dictIO.parser import Parser
+                from dictIO import Parser
                 parser = Parser()
                 scope = scope.strip(' []')
                 keys: MutableSequence = [key.strip() for key in scope.split(',')]

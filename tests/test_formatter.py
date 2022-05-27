@@ -3,9 +3,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
-from dictIO.cppDict import CppDict
-from dictIO.dictReader import DictReader
-from dictIO.formatter import CppFormatter, FoamFormatter, XmlFormatter
+from dictIO import (CppDict, CppFormatter, DictReader, FoamFormatter, XmlFormatter)
 
 
 # @TODO: To be implemented

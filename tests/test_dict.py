@@ -2,8 +2,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
-from dictIO.cppDict import CppDict, find_global_key, set_global_key, order_keys
-from dictIO.parser import CppParser
+from dictIO import (CppDict, CppParser, find_global_key, order_keys, set_global_key)
 
 
 @pytest.fixture()

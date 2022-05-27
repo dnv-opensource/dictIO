@@ -1,18 +1,18 @@
 import contextlib
-import re
+import logging
 import os
+import re
 from copy import deepcopy
-from pathlib import Path
-from typing import MutableMapping, MutableSequence, Union
 # Import from math all functions we want to allow inside expressions in a dict.
 # This is a bit ugly, but necessary to enable evaluation of parsed expressions with the help of eval().
-from math import acos, asin, atan, atan2, cos, e, exp, log, log10, pi, pow, sin, sqrt, tan  # noqa: F401
-import logging
+from math import (  # noqa: F401
+    acos, asin, atan, atan2, cos, e, exp, log, log10, pi, pow, sin, sqrt, tan
+)
+from pathlib import Path
+from typing import MutableMapping, MutableSequence, Union
 
+from dictIO import CppDict, Parser
 from dictIO.utils.counter import DejaVue
-
-from dictIO.cppDict import CppDict
-from dictIO.parser import Parser
 
 
 __ALL__ = ['DictReader']

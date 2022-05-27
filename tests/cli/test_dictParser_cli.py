@@ -6,7 +6,7 @@ from typing import List, MutableSequence, Union
 
 import pytest
 from dictIO.cli.dictParser import _argparser, _validate_scope, main
-from dictIO.dictParser import DictParser
+from dictIO import DictParser
 
 # *****Test commandline interface (CLI)************************************************************
 

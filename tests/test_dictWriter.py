@@ -3,10 +3,7 @@ from copy import deepcopy
 from pathlib import Path, PurePath
 
 import pytest
-from dictIO.cppDict import CppDict
-from dictIO.dictReader import DictReader
-from dictIO.dictWriter import DictWriter, create_target_file_name
-from dictIO.parser import FoamParser
+from dictIO import (CppDict, DictReader, DictWriter, FoamParser, create_target_file_name)
 from dictIO.utils.counter import BorgCounter
 
 

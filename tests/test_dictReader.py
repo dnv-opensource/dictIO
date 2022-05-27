@@ -3,10 +3,7 @@ from copy import deepcopy
 from pathlib import Path, PurePath
 
 import pytest
-from dictIO.cppDict import CppDict
-from dictIO.dictReader import DictReader
-from dictIO.dictWriter import DictWriter
-from dictIO.parser import CppParser
+from dictIO import CppDict, CppParser, DictReader, DictWriter
 
 
 def test_file_not_found_exception():

@@ -8,11 +8,11 @@ from xml.dom import minidom
 # from lxml.etree import register_namespace
 from xml.etree.ElementTree import (Element, SubElement, register_namespace, tostring)
 
-from dictIO.cppDict import CppDict
+from dictIO import CppDict
 from dictIO.utils.counter import BorgCounter
 
 
-__ALL__ = ['Formatter']
+__ALL__ = ['Formatter', 'CppFormatter', 'FoamFormatter', 'JsonFormatter', 'XmlFormatter']
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ from typing import (Any, Mapping, MutableMapping, MutableSequence, TypeVar, Unio
 import logging
 
 
-__ALL__ = ['CppDict']
+__ALL__ = ['CppDict', 'order_keys', 'find_global_key', 'set_global_key', 'global_key_exists']
 
 _KT = TypeVar('_KT')    # generic Type variable for keys
 _VT = TypeVar('_VT')    # generic Type variable for values
@@ -124,7 +124,7 @@ class CppDict(UserDict):
         str
             the string representation
         """
-        from dictIO.formatter import \
+        from dictIO import \
             CppFormatter  # __str__ shall be formatted in default dict file format
         formatter = CppFormatter()
         return formatter.to_string(self)

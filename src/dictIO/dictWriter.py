@@ -1,12 +1,10 @@
-import re
+import logging
 import os
+import re
 from pathlib import Path
 from typing import MutableMapping, MutableSequence, Union
-import logging
 
-from dictIO.cppDict import CppDict, order_keys
-from dictIO.formatter import Formatter
-from dictIO.parser import CppParser
+from dictIO import CppDict, CppParser, Formatter, order_keys
 
 
 __ALL__ = ['DictWriter', 'create_target_file_name']
@@ -95,7 +93,7 @@ class DictWriter():
             logger.debug(
                 f"DictWriter.write(): append mode: Read existing target file {target_file} and merge dict \n{source_dict}\ninto it."
             )
-            from dictIO.dictReader import DictReader
+            from dictIO import DictReader
             existing_dict = DictReader.read(target_file, order=order)
             existing_dict.merge(source_dict)
             source_dict = existing_dict
@@ -123,7 +121,7 @@ def create_target_file_name(
     prefix: Union[str, None] = None,
     scope: Union[MutableSequence[str], None] = None,
     format: Union[str, None] = None,
-) -> Path:  # sourcery skip: avoid-builtin-shadow
+) -> Path:                                              # sourcery skip: avoid-builtin-shadow
     """Helper function to create a well defined target file name.
 
     Parameters

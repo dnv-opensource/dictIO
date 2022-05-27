@@ -1,7 +1,6 @@
 from pathlib import Path
 
-from dictIO.dictParser import DictParser
-from dictIO.dictReader import DictReader
+from dictIO import DictParser, DictReader
 
 
 def test_parse_dict():

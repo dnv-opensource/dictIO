@@ -8,11 +8,11 @@ from xml.etree.ElementTree import Element
 # from lxml.etree import register_namespace
 from lxml.etree import ETCompatXMLParser, fromstring
 
-from dictIO.cppDict import CppDict
+from dictIO import CppDict
 from dictIO.utils.counter import BorgCounter
 
 
-__ALL__ = ['Parser']
+__ALL__ = ['Parser', 'CppParser', 'FoamParser', 'JsonParser', 'XmlParser']
 
 logger = logging.getLogger(__name__)
 
