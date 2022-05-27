@@ -11,6 +11,7 @@ Welcome to dictIO's documentation!
    :caption: Contents:
 
    README
+   CHANGELOG
    LICENSE
    api
    cli
