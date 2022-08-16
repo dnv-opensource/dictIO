@@ -5,6 +5,8 @@ from collections import UserDict
 from pathlib import Path
 from typing import (Any, Mapping, MutableMapping, MutableSequence, TypeVar, Union)
 import logging
+import dictIO
+from dictIO.utils.counter import BorgCounter
 
 
 __ALL__ = ['CppDict', 'order_keys', 'find_global_key', 'set_global_key', 'global_key_exists']
@@ -25,6 +27,7 @@ class CppDict(UserDict):
     def __init__(self, file: Union[str, os.PathLike[str], None] = None):
         super().__init__()  # call base class constructor
 
+        self.counter = BorgCounter()
         self.source_file = None
         self.path = Path.cwd()
         self.name = ''
@@ -52,6 +55,64 @@ class CppDict(UserDict):
             '{', '[', '('
         ]                           # Note: < and > are not considered brackets, but operators used in filter expressions
         self.closingBrackets = ['}', ']', ')']
+        return
+
+    def include(self, dict_to_include: 'CppDict'):
+        """Adds an include directive for the passed in dict
+
+        Parameters
+        ----------
+        dict_to_include : CppDict
+            The dict to be included via an include directive
+
+        Raises
+        ------
+        AttributeError
+            If dict_to_include.source_file is None
+        ValueError
+            If no relative path in between the current dict and the included dict can be resolved
+        """
+        if not dict_to_include.source_file:
+            raise AttributeError(
+                f"Cannot include {dict_to_include.name}. Attribute '.source_file' of {dict_to_include.name} is None."
+            )
+        if not self.source_file:
+            raise AttributeError(
+                f"Cannot include {dict_to_include.name}. Attribute '.source_file' of {self.name} is None."
+            )
+
+        include_file_path = dict_to_include.source_file
+        relative_file_path: Path
+        try:
+            relative_file_path = self.source_file.parent.relative_to(dict_to_include.source_file)
+        except ValueError:
+            try:
+                relative_file_path = dict_to_include.source_file.relative_to(
+                    self.source_file.parent
+                )
+            except ValueError as e:
+                raise ValueError(
+                    f"Cannot include {dict_to_include.name}. Relative path to {dict_to_include.name} could not be resolved."
+                ) from e
+
+        formatter = dictIO.formatter.CppFormatter()
+        include_file_name = str(relative_file_path)
+        include_file_name = include_file_name.replace('\\', '\\\\')
+        include_file_name = formatter.format_type(include_file_name)
+
+        include_directive = f'#include {include_file_name}'
+
+        ii: int = 0
+        placeholder: str = ''
+        while True:
+            ii = self.counter()
+            placeholder = 'INCLUDE%06i' % ii
+            if placeholder in self.data:
+                continue
+            else:
+                break
+        self.data[placeholder] = placeholder
+        self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
         return
 
     def update(self, __m: Mapping, **kwargs) -> None:

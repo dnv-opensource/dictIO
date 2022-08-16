@@ -2,7 +2,16 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
-from dictIO import (CppDict, CppParser, find_global_key, order_keys, set_global_key)
+from dictIO import (
+    CppDict,
+    CppParser,
+    find_global_key,
+    order_keys,
+    set_global_key,
+    DictParser,
+    DictReader,
+    DictWriter
+)
 
 
 @pytest.fixture()
@@ -284,3 +293,25 @@ def test_reduce_scope_of_test_dict(test_dict):
     assert len(dict_out) == 2   # subscope11, subscope12
     assert dict_out['subscope11']['name'] == 'subscope11'
     assert dict_out['subscope12']['name'] == 'subscope12'
+
+
+def test_include():
+    # Prepare
+    source_dict_file = Path('test_dict_add_include')
+    param_dict_file = Path('test_dict_paramDict')
+    temp_dict_file = Path(f'{source_dict_file.name}_temp')
+    parsed_dict_file = Path(f'parsed.{temp_dict_file.name}')
+    temp_dict_file.unlink(missing_ok=True)
+    parsed_dict_file.unlink(missing_ok=True)
+    source_dict = DictReader.read(source_dict_file)
+    param_dict = DictReader.read(param_dict_file)
+    # Execute
+    source_dict.include(param_dict)
+    # Assert
+    DictWriter.write(source_dict, temp_dict_file)
+    parsed_dict = DictParser.parse(temp_dict_file)
+    assert parsed_dict is not None
+    assert parsed_dict['valueA'] == 1
+    # Clean up
+    temp_dict_file.unlink(missing_ok=True)
+    parsed_dict_file.unlink(missing_ok=True)

@@ -364,19 +364,33 @@ class CppFormatter(Formatter):
         """
         s = super().to_string(dict)
 
+        if not isinstance(dict, CppDict):
+            if isinstance(dict, MutableMapping):
+                # Turn ordinary dict into CppDict.
+                # That way, any ordinary python dict is treated in this function like a CppDict.
+                temp_dict = CppDict()
+                temp_dict.update(dict)
+                dict = deepcopy(temp_dict)
+            else:
+                logger.error('CppFormatter.to_string(): passed in arg is not of type dict')
+                return ''
+
+        # Sort dict in a way that block comment and include statement come first
+        original_data = deepcopy(dict.data)
+        sorted_data = {}
+        for key, element in original_data.items():
+            if re.search(r'BLOCKCOMMENT\d{6}', key):
+                sorted_data[key] = element
+        for key, element in original_data.items():
+            if re.search(r'INCLUDE\d{6}', key):
+                sorted_data[key] = element
+        for key in sorted_data:
+            del original_data[key]
+        sorted_data |= original_data
+        dict.data = sorted_data
+
         # Create the string representation of the dictionary in its basic structure.
-        if isinstance(dict, CppDict):
-            s += self.format_dict(dict.data)
-        elif isinstance(dict, MutableMapping):
-            # Turn ordinary dict into CppDict.
-            # That way, any ordinary python dict is treated in this function like a CppDict.
-            temp_dict = CppDict()
-            temp_dict.update(dict)
-            dict = deepcopy(temp_dict)
-            s += self.format_dict(dict.data)
-        else:
-            logger.error('CppFormatter.to_string(): passed in arg is not of type dict')
-            return ''
+        s += self.format_dict(dict.data)
 
         # The following elements a CppDict's .data attribute
         # are usually still substituted by placeholders:
