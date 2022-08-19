@@ -7,6 +7,15 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 * -
 
+## [0.1.1] - 2022-08-19
+
+### Added
+
+* cppDict:
+    * Added method include(dict_to_include).
+        This method adds an include directive for the passed in dict inside the dict the method is called on.
+
+
 ## [0.1.0] - 2022-05-28
 
 ### Changed
@@ -55,7 +64,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/dnv-opensource/dictIO/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/dnv-opensource/dictIO/compare/v0.0.22...v0.1.0
 [0.0.22]: https://github.com/dnv-opensource/dictIO/compare/v0.0.17...v0.0.22
 [0.0.17]: https://github.com/dnv-opensource/dictIO/releases/tag/v0.0.17
