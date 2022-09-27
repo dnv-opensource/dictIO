@@ -7,6 +7,23 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 * -
 
+## [0.1.2] - 2022-09-27
+
+### Solved
+
+* XmlParser: Changed how empty XML nodes get parsed. <br>
+    The value for an empty node is now saved as an empty dict, i.e. {}, instead of None.
+    This change solves [issue #4](https://github.com/dnv-opensource/dictIO/issues/4).<br>
+    Problem was that None is not iterable, and code such as the following had caused an exception:
+    ~~~py
+    if '_attributes' in my_parsed_xml_dict[node_key]:
+        ...
+    ~~~
+    because my_parsed_xml_dict[node_key] had been None.
+
+    Now, with the code change in place, my_parsed_xml_dict[node_key] would resolve to an empty dict ( {} ) instead of to None. As a dict is formally iterable (even when empty), querying code as above does no longer crash.
+
+
 ## [0.1.1] - 2022-08-19
 
 ### Added
@@ -64,7 +81,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.1.1...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/dnv-opensource/dictIO/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/dnv-opensource/dictIO/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/dnv-opensource/dictIO/compare/v0.0.22...v0.1.0
 [0.0.22]: https://github.com/dnv-opensource/dictIO/compare/v0.0.17...v0.0.22
