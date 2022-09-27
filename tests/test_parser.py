@@ -969,17 +969,17 @@ class TestXmlParser():
         dict_out = parser.parse_string(str_in, dict_out)
         # Assert
         assert dict_out['TAG00']['_content'] == content_TAG00_expected
-        assert dict_out['TAG01'] is None
-        assert dict_out['TAG02'] is None
-        assert dict_out['TAG03'] is None
-        assert dict_out['TAG04'] is None
+        assert dict_out['TAG01'] == {}
+        assert dict_out['TAG02'] == {}
+        assert dict_out['TAG03'] == {}
+        assert dict_out['TAG04'] == {}
         assert dict_out['TAG05']['_attributes']['ATTR0'] == 0
         assert dict_out['TAG06'] == {'_attributes': {'ATTR0': 0, 'ATTR1': 1}}
         assert dict_out['TAG07'] == {'_attributes': {'ATTR0': 0, 'ATTR1': 1}}
         assert dict_out['TAG08'] == {'_content': 'TEXT', '_attributes': {'ATTR0': 0, 'ATTR1': 1}}
-        assert dict_out['TAG09']['TAG91'] is None
-        assert dict_out['TAG09']['TAG92'] is None
-        assert dict_out['TAG09']['TAG93'] is None
+        assert dict_out['TAG09']['TAG91'] == {}
+        assert dict_out['TAG09']['TAG92'] == {}
+        assert dict_out['TAG09']['TAG93'] == {}
         assert dict_out['TAG09']['TAG94']['_attributes']['ATTR0'] == 0
         assert dict_out['TAG09']['TAG95']['_content'] == 'TEXT'
         assert dict_out['TAG09']['TAG96'] == {
@@ -1006,10 +1006,10 @@ class TestXmlParser():
         dict_out = parser.parse_string(str_in, dict_out)
         # Assert
         assert dict_out['000000_TAG00']['_content'] == content_TAG00_expected
-        assert dict_out['000001_TAG01'] is None
-        assert dict_out['000002_TAG02'] is None
-        assert dict_out['000003_TAG03'] is None
-        assert dict_out['000004_TAG04'] is None
+        assert dict_out['000001_TAG01'] == {}
+        assert dict_out['000002_TAG02'] == {}
+        assert dict_out['000003_TAG03'] == {}
+        assert dict_out['000004_TAG04'] == {}
         assert dict_out['000005_TAG05']['_attributes']['ATTR0'] == 0
         assert dict_out['000006_TAG06'] == {'_attributes': {'ATTR0': 0, 'ATTR1': 1}}
         assert dict_out['000007_TAG07'] == {'_attributes': {'ATTR0': 0, 'ATTR1': 1}}
@@ -1018,9 +1018,9 @@ class TestXmlParser():
                 'ATTR0': 0, 'ATTR1': 1
             }
         }
-        assert dict_out['000009_TAG09']['000010_TAG91'] is None
-        assert dict_out['000009_TAG09']['000011_TAG92'] is None
-        assert dict_out['000009_TAG09']['000012_TAG93'] is None
+        assert dict_out['000009_TAG09']['000010_TAG91'] == {}
+        assert dict_out['000009_TAG09']['000011_TAG92'] == {}
+        assert dict_out['000009_TAG09']['000012_TAG93'] == {}
         assert dict_out['000009_TAG09']['000013_TAG94']['_attributes']['ATTR0'] == 0
         assert dict_out['000009_TAG09']['000014_TAG95']['_content'] == 'TEXT'
         assert dict_out['000009_TAG09']['000015_TAG96'] == {

@@ -1477,7 +1477,7 @@ class XmlParser(Parser):
                 # Node has either no content or contains an empty string <NODE ATTRIB=STRING><\NODE>
                 # However, in order to be able to attach attributes to a node,
                 # we still need to create a dict for the node, even if the node has no content.
-                content_dict[node_tag] = None
+                content_dict[node_tag] = {}
 
             else:
                 # Node has content.

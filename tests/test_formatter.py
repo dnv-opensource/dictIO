@@ -449,6 +449,24 @@ class TestXmlFormatter():
         # Clean up
         target_file.unlink()
 
+    def test_parse_format_reparse(self):
+        # Prepare XML string to be parsed
+        from dictIO import XmlParser
+        file_name = Path('test_parser_xml.xml')
+        str_in = ''
+        with open(file_name, 'r') as f:
+            str_in = f.read()
+        parser = XmlParser(add_node_numbering=False)
+        formatter = XmlFormatter()
+        dict_parsed = CppDict()
+        dict_reparsed = CppDict()
+        # Execute
+        dict_parsed = parser.parse_string(str_in, dict_parsed)
+        str_out: str = formatter.to_string(dict_parsed)
+        dict_reparsed = parser.parse_string(str_out, dict_reparsed)
+        # Assert
+        assert dict_reparsed == dict_parsed
+
 
 class SetupHelper():
 
