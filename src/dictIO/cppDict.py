@@ -7,6 +7,7 @@ from typing import (Any, Mapping, MutableMapping, MutableSequence, TypeVar, Unio
 import logging
 import dictIO
 from dictIO.utils.counter import BorgCounter
+from dictIO.utils.path import relative_path
 
 
 __ALL__ = ['CppDict', 'order_keys', 'find_global_key', 'set_global_key', 'global_key_exists']
@@ -84,16 +85,14 @@ class CppDict(UserDict):
         include_file_path = dict_to_include.source_file
         relative_file_path: Path
         try:
-            relative_file_path = self.source_file.parent.relative_to(dict_to_include.source_file)
-        except ValueError:
-            try:
-                relative_file_path = dict_to_include.source_file.relative_to(
-                    self.source_file.parent
-                )
-            except ValueError as e:
-                raise ValueError(
-                    f"Cannot include {dict_to_include.name}. Relative path to {dict_to_include.name} could not be resolved."
-                ) from e
+            relative_file_path = relative_path(
+                from_path=self.source_file.parent,
+                to_path=dict_to_include.source_file,
+            )
+        except ValueError as e:
+            raise ValueError(
+                f"Cannot include {dict_to_include.name}. Relative path to {dict_to_include.name} could not be resolved."
+            ) from e
 
         formatter = dictIO.formatter.CppFormatter()
         include_file_name = str(relative_file_path)
