@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List
 
 from dictIO.utils.path import highest_common_root_folder, relative_path
 import pytest
@@ -20,6 +19,10 @@ def test_highest_common_root_folder():
     file_11: Path = Path(r'C:/file_11.abc')
     file_12: Path = Path(r'D:/file_12.abc')
     folder_01: Path = Path(r'C:/A0/A1/A2/')
+    folder_02: Path = Path(r'C:/A0/A1/A2/')
+    folder_03: Path = Path(r'C:/A0/A1/B2/')
+    folder_04: Path = Path(r'C:/A0/B1/B2/')
+    folder_05: Path = Path(r'C:/B0/B1/B2/')
     folder_06: Path = Path(r'C:/A0/A1/')
     folder_07: Path = Path(r'C:/A0/B1/')
     folder_08: Path = Path(r'C:/B0/B1/')
@@ -31,6 +34,7 @@ def test_highest_common_root_folder():
     with pytest.raises(ValueError):
         highest_common_root_folder([])
     assert highest_common_root_folder([file_01]) == folder_01
+    assert highest_common_root_folder([file_01, file_01]) == folder_01
     assert highest_common_root_folder([file_01, file_02]) == folder_01
     assert highest_common_root_folder([file_01, file_02, file_03]) == folder_06
     assert highest_common_root_folder([file_01, file_02, file_03, file_04]) == folder_09
@@ -47,7 +51,154 @@ def test_highest_common_root_folder():
     assert highest_common_root_folder([file_12]) == folder_12
     with pytest.raises(ValueError):
         highest_common_root_folder([file_11, file_12])
-    # Clean up
+
+    assert highest_common_root_folder([folder_01]) == folder_01
+    assert highest_common_root_folder([folder_01, folder_01]) == folder_01
+    assert highest_common_root_folder([folder_01, folder_02]) == folder_01
+    assert highest_common_root_folder([folder_01, folder_02, folder_03]) == folder_06
+    assert highest_common_root_folder([folder_01, folder_02, folder_03, folder_04]) == folder_09
+    assert highest_common_root_folder(
+        [folder_01, folder_02, folder_03, folder_04, folder_05]
+    ) == folder_11
+    assert highest_common_root_folder([folder_01, folder_06]) == folder_06
+    assert highest_common_root_folder([folder_01, folder_07]) == folder_09
+    assert highest_common_root_folder([folder_01, folder_08]) == folder_11
+    assert highest_common_root_folder([folder_01, folder_09]) == folder_09
+    assert highest_common_root_folder([folder_01, folder_10]) == folder_11
+    assert highest_common_root_folder([folder_04, folder_07]) == folder_07
+    assert highest_common_root_folder([folder_05, folder_08]) == folder_08
+    assert highest_common_root_folder([folder_08, folder_10]) == folder_10
+    assert highest_common_root_folder([folder_11]) == folder_11
+    assert highest_common_root_folder([folder_12]) == folder_12
+    with pytest.raises(ValueError):
+        highest_common_root_folder([folder_11, folder_12])
+
+
+def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_1():
+    # Prepare
+    file_01: Path = Path(r'C:/A0/A1/A0/A1/A0/A1/file_01.abc')
+    file_02: Path = Path(r'C:/A0/A1/A0/A1/A0/file_02.abc')
+    file_03: Path = Path(r'C:/A0/A1/A0/A1/file_03.abc')
+    file_04: Path = Path(r'C:/A0/A1/A0/file_04.abc')
+    file_05: Path = Path(r'C:/A0/A1/file_05.abc')
+    file_06: Path = Path(r'C:/A0/file_06.abc')
+    file_07: Path = Path(r'C:/file_07.abc')
+
+    folder_01: Path = Path(r'C:/A0/A1/A0/A1/A0/A1/')
+    folder_02: Path = Path(r'C:/A0/A1/A0/A1/A0/')
+    folder_03: Path = Path(r'C:/A0/A1/A0/A1/')
+    folder_04: Path = Path(r'C:/A0/A1/A0/')
+    folder_05: Path = Path(r'C:/A0/A1/')
+    folder_06: Path = Path(r'C:/A0/')
+    folder_07: Path = Path(r'C:/')
+    # Execute and Assert
+    assert highest_common_root_folder([file_01]) == folder_01
+    assert highest_common_root_folder([file_01, file_02]) == folder_02
+    assert highest_common_root_folder([file_01, file_02, file_03]) == folder_03
+    assert highest_common_root_folder([file_01, file_02, file_03, file_04]) == folder_04
+    assert highest_common_root_folder([file_01, file_02, file_03, file_04, file_05]) == folder_05
+    assert highest_common_root_folder(
+        [file_01, file_02, file_03, file_04, file_05, file_06]
+    ) == folder_06
+    assert highest_common_root_folder(
+        [file_01, file_02, file_03, file_04, file_05, file_06, file_07]
+    ) == folder_07
+
+    assert highest_common_root_folder([folder_01]) == folder_01
+    assert highest_common_root_folder([folder_01, folder_02]) == folder_02
+    assert highest_common_root_folder([folder_01, folder_02, folder_03]) == folder_03
+    assert highest_common_root_folder([folder_01, folder_02, folder_03, folder_04]) == folder_04
+    assert highest_common_root_folder(
+        [folder_01, folder_02, folder_03, folder_04, folder_05]
+    ) == folder_05
+    assert highest_common_root_folder(
+        [folder_01, folder_02, folder_03, folder_04, folder_05, folder_06]
+    ) == folder_06
+    assert highest_common_root_folder(
+        [folder_01, folder_02, folder_03, folder_04, folder_05, folder_06, folder_07]
+    ) == folder_07
+
+
+def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_2():
+    # Prepare
+    file_01: Path = Path(r'C:/A0/A0/A0/A0/A0/A0/file_01.abc')
+    file_02: Path = Path(r'C:/A0/A0/A0/A0/A0/file_02.abc')
+    file_03: Path = Path(r'C:/A0/A0/A0/A0/file_03.abc')
+    file_04: Path = Path(r'C:/A0/A0/A0/file_04.abc')
+    file_05: Path = Path(r'C:/A0/A0/file_05.abc')
+    file_06: Path = Path(r'C:/A0/file_06.abc')
+    file_07: Path = Path(r'C:/file_07.abc')
+
+    folder_01: Path = Path(r'C:/A0/A0/A0/A0/A0/A0/')
+    folder_02: Path = Path(r'C:/A0/A0/A0/A0/A0/')
+    folder_03: Path = Path(r'C:/A0/A0/A0/A0/')
+    folder_04: Path = Path(r'C:/A0/A0/A0/')
+    folder_05: Path = Path(r'C:/A0/A0/')
+    folder_06: Path = Path(r'C:/A0/')
+    folder_07: Path = Path(r'C:/')
+    # Execute and Assert
+    assert highest_common_root_folder([file_01]) == folder_01
+    assert highest_common_root_folder([file_01, file_02]) == folder_02
+    assert highest_common_root_folder([file_01, file_02, file_03]) == folder_03
+    assert highest_common_root_folder([file_01, file_02, file_03, file_04]) == folder_04
+    assert highest_common_root_folder([file_01, file_02, file_03, file_04, file_05]) == folder_05
+    assert highest_common_root_folder(
+        [file_01, file_02, file_03, file_04, file_05, file_06]
+    ) == folder_06
+    assert highest_common_root_folder(
+        [file_01, file_02, file_03, file_04, file_05, file_06, file_07]
+    ) == folder_07
+
+    assert highest_common_root_folder([folder_01]) == folder_01
+    assert highest_common_root_folder([folder_01, folder_02]) == folder_02
+    assert highest_common_root_folder([folder_01, folder_02, folder_03]) == folder_03
+    assert highest_common_root_folder([folder_01, folder_02, folder_03, folder_04]) == folder_04
+    assert highest_common_root_folder(
+        [folder_01, folder_02, folder_03, folder_04, folder_05]
+    ) == folder_05
+    assert highest_common_root_folder(
+        [folder_01, folder_02, folder_03, folder_04, folder_05, folder_06]
+    ) == folder_06
+    assert highest_common_root_folder(
+        [folder_01, folder_02, folder_03, folder_04, folder_05, folder_06, folder_07]
+    ) == folder_07
+
+
+def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_3():
+    # Prepare
+    file_01: Path = Path(r'C:/A0/A0/A0/A0/A0/A1/file_01.abc')
+    file_02: Path = Path(r'C:/A0/A1/A0/A0/A0/A0/file_02.abc')
+    file_03: Path = Path(r'C:/A0/A0/A0/A0/A1/file_03.abc')
+    file_04: Path = Path(r'C:/A1/A0/A0/file_04.abc')
+    file_05: Path = Path(r'C:/A0/A0/file_05.abc')
+    file_06: Path = Path(r'C:/A0/file_06.abc')
+    file_07: Path = Path(r'C:/file_07.abc')
+
+    folder_01: Path = Path(r'C:/A0/A0/A0/A0/A0/A1/')
+    folder_02: Path = Path(r'C:/A0/A1/A0/A0/A0/A0/')
+    folder_03: Path = Path(r'C:/A0/A0/A0/A0/A1/')
+    folder_04: Path = Path(r'C:/A1/A0/A0/')
+    folder_05: Path = Path(r'C:/A0/A0/')
+    folder_06: Path = Path(r'C:/A0/')
+    folder_07: Path = Path(r'C:/')
+    # Execute and Assert
+    assert highest_common_root_folder([file_01]) == folder_01
+    assert highest_common_root_folder([file_01, file_02]) == folder_06
+    assert highest_common_root_folder([file_01, file_02, file_03]) == folder_06
+    assert highest_common_root_folder([file_01, file_02, file_03, file_04]) == folder_07
+    assert highest_common_root_folder([file_01, file_05]) == folder_05
+    assert highest_common_root_folder([file_01, file_06]) == folder_06
+    assert highest_common_root_folder([file_01, file_07]) == folder_07
+    assert highest_common_root_folder([file_02, file_03]) == folder_06
+
+    assert highest_common_root_folder([folder_01]) == folder_01
+    assert highest_common_root_folder([folder_01, folder_02]) == folder_06
+    assert highest_common_root_folder([folder_01, folder_02, folder_03]) == folder_06
+    assert highest_common_root_folder([folder_01, folder_02, folder_03, folder_04]) == folder_07
+    assert highest_common_root_folder([folder_01, folder_05]) == folder_05
+    assert highest_common_root_folder([folder_01, folder_06]) == folder_06
+    assert highest_common_root_folder([folder_01, folder_07]) == folder_07
+    assert highest_common_root_folder([folder_02, folder_03]) == folder_06
 
 
 def test_relative_path():

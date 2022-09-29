@@ -2,12 +2,11 @@ import errno
 import logging
 import os
 from pathlib import Path
-from typing import List, Sequence, Set, Tuple
+from typing import List, Sequence, Tuple
 
 __all__ = ['silent_remove', 'highest_common_root_folder']
 
 logger = logging.getLogger(__name__)
-
 
 
 def silent_remove(file: Path):
@@ -53,22 +52,21 @@ def highest_common_root_folder(paths: Sequence[Path]) -> Path:
     folders_as_parts: List[Tuple[str]] = [
         folder.parts for folder in folders
     ]
-    folders_as_parts.sort(key=lambda x: len(x), reverse=True)
-    longest_folder_as_parts: Tuple[str] = folders_as_parts[0]
-    all_other_folders_as_parts: List[Tuple[str]] = folders_as_parts[1:]
-    common_parts: Set[str] = set(longest_folder_as_parts).intersection(
-        *[set(_tuple) for _tuple in all_other_folders_as_parts]
-    )
     folders_as_parts.sort(key=lambda x: len(x), reverse=False)
     shortest_folder_as_parts: Tuple[str] = folders_as_parts[0]
-    if common_root_folder_as_parts := tuple(part for part in shortest_folder_as_parts if part in common_parts):
-        return Path(*common_root_folder_as_parts)
+    common_parts: List[str] = []
+    for index, part in enumerate(shortest_folder_as_parts):
+        if len({folder_as_parts[index] for folder_as_parts in folders_as_parts}) > 1:
+            break
+        common_parts.append(part)
+    if common_parts:
+        return Path(*tuple(common_parts))
     else:
         raise ValueError('The passed in paths do not share a common root folder.')
 
 
 def relative_path(from_path: Path, to_path: Path) -> Path:
-    """Returns the relative path from one patht to another.
+    """Returns the relative path from one path to another.
 
     Parameters
     ----------
