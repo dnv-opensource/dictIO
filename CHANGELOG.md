@@ -5,7 +5,24 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
-* -
+* --
+
+## [0.2.0] - 2022-09-29
+
+### Added
+
+* dictIO.utils.path.py: Added two new functions
+    * highest_common_root_folder(paths)
+    * relative_path(from_path, to_path)
+
+### Changed
+
+* Replaced usages of pathlib.Path.resolve_to() with dictIO.utils.path.relative_path()
+
+### Removed
+
+* dictIO.utils.path.py: Removed obsolete function silent_remove()
+
 
 ## [0.1.2] - 2022-09-27
 
@@ -81,7 +98,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.1.2...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/dnv-opensource/dictIO/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/dnv-opensource/dictIO/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/dnv-opensource/dictIO/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/dnv-opensource/dictIO/compare/v0.0.22...v0.1.0
