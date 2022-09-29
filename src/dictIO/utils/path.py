@@ -1,11 +1,13 @@
-import os
 import errno
-
+import logging
+import os
 from pathlib import Path
 from typing import List, Sequence, Set, Tuple
 
+__all__ = ['silent_remove', 'highest_common_root_folder']
 
-__all__ = ['silent_remove', 'find_highest_common_root_folder']
+logger = logging.getLogger(__name__)
+
 
 
 def silent_remove(file: Path):
@@ -16,8 +18,8 @@ def silent_remove(file: Path):
             raise   # re-raise exception if a different error occurred
 
 
-def find_highest_common_root_folder(paths: Sequence[Path]) -> Path:
-    """Determines the highest common root folder among the passed in paths.
+def highest_common_root_folder(paths: Sequence[Path]) -> Path:
+    """Returns the highest common root folder among the passed in paths.
 
     Parameters
     ----------
@@ -63,3 +65,46 @@ def find_highest_common_root_folder(paths: Sequence[Path]) -> Path:
         return Path(*common_root_folder_as_parts)
     else:
         raise ValueError('The passed in paths do not share a common root folder.')
+
+
+def relative_path(from_path: Path, to_path: Path) -> Path:
+    """Returns the relative path from one patht to another.
+
+    Parameters
+    ----------
+    from_path : Path
+        The start point path.
+    to_path : Path
+        The end point path.
+
+    Returns
+    -------
+    Path
+        The relative path from 'from_path' (the start point) to 'to_path' (the end point).
+
+    Raises
+    ------
+    ValueError
+        If no relative path between 'from_path' and 'to_path' can be resolved.
+    """
+    relative_path: Path
+    try:
+        relative_path = to_path.relative_to(from_path)
+    except ValueError:
+        msg = (
+            'Resolving relative path failed using pathlib.\n'
+            'Next try will use os.path instead of pathlib.'
+        )
+        logger.debug(msg)
+        try:
+            relative_path = Path(
+                os.path.relpath(to_path, from_path)
+            )
+            msg = (
+                'Resolving relative path succeeded using os.path'
+            )
+            logger.debug(msg)
+        except Exception as e:
+            raise ValueError('Resolving relative path failed using both pathlib and os.path.') from e
+
+    return relative_path
