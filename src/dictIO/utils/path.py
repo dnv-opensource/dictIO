@@ -4,17 +4,9 @@ import os
 from pathlib import Path
 from typing import List, Sequence, Tuple
 
-__all__ = ['silent_remove', 'highest_common_root_folder']
+__all__ = ['highest_common_root_folder', 'relative_path']
 
 logger = logging.getLogger(__name__)
-
-
-def silent_remove(file: Path):
-    try:
-        os.remove(file)
-    except OSError as e:
-        if e.errno != errno.ENOENT:
-            raise   # re-raise exception if a different error occurred
 
 
 def highest_common_root_folder(paths: Sequence[Path]) -> Path:
