@@ -234,6 +234,10 @@ class TestParser():
         float_out = parser.parse_type(str_in)
         assert isinstance(float_out, float)
         assert float_out == 1.23
+        str_in = '1.'
+        float_out = parser.parse_type(str_in)
+        assert isinstance(float_out, float)
+        assert float_out == 1.0
 
     @pytest.mark.parametrize(
         "str_in, str_expected",

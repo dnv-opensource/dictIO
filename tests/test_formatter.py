@@ -78,6 +78,22 @@ class TestCppFormatter():
         # Assert
         assert str_out == str_expected
 
+    def test_format_type_float(self):
+        # sourcery skip: extract-duplicate-method, inline-variable
+        formatter = CppFormatter()
+        float_in = 1.23
+        str_out = formatter.format_type(float_in)
+        assert isinstance(str_out, str)
+        assert str_out == '1.23'
+        float_in = 1.
+        str_out = formatter.format_type(float_in)
+        assert isinstance(str_out, str)
+        assert str_out == '1.0'
+        float_in = 0.
+        str_out = formatter.format_type(float_in)
+        assert isinstance(str_out, str)
+        assert str_out == '0.0'
+
     def test_insert_block_comments(self):
         # sourcery skip: class-extract-method
         # Prepare
