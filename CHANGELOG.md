@@ -7,6 +7,12 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 * --
 
+## [0.2.1] - 2022-10-13
+
+### Solved
+
+* XmlParser: Solved a bug where default namespaces in an XML file would not be parsed correctly.
+
 ## [0.2.0] - 2022-09-29
 
 ### Added
@@ -98,7 +104,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.0...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/dnv-opensource/dictIO/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/dnv-opensource/dictIO/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/dnv-opensource/dictIO/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/dnv-opensource/dictIO/compare/v0.1.0...v0.1.1
