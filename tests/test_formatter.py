@@ -523,6 +523,34 @@ class TestXmlFormatter():
         assert 'xmlns="https://opensimulationplatform.com/xsd/OspModelDescription"' in str_out
         assert 'xmlns:None="https://opensimulationplatform.com/xsd/OspModelDescription"' not in str_out
 
+    @pytest.mark.skip(
+        reason=
+        'XML pretty printing is not solved yet. The root attribute for encoding still gets lost.'
+    )
+    def test_format_xml_root_attributes(self):
+        # sourcery skip: avoid-builtin-shadow
+        # Prepare
+        source_file = Path('test_formatter_dict')
+        dict = DictReader.read(source_file)
+        xml_opts = {
+            '_nameSpaces': {
+                'xs': 'http://www.w3.org/2001/XMLSchema'
+            },
+            '_rootTag': 'ROOT',
+            '_rootAttributes': {
+                'version': 0.1,
+                'encoding': "UTF-8",
+            },
+            '_removeNodeNumbering': True,
+        }
+        dict.update({'_xmlOpts': xml_opts})
+        formatter = XmlFormatter()
+        # Execute
+        str_out: str = formatter.to_string(dict)
+        # Assert
+        assert '?xml version="1.0" encoding="UTF-8"?' in str_out
+        assert '?xml version="1.0"?' not in str_out
+
 
 class SetupHelper():
 
