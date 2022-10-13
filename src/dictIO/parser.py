@@ -1397,17 +1397,17 @@ class XmlParser(Parser):
         root_tag = re.sub(r'\{.*\}', '', root_element.tag) or root_tag
         # Read namespaces from XML string
         namespaces = dict(root_element.nsmap) or namespaces
-        # Reformat 'None' keys in namespaces to empty string keys
+        # Reformat None keys in namespaces to key 'None' (as string)
         temp_keys_copy = list(namespaces)
         for key in temp_keys_copy:
             if key is None:
                 try:
                     value = namespaces[key]
                     del namespaces[key]
-                    namespaces.update({'': value})
+                    namespaces['None'] = value
                 except Exception:
                     logger.exception(
-                        'XmlParser.parseString(): Reformatting None keys in namespaces to empty string keys failed'
+                        "XmlParser.parseString(): Reformatting None keys in namespaces to key 'None' failed"
                     )
 
         # +++PARSE DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -1033,6 +1033,38 @@ class TestXmlParser():
             }
         }
 
+    def test_parse_xml_namespace_explicit(self):
+        # Prepare XML string to be parsed
+        file_name = Path('test_xml_namespace_explicit.xml')
+        str_in = ''
+        with open(file_name, 'r') as f:
+            str_in = f.read()
+        dict_out: CppDict = CppDict(file_name)
+        parser = XmlParser()
+        # Execute
+        dict_out = parser.parse_string(str_in, dict_out)
+        namespaces: dict = dict_out['_xmlOpts']['_nameSpaces']
+        # Assert
+        assert len(namespaces) == 1
+        assert 'xs' in namespaces
+        assert namespaces['xs'] == 'http://www.w3.org/2001/XMLSchema'
+
+    def test_parse_xml_namespace_default(self):
+        # Prepare XML string to be parsed
+        file_name = Path('test_xml_namespace_default.xml')
+        str_in = ''
+        with open(file_name, 'r') as f:
+            str_in = f.read()
+        dict_out: CppDict = CppDict(file_name)
+        parser = XmlParser()
+        # Execute
+        dict_out = parser.parse_string(str_in, dict_out)
+        namespaces: dict = dict_out['_xmlOpts']['_nameSpaces']
+        # Assert
+        assert len(namespaces) == 1
+        assert 'None' in namespaces
+        assert namespaces['None'] == 'http://www.w3.org/2001/XMLSchema'
+
 
 class SetupHelper():
 

@@ -933,7 +933,10 @@ class XmlFormatter(Formatter):
         prefixes: MutableSequence = []
         for prefix, uri in namespaces.items():
             prefixes.append(prefix)
-            register_namespace(prefix, uri)
+            if prefix == 'None':
+                register_namespace('', uri)
+            else:
+                register_namespace(prefix, uri)
         prefix: str = prefixes[0]
 
         xsd_uri: str = namespaces[prefixes[0]]

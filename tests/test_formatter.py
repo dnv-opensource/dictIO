@@ -483,6 +483,46 @@ class TestXmlFormatter():
         # Assert
         assert dict_reparsed == dict_parsed
 
+    def test_format_xml_namespace_explicit(self):
+        # sourcery skip: avoid-builtin-shadow
+        # Prepare
+        source_file = Path('test_formatter_dict')
+        dict = DictReader.read(source_file)
+        xml_opts = {
+            '_nameSpaces': {
+                'osp': 'https://opensimulationplatform.com/xsd/OspModelDescription'
+            },
+            '_rootTag': 'OspModelDescription',
+            '_removeNodeNumbering': True,
+        }
+        dict.update({'_xmlOpts': xml_opts})
+        formatter = XmlFormatter()
+        # Execute
+        str_out: str = formatter.to_string(dict)
+        # Assert
+        assert 'xmlns:osp="https://opensimulationplatform.com/xsd/OspModelDescription"' in str_out
+        assert 'xmlns="https://opensimulationplatform.com/xsd/OspModelDescription"' not in str_out
+
+    def test_format_xml_namespace_default(self):
+        # sourcery skip: avoid-builtin-shadow
+        # Prepare
+        source_file = Path('test_formatter_dict')
+        dict = DictReader.read(source_file)
+        xml_opts = {
+            '_nameSpaces': {
+                'None': 'https://opensimulationplatform.com/xsd/OspModelDescription'
+            },
+            '_rootTag': 'OspModelDescription',
+            '_removeNodeNumbering': True,
+        }
+        dict.update({'_xmlOpts': xml_opts})
+        formatter = XmlFormatter()
+        # Execute
+        str_out: str = formatter.to_string(dict)
+        # Assert
+        assert 'xmlns="https://opensimulationplatform.com/xsd/OspModelDescription"' in str_out
+        assert 'xmlns:None="https://opensimulationplatform.com/xsd/OspModelDescription"' not in str_out
+
 
 class SetupHelper():
 
