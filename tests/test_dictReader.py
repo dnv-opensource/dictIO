@@ -1,4 +1,5 @@
 import os
+import re
 from copy import deepcopy
 from pathlib import Path, PurePath
 
@@ -245,6 +246,114 @@ def test_remove_comment_keys():
 @pytest.mark.skip(reason='To be implemented')
 def test_remove_include_keys():
     pass
+
+
+def test_read_dict():
+    # sourcery skip: avoid-builtin-shadow
+    # Prepare
+    source_file = Path('test_dictReader_dict')
+    # Execute
+    dict = DictReader.read(source_file)
+    # Assert included dict has been merged
+    assert dict['paramA'] == 3.0
+    assert dict['paramB'] == 4.0
+    assert dict['paramC'] == 7.0
+    assert dict['paramD'] == 0.66
+    assert dict['paramE'] == [0.1, 0.2, 0.4]
+    assert dict['paramF'] == [[0.3, 0.9], [2.7, 8.1]]
+    assert dict['paramG'] == [[10, 'fancy', 3.14, 's'], ['more', 2, 'come']]
+    # Assert references and expressions have been resolved
+    assert dict['keyA'] == 3.0
+    assert dict['keyB'] == 4.0
+    assert dict['keyC'] == 7.0
+    assert dict['keyD'] == 4.16
+    assert dict['keyE'] == 6.67
+    assert dict['keyF'] == 8.98
+    assert dict['keyG'] == 20.34
+    assert dict['keyH'] == 0.2
+    assert dict['keyI'] == [0.1, 0.2, 0.4]
+    assert dict['keyJ'] == 8.1
+    assert dict['keyK'] == [2.7, 8.1]
+    assert dict['keyL'] == [[0.3, 0.9], [2.7, 8.1]]
+    assert dict['keyM'] == 9.0
+    assert dict['keyN'] == 7.0
+
+
+def test_read_json():
+    # sourcery skip: avoid-builtin-shadow
+    # Prepare
+    source_file = Path('test_dictReader_json.json')
+    # Execute
+    dict = DictReader.read(source_file)
+    # Assert included dict has been merged
+    assert dict['paramA'] == 3.0
+    assert dict['paramB'] == 4.0
+    assert dict['paramC'] == 7.0
+    assert dict['paramD'] == 0.66
+    assert dict['paramE'] == [0.1, 0.2, 0.4]
+    assert dict['paramF'] == [[0.3, 0.9], [2.7, 8.1]]
+    assert dict['paramG'] == [[10, 'fancy', 3.14, 's'], ['more', 2, 'come']]
+    # Assert references and expressions have been resolved
+    assert dict['keyA'] == 3.0
+    assert dict['keyB'] == 4.0
+    assert dict['keyC'] == 7.0
+    assert dict['keyD'] == 4.16
+    assert dict['keyE'] == 6.67
+    assert dict['keyF'] == 8.98
+    assert dict['keyG'] == 20.34
+    assert dict['keyH'] == 0.2
+    assert dict['keyI'] == [0.1, 0.2, 0.4]
+    assert dict['keyJ'] == 8.1
+    assert dict['keyK'] == [2.7, 8.1]
+    assert dict['keyL'] == [[0.3, 0.9], [2.7, 8.1]]
+    assert dict['keyM'] == 9.0
+    assert dict['keyN'] == 7.0
+
+
+def test_compare_expressions_in_dict_format_with_expressions_in_json_format():
+    # Prepare
+    source_file_dict = Path('test_dictReader_dict')
+    source_file_json = Path('test_dictReader_json.json')
+    # Execute
+    dict_dict = DictReader.read(source_file_dict)
+    dict_json = DictReader.read(source_file_json)
+    # Assert
+    assert dict_dict.expressions == dict_json.expressions
+    # Collect all references contained in expressions
+    references_dict = []
+    for item in dict_dict.expressions.values():
+        refs = re.findall(r'\$\w[\w\[\]]+', item['expression'])
+        references_dict.extend(refs)
+    references_json = []
+    for item in dict_json.expressions.values():
+        refs = re.findall(r'\$\w[\w\[\]]+', item['expression'])
+        references_json.extend(refs)
+    assert references_dict == references_json
+    # Resolve references
+    variables_dict = dict_dict.variables
+    references_dict = {
+        ref: DictReader._resolve_reference(ref, variables_dict)
+        for ref in references_dict
+    }
+    references_resolved_dict = {
+        ref: value
+        for ref,
+        value in references_dict.items()
+        if (value is not None) and (not re.search(r'EXPRESSION|\$', str(value)))
+    }
+    variables_json = dict_json.variables
+    references_json = {
+        ref: DictReader._resolve_reference(ref, variables_json)
+        for ref in references_json
+    }
+    references_resolved_json = {
+        ref: value
+        for ref,
+        value in references_json.items()
+        if (value is not None) and (not re.search(r'EXPRESSION|\$', str(value)))
+    }
+    assert references_resolved_dict == references_resolved_json
+    assert dict_dict.variables == dict_json.variables
 
 
 def test_read_foam():

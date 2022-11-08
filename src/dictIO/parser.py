@@ -1296,7 +1296,12 @@ class JsonParser(Parser):
 
         # +++PARSE DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         parsed_dict.data = json.loads(string)
+
+        # Extract include directives
         self._extract_includes(parsed_dict)
+
+        # Extract expressions
+        self._extract_expressions(parsed_dict, parsed_dict.data)
 
         # +++MERGE PARSED DICTIONARY INTO TARGET DICTIONARY+++++++++++++++++++++++++++++++++++++++++
         target_dict.merge(parsed_dict)
@@ -1332,6 +1337,123 @@ class JsonParser(Parser):
         dict.data.update(data_temp)
 
         return
+
+    def _extract_expression(
+        self,
+        parsed_dict: CppDict,
+        string: str,
+    ) -> str:
+        """Extracts a single expression
+
+        Parses a string, checks whether it contains an expression, and if so, extracts the expression and replaces it with a placeholder.
+
+        Parameters
+        ----------
+        parsed_dict : CppDict
+            the CppDict instance the extracted expression shall be saved in
+        string : str
+            the string from which expressions shall be extracted and replaced by placeholders
+
+        Returns
+        -------
+        str
+            the string with all found expressions replaced by the respective placeholders
+        """
+
+        # Gatekeeper: Check whether minimum one reference is contained in string.
+        # References are denoted using the '$' syntax familiar from shell programming.
+        # Any key'd entries in a dict are considered variables and can be referenced.
+        # If string does not contain minimum one reference, return.
+        search_pattern = r'\$\w[\w\[\]]+'
+        references = re.findall(search_pattern, string, re.MULTILINE)
+        if not references:
+            return string
+
+        # Case 1: Reference
+        # The string contains only a single plain reference (single reference to a key'd entry in the parsed dict).
+        # If so, extract the single reference and return
+        search_pattern = r'^\s*(\$\w[\w\[\]]+){1}\s*$'
+        if match := re.search(search_pattern, string, re.MULTILINE):
+            reference: str = match.groups()[0]
+            # Replace the found reference in the string with the placeholder (EXPRESSION000000)
+            # Note: For re.sub() to work properly we need to escape all special characters
+            index = self.counter()
+            placeholder = 'EXPRESSION%06i' % index
+            _pattern = re.compile(re.escape(reference))
+            string = re.sub(_pattern, placeholder, string)
+            # Register the reference as expression in .expressions
+            parsed_dict.expressions.update(
+                {index: {
+                    'index': index, 'expression': reference, 'name': placeholder
+                }}
+            )
+            return string
+
+        # Case 2: Expression
+        # The string contains more than just a single reference -> Treat it as expression.
+        # Expressions are strings that contain one or more reference but are not a single plain reference
+        # (meaning they contain something in addition: An operator, a second reference, a constant, or whatever.).
+
+        expression = string.strip()
+
+        # Replace the found expression in the string with the placeholder (EXPRESSION000000)
+        # Note: For re.sub() to work properly we need to escape all special characters
+        # (covering both '$' as well as any mathematical operators in the expression)
+        index = self.counter()
+        placeholder = 'EXPRESSION%06i' % index
+        _pattern = re.compile(re.escape(expression))
+        string = re.sub(_pattern, placeholder, string)
+
+        # Register the expression in .expressions
+        parsed_dict.expressions.update(
+            {index: {
+                'index': index, 'expression': expression, 'name': placeholder
+            }}
+        )
+
+        return string
+
+    def _extract_expressions(
+        self,
+        parsed_dict: CppDict,
+        arg: Union[MutableMapping, MutableSequence],
+    ) -> Union[MutableMapping, MutableSequence]:
+        """Finds and extracts expressions in a dict or list and replaces them with Placeholders.
+
+        Finds expressions, extracts them, and replaces them with a placeholder in the form EXPRESSION000000.
+        String values that contain minimum one $reference are identified as expressions.
+        The extracted expressions are stored in .expressions as a key'd subdict with multiple elements {index:{'index': index, 'expression': expression, 'name': placeholder}}.
+        index, therein, corresponds to the integer number in EXPRESSION000000.
+
+        Parameters
+        ----------
+        parsed_dict : CppDict
+            the CppDict instance the extracted expressions shall be saved in
+        arg : Union[MutableMapping, MutableSequence]
+            the dict or list containing values to be parsed for expressions
+
+        Returns
+        -------
+        Union[MutableMapping, MutableSequence]
+            the original dict or list, yet with all contained expressions being extracted and replaced by placeholders.
+        """
+        if isinstance(arg, MutableSequence):
+            for index, _ in enumerate(arg):
+                if isinstance(arg[index], (MutableMapping, MutableSequence)):
+                    self._extract_expressions(parsed_dict, arg[index])
+                else:
+                    typed_value = self.parse_type(arg[index])
+                    if isinstance(typed_value, str):
+                        arg[index] = self._extract_expression(parsed_dict, arg[index])
+        elif isinstance(arg, MutableMapping):
+            for key in arg.keys():
+                if isinstance(arg[key], (MutableMapping, MutableSequence)):
+                    self._extract_expressions(parsed_dict, arg[key])
+                else:
+                    typed_value = self.parse_type(arg[key])
+                    if isinstance(typed_value, str):
+                        arg[key] = self._extract_expression(parsed_dict, arg[key])
+        return arg
 
 
 class XmlParser(Parser):

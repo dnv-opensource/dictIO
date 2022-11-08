@@ -3,7 +3,7 @@ import re
 import os
 from collections import UserDict
 from pathlib import Path
-from typing import (Any, Mapping, MutableMapping, MutableSequence, TypeVar, Union)
+from typing import (Any, Dict, Mapping, MutableMapping, MutableSequence, TypeVar, Union)
 import logging
 import dictIO
 from dictIO.utils.counter import BorgCounter
@@ -47,7 +47,7 @@ class CppDict(UserDict):
 
         self.line_comments = {}
         self.block_comments: MutableMapping[int, str] = {}
-        self.expressions = {}
+        self.expressions: Dict[int, Dict[str, Any]] = {}
         self.includes = {}
 
         self.brackets = [('{', '}'), ('[', ']'), ('(', ')'), ('<', '>')]
