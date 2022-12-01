@@ -12,4 +12,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   dictIO.utils.counter
+   dictIO.utils.logging
    dictIO.utils.path
+   dictIO.utils.strings
