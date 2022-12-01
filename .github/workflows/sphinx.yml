@@ -4,7 +4,7 @@ name: Build and publish Sphinx documentation on GitHub Pages
 on: push
 
 env:
-  DEFAULT_BRANCH: "release"
+  DEFAULT_BRANCH: 'release'
   #SPHINXOPTS: "-W --keep-going -T"
   # ^-- If these SPHINXOPTS are enabled, then be strict about the builds and fail on any warnings
 
@@ -13,7 +13,6 @@ jobs:
     name: Build and publish Sphinx documentation on GitHub Pages
     runs-on: ubuntu-latest
     steps:
-
       # PREPARE
 
       # Checkout active branch (the branch that triggered the workflow)
@@ -29,7 +28,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.10.2
+          python-version: 3.10
 
       # Cache pip
       # https://docs.github.com/en/actions/guides/building-and-testing-python#caching-dependencies
@@ -63,7 +62,6 @@ jobs:
           pip list --not-required
           pip list
 
-
       # BUILD DOCUMENTATION
 
       # Build documentation
@@ -72,7 +70,6 @@ jobs:
         run: |
           cd docs
           make html
-
 
       # COPY DOCUMENTATION to gh-pages branch
 
@@ -130,7 +127,6 @@ jobs:
       - name: nojekyll
         run: |
           touch _gh-pages/.nojekyll
-
 
       # PUBLISH DOCUMENTATION
 
