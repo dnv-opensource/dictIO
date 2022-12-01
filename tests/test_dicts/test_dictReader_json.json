@@ -1,5 +1,5 @@
 {
-    "#include000000": ".\\test_dictReader_paramDict.json",
+    "#include": "test_dictReader_paramDict.json",
     "expressions": {
         "reference": {
             "name": "reference",
