@@ -1,6 +1,7 @@
 
 # Style Guide
-
+All code shall be [black](https://pypi.org/project/black/) formatted.<br>
+References, details as well as examples of bad/good styles and their respective reasoning can be found below.
 ## References
 * [PEP-8](https://www.python.org/dev/peps/pep-0008/) (see also [pep8.org](https://pep8.org/))
 * [PEP-257](https://www.python.org/dev/peps/pep-0257/)
@@ -9,12 +10,12 @@
 * [Jupyter](https://jupyter.readthedocs.io/en/latest/contributing/ipython-dev-guide/coding_style.html) style guide
 * Python style guide on [learnpython.com](https://learnpython.com/blog/python-coding-best-practices-and-style-guidelines/)
 * [flake8](https://flake8.pycqa.org/en/latest/)
-* [yapf](https://pypi.org/project/yapf)
+* [black](https://pypi.org/project/black/)
 
 
 ## Code Layout
 * Use 4 spaces instead of tabs
-* Maximum line length is 99 characters (not 79 as proposed in [PEP-8](https://www.python.org/dev/peps/pep-0008/))
+* Maximum line length is 88 characters (not 79 as proposed in [PEP-8](https://www.python.org/dev/peps/pep-0008/))
 * 2 blank lines between classes and functions
 * 1 blank line within class, between class methods
 * Use blank lines for logic separation of functionality within functions/methods wherever it is justified
@@ -25,9 +26,6 @@
 
     # Good
     spam(items[1], {key1: arg1, key2: arg2}, [])
-
-    # Also ok
-    spam(items[1], {key1:arg1, key2:arg2}, [])
 ~~~
 * Surround operators with single whitespace on either side.
 ~~~py
@@ -50,11 +48,11 @@
 * Similarly to branching, do not write methods on one line in any case:
 ~~~py
     # Bad
-    def do_something(self): print('Something')
+    def do_something(self): print("Something")
 
     # Good
     def do_something(self):
-        print('Something')
+        print("Something")
 ~~~
 * Place a class's `__init__` function (the constructor) always at the beginning of the class
 
@@ -67,7 +65,7 @@
         var_four):
         print(var_one)
 
-    # Not much better (=Bad)
+    # Bad
     def long_function_name(var_one, var_two, var_three,
             var_four):
         print(var_one)
@@ -91,7 +89,8 @@
 * Move concatenated logical conditions to new lines if the line does not fit the maximum line size. This will help you understand the condition by looking from top to bottom. Poor formatting makes it difficult to read and understand complex predicates.
 ~~~py
     # Good
-    if (this_is_one_thing
+    if (
+        this_is_one_thing
         and that_is_another_thing
         or that_is_third_thing
         or that_is_yet_another_thing
@@ -102,29 +101,31 @@
 * Where binary operations stretch multiple lines, break lines before the binary operators, not thereafter
 ~~~py
     # Bad
-    GDP = (private_consumption +
-           gross_investment +
-           government_investment +
-           government_spending +
-           (exports - imports)
+    GDP = (
+        private_consumption +
+        gross_investment +
+        government_investment +
+        government_spending +
+        (exports - imports)
     )
 
     # Good
-    GDP = (private_consumption
-           + gross_investment
-           + government_investment
-           + government_spending
-           + (exports - imports)
+    GDP = (
+        private_consumption
+        + gross_investment
+        + government_investment
+        + government_spending
+        + (exports - imports)
     )
 ~~~
 * Chaining methods should be broken up on multiple lines for better readability
 ~~~py
-    (df.write \
-        .format('jdbc')
-        .option('url', 'jdbc:postgresql:dbserver')
-        .option('dbtable', 'schema.tablename')
-        .option('user', 'username')
-        .option('password', 'password')
+    (
+        df.write.format("jdbc")
+        .option("url", "jdbc:postgresql:dbserver")
+        .option("dbtable", "schema.tablename")
+        .option("user", "username")
+        .option("password", "password")
         .save()
     )
 ~~~
@@ -160,20 +161,20 @@
 
 
 ## String Formatting
-* When quoting string literals, prefer single-quoted strings over double-quoted strings. When the string itself contains single or double quote characters, however, use the respective other one to avoid backslashes in the string. It improves readability.
+* When quoting string literals, use double-quoted strings. When the string itself contains single or double quote characters, however, use the respective other one to avoid backslashes in the string. It improves readability.
 * Use f-strings to format strings:
 ~~~py
     # Bad
-    print('Hello, %s. You are %s years old. You are a %s.' % (name, age, profession))
+    print("Hello, %s. You are %s years old. You are a %s." % (name, age, profession))
 
     # Good
-    print(f'Hello, {name}. You are {age} years old. You are a {profession}.')
+    print(f"Hello, {name}. You are {age} years old. You are a {profession}.")
 ~~~
 * Use multiline strings,  not \ , since it gets much more readable.
 ~~~py
     raise AttributeError(
-        'Here is a multiline error message'
-        'shortened for clarity.'
+        "Here is a multiline error message with a very long first line "
+        "and a shorter second line."
     )
 ~~~
 
@@ -196,10 +197,10 @@ Long module names can have words separated by underscores (`really_long_module_n
 * Use named arguments to improve readability and avoid mistakes introduced with future code maintenance
 ~~~py
     # Bad
-    urlget('[http://google.com](http://google.com/)', 20)
+    urlget("[http://google.com](http://google.com/)", 20)
 
     # Good
-    urlget('[http://google.com](http://google.com/)', timeout=20)
+    urlget("[http://google.com](http://google.com/)", timeout=20)
 ~~~
 * Never use mutable objects as default arguments in Python. If an attribute in a class or a named parameter in a function is of a mutable data type (e.g. a list or dict), never set its default value in the declaration of an object but always set it to None first, and then only later assign the default value in the class's constructor, or the functions body, respectively. Sounds complicated? If you prefer the shortcut, the examples below are your friend.
 If your are interested in the long story including the why‘s, read these discussions on [Reddit](https://old.reddit.com/r/Python/comments/opb7hm/do_not_use_mutable_objects_as_default_arguments/) and [Twitter](https://twitter.com/willmcgugan/status/1419616480971399171).
@@ -255,7 +256,7 @@ If your are interested in the long story including the why‘s, read these discu
 ~~~py
     def get_ancestors_ids(self):
         # @TODO: Do a cache reset while saving the category tree. CLAROS, YYYY-MM-DD
-        cache_name = '{0}_ancestors_{1}'.format(self._meta.model_name, self.pk)
+        cache_name = f"{self._meta.model_name}_ancestors_{self.pk}"
         cached_ids = cache.get(cache_name)
         if cached_ids:
             return cached_ids
@@ -315,8 +316,12 @@ If your are interested in the long story including the why‘s, read these discu
 * Never use wildcard imports (`from <module> import *`). Always be explicit about what you're importing. Namespaces make code easier to read, so use them.
 * Break long imports using parentheses and indent by 4 spaces. Include the trailing comma after the last import and place the closing bracket on a separate line
 ~~~py
-    from my_pkg.utils import (some_utility_method_1, some_utility_method_2,
-        some_utility_method_3, some_utility_method_4, some_utility_method_5,
+    from my_pkg.utils import (
+        some_utility_method_1,
+        some_utility_method_2,
+        some_utility_method_3,
+        some_utility_method_4,
+        some_utility_method_5,
     )
 ~~~
 * Imports should be written in the following order, separated by a blank line:
@@ -324,8 +329,8 @@ If your are interested in the long story including the why‘s, read these discu
     2. third-party modules
     3. local application/library specific imports
 ~~~py
-    import os
     import logging
+    import os
     import typing as T
 
     import pandas as pd
@@ -340,7 +345,7 @@ If your are interested in the long story including the why‘s, read these discu
     def main():
         ...
 
-    if __name__ == '__main__':
+    if __name__ == "__main__":
         main()
 ~~~
 
@@ -362,11 +367,11 @@ If your are interested in the long story including the why‘s, read these discu
     # Good
     def test_smth_type():
         result = f()
-        assert isinstance(result, list), 'Result should be list'
+        assert isinstance(result, list), "Result should be list"
 
     def test_smth_values():
         result = f()
-        assert set(result) == set(expected), f'Result should be {set(expected)}'
+        assert set(result) == set(expected), f"Result should be {set(expected)}"
 ~~~
 
 
