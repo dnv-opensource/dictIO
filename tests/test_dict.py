@@ -10,59 +10,59 @@ from dictIO import (
     set_global_key,
     DictParser,
     DictReader,
-    DictWriter
+    DictWriter,
 )
 
 
 @pytest.fixture()
 def test_dict():
     parser = CppParser()
-    return parser.parse_file(Path('test_dict_dict'))
+    return parser.parse_file(Path("test_dict_dict"))
 
 
-def test_init():    # sourcery skip: avoid-builtin-shadow
+def test_init():  # sourcery skip: avoid-builtin-shadow
     dict = CppDict()
     assert dict.source_file is None
     assert dict.path == Path.cwd()
-    assert dict.name == ''
+    assert dict.name == ""
     assert dict.line_content == []
     assert dict.line_comments == {}
     assert dict.includes == {}
-    assert dict.block_content == ''
+    assert dict.block_content == ""
     assert dict.block_comments == {}
     assert dict.string_literals == {}
     assert dict.expressions == {}
-                    # assert dict.delimiters == ['{','}','[',']','(',')','<','>',';',',']
-    assert dict.delimiters == ['{', '}', '(', ')', '<', '>', ';', ',']
+    # assert dict.delimiters == ['{','}','[',']','(',')','<','>',';',',']
+    assert dict.delimiters == ["{", "}", "(", ")", "<", ">", ";", ","]
 
 
 def test_init_with_file():  # sourcery skip: avoid-builtin-shadow
-    dict = CppDict('someDict')
+    dict = CppDict("someDict")
     assert dict.path == Path.cwd()
-    assert dict.source_file == Path.cwd() / 'someDict'
+    assert dict.source_file == Path.cwd() / "someDict"
 
 
 def test_find_global_key():
     # Prepare
-    str_in_1 = 'PLACEHOLDER000001'
-    str_in_2 = 'PLACEHOLDER000002'
-    str_in_3 = 'PLACEHOLDER000003'
+    str_in_1 = "PLACEHOLDER000001"
+    str_in_2 = "PLACEHOLDER000002"
+    str_in_3 = "PLACEHOLDER000003"
     not_a_str_1 = 1234
     not_a_str_2 = 1.23
     not_a_str_3 = False
 
-    key_1 = 'key_1'
-    key_2 = 'key_2'
-    key_3 = 'key_3'
-    key_n_1 = 'key_n_1'
-    key_n_2 = 'key_n_2'
-    key_n_3 = 'key_n_3'
-    keyd = 'keyd'
-    keyl = 'keyl'
-    keydl = 'keydl'
-    keyld = 'keyld'
-    keydld = 'keydld'
-    keyldl = 'keyldl'
+    key_1 = "key_1"
+    key_2 = "key_2"
+    key_3 = "key_3"
+    key_n_1 = "key_n_1"
+    key_n_2 = "key_n_2"
+    key_n_3 = "key_n_3"
+    keyd = "keyd"
+    keyl = "keyl"
+    keydl = "keydl"
+    keyld = "keyld"
+    keydld = "keydld"
+    keyldl = "keyldl"
     d_nested = {
         key_1: str_in_1,
         key_2: str_in_2,
@@ -140,9 +140,9 @@ def test_find_global_key():
 
     # Execute find_global_key and set_global_key
     dict_out = deepcopy(dict_in)
-    str_out_1 = 'string 1'
-    str_out_2 = 'string 2'
-    str_out_3 = 'string 3'
+    str_out_1 = "string 1"
+    str_out_2 = "string 2"
+    str_out_3 = "string 3"
     global_key = find_global_key(arg=dict_out, query=str_in_1)
     i = 0
     while global_key:
@@ -208,21 +208,21 @@ def test_find_global_key():
 
 
 def test_order_keys():  # sourcery skip: avoid-builtin-shadow
-                        # Prepare
-    str_1 = 'string 1'
-    str_2 = 'string 2'
-    str_3 = 'string 3'
+    # Prepare
+    str_1 = "string 1"
+    str_2 = "string 2"
+    str_3 = "string 3"
     not_a_str_1 = 1234
     not_a_str_2 = 1.23
     not_a_str_3 = False
 
-    key_1 = 'key_1'
-    key_2 = 'key_2'
-    key_3 = 'key_3'
-    key_n_1 = 'key_n_1'
-    key_n_2 = 'key_n_2'
-    key_n_3 = 'key_n_3'
-    key_4 = 'key_4'
+    key_1 = "key_1"
+    key_2 = "key_2"
+    key_3 = "key_3"
+    key_n_1 = "key_n_1"
+    key_n_2 = "key_n_2"
+    key_n_3 = "key_n_3"
+    key_4 = "key_4"
 
     d_nested = {
         key_3: str_3,
@@ -260,7 +260,7 @@ def test_order_keys():  # sourcery skip: avoid-builtin-shadow
         assert key != keys_expected_nested[index]
 
     dict_out = order_keys(dict_in)  # order_keys function defined in dict.py module
-    dict.order_keys()               # order_keys instance method of CppDict class
+    dict.order_keys()  # order_keys instance method of CppDict class
 
     # 1. positive test for dict_out: assert dict_out is alphanumerically ordered
     for (index, key) in enumerate(dict_out):
@@ -280,27 +280,27 @@ def test_order_keys_of_test_dict(test_dict):
     # Execute
     test_dict.order_keys()
     # Assert
-    assert str(test_dict.data['unordered']) == str(test_dict.data['ordered'])
+    assert str(test_dict.data["unordered"]) == str(test_dict.data["ordered"])
 
 
 def test_reduce_scope_of_test_dict(test_dict):
     # Prepare
-    scope = ['scope', 'subscope1']
+    scope = ["scope", "subscope1"]
     # Execute
     test_dict.reduce_scope(scope)
     # Assert
     dict_out = test_dict.data
-    assert len(dict_out) == 2   # subscope11, subscope12
-    assert dict_out['subscope11']['name'] == 'subscope11'
-    assert dict_out['subscope12']['name'] == 'subscope12'
+    assert len(dict_out) == 2  # subscope11, subscope12
+    assert dict_out["subscope11"]["name"] == "subscope11"
+    assert dict_out["subscope12"]["name"] == "subscope12"
 
 
 def test_include():
     # Prepare
-    source_dict_file = Path('test_dict_add_include')
-    param_dict_file = Path('test_dict_paramDict')
-    temp_dict_file = Path(f'{source_dict_file.name}_temp')
-    parsed_dict_file = Path(f'parsed.{temp_dict_file.name}')
+    source_dict_file = Path("test_dict_add_include")
+    param_dict_file = Path("test_dict_paramDict")
+    temp_dict_file = Path(f"{source_dict_file.name}_temp")
+    parsed_dict_file = Path(f"parsed.{temp_dict_file.name}")
     temp_dict_file.unlink(missing_ok=True)
     parsed_dict_file.unlink(missing_ok=True)
     source_dict = DictReader.read(source_dict_file)
@@ -311,7 +311,7 @@ def test_include():
     DictWriter.write(source_dict, temp_dict_file)
     parsed_dict = DictParser.parse(temp_dict_file)
     assert parsed_dict is not None
-    assert parsed_dict['valueA'] == 1
+    assert parsed_dict["valueA"] == 1
     # Clean up
     temp_dict_file.unlink(missing_ok=True)
     parsed_dict_file.unlink(missing_ok=True)

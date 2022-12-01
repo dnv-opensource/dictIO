@@ -3,17 +3,23 @@ import re
 import os
 from collections import UserDict
 from pathlib import Path
-from typing import (Any, Dict, Mapping, MutableMapping, MutableSequence, TypeVar, Union)
+from typing import Any, Dict, Mapping, MutableMapping, MutableSequence, TypeVar, Union
 import logging
 import dictIO
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.path import relative_path
 
 
-__ALL__ = ['CppDict', 'order_keys', 'find_global_key', 'set_global_key', 'global_key_exists']
+__ALL__ = [
+    "CppDict",
+    "order_keys",
+    "find_global_key",
+    "set_global_key",
+    "global_key_exists",
+]
 
-_KT = TypeVar('_KT')    # generic Type variable for keys
-_VT = TypeVar('_VT')    # generic Type variable for values
+_KT = TypeVar("_KT")  # generic Type variable for keys
+_VT = TypeVar("_VT")  # generic Type variable for values
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +37,7 @@ class CppDict(UserDict):
         self.counter = BorgCounter()
         self.source_file = None
         self.path = Path.cwd()
-        self.name = ''
+        self.name = ""
 
         if file:
             # Make sure file argument is of type Path. If not, cast it to Path type.
@@ -41,7 +47,7 @@ class CppDict(UserDict):
             self.name = self.source_file.name
 
         self.line_content = []
-        self.block_content = ''
+        self.block_content = ""
         self.tokens = []
         self.string_literals = {}
 
@@ -50,15 +56,17 @@ class CppDict(UserDict):
         self.expressions: Dict[int, Dict[str, Any]] = {}
         self.includes = {}
 
-        self.brackets = [('{', '}'), ('[', ']'), ('(', ')'), ('<', '>')]
-        self.delimiters = ['{', '}', '(', ')', '<', '>', ';', ',']
+        self.brackets = [("{", "}"), ("[", "]"), ("(", ")"), ("<", ">")]
+        self.delimiters = ["{", "}", "(", ")", "<", ">", ";", ","]
         self.openingBrackets = [
-            '{', '[', '('
-        ]                           # Note: < and > are not considered brackets, but operators used in filter expressions
-        self.closingBrackets = ['}', ']', ')']
+            "{",
+            "[",
+            "(",
+        ]  # Note: < and > are not considered brackets, but operators used in filter expressions
+        self.closingBrackets = ["}", "]", ")"]
         return
 
-    def include(self, dict_to_include: 'CppDict'):
+    def include(self, dict_to_include: "CppDict"):
         """Adds an include directive for the passed in dict
 
         Parameters
@@ -96,22 +104,24 @@ class CppDict(UserDict):
 
         formatter = dictIO.formatter.CppFormatter()
         include_file_name = str(relative_file_path)
-        include_file_name = include_file_name.replace('\\', '\\\\')
+        include_file_name = include_file_name.replace("\\", "\\\\")
         include_file_name = formatter.format_type(include_file_name)
 
-        include_directive = f'#include {include_file_name}'
+        include_directive = f"#include {include_file_name}"
 
         ii: int = 0
-        placeholder: str = ''
+        placeholder: str = ""
         while True:
             ii = self.counter()
-            placeholder = 'INCLUDE%06i' % ii
+            placeholder = "INCLUDE%06i" % ii
             if placeholder in self.data:
                 continue
             else:
                 break
         self.data[placeholder] = placeholder
-        self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
+        self.includes.update(
+            {ii: (include_directive, include_file_name, include_file_path)}
+        )
         return
 
     def update(self, __m: Mapping, **kwargs) -> None:
@@ -184,20 +194,21 @@ class CppDict(UserDict):
         str
             the string representation
         """
-        from dictIO import \
-            CppFormatter  # __str__ shall be formatted in default dict file format
+        from dictIO import (
+            CppFormatter,
+        )  # __str__ shall be formatted in default dict file format
+
         formatter = CppFormatter()
         return formatter.to_string(self)
 
     def __repr__(self):
-        return f'CppDict({self.source_file!r})'
+        return f"CppDict({self.source_file!r})"
 
     def __eq__(self, other):
         return str(self) == str(other) if isinstance(other, CppDict) else False
 
     def order_keys(self):
-        """alpha-numeric sorting of keys, recursively
-        """
+        """alpha-numeric sorting of keys, recursively"""
         self.data = dict(order_keys(self.data))
         self.line_comments = order_keys(self.line_comments)
         self.block_comments = order_keys(self.block_comments)
@@ -206,7 +217,7 @@ class CppDict(UserDict):
 
         return
 
-    def find_global_key(self, query: str = '') -> Union[MutableSequence, None]:
+    def find_global_key(self, query: str = "") -> Union[MutableSequence, None]:
         """Returns the global key thread to the first key the value of which matches the passed in query.
 
         Function works recursively on nested dicts and is non-greedy: The key of the first match is returned.
@@ -256,9 +267,9 @@ class CppDict(UserDict):
         bool
             True if the specified global key exists, otherwise False
         """
-        '''
+        """
         probe the existence of (nested) keys in dict
-        '''
+        """
         return global_key_exists(self.data, global_key)
 
     def reduce_scope(self, scope: MutableSequence[str]):
@@ -271,11 +282,11 @@ class CppDict(UserDict):
         """
         if scope:
             try:
-                self.data = eval('self.data[\'' + '\'][\''.join(scope) + '\']')
+                self.data = eval("self.data['" + "']['".join(scope) + "']")
             except KeyError as e:
                 logger.warning(
-                    'CppDict.reduce_scope(): no scope \'%s\' in dictionary %s' %
-                    (e.args[0], self.source_file)
+                    "CppDict.reduce_scope(): no scope '%s' in dictionary %s"
+                    % (e.args[0], self.source_file)
                 )
         return
 
@@ -286,15 +297,15 @@ class CppDict(UserDict):
         def extract_variables_from_dict(dict: MutableMapping):
             for k, v in dict.items():
                 if isinstance(v, MutableMapping):
-                    extract_variables_from_dict(v)      # recursion
+                    extract_variables_from_dict(v)  # recursion
                 elif isinstance(v, MutableSequence):
                     if list_contains_dict(v):
                         extract_variables_from_list(v)  # recursion
                     else:
-                                                        # special case: item is a list, but does NOT contain a nested dict (-> e.g. a vector or matrix)
+                        # special case: item is a list, but does NOT contain a nested dict (-> e.g. a vector or matrix)
                         variables.update({k: v})
                 else:
-                                                        # base case: item is a single value type
+                    # base case: item is a single value type
                     v = _insert_expression(v, self)
                     if not _value_contains_circular_reference(k, v):
                         variables.update({k: v})
@@ -308,9 +319,9 @@ class CppDict(UserDict):
                 elif isinstance(v, MutableSequence):
                     extract_variables_from_list(v)  # recursion
                 else:
-                                                    # By convention, list items are NOT added to the variables lookup table
-                                                    # as they only have an index but no key
-                                                    # (which we need, though, to serve as variable name)
+                    # By convention, list items are NOT added to the variables lookup table
+                    # as they only have an index but no key
+                    # (which we need, though, to serve as variable name)
                     pass
             return
 
@@ -332,14 +343,14 @@ class CppDict(UserDict):
 
     def _clean(self, dict: Union[MutableMapping, None] = None):
         # sourcery skip: avoid-builtin-shadow
-        '''
+        """
         Finds and removes doublettes of following PLACEHOLDER keys within self.data
         - BLOCKCOMMENT
         - INCLUDE
         - LINECOMMENT
         By definition, only keys on the same nest level are checked for doublettes.
         Doublettes are identified through equality with their lookup values.
-        '''
+        """
         # START at nest level 0
         if dict is None:
             dict = self.data
@@ -350,47 +361,51 @@ class CppDict(UserDict):
         includes_on_this_level = []
         line_comments_on_this_level = []
         for key in keys_on_this_level:
-            if re.search(r'BLOCKCOMMENT\d{6}', key):
+            if re.search(r"BLOCKCOMMENT\d{6}", key):
                 block_comments_on_this_level.append(key)
-            elif re.search(r'INCLUDE\d{6}', key):
+            elif re.search(r"INCLUDE\d{6}", key):
                 includes_on_this_level.append(key)
-            elif re.search(r'LINECOMMENT\d{6}', key):
+            elif re.search(r"LINECOMMENT\d{6}", key):
                 line_comments_on_this_level.append(key)
 
-        unique_block_comments_on_this_level = []                    # BLOCKCOMMENTs
+        unique_block_comments_on_this_level = []  # BLOCKCOMMENTs
         for key in block_comments_on_this_level:
             with contextlib.suppress(Exception):
-                id = int(re.findall(r'\d{6}', key)[0])
+                id = int(re.findall(r"\d{6}", key)[0])
                 value = str(self.block_comments[id])
-                if value in unique_block_comments_on_this_level:    # Found doublette
-                    del dict[key]                                   # remove from current level in self.data (the dict)
-                    del self.block_comments[id]                     # ..AND from self.block_comments (the lookup table)
-                else:                                               # Unique
+                if value in unique_block_comments_on_this_level:  # Found doublette
+                    del dict[key]  # remove from current level in self.data (the dict)
+                    del self.block_comments[
+                        id
+                    ]  # ..AND from self.block_comments (the lookup table)
+                else:  # Unique
                     unique_block_comments_on_this_level.append(value)
-        unique_includes_on_this_level = []                          # INCLUDEs
+        unique_includes_on_this_level = []  # INCLUDEs
         for key in includes_on_this_level:
             with contextlib.suppress(Exception):
-                id = int(re.findall(r'\d{6}', key)[0])
+                id = int(re.findall(r"\d{6}", key)[0])
                 value = self.includes[id]
-                if value in unique_includes_on_this_level:          # Found doublette
-                    del dict[key]                                   # remove from current level in self.data (the dict)
-                    del self.includes[id]                           # ..AND from self.includes (the lookup table)
-                else:                                               # Unique
+                if value in unique_includes_on_this_level:  # Found doublette
+                    del dict[key]  # remove from current level in self.data (the dict)
+                    del self.includes[id]  # ..AND from self.includes (the lookup table)
+                else:  # Unique
                     unique_includes_on_this_level.append(value)
-        unique_line_comments_on_this_level = []                     # LINECOMMENTs
+        unique_line_comments_on_this_level = []  # LINECOMMENTs
         for key in line_comments_on_this_level:
             with contextlib.suppress(Exception):
-                id = int(re.findall(r'\d{6}', key)[0])
+                id = int(re.findall(r"\d{6}", key)[0])
                 value = self.line_comments[id]
-                if value in unique_line_comments_on_this_level:     # Found doublette
-                    del dict[key]                                   # remove from current level in self.data (the dict)
-                    del self.line_comments[id]                      # ..AND from self.line_comments (the lookup table)
-                else:                                               # Unique
+                if value in unique_line_comments_on_this_level:  # Found doublette
+                    del dict[key]  # remove from current level in self.data (the dict)
+                    del self.line_comments[
+                        id
+                    ]  # ..AND from self.line_comments (the lookup table)
+                else:  # Unique
                     unique_line_comments_on_this_level.append(value)
-                                                                    # RECURSION for nested levels
+                    # RECURSION for nested levels
         for key in dict.keys():
             if isinstance(dict[key], MutableMapping):
-                self._clean(dict[key])                              # Recursion
+                self._clean(dict[key])  # Recursion
 
         return
 
@@ -414,17 +429,18 @@ def order_keys(arg: MutableMapping[_KT, _VT]) -> MutableMapping[_KT, _VT]:
         )
         for key, value in sorted_dict.items():
             if isinstance(value, dict):
-                sorted_dict[key] = order_keys(sorted_dict[key])                                                                # type: ignore
+                sorted_dict[key] = order_keys(sorted_dict[key])  # type: ignore
         return sorted_dict
     else:
         logger.warning(
-            'dict.order_keys(): no alpha-numeric sorting of keys possible because of \'argument not a dict\', returning same.'
+            "dict.order_keys(): no alpha-numeric sorting of keys possible because of 'argument not a dict', returning same."
         )
         return arg
 
 
-def find_global_key(arg: Union[MutableMapping, MutableSequence],
-                    query: str = '') -> Union[MutableSequence, None]:
+def find_global_key(
+    arg: Union[MutableMapping, MutableSequence], query: str = ""
+) -> Union[MutableSequence, None]:
     """Returns the global key thread to the first key the value of which matches the passed in query.
 
     Parameters
@@ -440,7 +456,7 @@ def find_global_key(arg: Union[MutableMapping, MutableSequence],
         global key thread to the first key the value of which matches the passed in query, if found. Otherwise None.
     """
     global_key = []
-    if isinstance(arg, MutableMapping):     # dict
+    if isinstance(arg, MutableMapping):  # dict
         for key, _ in sorted(arg.items()):
             if isinstance(arg[key], (MutableMapping, MutableSequence)):
                 if next_level_key := find_global_key(arg=arg[key], query=query):
@@ -461,7 +477,7 @@ def find_global_key(arg: Union[MutableMapping, MutableSequence],
                 global_key.append(index)
                 break
     else:
-        logger.warning('Run into not implemented alternative')
+        logger.warning("Run into not implemented alternative")
 
     return global_key or None
 
@@ -482,13 +498,16 @@ def set_global_key(arg: MutableMapping, global_key: MutableSequence, value: Any 
         last_branch = arg
         remaining_keys = global_key
         ii = 0
-        while len(
-            remaining_keys
-        ) > 1:                                              # as long as we didn't arrive at the last branch (the one that contains the target key)..
-            last_branch = last_branch[remaining_keys[0]]    # ..walk one level further down
+        while (
+            len(remaining_keys) > 1
+        ):  # as long as we didn't arrive at the last branch (the one that contains the target key)..
+            last_branch = last_branch[
+                remaining_keys[0]
+            ]  # ..walk one level further down
             remaining_keys = remaining_keys[1:]
             ii += 1
-            if ii == 10: break
+            if ii == 10:
+                break
         last_branch[remaining_keys[0]] = value
 
     return
@@ -519,7 +538,9 @@ def global_key_exists(arg: MutableMapping, global_key: MutableSequence) -> bool:
     return True
 
 
-def _merge_dicts(target_dict: MutableMapping, dict_to_merge: MutableMapping, overwrite=False):
+def _merge_dicts(
+    target_dict: MutableMapping, dict_to_merge: MutableMapping, overwrite=False
+):
     """Merges dict_to_merge into target_dict.
 
     In contrast to dict.update(), _merge_dicts() works recursively. That is, it does not simply substitute top-level keys
@@ -536,29 +557,42 @@ def _merge_dicts(target_dict: MutableMapping, dict_to_merge: MutableMapping, ove
         if True, existing keys will be overwritten, by default False
     """
     for key in dict_to_merge.keys():
-        if (key in target_dict.keys()) and isinstance(
-            target_dict[key], MutableMapping
-        ) and isinstance(dict_to_merge[key], MutableMapping):                                           # dict
-            _merge_dicts(target_dict[key], dict_to_merge[key], overwrite)                               # Recursion
+        if (
+            (key in target_dict.keys())
+            and isinstance(target_dict[key], MutableMapping)
+            and isinstance(dict_to_merge[key], MutableMapping)
+        ):  # dict
+            _merge_dicts(target_dict[key], dict_to_merge[key], overwrite)  # Recursion
         else:
             value_in_target_dict_contains_circular_reference = False
             if key in target_dict and isinstance(target_dict, CppDict):
                 value = _insert_expression(target_dict[key], target_dict)
-                value_in_target_dict_contains_circular_reference = _value_contains_circular_reference(
-                    key, value
+                value_in_target_dict_contains_circular_reference = (
+                    _value_contains_circular_reference(key, value)
                 )
-            if overwrite or key not in target_dict or value_in_target_dict_contains_circular_reference:
-                target_dict[key] = dict_to_merge[key]                                                   # Update
+            if (
+                overwrite
+                or key not in target_dict
+                or value_in_target_dict_contains_circular_reference
+            ):
+                target_dict[key] = dict_to_merge[key]  # Update
 
     return
 
 
 def _insert_expression(value: str, dict: CppDict) -> str:
-    if isinstance(value, str) and isinstance(dict,
-                                             CppDict) and re.search(r'EXPRESSION\d{6}', value):
-        if match_index := re.search(r'\d{6}', value):
+    if (
+        isinstance(value, str)
+        and isinstance(dict, CppDict)
+        and re.search(r"EXPRESSION\d{6}", value)
+    ):
+        if match_index := re.search(r"\d{6}", value):
             index = int(match_index[0])
-            value = dict.expressions[index]['expression'] if index in dict.expressions else value
+            value = (
+                dict.expressions[index]["expression"]
+                if index in dict.expressions
+                else value
+            )
     return value
 
 

@@ -6,12 +6,12 @@ from typing import MutableSequence, Union
 from dictIO import CppDict, DictReader, DictWriter, create_target_file_name
 
 
-__ALL__ = ['DictParser']
+__ALL__ = ["DictParser"]
 
 logger = logging.getLogger(__name__)
 
 
-class DictParser():
+class DictParser:
     """Parser for dictionaries in dictIO dict file format, as well as JSON and XML
 
     DictParser is a convenience class.
@@ -25,7 +25,7 @@ class DictParser():
     def parse(
         source_file: Union[str, os.PathLike[str]],
         includes: bool = True,
-        mode: str = 'w',
+        mode: str = "w",
         order: bool = False,
         comments: bool = True,
         scope: Union[MutableSequence[str], None] = None,
@@ -75,7 +75,9 @@ class DictParser():
         """
 
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
-        source_file = source_file if isinstance(source_file, Path) else Path(source_file)
+        source_file = (
+            source_file if isinstance(source_file, Path) else Path(source_file)
+        )
         if not source_file.exists():
             logger.error(f"DictParser: File {source_file} not found.")
             raise FileNotFoundError(source_file)
@@ -91,7 +93,7 @@ class DictParser():
             scope=scope,
         )
         # Create filename for the parsed dict
-        target_file = create_target_file_name(source_file, 'parsed', scope, output)
+        target_file = create_target_file_name(source_file, "parsed", scope, output)
         # Save the parsed dict as a default dict file
         DictWriter.write(
             source_dict=parsed_dict,

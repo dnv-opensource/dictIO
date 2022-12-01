@@ -7,14 +7,13 @@ from typing import MutableMapping, MutableSequence, Union
 from dictIO import CppDict, CppParser, Formatter, order_keys
 
 
-__ALL__ = ['DictWriter', 'create_target_file_name']
+__ALL__ = ["DictWriter", "create_target_file_name"]
 
 logger = logging.getLogger(__name__)
 
 
-class DictWriter():
-    """Writer for dictionaries in dictIO dict file format, as well as JSON, XML and OpenFoam
-    """
+class DictWriter:
+    """Writer for dictionaries in dictIO dict file format, as well as JSON, XML and OpenFoam"""
 
     def __init__(self):
         return
@@ -23,7 +22,7 @@ class DictWriter():
     def write(
         source_dict: Union[MutableMapping, CppDict],
         target_file: Union[str, os.PathLike[str], None] = None,
-        mode: str = 'a',
+        mode: str = "a",
         order: bool = False,
         formatter: Union[Formatter, None] = None,
     ):
@@ -60,7 +59,7 @@ class DictWriter():
                 "dictWriter.write(): argument 'source_dict' is missing. No file written."
             )
             return
-        if mode not in ['a', 'w']:
+        if mode not in ["a", "w"]:
             logger.warning(
                 f"dictWriter.write(): argument 'mode' has invalid value '{mode}'. Used default mode 'w' instead as fallback."
             )
@@ -71,12 +70,14 @@ class DictWriter():
                 target_file = create_target_file_name(source_dict.source_file)
             else:
                 logger.error(
-                    'DictWriter.write(): parameter target_file is missing. No file written.'
+                    "DictWriter.write(): parameter target_file is missing. No file written."
                 )
                 return
 
         # Make sure target_file argument is of type Path. If not, cast it to Path type.
-        target_file = target_file if isinstance(target_file, Path) else Path(target_file)
+        target_file = (
+            target_file if isinstance(target_file, Path) else Path(target_file)
+        )
 
         # Create formatter
         # If a formatter has been passed to write(), use that.
@@ -89,11 +90,12 @@ class DictWriter():
 
         # If mode is set to 'a' (append) and target_file exists:
         # Read the existing file and merge the new dict into the existing.
-        if mode == 'a' and target_file.exists():
+        if mode == "a" and target_file.exists():
             logger.debug(
                 f"DictWriter.write(): append mode: Read existing target file {target_file} and merge dict \n{source_dict}\ninto it."
             )
             from dictIO import DictReader
+
             existing_dict = DictReader.read(target_file, order=order)
             existing_dict.merge(source_dict)
             source_dict = existing_dict
@@ -110,7 +112,7 @@ class DictWriter():
 
         # Save formatted string to target_file
         target_file.parent.mkdir(parents=True, exist_ok=True)
-        with target_file.open(mode='w') as f:
+        with target_file.open(mode="w") as f:
             f.write(string)
 
         return
@@ -121,7 +123,7 @@ def create_target_file_name(
     prefix: Union[str, None] = None,
     scope: Union[MutableSequence[str], None] = None,
     format: Union[str, None] = None,
-) -> Path:                                              # sourcery skip: avoid-builtin-shadow
+) -> Path:  # sourcery skip: avoid-builtin-shadow
     """Helper function to create a well defined target file name.
 
     Parameters
@@ -152,27 +154,27 @@ def create_target_file_name(
     # and has NO file ending, the stem/suffix approach doesn't work:
     # pathlib will interpret 'parsed' as file name (stem) and '.file_name' as file ending (suffix)
     # Let's catch that case and use a workaround to correct it:
-    if source_file.stem in ['parsed', prefix]:
+    if source_file.stem in ["parsed", prefix]:
         file_name = source_file.stem + source_file.suffix
-        file_ending = ''
+        file_ending = ""
 
     # File name shall contain the scope the parsed dict had been reduced to
     if scope:
-        scope_suffix = '_' + '_'.join(iter(scope))
+        scope_suffix = "_" + "_".join(iter(scope))
         file_name += scope_suffix
 
     # Prepend prefix, but make sure it is contained in the final filename max once.
     if prefix:
-        prefix = prefix.removesuffix('.')   # remove trailing '.', if existing
-        prefix = f'{prefix}.'
-        file_name = prefix + re.sub(f'^{prefix}', '', file_name)
+        prefix = prefix.removesuffix(".")  # remove trailing '.', if existing
+        prefix = f"{prefix}."
+        file_name = prefix + re.sub(f"^{prefix}", "", file_name)
 
     # If an output format is specified: Set file ending to match the output format
     if format:
         # limit to formats that are supported by DictWriter
-        if format not in ['', 'cpp', 'foam', 'json', 'xml']:
-            format = 'cpp'
-        file_ending = '' if format == 'cpp' else f'.{format}'
+        if format not in ["", "cpp", "foam", "json", "xml"]:
+            format = "cpp"
+        file_ending = "" if format == "cpp" else f".{format}"
 
     # Add file ending again
     file_name += file_ending
