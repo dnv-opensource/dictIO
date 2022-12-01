@@ -1,13 +1,14 @@
-pytest>=6.2.5
-pytest-cov>=3.0.0
-pytest-randomly>=3.11.0
-yapf>=0.31.0
-flake8>=4.0.1
-pep8-naming>=0.12.1
-Sphinx>=4.3.0
-myst-parser>=0.15.2
-sphinx-argparse-cli>=1.8.2
-furo
+pytest>=7.2
+pytest-cov>=4.0
+pytest-randomly>=3.12
+black>=22.10.0
+flake8>=6.0
+pep8-naming>=0.13
+isort>=5.10.1
+Sphinx>=5.3
+sphinx-argparse-cli>=1.10
+myst-parser>=0.18
+furo>=2022.9.29
 
-lxml>=4.6.4
-jsonschema>=4.2.1
+lxml>=4.9
+jsonschema>=4.17
