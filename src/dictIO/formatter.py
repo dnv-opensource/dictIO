@@ -5,19 +5,26 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any, MutableMapping, MutableSequence, Type, Union
 from xml.dom import minidom
+
 # from lxml.etree import register_namespace
-from xml.etree.ElementTree import (Element, SubElement, register_namespace, tostring)
+from xml.etree.ElementTree import Element, SubElement, register_namespace, tostring
 
 from dictIO import CppDict
 from dictIO.utils.counter import BorgCounter
 
 
-__ALL__ = ['Formatter', 'CppFormatter', 'FoamFormatter', 'JsonFormatter', 'XmlFormatter']
+__ALL__ = [
+    "Formatter",
+    "CppFormatter",
+    "FoamFormatter",
+    "JsonFormatter",
+    "XmlFormatter",
+]
 
 logger = logging.getLogger(__name__)
 
 
-class Formatter():
+class Formatter:
     """Abstract Base Class for formatters.
 
     Formatters serialize a dict into a string applying a specific format.
@@ -44,15 +51,20 @@ class Formatter():
 
         # 1. If target_file is passed, choose formatter depending on file-ending
         if target_file:
-            if target_file.suffix == '.foam':               # .foam -> FoamFormatter  not applicable with xxx.foam, foam dicts are also xxxDict
+            if (
+                target_file.suffix == ".foam"
+            ):  # .foam -> FoamFormatter  not applicable with xxx.foam, foam dicts are also xxxDict
                 return FoamFormatter()
-            elif target_file.suffix == '.json':             # .json -> JsonFormatter
+            elif target_file.suffix == ".json":  # .json -> JsonFormatter
                 return JsonFormatter()
-            elif target_file.suffix in ['.xml', '.ssd']:    # .xml  or  OSP .ssd -> XmlFormatter
+            elif target_file.suffix in [
+                ".xml",
+                ".ssd",
+            ]:  # .xml  or  OSP .ssd -> XmlFormatter
                 return XmlFormatter()
 
         # 2. If no target file is passed, return CppFormatter as default / fallback
-        return CppFormatter()   # default
+        return CppFormatter()  # default
 
     def to_string(
         self,
@@ -72,7 +84,7 @@ class Formatter():
         str
             string representation of the dict
         """
-        return ''
+        return ""
 
     def format_dict(self, arg: Union[MutableMapping, MutableSequence, Any]) -> str:
         """Formats a dict or list object.
@@ -89,7 +101,7 @@ class Formatter():
         str
             the formatted string representation of the passed in dict or list
         """
-        return ''
+        return ""
 
     def format_type(self, arg: Any) -> str:
         """Formats a single value type (str, int, float, boolean or None)
@@ -197,16 +209,16 @@ class Formatter():
         str
             the formatted string
         """
-        if re.search(r'[$]', arg):
-            if re.search(r'^\$\w[\w\[\]]+$', arg):  # reference
+        if re.search(r"[$]", arg):
+            if re.search(r"^\$\w[\w\[\]]+$", arg):  # reference
                 return self.format_reference_string(arg)
-            else:                                   # expression
+            else:  # expression
                 return self.format_expression_string(arg)
-        elif not arg:                               # empty string
+        elif not arg:  # empty string
             return self.format_empty_string(arg)
-        elif re.search(r'[\s:/\\]', arg):           # contains spaces or path -> complex string
+        elif re.search(r"[\s:/\\]", arg):  # contains spaces or path -> complex string
             return self.format_multi_word_string(arg)
-        else:                                       # single word string
+        else:  # single word string
             return self.format_single_word_string(arg)
 
     def format_empty_string(self, arg: str) -> str:
@@ -312,7 +324,7 @@ class Formatter():
         str
             the string wrapped in single quotes
         """
-        return '\'' + arg + '\''
+        return "'" + arg + "'"
 
     def add_double_quotes(self, arg: str) -> str:
         """Adds double quotes to a string
@@ -336,20 +348,19 @@ class Formatter():
 
 
 class CppFormatter(Formatter):
-    """Formatter to serialize a dict into a string in dictIO dict file format
-    """
+    """Formatter to serialize a dict into a string in dictIO dict file format"""
 
     def __init__(self):
-        '''
+        """
         Implementation specific default configuration of CppFormatter
-        '''
+        """
         # Invoke base class constructor
         super().__init__()
 
     def to_string(
         self,
         dict: Union[MutableMapping, CppDict],
-    ) -> str:                                   # sourcery skip: avoid-builtin-shadow
+    ) -> str:  # sourcery skip: avoid-builtin-shadow
         """Creates a string representation of the passed in dict in dictIO dict file format.
 
         Parameters
@@ -372,17 +383,19 @@ class CppFormatter(Formatter):
                 temp_dict.update(dict)
                 dict = deepcopy(temp_dict)
             else:
-                logger.error('CppFormatter.to_string(): passed in arg is not of type dict')
-                return ''
+                logger.error(
+                    "CppFormatter.to_string(): passed in arg is not of type dict"
+                )
+                return ""
 
         # Sort dict in a way that block comment and include statement come first
         original_data = deepcopy(dict.data)
         sorted_data = {}
         for key, element in original_data.items():
-            if re.search(r'BLOCKCOMMENT\d{6}', key):
+            if re.search(r"BLOCKCOMMENT\d{6}", key):
                 sorted_data[key] = element
         for key, element in original_data.items():
-            if re.search(r'INCLUDE\d{6}', key):
+            if re.search(r"INCLUDE\d{6}", key):
                 sorted_data[key] = element
         for key in sorted_data:
             del original_data[key]
@@ -407,7 +420,7 @@ class CppFormatter(Formatter):
 
         # Remove trailing spaces (if any)
         s = self.remove_trailing_spaces(s)
-        '''
+        """
         # Log variables and includes for debugging purposes
         # variables
         variables = dict.variables
@@ -419,7 +432,7 @@ class CppFormatter(Formatter):
         if includes:
             log_message = self.format_dict({'_includes': [j for i, j in includes.values()]})
             logger.debug(log_message)
-        '''
+        """
 
         # Return formatted string
         return s
@@ -429,13 +442,12 @@ class CppFormatter(Formatter):
         arg: Union[MutableMapping, MutableSequence, Any],
         tab_len: int = 4,
         level: int = 0,
-        sep: str = ' ',
+        sep: str = " ",
         items_per_line: int = 10,
-        end: str = '\n',
+        end: str = "\n",
         ancestry: Union[Type[MutableMapping], Type[MutableSequence]] = MutableMapping,
     ) -> str:
-        """Formats a dict or list object.
-        """
+        """Formats a dict or list object."""
         total_indent = 30
         s = str()
         indent = sep * tab_len * level
@@ -444,7 +456,7 @@ class CppFormatter(Formatter):
         if isinstance(arg, MutableSequence):
 
             # Opening bracket
-            s += self.format_dict('(', level=level, end=end)
+            s += self.format_dict("(", level=level, end=end)
 
             # List items
             first_item_on_this_line = True
@@ -467,18 +479,18 @@ class CppFormatter(Formatter):
 
                 # nested dict
                 elif isinstance(item, dict):
-                    s += self.format_dict('', level=level + 1, end='\n')
-                    s += self.format_dict('{', level=level + 1)
+                    s += self.format_dict("", level=level + 1, end="\n")
+                    s += self.format_dict("{", level=level + 1)
                     s += self.format_dict(
                         item,
                         tab_len=tab_len,
                         level=level + 2,
                         sep=sep,
                         items_per_line=items_per_line,
-                        end=end
-                    )                                   # (recursion)
+                        end=end,
+                    )  # (recursion)
 
-                    s += self.format_dict('}', level=level + 1)
+                    s += self.format_dict("}", level=level + 1)
                     first_item_on_this_line = True
 
                 # single value
@@ -487,9 +499,9 @@ class CppFormatter(Formatter):
                     if first_item_on_this_line:
                         # The first item shall be indented by 1 relative to the (absolute) list level
                         item_level = level + 1
-                        first_item_on_this_line = False     # (effective with next item)
+                        first_item_on_this_line = False  # (effective with next item)
                     else:
-                                                            # each following item is then indented by 1 relative to its predecessor
+                        # each following item is then indented by 1 relative to its predecessor
                         item_level = 1
 
                     if ((index + 1) % items_per_line == 0) or (index + 1 == len(arg)):
@@ -497,23 +509,25 @@ class CppFormatter(Formatter):
 
                     if last_item_on_this_line:
                         # Add a line ending
-                        s += self.format_dict(value, level=item_level, end='\n')    # (recursion)
-                        last_item_on_this_line = False                              # (effective with next item)
-                        first_item_on_this_line = True                              # (effective with next item)
-                    else:
-                                                                                    # Do not add a line ending. Instead, add an adjusted number of spaces after the item to make indentation look pretty.
                         s += self.format_dict(
-                            f'{value}{sep * max(0, (14 - len(str(value))))}',
+                            value, level=item_level, end="\n"
+                        )  # (recursion)
+                        last_item_on_this_line = False  # (effective with next item)
+                        first_item_on_this_line = True  # (effective with next item)
+                    else:
+                        # Do not add a line ending. Instead, add an adjusted number of spaces after the item to make indentation look pretty.
+                        s += self.format_dict(
+                            f"{value}{sep * max(0, (14 - len(str(value))))}",
                             level=item_level,
-                            end=''
-                        )                                                           # (recursion)
+                            end="",
+                        )  # (recursion)
 
             # Closing bracket
             # if list (array) is complete, add semicolon
             if ancestry == MutableSequence:
-                s += self.format_dict(')', level=level, end=end)
+                s += self.format_dict(")", level=level, end=end)
             else:
-                s += self.format_dict(');', level=level, end=end)
+                s += self.format_dict(");", level=level, end=end)
 
         # dict
         elif isinstance(arg, MutableMapping):
@@ -522,7 +536,7 @@ class CppFormatter(Formatter):
                 # nested dict
                 if isinstance(arg[key], dict):
                     s += self.format_dict(key, level=level)
-                    s += self.format_dict('{', level=level)
+                    s += self.format_dict("{", level=level)
                     s += self.format_dict(
                         arg[key],
                         tab_len=tab_len,
@@ -530,21 +544,21 @@ class CppFormatter(Formatter):
                         sep=sep,
                         items_per_line=items_per_line,
                         end=end,
-                    )                                   # (recursion)
+                    )  # (recursion)
 
-                    s += self.format_dict('}', level=level)
+                    s += self.format_dict("}", level=level)
 
                 # nested list
                 elif isinstance(arg[key], list):
                     s += self.format_dict(key, level=level)
-                    s += self.format_dict(arg[key], level=level)    # (recursion)
+                    s += self.format_dict(arg[key], level=level)  # (recursion)
 
                 # key value pair
                 else:
                     value = self.format_type(arg[key])
                     s += self.format_dict(
-                        f'{key}{sep * max(8, (total_indent - len(key) - tab_len * level))}{value};',
-                        level=level
+                        f"{key}{sep * max(8, (total_indent - len(key) - tab_len * level))}{value};",
+                        level=level,
                     )
 
         # Single item
@@ -552,7 +566,7 @@ class CppFormatter(Formatter):
         # dict -> key value pair    or from     list -> single value.
         # arg will hence either be a single item from a list, or a key value pair from a dict.
         else:
-            string = f'{indent}{arg}{end}'
+            string = f"{indent}{arg}{end}"
             s += string
 
         return s
@@ -561,7 +575,7 @@ class CppFormatter(Formatter):
         return str(arg).lower()
 
     def format_none(self) -> str:
-        return 'NULL'
+        return "NULL"
 
     def format_empty_string(self, arg: str) -> str:
         return self.add_single_quotes(arg)
@@ -580,7 +594,7 @@ class CppFormatter(Formatter):
         """
 
         # Replace all BLOCKCOMMENT placeholders in s with the actual block_comments saved in dict
-        block_comments_inserted_so_far = ''
+        block_comments_inserted_so_far = ""
         first_block_comment = True  # MonoFlop, armed
         for key, block_comment in dict.block_comments.items():
 
@@ -590,68 +604,67 @@ class CppFormatter(Formatter):
                 #     # block_comment = default_block_comment + str(dict.block_comments[key])
                 #     block_comment = default_block_comment + block_comment
                 block_comment = self.make_default_block_comment(block_comment)
-                first_block_comment = False     # disarm MonoFlop
+                first_block_comment = False  # disarm MonoFlop
 
             # Check whether the current block comment is identical with a block comment that we already inserted earlier
             # (we do not want to insert any doubled block comments)
             if re.search(re.escape(block_comment), block_comments_inserted_so_far):
-                block_comment = ''
+                block_comment = ""
 
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original block_comment.
-            search_pattern = r'BLOCKCOMMENT%06i\s+BLOCKCOMMENT%06i;' % (key, key)
-            if len(
-                re.findall(search_pattern, s)
-            ) > 0:                                                                          # if placeholders exist in s that match the key of the current block_comment
-                                                                                            # Substitude the placehlder with the actual block_comment
-                                                                                            # s.sub(search_pattern, block_comment)
-                s = re.sub(search_pattern, re.sub(r'\\', '\\\\\\\\', block_comment), s)     # no comment
-                                                                                            # Document which block comments we already inserted.
+            search_pattern = r"BLOCKCOMMENT%06i\s+BLOCKCOMMENT%06i;" % (key, key)
+            if (
+                len(re.findall(search_pattern, s)) > 0
+            ):  # if placeholders exist in s that match the key of the current block_comment
+                # Substitude the placehlder with the actual block_comment
+                # s.sub(search_pattern, block_comment)
+                s = re.sub(
+                    search_pattern, re.sub(r"\\", "\\\\\\\\", block_comment), s
+                )  # no comment
+                # Document which block comments we already inserted.
                 block_comments_inserted_so_far += block_comment
 
         # If no block_comment had been inserted, insert the default block comment
-        if block_comments_inserted_so_far == '':
+        if block_comments_inserted_so_far == "":
             s = self.make_default_block_comment() + s
 
         return s
 
-    def make_default_block_comment(self, block_comment: str = '') -> str:
-        """Creates the default block comment (header) for files in dictIO dict file format
-        """
+    def make_default_block_comment(self, block_comment: str = "") -> str:
+        """Creates the default block comment (header) for files in dictIO dict file format"""
         # If there is no ' C++ ' contained in block_comment,
         # then insert the C++ default block comment in front:
         # sourcery skip: move-assign
         default_block_comment = (
-            '/*---------------------------------*- C++ -*----------------------------------*\\\n'
-            'filetype dictionary; coding utf-8; version 0.1; local --; purpose --;\n'
-            '\\*----------------------------------------------------------------------------*/\n'
+            "/*---------------------------------*- C++ -*----------------------------------*\\\n"
+            "filetype dictionary; coding utf-8; version 0.1; local --; purpose --;\n"
+            "\\*----------------------------------------------------------------------------*/\n"
         )
-        if not re.search(r'\s[Cc]\+{2}\s', block_comment):
+        if not re.search(r"\s[Cc]\+{2}\s", block_comment):
             # block_comment = default_block_comment + str(dict.block_comments[key])
             block_comment = default_block_comment + block_comment
         return block_comment
 
     def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
-        """Inserts back all include directives
-        """
+        """Inserts back all include directives"""
         for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original include directive.
-            include_file_name = include_file_name.replace('\\', '\\\\')
+            include_file_name = include_file_name.replace("\\", "\\\\")
             include_file_name = self.format_type(include_file_name)
-            include_directive = f'#include {include_file_name}'
-            search_pattern = r'INCLUDE%06i\s+INCLUDE%06i;' % (key, key)
+            include_directive = f"#include {include_file_name}"
+            search_pattern = r"INCLUDE%06i\s+INCLUDE%06i;" % (key, key)
             s = re.sub(search_pattern, include_directive, s)
 
         return s
 
     def insert_line_comments(self, cpp_dict: CppDict, s: str) -> str:
-        """Inserts back all line directives
-        """
+        """Inserts back all line directives"""
         for key, line_comment in cpp_dict.line_comments.items():
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original block_comment.
-            search_pattern = r'LINECOMMENT%06i\s+LINECOMMENT%06i;' % (key, key)
+            search_pattern = r"LINECOMMENT%06i\s+LINECOMMENT%06i;" % (key, key)
             s = re.sub(search_pattern, line_comment, s)
 
         return s
@@ -667,24 +680,23 @@ class CppFormatter(Formatter):
         stream.seek(0)
         ns = str()
         for line in stream.readlines():
-            if match := re.search('[\r\n]*$', line):
+            if match := re.search("[\r\n]*$", line):
                 line_ending = match[0]
-                line_without_ending = line[:len(line) - len(line_ending)]
-                line_without_trailingspaces = re.sub(
-                    r'\s+$', '', line_without_ending
-                ) + line_ending
+                line_without_ending = line[: len(line) - len(line_ending)]
+                line_without_trailingspaces = (
+                    re.sub(r"\s+$", "", line_without_ending) + line_ending
+                )
                 ns += line_without_trailingspaces
         return ns
 
 
 class FoamFormatter(CppFormatter):
-    """Formatter to serialize a dict into a string in OpenFOAM dictionary format
-    """
+    """Formatter to serialize a dict into a string in OpenFOAM dictionary format"""
 
     def __init__(self):
-        '''
+        """
         Implementation specific default configuration of FoamFormatter
-        '''
+        """
         # Invoke base class constructor
         super().__init__()
 
@@ -713,10 +725,10 @@ class FoamFormatter(CppFormatter):
         def remove_underscore_keys_recursive(dict: MutableMapping):
             keys = list(dict.keys())
             for key in keys:
-                if str(key).startswith('_'):
+                if str(key).startswith("_"):
                     del dict[key]
                 elif isinstance(dict[key], MutableMapping):
-                    remove_underscore_keys_recursive(dict[key])     # recursion
+                    remove_underscore_keys_recursive(dict[key])  # recursion
             return
 
         dict_adapted_for_foam = deepcopy(dict)
@@ -739,44 +751,42 @@ class FoamFormatter(CppFormatter):
     def format_expression_string(self, arg: str) -> str:
         return self.add_double_quotes(arg)
 
-    def make_default_block_comment(self, block_comment: str = '') -> str:
-        """Creates the default block comment (header) for files in OpenFOAM dictionary format
-        """
+    def make_default_block_comment(self, block_comment: str = "") -> str:
+        """Creates the default block comment (header) for files in OpenFOAM dictionary format"""
         # If there is no ' C++ ' and 'OpenFoam' contained in block_comment,
         # then insert the OpenFOAM default block comment in front:
         default_block_comment = (
-            '/*--------------------------------*- C++ -*----------------------------------*\\\n'
-            '| =========                 |                                                 |\n'
-            '| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |\n'
-            '|  \\\\    /   O peration     | Version:  dev                                   |\n'
-            '|   \\\\  /    A nd           | Web:      www.OpenFOAM.com                      |\n'
-            '|    \\\\/     M anipulation  |                                                 |\n'
-            '\\*---------------------------------------------------------------------------*/\n'
-            'FoamFile\n'
-            '{\n'
-            '    version                   2.0;\n'
-            '    format                    ascii;\n'
-            '    class                     dictionary;\n'
-            '    object                    foamDict;\n'
-            '}\n'
-            '// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n'
+            "/*--------------------------------*- C++ -*----------------------------------*\\\n"
+            "| =========                 |                                                 |\n"
+            "| \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |\n"
+            "|  \\\\    /   O peration     | Version:  dev                                   |\n"
+            "|   \\\\  /    A nd           | Web:      www.OpenFOAM.com                      |\n"
+            "|    \\\\/     M anipulation  |                                                 |\n"
+            "\\*---------------------------------------------------------------------------*/\n"
+            "FoamFile\n"
+            "{\n"
+            "    version                   2.0;\n"
+            "    format                    ascii;\n"
+            "    class                     dictionary;\n"
+            "    object                    foamDict;\n"
+            "}\n"
+            "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n"
         )
-        if not re.search(r'\s[Cc]\+{2}\s', block_comment):
+        if not re.search(r"\s[Cc]\+{2}\s", block_comment):
             # block_comment = default_block_comment + str(dict.block_comments[key])
             block_comment = default_block_comment + block_comment
-        if not re.search(r'OpenFOAM', block_comment):
+        if not re.search(r"OpenFOAM", block_comment):
             block_comment = default_block_comment
         return block_comment
 
 
 class JsonFormatter(Formatter):
-    """Formatter to serialize a dict into a string in JSON dictionary format
-    """
+    """Formatter to serialize a dict into a string in JSON dictionary format"""
 
     def __init__(self):
-        '''
+        """
         Implementation specific default configuration of JsonFormatter
-        '''
+        """
         # Invoke base class constructor
         super().__init__()
 
@@ -810,7 +820,7 @@ class JsonFormatter(Formatter):
             allow_nan=True,
             sort_keys=False,
             indent=4,
-            separators=(',', ':'),
+            separators=(",", ":"),
         )
         if isinstance(dict, CppDict):
             s = self.insert_includes(dict, s)
@@ -818,13 +828,12 @@ class JsonFormatter(Formatter):
         return s
 
     def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
-        """Inserts back all include directives
-        """
+        """Inserts back all include directives"""
         for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
             # Search for the placeholder key in the Json string,
             # and insert back the original include directive.
             # include_file_name = include_file_name.replace('\\', '/')
-            include_file_name = include_file_name.replace('\\', '\\\\\\\\')
+            include_file_name = include_file_name.replace("\\", "\\\\\\\\")
             include_directive = f'"#include{key:06d}":"{include_file_name}"'
             search_pattern = r'"INCLUDE%06i"\s*:\s*"INCLUDE%06i"' % (key, key)
             s = re.sub(search_pattern, include_directive, s)
@@ -855,7 +864,8 @@ class XmlFormatter(Formatter):
     | attributes   | as required | attributes need to be provided in a separate subdict "_attributes" to take action |
     | style        | namespace(s) | style guide, no namespaces (ns can be provided in a subdict "_xmlOpts") |
     """
-    ''' <databases>
+
+    """ <databases>
             <database id='human_resources' type='mysql'>
                 <host>localhost</host>
                 <user>usrhr</user>
@@ -878,7 +888,7 @@ class XmlFormatter(Formatter):
             CONS:   implementation is expensive and many functions have to be touched (are affected)
                     will not be used anyways
                     diminishes the main advantage of producing human readable code
-    '''
+    """
 
     def __init__(
         self,
@@ -886,9 +896,9 @@ class XmlFormatter(Formatter):
         integrate_attributes: bool = True,
         remove_node_numbering: bool = True,
     ):
-        '''
+        """
         Implementation specific default configuration of XmlFormatter
-        '''
+        """
         # Invoke base class constructor
         super().__init__()
         # Save default configuration as attributes
@@ -913,28 +923,37 @@ class XmlFormatter(Formatter):
             string representation of the dict in XML format
         """
         # Default configuration
-        namespaces: MutableMapping = {'xs': 'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd'}
-        root_tag: str = 'NOTSPECIFIED'
+        namespaces: MutableMapping = {
+            "xs": "https://www.w3.org/2009/XMLSchema/XMLSchema.xsd"
+        }
+        root_tag: str = "NOTSPECIFIED"
         root_attributes: Union[MutableMapping, None] = None
-        indent = ' ' * 4
+        indent = " " * 4
 
         # Check whether xml opts are contained in dict.
         # If so, read and use them
-        if '_xmlOpts' in dict.keys():
-            xml_opts: MutableMapping = dict['_xmlOpts']
-            namespaces = xml_opts['_nameSpaces'] if '_nameSpaces' in xml_opts else namespaces
-            root_tag = xml_opts['_rootTag'] if '_rootTag' in xml_opts else root_tag
-            root_attributes = xml_opts['_rootAttributes'
-                                       ] if '_rootAttributes' in xml_opts else root_attributes
-            self.remove_node_numbering = xml_opts[
-                '_removeNodeNumbering'
-            ] if '_removeNodeNumbering' in xml_opts else self.remove_node_numbering
+        if "_xmlOpts" in dict.keys():
+            xml_opts: MutableMapping = dict["_xmlOpts"]
+            namespaces = (
+                xml_opts["_nameSpaces"] if "_nameSpaces" in xml_opts else namespaces
+            )
+            root_tag = xml_opts["_rootTag"] if "_rootTag" in xml_opts else root_tag
+            root_attributes = (
+                xml_opts["_rootAttributes"]
+                if "_rootAttributes" in xml_opts
+                else root_attributes
+            )
+            self.remove_node_numbering = (
+                xml_opts["_removeNodeNumbering"]
+                if "_removeNodeNumbering" in xml_opts
+                else self.remove_node_numbering
+            )
 
         prefixes: MutableSequence = []
         for prefix, uri in namespaces.items():
             prefixes.append(prefix)
-            if prefix == 'None':
-                register_namespace('', uri)
+            if prefix == "None":
+                register_namespace("", uri)
             else:
                 register_namespace(prefix, uri)
         prefix: str = prefixes[0]
@@ -951,19 +970,22 @@ class XmlFormatter(Formatter):
 
         # @TODO: Isn't it contradictory to first pass in here the attributes to root_element
         #        but then thereafter ask whether to integrate the attributes?
-        root_element = Element('{%s}%s' % (xsd_uri, root_tag), attrib=attributes)
+        root_element = Element("{%s}%s" % (xsd_uri, root_tag), attrib=attributes)
         if self.integrate_attributes:
             # integrate attributes in root element
-            root_element.attrib = {k: str(v) for k, v in attributes.items() if str(v) != ''}
+            root_element.attrib = {
+                k: str(v) for k, v in attributes.items() if str(v) != ""
+            }
 
         self.populate_into_element(root_element, dict, xsd_uri)
 
-        s = minidom.parseString(tostring(root_element, encoding='UTF-8',
-                                         method='xml')).toprettyxml(indent=indent)
+        s = minidom.parseString(
+            tostring(root_element, encoding="UTF-8", method="xml")
+        ).toprettyxml(indent=indent)
         if self.omit_prefix:
             # objectify.deannotate(root, cleanup_namespaces=True)
             query = f"({'|'.join(f'{s}:' for s in prefixes)})"
-            s = re.sub(query, '', s)
+            s = re.sub(query, "", s)
 
         return s
 
@@ -992,41 +1014,42 @@ class XmlFormatter(Formatter):
         # @TODO: LINECOMMENTs not handled yet
 
         if isinstance(arg, MutableSequence):
-            element.text = ' '.join(str(x) for x in arg)
+            element.text = " ".join(str(x) for x in arg)
 
         elif isinstance(arg, MutableMapping):
             child_nodes = list(arg.keys())
 
             for index, (key, item) in enumerate(arg.items()):
 
-                if re.match('_content', key):
+                if re.match("_content", key):
                     # Write back content (from the key-value pair "_content <content>;") into xml node.text
                     # In case of multiline content, do not write it inline between opening and closing tag,
                     # but add a line ending at the beginning and at the end, so that content gets formatted
                     # as an indented text block beween the opening and closing tag.
                     text = str(item)
-                    if text not in [None, ''] and len(text.splitlines()) > 1:
-                        text = '\n' + text + '\n'
+                    if text not in [None, ""] and len(text.splitlines()) > 1:
+                        text = "\n" + text + "\n"
                     element.text = text
 
-                elif self.integrate_attributes and re.match('_attrib', key):
+                elif self.integrate_attributes and re.match("_attrib", key):
                     # attributes to integrate in node, otherwise leave in content
                     # and remove attribs with empy strings
                     # correct occurence of true false -> de-pythonize for lowercase
                     # if here is more expense needed, we have to revoke the one-liner
                     element.attrib = {
-                        k: str(v).lower() if re.match('^(true|false)$', str(v), re.I) else str(v)
-                        for k,
-                        v in item.items()
-                        if str(v) != ''
+                        k: str(v).lower()
+                        if re.match("^(true|false)$", str(v), re.I)
+                        else str(v)
+                        for k, v in item.items()
+                        if str(v) != ""
                     }
 
-                elif re.match('^(_.*[Oo]pts|INCLUDE)', key):
+                elif re.match("^(_.*[Oo]pts|INCLUDE)", key):
                     # undescore elements _opts _xmlOpts and INCLUDE are considered not being content so far
                     pass
 
-                elif re.match('BLOCKCOMMENT[0-9]+', key):
-                    if re.search('.*0$', key):
+                elif re.match("BLOCKCOMMENT[0-9]+", key):
+                    if re.search(".*0$", key):
                         # take all except the first one as this is /* C++ dict */
                         pass
                     else:
@@ -1035,7 +1058,7 @@ class XmlFormatter(Formatter):
                         # element.append(Comment(item))
                         pass
 
-                elif re.match('LINECOMMENT[0-9]+', key):
+                elif re.match("LINECOMMENT[0-9]+", key):
                     # @TODO: Implement substitution of LINECOMMENT
                     # cIndex = int(re.findall('(?<=LINECOMMENT)[0-9;]+', key)[0])
                     # root_element.append(Comment(re.sub('/', '', self.dict.line_comments[cIndex])))
@@ -1044,13 +1067,13 @@ class XmlFormatter(Formatter):
                 else:
                     # nested content
                     if self.remove_node_numbering:
-                        key = re.sub(r'(^\d{1,6}_)', '', key)
+                        key = re.sub(r"(^\d{1,6}_)", "", key)
 
                     # Substitute with empty string to force <NODE/> in favour of <NODE>None</NODE>
                     if item is None:
-                        item = ''
+                        item = ""
 
-                    child_nodes[index] = SubElement(element, '{%s}%s' % (xsd_uri, key))
+                    child_nodes[index] = SubElement(element, "{%s}%s" % (xsd_uri, key))
                     # SubElement(subE[index], self.parseGenerateXml(subE[index], item))
                     self.populate_into_element(child_nodes[index], item, xsd_uri)
 

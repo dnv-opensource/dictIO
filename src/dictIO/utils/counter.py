@@ -1,15 +1,16 @@
-__all__ = ['BorgCounter', 'DejaVue']
+__all__ = ["BorgCounter", "DejaVue"]
 
 
-class BorgCounter():
-    '''
+class BorgCounter:
+    """
     A class that implements a static global counter.
     Instances of this class all share the same global counter.
     This is used in DictReader class to assure that multiple instances
     of CppDict do not generate conflicting IDs for placeholder strings
     (as would be the case otherwise when merging included dicts).
-    '''
-    Borg = {'theCount': -1}
+    """
+
+    Borg = {"theCount": -1}
 
     def __init__(self):
         self.__dict__ = BorgCounter.Borg
@@ -25,31 +26,32 @@ class BorgCounter():
 
     @staticmethod
     def reset():
-        BorgCounter.Borg['theCount'] = -1
+        BorgCounter.Borg["theCount"] = -1
 
 
-class DejaVue():
-    '''
+class DejaVue:
+    """
     return True if string repeats after initializing class
-    '''
-    djv = {'strings': [], 'retVal': False}
+    """
+
+    djv = {"strings": [], "retVal": False}
 
     def __init__(self):
         self.__dict__ = DejaVue.djv
 
     def __call__(self, string):
 
-        if string in self.djv['strings']:
-            self.djv['retVal'] = True
+        if string in self.djv["strings"]:
+            self.djv["retVal"] = True
 
-        self.djv['strings'].append(string)
+        self.djv["strings"].append(string)
 
-        return self.djv['retVal']
+        return self.djv["retVal"]
 
     @property
     def strings(self):
-        return self.djv['strings']
+        return self.djv["strings"]
 
     def reset(self):
-        self.djv['strings'] = []
-        self.djv['retVal'] = False
+        self.djv["strings"] = []
+        self.djv["retVal"] = False

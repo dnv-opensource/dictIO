@@ -3,10 +3,24 @@ import logging
 import os
 import re
 from copy import deepcopy
+
 # Import from math all functions we want to allow inside expressions in a dict.
 # This is a bit ugly, but necessary to enable evaluation of parsed expressions with the help of eval().
 from math import (  # noqa: F401
-    acos, asin, atan, atan2, cos, e, exp, log, log10, pi, pow, sin, sqrt, tan
+    acos,
+    asin,
+    atan,
+    atan2,
+    cos,
+    e,
+    exp,
+    log,
+    log10,
+    pi,
+    pow,
+    sin,
+    sqrt,
+    tan,
 )
 from pathlib import Path
 from typing import MutableMapping, MutableSequence, Union
@@ -15,14 +29,13 @@ from dictIO import CppDict, Parser
 from dictIO.utils.counter import DejaVue
 
 
-__ALL__ = ['DictReader']
+__ALL__ = ["DictReader"]
 
 logger = logging.getLogger(__name__)
 
 
-class DictReader():
-    """Reader for dictionaries in dictIO dict file format, as well as JSON and XML
-    """
+class DictReader:
+    """Reader for dictionaries in dictIO dict file format, as well as JSON and XML"""
 
     def __init__(self):
         return
@@ -74,9 +87,11 @@ class DictReader():
         """
 
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
-        source_file = source_file if isinstance(source_file, Path) else Path(source_file)
+        source_file = (
+            source_file if isinstance(source_file, Path) else Path(source_file)
+        )
         if not source_file.exists():
-            logger.error(f'source_file not found: {source_file}')
+            logger.error(f"source_file not found: {source_file}")
             raise FileNotFoundError(source_file)
 
         # Create parser
@@ -101,7 +116,7 @@ class DictReader():
             if parsed_dict.global_key_exists(scope):
                 parsed_dict.reduce_scope(scope)
             else:
-                logger.error(f'scope {scope} does not exist in dictionary')
+                logger.error(f"scope {scope} does not exist in dictionary")
                 exit(1)
 
         # Order the dict, if not actively refrained through opts
@@ -121,9 +136,9 @@ class DictReader():
 
     @staticmethod
     def _merge_includes(dict: CppDict, comments: bool = True):
-        '''
+        """
         Parses and merges any (child) dicts that are referenced in the dict file through #include directives
-        '''
+        """
         # Create dejavue string watchdog
         djv = DejaVue()
         djv.reset()
@@ -139,12 +154,14 @@ class DictReader():
                 prove_recursive_include = djv(path)
 
                 if prove_recursive_include is True:
-                    call_chain = '->'.join([p.name for p in djv.strings])
+                    call_chain = "->".join([p.name for p in djv.strings])
                     logger.warning(
-                        f'Recursive include detected. Merging of {call_chain} into {dict.name} aborted.'
+                        f"Recursive include detected. Merging of {call_chain} into {dict.name} aborted."
                     )
                 elif not path.exists():
-                    logger.warning(f'included dict not found. Merging of {path} aborted.')
+                    logger.warning(
+                        f"included dict not found. Merging of {path} aborted."
+                    )
                 else:
                     parser = Parser.get_parser(path)
                     included_dict = parser.parse_file(path, None, comments=comments)
@@ -174,29 +191,29 @@ class DictReader():
         ret = None
         try:
             # extract indices, ugly version, nice version is re.sub with a positive lookahead
-            indexing = re.findall(r'\[.+\]$', ref)[0]
+            indexing = re.findall(r"\[.+\]$", ref)[0]
         except Exception:
-            indexing = ''
+            indexing = ""
 
-        ref = re.sub(r'(^\$|\[.+$)', '', ref)   # remove leading $ or trailing [
+        ref = re.sub(r"(^\$|\[.+$)", "", ref)  # remove leading $ or trailing [
 
         if ref in vars:
-            ret = vars[ref]     # singular value or field
+            ret = vars[ref]  # singular value or field
 
             ref_changed_through_recursion = False
             while re.search(
-                r'\$', str(ret)
-            ):                                                  # resolve nested references, if existing, through recursion
+                r"\$", str(ret)
+            ):  # resolve nested references, if existing, through recursion
                 ref = ret
                 ref_changed_through_recursion = True
-                ret = __class__._resolve_reference(ref, vars)   # recursion
+                ret = __class__._resolve_reference(ref, vars)  # recursion
             if ref_changed_through_recursion:
-                ref = re.sub(r'(^\$|\[.+$)', '', ref)           # remove leading $ or trailing [
+                ref = re.sub(r"(^\$|\[.+$)", "", ref)  # remove leading $ or trailing [
             if indexing:
                 with contextlib.suppress(Exception):
                     ret = eval(
                         f"vars['{ref}']{indexing}"
-                    )                                           # return the value of the referenced variable (at the specified index, if given)
+                    )  # return the value of the referenced variable (at the specified index, if given)
         return ret
 
     @staticmethod
@@ -204,18 +221,21 @@ class DictReader():
         # Collect all references contained in expressions
         references = []
         for item in dict.expressions.values():
-            refs = re.findall(r'\$\w[\w\[\]]+', item['expression'])
+            refs = re.findall(r"\$\w[\w\[\]]+", item["expression"])
             references.extend(refs)
         # Resolve references
         variables = dict.variables
-        references = {ref: __class__._resolve_reference(ref, variables) for ref in references}
+        references = {
+            ref: __class__._resolve_reference(ref, variables) for ref in references
+        }
         references_resolved = {
             ref: value
-            for ref,
-            value in references.items()
-            if (value is not None) and (not re.search(r'EXPRESSION|\$', str(value)))
+            for ref, value in references.items()
+            if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
         }
-        references_not_resolved = [ref for ref in references if ref not in references_resolved]
+        references_not_resolved = [
+            ref for ref in references if ref not in references_resolved
+        ]
 
         # Iteratively try to evaluate expressions contained in the dict and then re-resolve all references
         # With every iteration, this should reduce the number of remaining, non resolved references
@@ -225,18 +245,20 @@ class DictReader():
             references_not_resolved_old = len(references_not_resolved)
             expressions_copy = deepcopy(dict.expressions)
             for key, item in expressions_copy.items():
-                placeholder = str(item['name'])
-                expression = str(item['expression'])
-                refs = re.findall(r'\$\w[\w\[\]]+', expression)
+                placeholder = str(item["name"])
+                expression = str(item["expression"])
+                refs = re.findall(r"\$\w[\w\[\]]+", expression)
                 for ref in refs:
                     if ref in references_resolved:
                         expression = re.sub(
-                            f'{re.escape(ref)}', str(references_resolved[ref]), expression
+                            f"{re.escape(ref)}",
+                            str(references_resolved[ref]),
+                            expression,
                         )
 
                 eval_successful = False
                 eval_result = None
-                if '$' not in expression:
+                if "$" not in expression:
                     try:
                         eval_result = eval(expression)
                         eval_successful = True
@@ -245,7 +267,8 @@ class DictReader():
                         eval_successful = True
                     except SyntaxError:
                         logger.warning(
-                            'DictReader.(): evaluation of \"%s\" not yet possible' % expression
+                            'DictReader.(): evaluation of "%s" not yet possible'
+                            % expression
                         )
                 if eval_successful:
                     while global_key := dict.find_global_key(query=placeholder):
@@ -254,30 +277,33 @@ class DictReader():
                     del dict.expressions[key]
                 else:
                     # update the item in dict.expressions with the (at least partly) resolved expression
-                    dict.expressions[key]['expression'] = expression
+                    dict.expressions[key]["expression"] = expression
 
             # At the end of each iteration, re-resolve all references based on the now updated variables table of dict
             references = []
             for item in dict.expressions.values():
-                refs = re.findall(r'\$\w[\w\[\]]+', item['expression'])
+                refs = re.findall(r"\$\w[\w\[\]]+", item["expression"])
                 references.extend(refs)
             variables = dict.variables
-            references = {ref: __class__._resolve_reference(ref, variables) for ref in references}
+            references = {
+                ref: __class__._resolve_reference(ref, variables) for ref in references
+            }
             references_resolved = {
                 ref: value
-                for ref,
-                value in references.items()
-                if (value is not None) and (not re.search(r'EXPRESSION|\$', str(value)))
+                for ref, value in references.items()
+                if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
             }
-            references_not_resolved = [ref for ref in references if ref not in references_resolved]
+            references_not_resolved = [
+                ref for ref in references if ref not in references_resolved
+            ]
 
-            keep_on = (len(references_not_resolved) < references_not_resolved_old)
+            keep_on = len(references_not_resolved) < references_not_resolved_old
 
         # For expressions that could NOT successfully be evaluated, even after iteration:
         # Back insert the expression string into the dict
         for key, item in dict.expressions.items():
-            placeholder = str(item['name'])
-            expression = str(item['expression'])
+            placeholder = str(item["name"])
+            expression = str(item["expression"])
             while global_key := dict.find_global_key(query=placeholder):
                 # Substitute the placeholder with the original (or at least partly resolved) expression
                 dict.set_global_key(global_key, value=expression)
@@ -287,27 +313,29 @@ class DictReader():
 
     @staticmethod
     def _remove_comment_keys(data: MutableMapping):
-        '''
+        """
         remove comments from data structure for read function call from other programs
-        '''
-        remove = '[A-Z]+COMMENT[0-9;]+'
+        """
+        remove = "[A-Z]+COMMENT[0-9;]+"
 
         temp_dict = deepcopy(data)
 
         with contextlib.suppress(Exception):
             for key in temp_dict.keys():
                 if isinstance(data[key], MutableMapping):
-                    data.update({key: __class__._remove_comment_keys(data[key])})   # recursion
+                    data.update(
+                        {key: __class__._remove_comment_keys(data[key])}
+                    )  # recursion
                 elif not re.search(remove, key):
                     data.update({key: temp_dict[key]})
         return
 
     @staticmethod
     def _remove_include_keys(data: MutableMapping):
-        '''
+        """
         remove includes from data structure for read function call from other programs
-        '''
-        remove = 'INCLUDE[0-9;]+'
+        """
+        remove = "INCLUDE[0-9;]+"
 
         temp_dict = deepcopy(data)
 

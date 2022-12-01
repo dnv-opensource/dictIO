@@ -12,13 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: pypi
     steps:
-
       # PREPARE
 
       # Checkout release branch
       # https://github.com/marketplace/actions/checkout
       - name: Checkout release branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: release
           fetch-depth: 1
@@ -27,14 +26,14 @@ jobs:
       # Install Python
       # https://github.com/marketplace/actions/setup-python
       - name: Install Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.10.2
+          python-version: '3.10'
 
       # Cache pip
       # https://docs.github.com/en/actions/guides/building-and-testing-python#caching-dependencies
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
@@ -70,14 +69,12 @@ jobs:
           pip install build
           pip install twine
 
-
       # BUILD
 
       # Build Python package
       - name: Build
         run: |
           python -m build
-
 
       # PUBLISH
 

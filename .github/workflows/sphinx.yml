@@ -4,7 +4,7 @@ name: Build and publish Sphinx documentation on GitHub Pages
 on: push
 
 env:
-  DEFAULT_BRANCH: "release"
+  DEFAULT_BRANCH: 'release'
   #SPHINXOPTS: "-W --keep-going -T"
   # ^-- If these SPHINXOPTS are enabled, then be strict about the builds and fail on any warnings
 
@@ -13,13 +13,12 @@ jobs:
     name: Build and publish Sphinx documentation on GitHub Pages
     runs-on: ubuntu-latest
     steps:
-
       # PREPARE
 
       # Checkout active branch (the branch that triggered the workflow)
       # https://github.com/marketplace/actions/checkout
       - name: Checkout active branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
           lfs: true
@@ -27,14 +26,14 @@ jobs:
       # Install Python
       # https://github.com/marketplace/actions/setup-python
       - name: Install Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.10.2
+          python-version: '3.10'
 
       # Cache pip
       # https://docs.github.com/en/actions/guides/building-and-testing-python#caching-dependencies
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
@@ -63,7 +62,6 @@ jobs:
           pip list --not-required
           pip list
 
-
       # BUILD DOCUMENTATION
 
       # Build documentation
@@ -72,7 +70,6 @@ jobs:
         run: |
           cd docs
           make html
-
 
       # COPY DOCUMENTATION to gh-pages branch
 
@@ -130,7 +127,6 @@ jobs:
       - name: nojekyll
         run: |
           touch _gh-pages/.nojekyll
-
 
       # PUBLISH DOCUMENTATION
 
