@@ -10,7 +10,6 @@ from typing import MutableSequence, Union
 from dictIO import DictParser
 from dictIO.utils.logging import configure_logging
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -4,6 +4,7 @@ from copy import deepcopy
 from pathlib import Path, PurePath
 
 import pytest
+
 from dictIO import CppDict, CppParser, DictReader, DictWriter
 
 

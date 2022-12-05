@@ -28,7 +28,6 @@ from typing import MutableMapping, MutableSequence, Union
 from dictIO import CppDict, Parser
 from dictIO.utils.counter import DejaVue
 
-
 __ALL__ = ["DictReader"]
 
 logger = logging.getLogger(__name__)

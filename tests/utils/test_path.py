@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from dictIO.utils.path import highest_common_root_folder, relative_path
 import pytest
+
+from dictIO.utils.path import highest_common_root_folder, relative_path
 
 
 def test_highest_common_root_folder():

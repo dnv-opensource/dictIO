@@ -12,7 +12,6 @@ from xml.etree.ElementTree import Element, SubElement, register_namespace, tostr
 from dictIO import CppDict
 from dictIO.utils.counter import BorgCounter
 
-
 __ALL__ = [
     "Formatter",
     "CppFormatter",

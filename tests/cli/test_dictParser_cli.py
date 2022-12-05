@@ -5,8 +5,9 @@ from pathlib import Path
 from typing import List, MutableSequence, Union
 
 import pytest
-from dictIO.cli.dictParser import _argparser, _validate_scope, main
+
 from dictIO import DictParser
+from dictIO.cli.dictParser import _argparser, _validate_scope, main
 
 # *****Test commandline interface (CLI)************************************************************
 

@@ -3,6 +3,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
+
 from dictIO import CppDict, CppParser, Parser, XmlParser
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.strings import string_diff

@@ -5,7 +5,6 @@ from typing import MutableSequence, Union
 
 from dictIO import CppDict, DictReader, DictWriter, create_target_file_name
 
-
 __ALL__ = ["DictParser"]
 
 logger = logging.getLogger(__name__)

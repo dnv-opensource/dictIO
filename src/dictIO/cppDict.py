@@ -1,14 +1,14 @@
 import contextlib
-import re
+import logging
 import os
+import re
 from collections import UserDict
 from pathlib import Path
 from typing import Any, Dict, Mapping, MutableMapping, MutableSequence, TypeVar, Union
-import logging
+
 import dictIO
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.path import relative_path
-
 
 __ALL__ = [
     "CppDict",
@@ -194,9 +194,9 @@ class CppDict(UserDict):
         str
             the string representation
         """
-        from dictIO import (
+        from dictIO import (  # __str__ shall be formatted in default dict file format
             CppFormatter,
-        )  # __str__ shall be formatted in default dict file format
+        )
 
         formatter = CppFormatter()
         return formatter.to_string(self)

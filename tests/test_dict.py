@@ -2,15 +2,16 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
+
 from dictIO import (
     CppDict,
     CppParser,
-    find_global_key,
-    order_keys,
-    set_global_key,
     DictParser,
     DictReader,
     DictWriter,
+    find_global_key,
+    order_keys,
+    set_global_key,
 )
 
 

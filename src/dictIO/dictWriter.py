@@ -6,7 +6,6 @@ from typing import MutableMapping, MutableSequence, Union
 
 from dictIO import CppDict, CppParser, Formatter, order_keys
 
-
 __ALL__ = ["DictWriter", "create_target_file_name"]
 
 logger = logging.getLogger(__name__)

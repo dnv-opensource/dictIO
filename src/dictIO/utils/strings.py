@@ -1,6 +1,6 @@
+import logging
 import re
 from difflib import ndiff
-import logging
 
 __all__ = ["remove_quotes", "string_diff"]
 
