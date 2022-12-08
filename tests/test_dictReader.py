@@ -5,9 +5,8 @@ from pathlib import Path, PurePath
 from typing import Any, Dict, List
 
 import pytest
-from pytest import LogCaptureFixture
-
 from numpy.testing import assert_array_equal
+from pytest import LogCaptureFixture
 
 from dictIO import CppDict, CppParser, DictReader, DictWriter
 
@@ -266,6 +265,7 @@ def test_eval_expressions_with_included_keys():
 
 
 def test_eval_expressions_with_included_numpy_expressions():
+    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path("test_dictReader_dict")
 

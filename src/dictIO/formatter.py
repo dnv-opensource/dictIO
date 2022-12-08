@@ -5,10 +5,11 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any, List, MutableMapping, MutableSequence, Type, Union
 from xml.dom import minidom
-from numpy import ndarray
 
 # from lxml.etree import register_namespace
 from xml.etree.ElementTree import Element, SubElement, register_namespace, tostring
+
+from numpy import ndarray
 
 from dictIO import CppDict
 from dictIO.utils.counter import BorgCounter
