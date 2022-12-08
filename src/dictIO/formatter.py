@@ -449,7 +449,7 @@ class CppFormatter(Formatter):
         total_indent = 30
         s = str()
         indent = sep * tab_len * level
-   
+
         # list
         if isinstance(arg, MutableSequence):
 
@@ -461,7 +461,11 @@ class CppFormatter(Formatter):
             last_item_on_this_line = False
 
             for index, item in enumerate(arg):
-                
+
+                # ndarray -> list
+                if isinstance(item, ndarray):
+                    item = item.tolist()
+
                 # ndarray -> list
                 if isinstance(item, ndarray):
                     item = item.tolist()
@@ -494,7 +498,7 @@ class CppFormatter(Formatter):
 
                     s += self.format_dict("}", level=level + 1)
                     first_item_on_this_line = True
-                 
+
                 # single value
                 else:
                     value = self.format_type(item)

@@ -22,15 +22,10 @@ from math import (  # noqa: F401
     sqrt,
     tan,
 )
-from numpy import (
-    diag,
-    eye,
-    ndarray, 
-    ones,
-    zeros,
-)
 from pathlib import Path
 from typing import Any, Dict, List, MutableMapping, MutableSequence, Union
+
+from numpy import diag, eye, ndarray, ones, zeros  # noqa: F401
 
 from dictIO import CppDict, Parser
 from dictIO.utils.counter import DejaVue
