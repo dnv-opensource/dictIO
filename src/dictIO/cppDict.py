@@ -4,9 +4,18 @@ import os
 import re
 from collections import UserDict
 from pathlib import Path
-from typing import Any, Dict, Mapping, MutableMapping, MutableSequence, TypeVar, Union
+from typing import (
+    Any,
+    Dict,
+    List,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
-import dictIO
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.path import relative_path
 
@@ -24,7 +33,7 @@ _VT = TypeVar("_VT")  # generic Type variable for values
 logger = logging.getLogger(__name__)
 
 
-class CppDict(UserDict):
+class CppDict(UserDict[Any, Any]):
     """Data structure for generic dictionaries
 
     CppDict inherits from UserDict. It can hence be used transparently also in a context
@@ -32,12 +41,16 @@ class CppDict(UserDict):
     """
 
     def __init__(self, file: Union[str, os.PathLike[str], None] = None):
-        super().__init__()  # call base class constructor
+        # At very first: Re-declare member 'data' of base class UserDict with a well defined type hint.
+        # (This allows static type checkers to properly resolve the type of the 'data' member.)
+        self.data: Dict[Any, Any] = {}
+        # Call base class constructor
+        super().__init__()
 
-        self.counter = BorgCounter()
-        self.source_file = None
-        self.path = Path.cwd()
-        self.name = ""
+        self.counter: BorgCounter = BorgCounter()
+        self.source_file: Union[Path, None] = None
+        self.path: Path = Path.cwd()
+        self.name: str = ""
 
         if file:
             # Make sure file argument is of type Path. If not, cast it to Path type.
@@ -46,24 +59,42 @@ class CppDict(UserDict):
             self.path = self.source_file.parent
             self.name = self.source_file.name
 
-        self.line_content = []
-        self.block_content = ""
-        self.tokens = []
-        self.string_literals = {}
+        self.line_content: List[str] = []
+        self.block_content: str = ""
+        self.tokens: List[Tuple[int, str]] = []
+        self.string_literals: Dict[int, str] = {}
 
-        self.line_comments = {}
-        self.block_comments: MutableMapping[int, str] = {}
-        self.expressions: Dict[int, Dict[str, Any]] = {}
-        self.includes = {}
+        self.line_comments: Dict[int, str] = {}
+        self.block_comments: Dict[int, str] = {}
+        self.expressions: Dict[int, Dict[str, str]] = {}
+        self.includes: Dict[int, Tuple[str, str, Path]] = {}
 
-        self.brackets = [("{", "}"), ("[", "]"), ("(", ")"), ("<", ">")]
-        self.delimiters = ["{", "}", "(", ")", "<", ">", ";", ","]
-        self.openingBrackets = [
+        self.brackets: List[Tuple[str, str]] = [
+            ("{", "}"),
+            ("[", "]"),
+            ("(", ")"),
+            ("<", ">"),
+        ]
+        self.delimiters: List[str] = [
+            "{",
+            "}",
+            "(",
+            ")",
+            "<",
+            ">",
+            ";",
+            ",",
+        ]
+        self.openingBrackets: List[str] = [
             "{",
             "[",
             "(",
         ]  # Note: < and > are not considered brackets, but operators used in filter expressions
-        self.closingBrackets = ["}", "]", ")"]
+        self.closingBrackets: List[str] = [
+            "}",
+            "]",
+            ")",
+        ]
         return
 
     def include(self, dict_to_include: "CppDict"):
@@ -102,7 +133,9 @@ class CppDict(UserDict):
                 f"Cannot include {dict_to_include.name}. Relative path to {dict_to_include.name} could not be resolved."
             ) from e
 
-        formatter = dictIO.formatter.CppFormatter()
+        from dictIO import CppFormatter
+
+        formatter = CppFormatter()
         include_file_name = str(relative_file_path)
         include_file_name = include_file_name.replace("\\", "\\\\")
         include_file_name = formatter.format_type(include_file_name)
@@ -124,7 +157,7 @@ class CppDict(UserDict):
         )
         return
 
-    def update(self, __m: Mapping, **kwargs) -> None:
+    def update(self, __m: Mapping[Any, Any], **kwargs: Any) -> None:
         """Updates top-level keys with the keys from the passed in dict.
 
         Overrides the update() method of UserDict base class in order to include also CppDict class attributes in the update.
@@ -156,7 +189,7 @@ class CppDict(UserDict):
 
         return
 
-    def merge(self, dict: MutableMapping):
+    def merge(self, dict: MutableMapping[Any, Any]):
         """Merges the passed in dict into the existing CppDict instance.
 
         In contrast to update(), merge() works recursively. That is, it does not simply substitute top-level keys but
@@ -166,7 +199,7 @@ class CppDict(UserDict):
 
         Parameters
         ----------
-        dict : MutableMapping
+        dict : MutableMapping[Any, Any]
             dict to be merged
         """
         # merge dict into self (=into self.data)
@@ -204,7 +237,7 @@ class CppDict(UserDict):
     def __repr__(self):
         return f"CppDict({self.source_file!r})"
 
-    def __eq__(self, other):
+    def __eq__(self, other: Union[Any, "CppDict"]):
         return str(self) == str(other) if isinstance(other, CppDict) else False
 
     def order_keys(self):
@@ -217,7 +250,7 @@ class CppDict(UserDict):
 
         return
 
-    def find_global_key(self, query: str = "") -> Union[MutableSequence, None]:
+    def find_global_key(self, query: str = "") -> Union[List[Any], None]:
         """Returns the global key thread to the first key the value of which matches the passed in query.
 
         Function works recursively on nested dicts and is non-greedy: The key of the first match is returned.
@@ -232,12 +265,12 @@ class CppDict(UserDict):
 
         Returns
         -------
-        Union[MutableSequence, None]
+        Union[List[Any], None]
             global key thread to the first key the value of which matches the passed in query, if found. Otherwise None.
         """
         return find_global_key(self.data, query)
 
-    def set_global_key(self, global_key: MutableSequence, value: Any = None):
+    def set_global_key(self, global_key: MutableSequence[Any], value: Any = None):
         """Sets the value for the passed in global key.
 
         The global key thread is traversed downwards until arrival at the target key,
@@ -245,7 +278,7 @@ class CppDict(UserDict):
 
         Parameters
         ----------
-        global_key : MutableSequence
+        global_key : MutableSequence[Any]
             list of keys defining the global key thread to the target key (such as returned by method find_global_key())
         value : Any, optional
             value the target key shall be set to, by default None
@@ -254,12 +287,12 @@ class CppDict(UserDict):
 
         return
 
-    def global_key_exists(self, global_key: MutableSequence) -> bool:
+    def global_key_exists(self, global_key: MutableSequence[Any]) -> bool:
         """Checks whether the specified global key exists.
 
         Parameters
         ----------
-        global_key : MutableSequence
+        global_key : MutableSequence[Any]
             global key the existence of which is checked
 
         Returns
@@ -291,10 +324,10 @@ class CppDict(UserDict):
         return
 
     @property
-    def variables(self):
-        variables = {}
+    def variables(self) -> Dict[str, Any]:
+        variables: Dict[str, Any] = {}
 
-        def extract_variables_from_dict(dict: MutableMapping):
+        def extract_variables_from_dict(dict: MutableMapping[Any, Any]):
             for k, v in dict.items():
                 if isinstance(v, MutableMapping):
                     extract_variables_from_dict(v)  # recursion
@@ -303,15 +336,15 @@ class CppDict(UserDict):
                         extract_variables_from_list(v)  # recursion
                     else:
                         # special case: item is a list, but does NOT contain a nested dict (-> e.g. a vector or matrix)
-                        variables.update({k: v})
+                        variables[k] = v
                 else:
                     # base case: item is a single value type
                     v = _insert_expression(v, self)
                     if not _value_contains_circular_reference(k, v):
-                        variables.update({k: v})
+                        variables[k] = v
             return
 
-        def extract_variables_from_list(list: MutableSequence):
+        def extract_variables_from_list(list: MutableSequence[Any]):
             # sourcery skip: remove-redundant-pass
             for v in list:
                 if isinstance(v, MutableMapping):
@@ -325,7 +358,7 @@ class CppDict(UserDict):
                     pass
             return
 
-        def list_contains_dict(list: MutableSequence) -> bool:
+        def list_contains_dict(list: MutableSequence[Any]) -> bool:
             # sourcery skip: merge-duplicate-blocks, use-any
             for item in list:
                 if isinstance(item, MutableMapping):
@@ -337,11 +370,11 @@ class CppDict(UserDict):
 
         extract_variables_from_dict(self.data)
 
-        order_keys(variables)
+        variables = order_keys(variables)
 
         return variables
 
-    def _clean(self, dict: Union[MutableMapping, None] = None):
+    def _clean(self, dict: Union[MutableMapping[Any, Any], None] = None):
         # sourcery skip: avoid-builtin-shadow
         """
         Finds and removes doublettes of following PLACEHOLDER keys within self.data
@@ -356,10 +389,10 @@ class CppDict(UserDict):
             dict = self.data
 
         # IDENTIFY all placeholders on current level
-        keys_on_this_level = list(dict.keys())
-        block_comments_on_this_level = []
-        includes_on_this_level = []
-        line_comments_on_this_level = []
+        keys_on_this_level: List[Any] = list(dict.keys())
+        block_comments_on_this_level: List[Any] = []
+        includes_on_this_level: List[Any] = []
+        line_comments_on_this_level: List[Any] = []
         for key in keys_on_this_level:
             if re.search(r"BLOCKCOMMENT\d{6}", key):
                 block_comments_on_this_level.append(key)
@@ -368,41 +401,49 @@ class CppDict(UserDict):
             elif re.search(r"LINECOMMENT\d{6}", key):
                 line_comments_on_this_level.append(key)
 
-        unique_block_comments_on_this_level = []  # BLOCKCOMMENTs
+        unique_block_comments_on_this_level: List[str] = []  # BLOCKCOMMENTs
         for key in block_comments_on_this_level:
             with contextlib.suppress(Exception):
-                id = int(re.findall(r"\d{6}", key)[0])
-                value = str(self.block_comments[id])
-                if value in unique_block_comments_on_this_level:  # Found doublette
-                    del dict[key]  # remove from current level in self.data (the dict)
-                    del self.block_comments[
-                        id
-                    ]  # ..AND from self.block_comments (the lookup table)
-                else:  # Unique
-                    unique_block_comments_on_this_level.append(value)
-        unique_includes_on_this_level = []  # INCLUDEs
+                id: int = int(re.findall(r"\d{6}", key)[0])
+                _block_comment: str = self.block_comments[id]
+                if _block_comment in unique_block_comments_on_this_level:
+                    # Found doublette
+                    # Remove from current level in self.data (the dict)
+                    del dict[key]
+                    # ..AND from self.block_comments (the lookup table)
+                    del self.block_comments[id]
+                else:
+                    # Unique
+                    unique_block_comments_on_this_level.append(_block_comment)
+        unique_includes_on_this_level: List[Tuple[str, str, Path]] = []  # INCLUDEs
         for key in includes_on_this_level:
             with contextlib.suppress(Exception):
-                id = int(re.findall(r"\d{6}", key)[0])
-                value = self.includes[id]
-                if value in unique_includes_on_this_level:  # Found doublette
-                    del dict[key]  # remove from current level in self.data (the dict)
-                    del self.includes[id]  # ..AND from self.includes (the lookup table)
-                else:  # Unique
-                    unique_includes_on_this_level.append(value)
-        unique_line_comments_on_this_level = []  # LINECOMMENTs
+                id: int = int(re.findall(r"\d{6}", key)[0])
+                _include: Tuple[str, str, Path] = self.includes[id]
+                if _include in unique_includes_on_this_level:
+                    # Found doublette
+                    # Remove from current level in self.data (the dict)
+                    del dict[key]
+                    # ..AND from self.includes (the lookup table)
+                    del self.includes[id]
+                else:
+                    # Unique
+                    unique_includes_on_this_level.append(_include)
+        unique_line_comments_on_this_level: List[str] = []  # LINECOMMENTs
         for key in line_comments_on_this_level:
             with contextlib.suppress(Exception):
-                id = int(re.findall(r"\d{6}", key)[0])
-                value = self.line_comments[id]
-                if value in unique_line_comments_on_this_level:  # Found doublette
-                    del dict[key]  # remove from current level in self.data (the dict)
-                    del self.line_comments[
-                        id
-                    ]  # ..AND from self.line_comments (the lookup table)
-                else:  # Unique
-                    unique_line_comments_on_this_level.append(value)
-                    # RECURSION for nested levels
+                id: int = int(re.findall(r"\d{6}", key)[0])
+                _line_comment: str = self.line_comments[id]
+                if _line_comment in unique_line_comments_on_this_level:
+                    # Found doublette
+                    # Remove from current level in self.data (the dict)
+                    del dict[key]
+                    # ..AND from self.line_comments (the lookup table)
+                    del self.line_comments[id]
+                else:
+                    # Unique
+                    unique_line_comments_on_this_level.append(_line_comment)
+        # RECURSION for nested levels
         for key in dict.keys():
             if isinstance(dict[key], MutableMapping):
                 self._clean(dict[key])  # Recursion
@@ -410,7 +451,7 @@ class CppDict(UserDict):
         return
 
 
-def order_keys(arg: MutableMapping[_KT, _VT]) -> MutableMapping[_KT, _VT]:
+def order_keys(arg: MutableMapping[_KT, _VT]) -> Dict[_KT, _VT]:
     """alpha-numeric sorting of keys, recursively
 
     Parameters
@@ -420,42 +461,37 @@ def order_keys(arg: MutableMapping[_KT, _VT]) -> MutableMapping[_KT, _VT]:
 
     Returns
     -------
-    MutableMapping[_KT, _VT]
+    Dict[_KT, _VT]
         passed in dict with keys sorted
     """
-    if isinstance(arg, MutableMapping):
-        sorted_dict: MutableMapping[_KT, _VT] = dict(
-            sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0]))
-        )
-        for key, value in sorted_dict.items():
-            if isinstance(value, dict):
-                sorted_dict[key] = order_keys(sorted_dict[key])  # type: ignore
-        return sorted_dict
-    else:
-        logger.warning(
-            "dict.order_keys(): no alpha-numeric sorting of keys possible because of 'argument not a dict', returning same."
-        )
-        return arg
+    sorted_dict: MutableMapping[_KT, _VT] = dict(
+        sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0]))
+    )
+    for key, value in sorted_dict.items():
+        if isinstance(value, MutableMapping):
+            sorted_dict[key] = order_keys(sorted_dict[key])  # type: ignore
+    return sorted_dict
 
 
 def find_global_key(
-    arg: Union[MutableMapping, MutableSequence], query: str = ""
-) -> Union[MutableSequence, None]:
+    arg: Union[MutableMapping[Any, Any], MutableSequence[Any]],
+    query: str = "",
+) -> Union[List[Any], None]:
     """Returns the global key thread to the first key the value of which matches the passed in query.
 
     Parameters
     ----------
-    arg : Union[MutableMapping, MutableSequence]
+    arg : Union[MutableMapping[Any, Any], MutableSequence[Any]]
         dict to search in for the queried value
     query : str, optional
         query string for the value to search for, by default ''
 
     Returns
     -------
-    Union[MutableSequence, None]
+    Union[List, None]
         global key thread to the first key the value of which matches the passed in query, if found. Otherwise None.
     """
-    global_key = []
+    global_key: List[Any] = []
     if isinstance(arg, MutableMapping):  # dict
         for key, _ in sorted(arg.items()):
             if isinstance(arg[key], (MutableMapping, MutableSequence)):
@@ -466,7 +502,7 @@ def find_global_key(
             elif re.search(query, str(arg[key])):
                 global_key.append(key)
                 break
-    elif isinstance(arg, MutableSequence):  # list
+    else:  # list
         for index, _ in enumerate(arg):
             if isinstance(arg[index], (MutableMapping, MutableSequence)):
                 if next_level_key := find_global_key(arg=arg[index], query=query):
@@ -476,25 +512,27 @@ def find_global_key(
             elif re.search(query, str(arg[index])):
                 global_key.append(index)
                 break
-    else:
-        logger.warning("Run into not implemented alternative")
 
     return global_key or None
 
 
-def set_global_key(arg: MutableMapping, global_key: MutableSequence, value: Any = None):
+def set_global_key(
+    arg: MutableMapping[Any, Any],
+    global_key: MutableSequence[Any],
+    value: Any = None,
+):
     """Sets the value for the passed in global key.
 
     Parameters
     ----------
-    arg : MutableMapping
+    arg : MutableMapping[Any, Any]
         dict the target key in which shall be set
-    global_key : MutableSequence, optional
+    global_key : MutableSequence[Any], optional
         list of keys defining the global key thread to the target key (such as returned by method find_global_key())
     value : Any, optional
         value the target key shall be set to, by default None
     """
-    if isinstance(global_key, MutableSequence) and (global_key):
+    if global_key:
         last_branch = arg
         remaining_keys = global_key
         ii = 0
@@ -513,14 +551,16 @@ def set_global_key(arg: MutableMapping, global_key: MutableSequence, value: Any 
     return
 
 
-def global_key_exists(arg: MutableMapping, global_key: MutableSequence) -> bool:
+def global_key_exists(
+    arg: MutableMapping[Any, Any], global_key: MutableSequence[Any]
+) -> bool:
     """Checks whether the specified global key exists in the passed in dict.
 
     Parameters
     ----------
-    arg : MutableMapping
+    arg : MutableMapping[Any, Any]
         dict to check for existence of the specified global key
-    global_key : MutableSequence, optional
+    global_key : MutableSequence[Any], optional
         global key the existence of which is checked in the passed in dict
 
     Returns
@@ -539,7 +579,9 @@ def global_key_exists(arg: MutableMapping, global_key: MutableSequence) -> bool:
 
 
 def _merge_dicts(
-    target_dict: MutableMapping, dict_to_merge: MutableMapping, overwrite=False
+    target_dict: MutableMapping[Any, Any],
+    dict_to_merge: MutableMapping[Any, Any],
+    overwrite: bool = False,
 ):
     """Merges dict_to_merge into target_dict.
 
@@ -549,9 +591,9 @@ def _merge_dicts(
 
     Parameters
     ----------
-    target_dict : MutableMapping
+    target_dict : MutableMapping[Any, Any]
         target dict
-    dict_to_merge : MutableMapping
+    dict_to_merge : MutableMapping[Any, Any]
         dict to be merged into target dict
     overwrite : bool, optional
         if True, existing keys will be overwritten, by default False
@@ -580,12 +622,8 @@ def _merge_dicts(
     return
 
 
-def _insert_expression(value: str, dict: CppDict) -> str:
-    if (
-        isinstance(value, str)
-        and isinstance(dict, CppDict)
-        and re.search(r"EXPRESSION\d{6}", value)
-    ):
+def _insert_expression(value: Any, dict: CppDict) -> str:
+    if isinstance(value, str) and re.search(r"EXPRESSION\d{6}", value):
         if match_index := re.search(r"\d{6}", value):
             index = int(match_index[0])
             value = (
@@ -596,7 +634,7 @@ def _insert_expression(value: str, dict: CppDict) -> str:
     return value
 
 
-def _value_contains_circular_reference(key: str, value: str) -> bool:
+def _value_contains_circular_reference(key: Any, value: Any) -> bool:
     if isinstance(key, str) and isinstance(value, str):
         return key in value
     return False

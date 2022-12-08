@@ -2,7 +2,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import MutableMapping, MutableSequence, Union
+from typing import Any, MutableMapping, MutableSequence, Union
 
 from dictIO import CppDict, CppParser, Formatter, order_keys
 
@@ -19,7 +19,7 @@ class DictWriter:
 
     @staticmethod
     def write(
-        source_dict: Union[MutableMapping, CppDict],
+        source_dict: Union[MutableMapping[Any, Any], CppDict],
         target_file: Union[str, os.PathLike[str], None] = None,
         mode: str = "a",
         order: bool = False,
@@ -40,8 +40,8 @@ class DictWriter:
 
         Parameters
         ----------
-        source_dict : Union[MutableMapping, CppDict]
-            source dict file
+        source_dict : Union[MutableMapping[Any, Any], CppDict]
+            source dict
         target_file : Union[str, os.PathLike[str], None], optional
             target dict file name, by default None
         mode : str, optional
@@ -112,7 +112,7 @@ class DictWriter:
         # Save formatted string to target_file
         target_file.parent.mkdir(parents=True, exist_ok=True)
         with target_file.open(mode="w") as f:
-            f.write(string)
+            _ = f.write(string)
 
         return
 

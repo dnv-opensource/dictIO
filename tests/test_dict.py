@@ -276,7 +276,7 @@ def test_order_keys():  # sourcery skip: avoid-builtin-shadow
         assert key == keys_expected_nested[index]
 
 
-def test_order_keys_of_test_dict(test_dict):
+def test_order_keys_of_test_dict(test_dict: CppDict):
     # Prepare
     # Execute
     test_dict.order_keys()
@@ -284,7 +284,7 @@ def test_order_keys_of_test_dict(test_dict):
     assert str(test_dict.data["unordered"]) == str(test_dict.data["ordered"])
 
 
-def test_reduce_scope_of_test_dict(test_dict):
+def test_reduce_scope_of_test_dict(test_dict: CppDict):
     # Prepare
     scope = ["scope", "subscope1"]
     # Execute

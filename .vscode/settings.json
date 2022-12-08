@@ -19,6 +19,5 @@
 	"autoDocstring.docstringFormat": "numpy",
 	"python.analysis.completeFunctionParens": true,
 	"python.analysis.logLevel": "Warning",
-	"python.analysis.typeCheckingMode": "basic",
 	"python.terminal.activateEnvInCurrentTerminal": true,
 }

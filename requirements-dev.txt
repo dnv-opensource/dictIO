@@ -5,6 +5,7 @@ black>=22.10.0
 flake8>=6.0
 pep8-naming>=0.13
 isort>=5.10.1
+pyright>=1.1.282
 Sphinx>=5.3
 sphinx-argparse-cli>=1.10
 myst-parser>=0.18

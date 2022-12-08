@@ -2,8 +2,10 @@ import os
 import re
 from copy import deepcopy
 from pathlib import Path, PurePath
+from typing import Any, Dict, List
 
 import pytest
+from pytest import LogCaptureFixture
 
 from numpy.testing import assert_array_equal
 
@@ -414,36 +416,24 @@ def test_compare_expressions_in_dict_format_with_expressions_in_json_format():
     assert references_dict == references_json
     
     # Resolve references
-    variables_dict = dict_dict.variables
-    references_dict = {
-        ref: DictReader._resolve_reference(ref, variables_dict)
-        for ref in references_dict
-    }
+    variables: Dict[str, Any] = dict.variables
+    references_resolved = {
+        ref: DictReader._resolve_reference(ref, variables) for ref in references
 
-    references_resolved_dict = {
+    
+    }
+    
+    return {
         ref: value
-        for ref, value in references_dict.items()
+        for ref, value in references_resolved.items()
         if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
     }
     
-    variables_json = dict_json.variables
-    references_json = {
-        ref: DictReader._resolve_reference(ref, variables_json)
-        for ref in references_json
-    }
-    
-    references_resolved_json = {
-        ref: value
-        for ref, value in references_json.items()
-        if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
-    }
-    
-    assert references_resolved_dict == references_resolved_json
     
     for dvs, jvs in zip(dict_dict.variables, dict_json.variables):
         assert_array_equal(dvs, jvs)
 
-   
+
 def test_read_foam():
     # sourcery skip: avoid-builtin-shadow
     # Prepare
@@ -543,7 +533,7 @@ def test_read_circular_includes():
     assert dict["baseSubDict"]["baseVar5"] == 8
 
 
-def test_read_circular_includes_log_warning(caplog):
+def test_read_circular_includes_log_warning(caplog: LogCaptureFixture):
     # Prepare
     source_file = Path("circular_include/test_base_dict")
     log_level_expected = "WARNING"
@@ -560,8 +550,8 @@ class SetupHelper:
     @staticmethod
     def prepare_dict_until(
         dict_to_prepare: CppDict,
-        until_step=-1,
-        file_to_read="test_dictReader_dict",
+        until_step: int = -1,
+        file_to_read: str = "test_dictReader_dict",
     ):
 
         file_name = Path.cwd() / file_to_read
