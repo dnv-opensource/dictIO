@@ -271,36 +271,30 @@ def test_eval_expressions_with_included_numpy_expressions():
 
     # Execute
     dict = DictReader.read(source_file, includes=True)
-    dict_out = dict.data   
-    assert (
-        dict_out["keysContainingNumpyExpressions"]["npKeyA"] == 2
+    dict_out = dict.data
+    assert dict_out["keysContainingNumpyExpressions"]["npKeyA"] == 2
+
+    assert_array_equal(
+        dict_out["keysContainingNumpyExpressions"]["npKeyB"], [[1, 1], [1, 1]]
     )
 
-    assert_array_equal (
-        dict_out["keysContainingNumpyExpressions"]["npKeyB"], 
-        [[1, 1], [1, 1]]
-    ) 
-    
-    assert_array_equal (
-        dict_out["keysContainingNumpyExpressions"]["npKeyC"], 
-        [2, 2, 2]
-    ) 
+    assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyC"], [2, 2, 2])
 
-    assert_array_equal (
-        dict_out["keysContainingNumpyExpressions"]["npKeyD"], 
-        [[2, 0, 0], [0, 2, 0], [0, 0, 2]]
+    assert_array_equal(
+        dict_out["keysContainingNumpyExpressions"]["npKeyD"],
+        [[2, 0, 0], [0, 2, 0], [0, 0, 2]],
     )
-    
-    assert_array_equal (
-        dict_out["keysContainingNumpyExpressions"]["npKeyE"], 
-        [[2, 0, 0], [0, 2, 0], [0, 0, 2]]
+
+    assert_array_equal(
+        dict_out["keysContainingNumpyExpressions"]["npKeyE"],
+        [[2, 0, 0], [0, 2, 0], [0, 0, 2]],
     )
-    
-    assert_array_equal (
-        dict_out["keysContainingNumpyExpressions"]["npKeyZ"], 
-        [[0, 0, 0, 0]]
+
+    assert_array_equal(
+        dict_out["keysContainingNumpyExpressions"]["npKeyZ"], [[0, 0, 0, 0]]
     )
-    
+
+
 def test_reread_string_literals():
     # sourcery skip: avoid-builtin-shadow
     # Prepare
@@ -394,6 +388,7 @@ def test_read_json():
     assert dict["keyM"] == 9.0
     assert dict["keyN"] == 7.0
 
+
 def test_compare_expressions_in_dict_format_with_expressions_in_json_format():
     # Prepare
     source_file_dict = Path("test_dictReader_dict")
@@ -404,34 +399,37 @@ def test_compare_expressions_in_dict_format_with_expressions_in_json_format():
     # Assert
     assert dict_dict.expressions == dict_json.expressions
     # Collect all references contained in expressions
-    
-    references_dict = []
-    for item in dict_dict.expressions.values():
-        refs = re.findall(r"\$\w[\w\[\]]+", item["expression"])
-        references_dict.extend(refs)
-    references_json = []
-    for item in dict_json.expressions.values():
-        refs = re.findall(r"\$\w[\w\[\]]+", item["expression"])
-        references_json.extend(refs)
+    references_dict: List[str] = _get_references_in_expressions(dict_dict)
+    references_json: List[str] = _get_references_in_expressions(dict_json)
     assert references_dict == references_json
-    
+    references_resolved_dict = _resolve_references(dict_dict, references_dict)
+    references_resolved_json = _resolve_references(dict_json, references_json)
+    assert references_resolved_dict == references_resolved_json
+    # assert dict_dict.variables == dict_json.variables
+    for dvs, jvs in zip(dict_dict.variables, dict_json.variables):
+        assert_array_equal(dvs, jvs)
+
+
+def _get_references_in_expressions(dict: CppDict) -> List[str]:
+    references: List[str] = []
+    for item in dict.expressions.values():
+        _refs: List[str] = re.findall(r"\$\w[\w\[\]]+", item["expression"])
+        references.extend(_refs)
+    return references
+
+
+def _resolve_references(dict: CppDict, references: List[str]):
     # Resolve references
     variables: Dict[str, Any] = dict.variables
     references_resolved = {
         ref: DictReader._resolve_reference(ref, variables) for ref in references
-
-    
     }
-    
+
     return {
         ref: value
         for ref, value in references_resolved.items()
         if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
     }
-    
-    
-    for dvs, jvs in zip(dict_dict.variables, dict_json.variables):
-        assert_array_equal(dvs, jvs)
 
 
 def test_read_foam():

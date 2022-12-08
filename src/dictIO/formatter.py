@@ -466,10 +466,6 @@ class CppFormatter(Formatter):
                 if isinstance(item, ndarray):
                     item = item.tolist()
 
-                # ndarray -> list
-                if isinstance(item, ndarray):
-                    item = item.tolist()
-
                 # nested list
                 if isinstance(item, MutableSequence):
                     # (recursion)
