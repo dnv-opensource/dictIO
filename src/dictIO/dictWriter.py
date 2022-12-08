@@ -51,7 +51,7 @@ class DictWriter:
         formatter : Union[Formatter, None], optional
             formatter to be used, by default None
         """
-
+      
         # Check argument
         if source_dict is None:
             logger.warning(
@@ -82,7 +82,7 @@ class DictWriter:
         # If a formatter has been passed to write(), use that.
         # Otherwise choose the parser depending on target_file.
         formatter = formatter or Formatter.get_formatter(target_file)
-
+        
         # Before writing the dict, doublecheck once again that all of its elements are correctly typed.
         parser = CppParser()
         parser.parse_types(source_dict)

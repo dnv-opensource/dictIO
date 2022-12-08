@@ -22,6 +22,13 @@ from math import (  # noqa: F401
     sqrt,
     tan,
 )
+from numpy import (
+    diag,
+    eye,
+    ndarray, 
+    ones,
+    zeros,
+)
 from pathlib import Path
 from typing import MutableMapping, MutableSequence, Union
 
@@ -108,7 +115,7 @@ class DictReader:
 
         # Evaluate and insert back expressions
         __class__._eval_expressions(parsed_dict)
-
+        
         # Reduce scope of the dict if requested through opts
         if scope:
             # We need here safety hook when specified scope is not found: simply stop (not continue with whole content!)
@@ -247,6 +254,7 @@ class DictReader:
                 placeholder = str(item["name"])
                 expression = str(item["expression"])
                 refs = re.findall(r"\$\w[\w\[\]]+", expression)
+                
                 for ref in refs:
                     if ref in references_resolved:
                         expression = re.sub(
@@ -254,7 +262,7 @@ class DictReader:
                             str(references_resolved[ref]),
                             expression,
                         )
-
+                        
                 eval_successful = False
                 eval_result = None
                 if "$" not in expression:
@@ -297,7 +305,7 @@ class DictReader:
             ]
 
             keep_on = len(references_not_resolved) < references_not_resolved_old
-
+                  
         # For expressions that could NOT successfully be evaluated, even after iteration:
         # Back insert the expression string into the dict
         for key, item in dict.expressions.items():

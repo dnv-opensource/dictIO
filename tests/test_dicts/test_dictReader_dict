@@ -127,3 +127,15 @@ keysPointingToAListOfExpressions
     keyToListB  ("$paramB" 1 2);
     keyToListL  ("$nestParamJ[1][1] + $paramC" 1 2);
 }
+
+keysContainingNumpyExpressions
+{
+	npKey0                      2;
+	npKeyA						"$npKey0";
+	npKeyB						"ones(($npKey0, $npKey0))";
+	npKeyC                      "[$npKey0, $npKey0, $npKey0]";
+	npKeyD                      "diag($npKeyC)";
+	npKeyE                      "$npKey0 * eye(3)";
+	npKeyZ                      "$npKey0 * zeros((1, 4))";
+	
+}

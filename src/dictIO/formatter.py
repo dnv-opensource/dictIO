@@ -5,6 +5,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any, MutableMapping, MutableSequence, Type, Union
 from xml.dom import minidom
+from numpy import ndarray
 
 # from lxml.etree import register_namespace
 from xml.etree.ElementTree import Element, SubElement, register_namespace, tostring
@@ -450,7 +451,7 @@ class CppFormatter(Formatter):
         total_indent = 30
         s = str()
         indent = sep * tab_len * level
-
+   
         # list
         if isinstance(arg, MutableSequence):
 
@@ -462,6 +463,10 @@ class CppFormatter(Formatter):
             last_item_on_this_line = False
 
             for index, item in enumerate(arg):
+                
+                # ndarray -> list
+                if isinstance(item, ndarray):
+                    item = item.tolist()
 
                 # nested list
                 if isinstance(item, list):
@@ -491,7 +496,7 @@ class CppFormatter(Formatter):
 
                     s += self.format_dict("}", level=level + 1)
                     first_item_on_this_line = True
-
+                 
                 # single value
                 else:
                     value = self.format_type(item)
@@ -531,6 +536,10 @@ class CppFormatter(Formatter):
         # dict
         elif isinstance(arg, MutableMapping):
             for key in arg.keys():
+
+                # ndarray -> list
+                if isinstance(arg[key], ndarray):
+                    arg[key] = arg[key].tolist()
 
                 # nested dict
                 if isinstance(arg[key], dict):
