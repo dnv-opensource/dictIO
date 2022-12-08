@@ -1,6 +1,7 @@
 import re
 from copy import deepcopy
 from pathlib import Path, PurePath
+from typing import Any, Dict
 
 import pytest
 
@@ -10,8 +11,8 @@ from dictIO.utils.counter import BorgCounter
 
 def test_write_dict():
     # Prepare
-    target_file = Path("temp_file_test_write_dict")
-    test_dict: dict = {
+    target_file: Path = Path("temp_file_test_write_dict")
+    test_dict: Dict[str, Any] = {
         "param1": -10.0,
         "param2": 0.0,
         "param3": 0.0,
@@ -345,7 +346,7 @@ class TestCreateTargetFileName:
             "xml",
         ],
     )
-    def test_file_ending(self, file_ending):
+    def test_file_ending(self, file_ending: str):
         # Prepare
         file_name = f"someDictFile.{file_ending}" if file_ending else "someDictFile"
         source_file = Path(file_name)
@@ -366,7 +367,7 @@ class TestCreateTargetFileName:
             ("notdefinedformat", ""),
         ],
     )
-    def test_output_format_file_ending(self, output_format, file_ending):
+    def test_output_format_file_ending(self, output_format: str, file_ending: str):
         # Prepare
         source_file = Path("someDictFile")
         assert_file_name = (

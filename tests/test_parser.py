@@ -1,8 +1,10 @@
 import re
 from copy import deepcopy
 from pathlib import Path
+from typing import Dict
 
 import pytest
+from pytest import LogCaptureFixture
 
 from dictIO import CppDict, CppParser, Parser, XmlParser
 from dictIO.utils.counter import BorgCounter
@@ -315,9 +317,10 @@ class TestParser:
         ]
 
         # Execute
-        list_out = parser.parse_types(list_in)
+        list_out = deepcopy(list_in)
+        parser.parse_types(list_out)
         # Assert
-        assert list_out is list_in
+        # assert list_out is list_in
         assert list_out == list_expected
         assert list_out[3] == list_expected[3]
 
@@ -783,7 +786,7 @@ class TestCppParser:
         assert dict_out["strings"]["listWithStrings"][3][:13] == "STRINGLITERAL"
         assert dict_out["strings"]["listWithStrings"][4][:13] == "STRINGLITERAL"
 
-    def test_parse_tokenized_dict_invalid(self, caplog):
+    def test_parse_tokenized_dict_invalid(self, caplog: LogCaptureFixture):
         # Prepare
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
@@ -1157,7 +1160,7 @@ class TestXmlParser:
         parser = XmlParser()
         # Execute
         dict_out = parser.parse_string(str_in, dict_out)
-        namespaces: dict = dict_out["_xmlOpts"]["_nameSpaces"]
+        namespaces: Dict[str, str] = dict_out["_xmlOpts"]["_nameSpaces"]
         # Assert
         assert len(namespaces) == 1
         assert "xs" in namespaces
@@ -1173,7 +1176,7 @@ class TestXmlParser:
         parser = XmlParser()
         # Execute
         dict_out = parser.parse_string(str_in, dict_out)
-        namespaces: dict = dict_out["_xmlOpts"]["_nameSpaces"]
+        namespaces: Dict[str, str] = dict_out["_xmlOpts"]["_nameSpaces"]
         # Assert
         assert len(namespaces) == 1
         assert "None" in namespaces
@@ -1184,8 +1187,8 @@ class SetupHelper:
     @staticmethod
     def prepare_dict_until(
         dict_to_prepare: CppDict,
-        until_step=-1,
-        file_to_read="test_parser_dict",
+        until_step: int = -1,
+        file_to_read: str = "test_parser_dict",
         comments: bool = True,
     ):
 

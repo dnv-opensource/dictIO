@@ -3,7 +3,7 @@ import logging
 import re
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, MutableMapping, MutableSequence, Type, Union
+from typing import Any, List, MutableMapping, MutableSequence, Type, Union
 from xml.dom import minidom
 
 # from lxml.etree import register_namespace
@@ -67,7 +67,7 @@ class Formatter:
 
     def to_string(
         self,
-        dict: Union[MutableMapping, CppDict],
+        dict: Union[MutableMapping[Any, Any], CppDict],
     ) -> str:
         """Creates a string representation of the passed in dict.
 
@@ -75,7 +75,7 @@ class Formatter:
 
         Parameters
         ----------
-        dict : Union[MutableMapping, CppDict]
+        dict : Union[MutableMapping[Any, Any], CppDict]
             dict to be formatted
 
         Returns
@@ -85,14 +85,16 @@ class Formatter:
         """
         return ""
 
-    def format_dict(self, arg: Union[MutableMapping, MutableSequence, Any]) -> str:
+    def format_dict(
+        self, arg: Union[MutableMapping[Any, Any], MutableSequence[Any], Any]
+    ) -> str:
         """Formats a dict or list object.
 
         Note: Override this method when implementing a specific Formatter.
 
         Parameters
         ----------
-        arg : Union[MutableMapping, MutableSequence, Any]
+        arg : Union[MutableMapping[Any, Any], MutableSequence[Any], Any]
             the dict or list to be formatted
 
         Returns
@@ -358,13 +360,13 @@ class CppFormatter(Formatter):
 
     def to_string(
         self,
-        dict: Union[MutableMapping, CppDict],
-    ) -> str:  # sourcery skip: avoid-builtin-shadow
+        dict: Union[MutableMapping[Any, Any], CppDict],
+    ) -> str:  # sourcery skip: avoid-builtin-shadow, dict-comprehension
         """Creates a string representation of the passed in dict in dictIO dict file format.
 
         Parameters
         ----------
-        dict : Union[MutableMapping, CppDict]
+        dict : Union[MutableMapping[Any, Any], CppDict]
             dict to be formatted
 
         Returns
@@ -375,17 +377,11 @@ class CppFormatter(Formatter):
         s = super().to_string(dict)
 
         if not isinstance(dict, CppDict):
-            if isinstance(dict, MutableMapping):
-                # Turn ordinary dict into CppDict.
-                # That way, any ordinary python dict is treated in this function like a CppDict.
-                temp_dict = CppDict()
-                temp_dict.update(dict)
-                dict = deepcopy(temp_dict)
-            else:
-                logger.error(
-                    "CppFormatter.to_string(): passed in arg is not of type dict"
-                )
-                return ""
+            # Turn ordinary dict into CppDict.
+            # That way, any ordinary python dict is treated in this function like a CppDict.
+            temp_dict = CppDict()
+            temp_dict.update(dict)
+            dict = deepcopy(temp_dict)
 
         # Sort dict in a way that block comment and include statement come first
         original_data = deepcopy(dict.data)
@@ -438,13 +434,15 @@ class CppFormatter(Formatter):
 
     def format_dict(
         self,
-        arg: Union[MutableMapping, MutableSequence, Any],
+        arg: Union[MutableMapping[Any, Any], MutableSequence[Any], Any],
         tab_len: int = 4,
         level: int = 0,
         sep: str = " ",
         items_per_line: int = 10,
         end: str = "\n",
-        ancestry: Union[Type[MutableMapping], Type[MutableSequence]] = MutableMapping,
+        ancestry: Union[
+            Type[MutableMapping[Any, Any]], Type[MutableSequence[Any]]
+        ] = MutableMapping,
     ) -> str:
         """Formats a dict or list object."""
         total_indent = 30
@@ -464,10 +462,10 @@ class CppFormatter(Formatter):
             for index, item in enumerate(arg):
 
                 # nested list
-                if isinstance(item, list):
+                if isinstance(item, MutableSequence):
                     # (recursion)
                     s += self.format_dict(
-                        item,
+                        arg=item,
                         tab_len=tab_len,
                         level=level + 1,
                         sep=sep,
@@ -477,11 +475,11 @@ class CppFormatter(Formatter):
                     )
 
                 # nested dict
-                elif isinstance(item, dict):
+                elif isinstance(item, MutableMapping):
                     s += self.format_dict("", level=level + 1, end="\n")
                     s += self.format_dict("{", level=level + 1)
                     s += self.format_dict(
-                        item,
+                        arg=item,
                         tab_len=tab_len,
                         level=level + 2,
                         sep=sep,
@@ -675,8 +673,8 @@ class CppFormatter(Formatter):
         returns a new string with trailing spaces removed.
         """
         stream = io.StringIO(newline=None)
-        stream.write(s)
-        stream.seek(0)
+        _ = stream.write(s)
+        _ = stream.seek(0)
         ns = str()
         for line in stream.readlines():
             if match := re.search("[\r\n]*$", line):
@@ -701,13 +699,13 @@ class FoamFormatter(CppFormatter):
 
     def to_string(
         self,
-        dict: Union[MutableMapping, CppDict],
+        dict: Union[MutableMapping[Any, Any], CppDict],
     ) -> str:
         """Creates a string representation of the passed in dict in OpenFOAM dictionary format.
 
         Parameters
         ----------
-        dict : Union[MutableMapping, CppDict]
+        dict : Union[MutableMapping[Any, Any], CppDict]
             dict to be formatted
 
         Returns
@@ -721,7 +719,7 @@ class FoamFormatter(CppFormatter):
         # Elements that Foam cannot interpret - or would misinterpret - are removed:
 
         # Remove all dict entries starting with underscore
-        def remove_underscore_keys_recursive(dict: MutableMapping):
+        def remove_underscore_keys_recursive(dict: MutableMapping[Any, Any]):
             keys = list(dict.keys())
             for key in keys:
                 if str(key).startswith("_"):
@@ -791,13 +789,13 @@ class JsonFormatter(Formatter):
 
     def to_string(
         self,
-        dict: Union[MutableMapping, CppDict],
+        dict: Union[MutableMapping[Any, Any], CppDict],
     ) -> str:
         """Creates a string representation of the passed in dict in JSON dictionary format.
 
         Parameters
         ----------
-        dict : Union[MutableMapping, CppDict]
+        dict : Union[MutableMapping[Any, Any], CppDict]
             dict to be formatted
 
         Returns
@@ -907,13 +905,13 @@ class XmlFormatter(Formatter):
 
     def to_string(
         self,
-        dict: Union[MutableMapping, CppDict],
+        dict: Union[MutableMapping[Any, Any], CppDict],
     ) -> str:
         """Creates a string representation of the passed in dict in XML format.
 
         Parameters
         ----------
-        dict : Union[MutableMapping, CppDict]
+        dict : Union[MutableMapping[Any, Any], CppDict]
             dict to be formatted
 
         Returns
@@ -922,17 +920,17 @@ class XmlFormatter(Formatter):
             string representation of the dict in XML format
         """
         # Default configuration
-        namespaces: MutableMapping = {
+        namespaces: MutableMapping[Any, Any] = {
             "xs": "https://www.w3.org/2009/XMLSchema/XMLSchema.xsd"
         }
         root_tag: str = "NOTSPECIFIED"
-        root_attributes: Union[MutableMapping, None] = None
+        root_attributes: Union[MutableMapping[Any, Any], None] = None
         indent = " " * 4
 
         # Check whether xml opts are contained in dict.
         # If so, read and use them
         if "_xmlOpts" in dict.keys():
-            xml_opts: MutableMapping = dict["_xmlOpts"]
+            xml_opts: MutableMapping[Any, Any] = dict["_xmlOpts"]
             namespaces = (
                 xml_opts["_nameSpaces"] if "_nameSpaces" in xml_opts else namespaces
             )
@@ -948,7 +946,7 @@ class XmlFormatter(Formatter):
                 else self.remove_node_numbering
             )
 
-        prefixes: MutableSequence = []
+        prefixes: List[str] = []
         for prefix, uri in namespaces.items():
             prefixes.append(prefix)
             if prefix == "None":
@@ -959,7 +957,7 @@ class XmlFormatter(Formatter):
 
         xsd_uri: str = namespaces[prefixes[0]]
 
-        attributes: MutableMapping = {}
+        attributes: MutableMapping[Any, Any] = {}
         if root_attributes and isinstance(root_attributes, MutableMapping):
             for key, item in root_attributes.items():
                 attributes.update({key: item})
@@ -978,7 +976,7 @@ class XmlFormatter(Formatter):
 
         self.populate_into_element(root_element, dict, xsd_uri)
 
-        s = minidom.parseString(
+        s: str = minidom.parseString(  # pyright: ignore
             tostring(root_element, encoding="UTF-8", method="xml")
         ).toprettyxml(indent=indent)
         if self.omit_prefix:
@@ -991,7 +989,7 @@ class XmlFormatter(Formatter):
     def populate_into_element(
         self,
         element: Element,
-        arg: Union[MutableMapping, MutableSequence, Any],
+        arg: Union[MutableMapping[Any, Any], MutableSequence[Any], Any],
         xsd_uri: Union[str, None] = None,
     ):
         """Populates arg into the XML element node.
@@ -1003,7 +1001,7 @@ class XmlFormatter(Formatter):
         ----------
         element : Element
             element which will be populated
-        arg : Union[MutableMapping, MutableSequence, Any]
+        arg : Union[MutableMapping[Any, Any], MutableSequence[Any], Any]
             value to be populated into the element
         xsd_uri : str, optional
             xsd uri, by default None

@@ -215,8 +215,7 @@ class TestCppFormatter:
         # NON-STANDARD CASE 3: The dictionary contains 1 (ONE) BLOCK COMMENT, BUT IT DOES NOT CONTAIN ' C++ '
         # Prepare
         block_comment_tampered = re.sub(r"\s[Cc]\+{2}\s", " C# ", as_is_block_comment)
-        dict.block_comments = {}
-        dict.block_comments[101] = block_comment_tampered
+        dict.block_comments = {101: block_comment_tampered}
         str_in = placeholder1 + "\n" + str_in_template
         str_expected = str_in.replace(
             placeholder1, default_block_comment + "\n" + block_comment_tampered
@@ -607,7 +606,10 @@ class TestXmlFormatter:
 
 class SetupHelper:
     @staticmethod
-    def prepare_dict(dict_to_prepare: CppDict, file_to_read="test_formatter_dict"):
+    def prepare_dict(
+        dict_to_prepare: CppDict,
+        file_to_read: str = "test_formatter_dict",
+    ):
 
         file_name = Path.cwd() / file_to_read
 

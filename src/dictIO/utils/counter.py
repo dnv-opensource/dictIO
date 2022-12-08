@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 __all__ = ["BorgCounter", "DejaVue"]
 
 
@@ -14,14 +16,13 @@ class BorgCounter:
 
     def __init__(self):
         self.__dict__ = BorgCounter.Borg
-        # self.theCount = -1
 
     def __call__(self):
         self.theCount += 1
         #   Small tweak for our use case: As we have only six digits available in our placeholder strings,
         #   we don't want the counter to exceed this. Fair to start again at 0 then :-)
         if self.theCount > 999999:
-            self.theCount = 0
+            self.theCount = 0  # pyright: ignore
         return self.theCount
 
     @staticmethod
@@ -34,19 +35,20 @@ class DejaVue:
     return True if string repeats after initializing class
     """
 
-    djv = {"strings": [], "retVal": False}
+    djv: Dict[str, List[str]] = {"strings": []}
 
     def __init__(self):
         self.__dict__ = DejaVue.djv
+        self.ret_val: bool = False
 
-    def __call__(self, string):
+    def __call__(self, string: str):
 
         if string in self.djv["strings"]:
-            self.djv["retVal"] = True
+            self.ret_val = True
 
         self.djv["strings"].append(string)
 
-        return self.djv["retVal"]
+        return self.ret_val
 
     @property
     def strings(self):
@@ -54,4 +56,4 @@ class DejaVue:
 
     def reset(self):
         self.djv["strings"] = []
-        self.djv["retVal"] = False
+        self.ret_val = False

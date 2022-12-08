@@ -23,7 +23,7 @@ from math import (  # noqa: F401
     tan,
 )
 from pathlib import Path
-from typing import MutableMapping, MutableSequence, Union
+from typing import Any, Dict, List, MutableMapping, MutableSequence, Union
 
 from dictIO import CppDict, Parser
 from dictIO.utils.counter import DejaVue
@@ -150,10 +150,10 @@ class DictReader:
 
             # loop over all possible includes
             for _, _, path in dict.includes.values():
-                prove_recursive_include = djv(path)
+                prove_recursive_include = djv(path.name)
 
                 if prove_recursive_include is True:
-                    call_chain = "->".join([p.name for p in djv.strings])
+                    call_chain = "->".join(list(djv.strings))
                     logger.warning(
                         f"Recursive include detected. Merging of {call_chain} into {dict.name} aborted."
                     )
@@ -185,9 +185,9 @@ class DictReader:
         return
 
     @staticmethod
-    def _resolve_reference(ref, vars):
+    def _resolve_reference(ref: Any, vars: MutableMapping[Any, Any]):
         # resolves a single reference
-        ret = None
+        ret: Union[Any, None] = None
         try:
             # extract indices, ugly version, nice version is re.sub with a positive lookahead
             indexing = re.findall(r"\[.+\]$", ref)[0]
@@ -218,36 +218,36 @@ class DictReader:
     @staticmethod
     def _eval_expressions(dict: CppDict):
         # Collect all references contained in expressions
-        references = []
+        _references: List[str] = []
         for item in dict.expressions.values():
-            refs = re.findall(r"\$\w[\w\[\]]+", item["expression"])
-            references.extend(refs)
+            _refs: List[str] = re.findall(r"\$\w[\w\[\]]+", item["expression"])
+            _references.extend(_refs)
         # Resolve references
-        variables = dict.variables
-        references = {
-            ref: __class__._resolve_reference(ref, variables) for ref in references
+        variables: Dict[str, Any] = dict.variables
+        references: Dict[str, Any] = {
+            ref: __class__._resolve_reference(ref, variables) for ref in _references
         }
-        references_resolved = {
+        references_resolved: Dict[str, Any] = {
             ref: value
             for ref, value in references.items()
             if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
         }
-        references_not_resolved = [
+        references_not_resolved: List[str] = [
             ref for ref in references if ref not in references_resolved
         ]
 
         # Iteratively try to evaluate expressions contained in the dict and then re-resolve all references
         # With every iteration, this should reduce the number of remaining, non resolved references
-        references_not_resolved_old = len(references_not_resolved) + 1
-        keep_on = True
+        references_not_resolved_old: int = len(references_not_resolved) + 1
+        keep_on: bool = True
         while keep_on:
             references_not_resolved_old = len(references_not_resolved)
-            expressions_copy = deepcopy(dict.expressions)
+            expressions_copy: Dict[int, Dict[str, str]] = deepcopy(dict.expressions)
             for key, item in expressions_copy.items():
-                placeholder = str(item["name"])
-                expression = str(item["expression"])
-                refs = re.findall(r"\$\w[\w\[\]]+", expression)
-                for ref in refs:
+                placeholder: str = item["name"]
+                expression: str = item["expression"]
+                _refs: List[str] = re.findall(r"\$\w[\w\[\]]+", expression)
+                for ref in _refs:
                     if ref in references_resolved:
                         expression = re.sub(
                             f"{re.escape(ref)}",
@@ -255,8 +255,8 @@ class DictReader:
                             expression,
                         )
 
-                eval_successful = False
-                eval_result = None
+                eval_successful: bool = False
+                eval_result: Union[Any, None] = None
                 if "$" not in expression:
                     try:
                         eval_result = eval(expression)
@@ -279,13 +279,13 @@ class DictReader:
                     dict.expressions[key]["expression"] = expression
 
             # At the end of each iteration, re-resolve all references based on the now updated variables table of dict
-            references = []
+            _references = []
             for item in dict.expressions.values():
-                refs = re.findall(r"\$\w[\w\[\]]+", item["expression"])
-                references.extend(refs)
+                _refs = re.findall(r"\$\w[\w\[\]]+", item["expression"])
+                _references.extend(_refs)
             variables = dict.variables
             references = {
-                ref: __class__._resolve_reference(ref, variables) for ref in references
+                ref: __class__._resolve_reference(ref, variables) for ref in _references
             }
             references_resolved = {
                 ref: value
@@ -301,8 +301,8 @@ class DictReader:
         # For expressions that could NOT successfully be evaluated, even after iteration:
         # Back insert the expression string into the dict
         for key, item in dict.expressions.items():
-            placeholder = str(item["name"])
-            expression = str(item["expression"])
+            placeholder: str = item["name"]
+            expression: str = item["expression"]
             while global_key := dict.find_global_key(query=placeholder):
                 # Substitute the placeholder with the original (or at least partly resolved) expression
                 dict.set_global_key(global_key, value=expression)
@@ -311,7 +311,7 @@ class DictReader:
         return
 
     @staticmethod
-    def _remove_comment_keys(data: MutableMapping):
+    def _remove_comment_keys(data: MutableMapping[Any, Any]):
         """
         remove comments from data structure for read function call from other programs
         """
@@ -330,7 +330,7 @@ class DictReader:
         return
 
     @staticmethod
-    def _remove_include_keys(data: MutableMapping):
+    def _remove_include_keys(data: MutableMapping[Any, Any]):
         """
         remove includes from data structure for read function call from other programs
         """

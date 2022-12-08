@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List, MutableSequence, Union
 
 import pytest
+from pytest import MonkeyPatch
 
 from dictIO import DictParser
 from dictIO.cli.dictParser import _argparser, _validate_scope, main
@@ -78,7 +79,7 @@ class CliArgs:
 def test_cli(
     inputs: List[str],
     expected: Union[CliArgs, type],
-    monkeypatch,
+    monkeypatch: MonkeyPatch,
 ):
     # Prepare
     monkeypatch.setattr(sys, "argv", ["dictParser"] + inputs)
@@ -154,7 +155,7 @@ class ApiArgs:
 def test_invoke_api(
     inputs: List[str],
     expected: Union[ApiArgs, type],
-    monkeypatch,
+    monkeypatch: MonkeyPatch,
 ):
     # Prepare
     monkeypatch.setattr(sys, "argv", ["dictParser"] + inputs)
