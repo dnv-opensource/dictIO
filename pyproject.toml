@@ -15,7 +15,7 @@ exclude = [
     "dist",
     "**/__pycache__",
     "./docs/source/conf.py",
-    "**/test_*",
+    "tests",
 ]
 extraPaths = ["./src"]
 typeCheckingMode = "basic"

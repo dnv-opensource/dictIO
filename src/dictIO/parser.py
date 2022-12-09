@@ -14,7 +14,6 @@ from typing import (
 )
 from xml.etree.ElementTree import Element
 
-# from lxml.etree import register_namespace
 from lxml.etree import ETCompatXMLParser, XMLParser, fromstring
 
 from dictIO import CppDict
