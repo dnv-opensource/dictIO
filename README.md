@@ -91,7 +91,7 @@ _For a detailed documentation of the dict file format used by dictIO, see [File 
     ~~~
     Install dictIO's dependencies:
     ~~~sh
-    $ pip install -r requirements.txt
+    $ pip install -r requirements-dev.txt
     ~~~
 
 ## Meta
