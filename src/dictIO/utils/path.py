@@ -30,7 +30,7 @@ def highest_common_root_folder(paths: Sequence[Path]) -> Path:
     if not paths:
         raise ValueError("argument 'paths' is empty.")
 
-    folders: List[Path] = list(paths)
+    folders: List[Path] = []
     for path in paths:
         _path: Path = path.resolve()
         _folder: Path = _path.parent if _path.suffix else _path

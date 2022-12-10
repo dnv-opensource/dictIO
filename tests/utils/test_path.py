@@ -1,8 +1,13 @@
+import sys
 from pathlib import Path
 
 import pytest
 
 from dictIO.utils.path import highest_common_root_folder, relative_path
+
+WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(
+    not sys.platform.startswith("win"), reason="windows only test"
+)
 
 
 def test_highest_common_root_folder():
@@ -276,8 +281,6 @@ def test_relative_path():
     # Prepare
     file_01: Path = Path(r"C:/A0/A1/A2/file_01.abc")
     file_06: Path = Path(r"C:/A0/A1/file_06.abc")
-    file_11: Path = Path(r"C:/file_11.abc")
-    file_12: Path = Path(r"D:/file_12.abc")
     folder_01: Path = Path(r"C:/A0/A1/A2/")
     folder_06: Path = Path(r"C:/A0/A1/")
     folder_07: Path = Path(r"C:/A0/B1/")
@@ -285,7 +288,6 @@ def test_relative_path():
     folder_09: Path = Path(r"C:/A0/")
     folder_10: Path = Path(r"C:/B0/")
     folder_11: Path = Path(r"C:/")
-    folder_12: Path = Path(r"D:/")
 
     relative_path_folder_06_folder_01 = Path(r"A2/")
     relative_path_folder_01_folder_06 = Path(r"../")
@@ -360,11 +362,21 @@ def test_relative_path():
     assert relative_path(file_06, file_01) == relative_path_file_06_file_01
     assert relative_path(file_01, file_06) == relative_path_file_01_file_06
 
+
+@WindowsOnly
+def test_relative_path_raises_value_error():
+    # Prepare
+    file_11: Path = Path(r"C:/file_11.abc")
+    file_12: Path = Path(r"D:/file_12.abc")
+    folder_11: Path = Path(r"C:/")
+    folder_12: Path = Path(r"D:/")
+
+    # Execute and Assert
     with pytest.raises(ValueError):
-        relative_path(folder_11, folder_12)
+        _ = relative_path(folder_11, folder_12)
     with pytest.raises(ValueError):
-        relative_path(folder_11, file_12)
+        _ = relative_path(folder_11, file_12)
     with pytest.raises(ValueError):
-        relative_path(file_11, folder_12)
+        _ = relative_path(file_11, folder_12)
     with pytest.raises(ValueError):
-        relative_path(file_11, file_12)
+        _ = relative_path(file_11, file_12)

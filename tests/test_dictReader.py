@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 from copy import deepcopy
 from pathlib import Path, PurePath
 from typing import Any, Dict, List
@@ -9,6 +10,10 @@ from numpy.testing import assert_array_equal
 from pytest import LogCaptureFixture
 
 from dictIO import CppDict, CppParser, DictReader, DictWriter
+
+WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(
+    not sys.platform.startswith("win"), reason="windows only test"
+)
 
 
 def test_file_not_found_exception():
@@ -459,57 +464,69 @@ def test_read_xml():
     assert dict["_xmlOpts"]["_addNodeNumbering"] is True
 
 
-def test_read_dict_in_subfolder():
+@WindowsOnly
+def test_read_dict_in_subfolder_bsl():
     # sourcery skip: avoid-builtin-shadow
     # Prepare
-    source_file = Path.cwd() / "subfolder" / "test_subfolder_dict"
+    source_file = Path.cwd() / "subfolder" / "test_subfolder_dict_bsl"
     # Execute
     dict = DictReader.read(source_file)
     # Assert
-    assert dict["valueA"] == 1
-    assert dict["valueB"] == 2
+    assert dict["valueA"] == 1  # paramA is defined in paramDict_bsl
+    assert dict["valueB"] == "$paramB"  # paramB is defined in paramDict_fsl
+
+
+def test_read_dict_in_subfolder_fsl():
+    # sourcery skip: avoid-builtin-shadow
+    # Prepare
+    source_file = Path.cwd() / "subfolder" / "test_subfolder_dict_fsl"
+    # Execute
+    dict = DictReader.read(source_file)
+    # Assert
+    assert dict["valueA"] == "$paramA"  # paramA is defined in paramDict_bsl
+    assert dict["valueB"] == 2  # paramB is defined in paramDict_fsl
 
 
 def test_read_dict_in_subfolder_source_file_given_as_str():
     # sourcery skip: avoid-builtin-shadow
     # Prepare
-    source_file = Path.cwd().absolute() / "subfolder" / "test_subfolder_dict"
+    source_file = Path.cwd().absolute() / "subfolder" / "test_subfolder_dict_fsl"
     source_file_as_str = str(source_file)
     # Execute
     dict = DictReader.read(source_file_as_str)
     # Assert
-    assert dict["valueA"] == 1
     assert dict["valueB"] == 2
 
 
 def test_read_dict_in_subfolder_source_file_given_as_purepath():
     # sourcery skip: avoid-builtin-shadow
     # Prepare
-    source_file = Path.cwd().absolute() / "subfolder" / "test_subfolder_dict"
+    source_file = Path.cwd().absolute() / "subfolder" / "test_subfolder_dict_fsl"
     source_file_as_purepath = PurePath(str(source_file))
     # Execute
     dict = DictReader.read(source_file_as_purepath)
     # Assert
-    assert dict["valueA"] == 1
-    assert dict["valueB"] == 2
+    assert dict["valueB"] == 2  # paramB is defined in paramDict_fsl
 
 
 def test_read_dict_in_subfolder_parsed_via_dictparser_cli():
     # Prepare
-    source_file = "subfolder/test_subfolder_dict"
-    parsed_file = Path("subfolder/parsed.test_subfolder_dict")
-    parsed_file_foam = Path("subfolder/parsed.test_subfolder_dict.foam")
+    source_file = "subfolder/test_subfolder_dict_fsl"
+    parsed_file = Path("subfolder/parsed.test_subfolder_dict_fsl")
+    parsed_file_foam = Path("subfolder/parsed.test_subfolder_dict_fsl.foam")
     parsed_file.unlink(missing_ok=True)
     parsed_file_foam.unlink(missing_ok=True)
     # Execute
-    os.system(f"python -m dictIO.cli.dictParser --quiet {source_file}")
+    _ = os.system(f"python -m dictIO.cli.dictParser --quiet {source_file}")
     # Assert
     assert parsed_file.exists()
     assert not parsed_file_foam.exists()
     # Clean up
     parsed_file.unlink()
     # Execute
-    os.system(f"python -m dictIO.cli.dictParser --quiet --output=foam {source_file}")
+    _ = os.system(
+        f"python -m dictIO.cli.dictParser --quiet --output=foam {source_file}"
+    )
     # Assert
     assert not parsed_file.exists()
     assert parsed_file_foam.exists()
