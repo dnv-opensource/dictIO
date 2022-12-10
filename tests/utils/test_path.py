@@ -37,8 +37,6 @@ def test_highest_common_root_folder():
     folder_11: Path = Path(r"C:/")
     folder_12: Path = Path(r"D:/")
     # Execute and Assert
-    with pytest.raises(ValueError):
-        _ = highest_common_root_folder([])
     assert highest_common_root_folder([file_01]) == folder_01.resolve().absolute()
     assert (
         highest_common_root_folder([file_01, file_01]) == folder_01.resolve().absolute()
@@ -84,9 +82,6 @@ def test_highest_common_root_folder():
     )
     assert highest_common_root_folder([file_11]) == folder_11.resolve().absolute()
     assert highest_common_root_folder([file_12]) == folder_12.resolve().absolute()
-    with pytest.raises(ValueError):
-        _ = highest_common_root_folder([file_11, file_12])
-
     assert highest_common_root_folder([folder_01]) == folder_01.resolve().absolute()
     assert (
         highest_common_root_folder([folder_01, folder_01])
@@ -144,6 +139,20 @@ def test_highest_common_root_folder():
     )
     assert highest_common_root_folder([folder_11]) == folder_11.resolve().absolute()
     assert highest_common_root_folder([folder_12]) == folder_12.resolve().absolute()
+
+
+@WindowsOnly
+def test_highest_common_root_folder_raises_value_error():
+    # Prepare
+    file_11: Path = Path(r"C:/file_11.abc")
+    file_12: Path = Path(r"D:/file_12.abc")
+    folder_11: Path = Path(r"C:/")
+    folder_12: Path = Path(r"D:/")
+    # Execute and Assert
+    with pytest.raises(ValueError):
+        _ = highest_common_root_folder([])
+    with pytest.raises(ValueError):
+        _ = highest_common_root_folder([file_11, file_12])
     with pytest.raises(ValueError):
         _ = highest_common_root_folder([folder_11, folder_12])
 
