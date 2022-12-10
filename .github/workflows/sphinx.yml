@@ -9,7 +9,7 @@ env:
 
 jobs:
   build-and-publish-docs:
-    name: Build and publish Sphinx documentation
+    name: Build and publish documentation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout active branch
@@ -41,7 +41,7 @@ jobs:
 
       # Build documentation
       - uses: ammaraskar/sphinx-problem-matcher@master
-      - name: Build Sphinx documentation
+      - name: Build documentation
         run: |
           cd docs
           make html
@@ -100,7 +100,7 @@ jobs:
         run: touch _gh-pages/.nojekyll
 
       # Publish: Commit gh-pages branch and publish it to GitHub Pages
-      - name: Publish
+      - name: Publish documentation
         uses: peaceiris/actions-gh-pages@v3
         with:
           publish_branch: gh-pages
