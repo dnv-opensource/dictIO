@@ -96,9 +96,7 @@ class Parser:
             if source_file does not exist
         """
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
-        source_file = (
-            source_file if isinstance(source_file, Path) else Path(source_file)
-        )
+        source_file = source_file if isinstance(source_file, Path) else Path(source_file)
         if not source_file.exists():
             logger.error(f"source_file not found: {source_file}")
             raise FileNotFoundError(source_file)
@@ -108,8 +106,7 @@ class Parser:
         # Check whether file to read from exists.
         if not self.source_file.exists():
             logger.warning(
-                "Parser.parse_file(): File or path does not exist: '%s'. Empty dict will be returned."
-                % source_file
+                "Parser.parse_file(): File or path does not exist: '%s'. Empty dict will be returned." % source_file
             )
             file_content = ""
         else:
@@ -248,9 +245,7 @@ class Parser:
             return int(arg)
         if re.search(r"^[+-]?(\d+(\.\d*)?|\.\d+)$", arg):  # float
             return float(arg)
-        if re.search(
-            r"^[+-]?\d*(\.\d*)?([eE]?[-+]?\d+)?$", arg
-        ):  # float written as fpn like 1.e-03
+        if re.search(r"^[+-]?\d*(\.\d*)?([eE]?[-+]?\d+)?$", arg):  # float written as fpn like 1.e-03
             return float(arg)
 
         # Booleans and None types that are masked as strings
@@ -266,9 +261,7 @@ class Parser:
             return False
         if re.search(r"^(none)$", arg.strip().lower()):  # None
             return None
-        if re.search(
-            r"^(null)$", arg.strip().lower()
-        ):  # C++ 'NULL' or JSON 'null' -> None
+        if re.search(r"^(null)$", arg.strip().lower()):  # C++ 'NULL' or JSON 'null' -> None
             return None
 
         # Any other string: return 'as is', but make sure extra quotes, if so, are stripped.
@@ -356,19 +349,13 @@ class Parser:
         """
         if isinstance(arg, MutableMapping):  # Dict
             for key in arg.keys():
-                if isinstance(
-                    arg[key], (MutableMapping, MutableSequence)
-                ):  # dict or list
-                    arg[key] = __class__.remove_quotes_from_strings(
-                        arg[key]
-                    )  # (recursion)
+                if isinstance(arg[key], (MutableMapping, MutableSequence)):  # dict or list
+                    arg[key] = __class__.remove_quotes_from_strings(arg[key])  # (recursion)
                 elif isinstance(arg[key], str):  # str
                     arg[key] = __class__.remove_quotes_from_string(arg[key])
         else:  # List
             for i in range(len(arg)):
-                if isinstance(
-                    arg[i], (MutableMapping, MutableSequence)
-                ):  # dict or list
+                if isinstance(arg[i], (MutableMapping, MutableSequence)):  # dict or list
                     arg[i] = __class__.remove_quotes_from_strings(arg[i])  # (recursion)
                 elif isinstance(arg[i], str):  # str
                     arg[i] = __class__.remove_quotes_from_string(arg[i])
@@ -427,9 +414,7 @@ class CppParser(Parser):
 
         # Concatenate all lines from line_content
         # As extracting block comments is easier with line endings still existing, at first we preserve them.
-        self._convert_line_content_to_block_content(
-            parsed_dict
-        )  # preserves line endings
+        self._convert_line_content_to_block_content(parsed_dict)  # preserves line endings
 
         # Extract block comments      ..and remove line endings right thereafter
 
@@ -497,9 +482,7 @@ class CppParser(Parser):
                 if not comments:
                     placeholder = ""
                 # Replace line comment with placeholder
-                dict.line_content[index] = dict.line_content[index].replace(
-                    line_comment, placeholder
-                )
+                dict.line_content[index] = dict.line_content[index].replace(line_comment, placeholder)
 
         return
 
@@ -526,9 +509,7 @@ class CppParser(Parser):
                 dict.line_content[index] = "INCLUDE%06i\n" % ii
 
                 include_file_name = re.sub(r"(^\s*#\s*include\s*|\s*$)", "", line)
-                include_file_name = __class__.remove_quotes_from_string(
-                    include_file_name
-                )
+                include_file_name = __class__.remove_quotes_from_string(include_file_name)
 
                 include_file_path = Path.joinpath(dict.path, include_file_name)
 
@@ -536,9 +517,7 @@ class CppParser(Parser):
                 if line[-1] == "\n":
                     include_directive = line[:-1]
 
-                dict.includes.update(
-                    {ii: (include_directive, include_file_name, include_file_path)}
-                )
+                dict.includes.update({ii: (include_directive, include_file_name, include_file_path)})
 
         return
 
@@ -569,9 +548,7 @@ class CppParser(Parser):
             If False, block comments will be removed (they get replaced by an empty placeholder then, which in effect removes them).
         """
 
-        block_comments = re.findall(
-            r"/\*[\w\W\d\D\s]*?\*/", dict.block_content, re.MULTILINE
-        )
+        block_comments = re.findall(r"/\*[\w\W\d\D\s]*?\*/", dict.block_content, re.MULTILINE)
         dict.block_comments = {i: block_comments[i] for i in range(len(block_comments))}
 
         for key, block_comment in dict.block_comments.items():
@@ -580,9 +557,7 @@ class CppParser(Parser):
             if not comments:
                 placeholder = ""
             # Replace block comment with placeholder
-            dict.block_content = re.sub(
-                re.escape(block_comment), placeholder, dict.block_content
-            )
+            dict.block_content = re.sub(re.escape(block_comment), placeholder, dict.block_content)
 
         return
 
@@ -619,9 +594,7 @@ class CppParser(Parser):
             )  # replace string literal in .block_content with placeholder
 
             # Register the string literal in .string_literals
-            dict.string_literals.update(
-                {index: __class__.remove_quotes_from_string(string_literal)}
-            )
+            dict.string_literals.update({index: __class__.remove_quotes_from_string(string_literal)})
 
         # Step 2: Find double quoted string literals in .block_content
         # Double quoted strings are identified as string literals only in case they do not contain a $ character.
@@ -642,9 +615,7 @@ class CppParser(Parser):
                 )  # replace expression in .block_content with placeholder
 
                 # Register the string literal in .string_literals
-                dict.string_literals.update(
-                    {index: __class__.remove_quotes_from_string(string_literal)}
-                )
+                dict.string_literals.update({index: __class__.remove_quotes_from_string(string_literal)})
 
         return
 
@@ -686,9 +657,7 @@ class CppParser(Parser):
 
             # Register the expression in .expressions
             expression = re.sub(r"\"", "", expression)
-            dict.expressions.update(
-                {index: {"expression": expression, "name": placeholder}}
-            )
+            dict.expressions.update({index: {"expression": expression, "name": placeholder}})
 
         # Step 2: Find references in .block_content (single references to key'd entries that are NOT in double quotes).
         search_pattern = r"\$\w[\w\[\]]+"
@@ -699,9 +668,7 @@ class CppParser(Parser):
             # Replace the found reference in .block_content with the placeholder (EXPRESSION000000)
             dict.block_content = match.re.sub(placeholder, dict.block_content, count=1)
             # Register the reference as expression in .expressions
-            dict.expressions.update(
-                {index: {"expression": reference, "name": placeholder}}
-            )
+            dict.expressions.update({index: {"expression": reference, "name": placeholder}})
         return
 
     def _separate_delimiters(
@@ -730,9 +697,7 @@ class CppParser(Parser):
 
         # Insert at least one \s around every char in list
         for char in delimiters:
-            dict.block_content = re.sub(
-                str(r"(\%s)" % char), str(f" {char} "), dict.block_content
-            )
+            dict.block_content = re.sub(str(r"(\%s)" % char), str(f" {char} "), dict.block_content)
 
         # Substitute all \s+ to \s
         # This turns multiple spaces into one single space.
@@ -780,9 +745,7 @@ class CppParser(Parser):
 
         if level != 0:
             counted = ""
-            for opening_bracket, closing_bracket in zip(
-                dict.openingBrackets, dict.closingBrackets
-            ):
+            for opening_bracket, closing_bracket in zip(dict.openingBrackets, dict.closingBrackets):
                 counted += "".join(
                     [
                         "\t\t\t",
@@ -854,9 +817,7 @@ class CppParser(Parser):
 
                 # Closing bracket has by definition same level as opening bracket.
                 # (Note: the tokens BETWEEN the brackets are considered one level 'deeper'; but that's not the point here)
-                closing_bracket: str = self._find_companion(
-                    dict, tokens[token_index][1]
-                )
+                closing_bracket: str = self._find_companion(dict, tokens[token_index][1])
                 closing_level: int = tokens[token_index][0]
 
                 # Create a temporary data_struct_tokens list for just the nested data struct, containing
@@ -881,17 +842,11 @@ class CppParser(Parser):
                 # list:
                 # Proof that list properly ends with ';'
                 # (= assert that closing bracket of the list is followed by ';')
-                if data_struct_tokens[-1][1] == ")" and tokens[token_index + i + 1][
-                    1
-                ] not in [";", ")"]:
+                if data_struct_tokens[-1][1] == ")" and tokens[token_index + i + 1][1] not in [";", ")"]:
                     # log error: Missing ';' after list
                     logger.warning(
                         "mis-spelled expression / missing ';' around \"%s\""
-                        % " ".join(
-                            [name]
-                            + [t[1] for t in data_struct_tokens]
-                            + [tokens[token_index + i + 1][1]]
-                        )
+                        % " ".join([name] + [t[1] for t in data_struct_tokens] + [tokens[token_index + i + 1][1]])
                     )
                 # dict:
                 if data_struct_tokens[-1][1] == "}":
@@ -922,18 +877,14 @@ class CppParser(Parser):
                     else:
                         # has content
                         # parse the nested list
-                        nested_list = self._parse_tokenized_list(
-                            dict, data_struct_tokens, level=level + 1
-                        )
+                        nested_list = self._parse_tokenized_list(dict, data_struct_tokens, level=level + 1)
                         # update parsed_dict with the nested list
                         parsed_dict[name] = nested_list
 
                 #  dict:
                 elif data_struct_tokens[0][1] == "{":
                     # parse the nested dict (recursion)
-                    nested_dict = self._parse_tokenized_dict(
-                        dict, data_struct_tokens[1:-1], level=level + 1
-                    )
+                    nested_dict = self._parse_tokenized_dict(dict, data_struct_tokens[1:-1], level=level + 1)
                     # update parsed_dict with the nested dict
                     parsed_dict[name] = nested_dict
 
@@ -950,9 +901,7 @@ class CppParser(Parser):
                 # Read the name (key) and the value from the key value pair
                 # Parse from right to left, starting at the identified ';'
                 # and then copy the tokens into a temporary key_value_pair_tokens list:
-                key_value_pair_tokens: MutableSequence[Tuple[int, str]] = [
-                    tokens[token_index]
-                ]  # ';'
+                key_value_pair_tokens: MutableSequence[Tuple[int, str]] = [tokens[token_index]]  # ';'
                 # key_value_pair_tokens.append(tokens[token_index])                       # ';'
                 key_value_pair_token_level: int = tokens[token_index][0]
                 i = 1
@@ -985,9 +934,7 @@ class CppParser(Parser):
                         + " ".join(
                             [
                                 tokens[i][1]
-                                for i in range(
-                                    context_tokens_index_from, context_tokens_index_to
-                                )
+                                for i in range(context_tokens_index_from, context_tokens_index_to)
                                 if len(tokens[i]) > 1
                             ]
                         )
@@ -1015,9 +962,7 @@ class CppParser(Parser):
                     # data struct, updating a key effects the current (and local) parsed_dict only.
                     # Every key hence is being updated exclusively within its own local context; ambiguous occurences of keys are avoided.
                     if isinstance(name, int):
-                        logger.error(
-                            f"unexpected type of key 'name': int (value: {name})."
-                        )
+                        logger.error(f"unexpected type of key 'name': int (value: {name}).")
                     parsed_dict[name] = value
 
             # Comment
@@ -1080,15 +1025,10 @@ class CppParser(Parser):
             # logger.info('token: %s%s' % ('\t'*tokens[tIndex][0], tokens[tIndex][1]))  # 1
 
             # Nested data struct (list or dict)   '(' = list    '{' = dict
-            if (
-                tokens[token_index][1] in dict.openingBrackets
-                and tokens[token_index][0] > base_level
-            ):
+            if tokens[token_index][1] in dict.openingBrackets and tokens[token_index][0] > base_level:
                 # Closing bracket has by definition same level as opening bracket.
                 # (Note: the tokens BETWEEN the brackets are considered one level 'deeper'; but that's not the point here)
-                closing_bracket: str = self._find_companion(
-                    dict, tokens[token_index][1]
-                )
+                closing_bracket: str = self._find_companion(dict, tokens[token_index][1])
                 closing_level: int = tokens[token_index][0]
 
                 # Create a temporary token list for just the nested data struct, containing
@@ -1129,8 +1069,7 @@ class CppParser(Parser):
                     if temp_tokens[index][1] not in ["{", ";", "}"]:
                         # log error: Missing ';' after key value pair
                         logger.error(
-                            "mis-spelled expression / missing ';' around \"%s\""
-                            % " ".join(t[1] for t in temp_tokens)
+                            "mis-spelled expression / missing ';' around \"%s\"" % " ".join(t[1] for t in temp_tokens)
                         )
 
                 # Parse the tokenized data struct, translate it into its type (list or dict),
@@ -1139,24 +1078,18 @@ class CppParser(Parser):
                 # list:
                 if temp_tokens[0][1] == "(":
                     # Check whether the list is empty
-                    if (
-                        len(temp_tokens) < 3
-                    ):  # is empty (contains only the opening and the closing bracket)
+                    if len(temp_tokens) < 3:  # is empty (contains only the opening and the closing bracket)
                         # add an empty list to parsed_list
                         parsed_list.append([])
                     else:  # has content
                         # parse the nested list
-                        nested_list = self._parse_tokenized_list(
-                            dict, temp_tokens, level=level + 1
-                        )  # (recursion)
+                        nested_list = self._parse_tokenized_list(dict, temp_tokens, level=level + 1)  # (recursion)
                         # add nested list to parsed_list
                         parsed_list.append(nested_list)
                         #  dict:
                 elif temp_tokens[0][1] == "{":
                     # parse the nested dict
-                    nested_dict = self._parse_tokenized_dict(
-                        dict, temp_tokens[1:-1], level=level + 1
-                    )
+                    nested_dict = self._parse_tokenized_dict(dict, temp_tokens[1:-1], level=level + 1)
                     # add nested dict to parsed_list
                     parsed_list.append(nested_dict)
 
@@ -1335,9 +1268,7 @@ class JsonParser(Parser):
         for key in keys:
             if isinstance(key, str) and re.search(r"^\s*#\s*include", key):
                 include_file_name = str(dict[key])
-                include_file_name = __class__.remove_quotes_from_string(
-                    include_file_name
-                )
+                include_file_name = __class__.remove_quotes_from_string(include_file_name)
 
                 include_file_path = Path.joinpath(dict.path, include_file_name)
 
@@ -1345,9 +1276,7 @@ class JsonParser(Parser):
                 include_directive = f"#include '{include_file_name_temp}'"
 
                 ii = self.counter()
-                dict.includes.update(
-                    {ii: (include_directive, include_file_name, include_file_path)}
-                )
+                dict.includes.update({ii: (include_directive, include_file_name, include_file_path)})
 
                 include_placeholder_keys[f"INCLUDE{ii:06d}"] = f"INCLUDE{ii:06d}"
                 del dict[key]
@@ -1437,9 +1366,7 @@ class JsonParser(Parser):
         _pattern: re.Pattern[str] = re.compile(re.escape(expression))
         modified_string: str = re.sub(_pattern, placeholder, string)
         # Register the expression in .expressions
-        parsed_dict.expressions.update(
-            {index: {"expression": expression, "name": placeholder}}
-        )
+        parsed_dict.expressions.update({index: {"expression": expression, "name": placeholder}})
         return modified_string
 
     def _extract_expressions(
@@ -1525,9 +1452,7 @@ class XmlParser(Parser):
         # +++PARSE XML++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         # Default configuration
-        namespaces: Dict[str, str] = {
-            "xs": "https://www.w3.org/2009/XMLSchema/XMLSchema.xsd"
-        }
+        namespaces: Dict[str, str] = {"xs": "https://www.w3.org/2009/XMLSchema/XMLSchema.xsd"}
         root_tag: str = "NOTSPECIFIED"
 
         # Create XML parser
@@ -1574,9 +1499,7 @@ class XmlParser(Parser):
             }
 
         except Exception:
-            logger.exception(
-                "XmlParser.parseString(): Cannot write _nameSpaces to _xmlOpts"
-            )
+            logger.exception("XmlParser.parseString(): Cannot write _nameSpaces to _xmlOpts")
 
         # +++MERGE PARSED DICTIONARY INTO TARGET DICTIONARY+++++++++++++++++++++++++++++++++++++++++
         target_dict.merge(parsed_dict)
@@ -1592,8 +1515,7 @@ class XmlParser(Parser):
         """Recursively parses all nodes and saves the nodes' content in a dict"""
         # Default case: Make all node tags temporarily unique by indexing them using BorgCounter
         node_tags: List[str] = [
-            re.sub(r"^(\{.*\})", "", node.tag)
-            for node in root_element.findall("*", dict(namespaces))
+            re.sub(r"^(\{.*\})", "", node.tag) for node in root_element.findall("*", dict(namespaces))
         ]
         indexed_node_tags: List[Tuple[str, str]] = []
         for item in node_tags:
@@ -1624,9 +1546,7 @@ class XmlParser(Parser):
                 # node contains child nodes
                 content_dict[node_tag] = self._parse_nodes(nodes[index], namespaces)
 
-            elif nodes[index].text is None or re.search(
-                r"^[\s\n\r]*$", nodes[index].text or ""
-            ):
+            elif nodes[index].text is None or re.search(r"^[\s\n\r]*$", nodes[index].text or ""):
                 # Node has either no content or contains an empty string <NODE ATTRIB=STRING><\NODE>
                 # However, in order to be able to attach attributes to a node,
                 # we still need to create a dict for the node, even if the node has no content.
@@ -1652,13 +1572,7 @@ class XmlParser(Parser):
             if len(nodes[index].attrib) > 0:
                 # Avoid empty strings in attributes
                 # Might be substtituted by any kind of substitution later if required.
-                attributes_dict = {
-                    "_attributes": {
-                        k: str(v)
-                        for k, v in nodes[index].attrib.items()
-                        if str(v) != ""
-                    }
-                }
+                attributes_dict = {"_attributes": {k: str(v) for k, v in nodes[index].attrib.items() if str(v) != ""}}
 
                 if content_dict[node_tag] is None:
                     content_dict[node_tag] = attributes_dict

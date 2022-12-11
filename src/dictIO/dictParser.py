@@ -74,9 +74,7 @@ class DictParser:
         """
 
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
-        source_file = (
-            source_file if isinstance(source_file, Path) else Path(source_file)
-        )
+        source_file = source_file if isinstance(source_file, Path) else Path(source_file)
         if not source_file.exists():
             logger.error(f"DictParser: File {source_file} not found.")
             raise FileNotFoundError(source_file)

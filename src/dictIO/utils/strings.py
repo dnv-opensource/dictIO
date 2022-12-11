@@ -29,9 +29,7 @@ def string_diff(text_1: str, text_2: str):
     lines_1: List[str] = re.split("[\r\n]+", text_1)
     lines_2: List[str] = re.split("[\r\n]+", text_2)
     diffs: List[str] = []
-    for index, item in enumerate(
-        line for line in ndiff(lines_1, lines_2) if not re.search(r"^\s*$", line)
-    ):
+    for index, item in enumerate(line for line in ndiff(lines_1, lines_2) if not re.search(r"^\s*$", line)):
         if re.match(r"^[+\-]", item):
             print("diff in line %4i:" % index, item)
             diffs.append((item))

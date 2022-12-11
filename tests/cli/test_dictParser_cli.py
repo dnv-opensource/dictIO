@@ -97,7 +97,7 @@ def test_cli(
         with pytest.raises((exception, SystemExit)):
             args = parser.parse_args()
     else:
-        assert False
+        raise AssertionError()
 
 
 # *****Ensure the CLI correctly invokes the API****************************************************
@@ -192,7 +192,7 @@ def test_invoke_api(
         with pytest.raises((exception, SystemExit)):
             main()
     else:
-        assert False
+        raise AssertionError()
 
 
 # *****Test _validate_scope() helper function******************************************************

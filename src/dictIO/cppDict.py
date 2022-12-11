@@ -152,9 +152,7 @@ class CppDict(UserDict[Any, Any]):
             else:
                 break
         self.data[placeholder] = placeholder
-        self.includes.update(
-            {ii: (include_directive, include_file_name, include_file_path)}
-        )
+        self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
         return
 
     def update(self, __m: Mapping[Any, Any], **kwargs: Any) -> None:
@@ -317,10 +315,7 @@ class CppDict(UserDict[Any, Any]):
             try:
                 self.data = eval("self.data['" + "']['".join(scope) + "']")
             except KeyError as e:
-                logger.warning(
-                    "CppDict.reduce_scope(): no scope '%s' in dictionary %s"
-                    % (e.args[0], self.source_file)
-                )
+                logger.warning("CppDict.reduce_scope(): no scope '%s' in dictionary %s" % (e.args[0], self.source_file))
         return
 
     @property
@@ -464,9 +459,7 @@ def order_keys(arg: MutableMapping[_KT, _VT]) -> Dict[_KT, _VT]:
     Dict[_KT, _VT]
         passed in dict with keys sorted
     """
-    sorted_dict: MutableMapping[_KT, _VT] = dict(
-        sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0]))
-    )
+    sorted_dict: MutableMapping[_KT, _VT] = dict(sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0])))
     for key, value in sorted_dict.items():
         if isinstance(value, MutableMapping):
             sorted_dict[key] = order_keys(sorted_dict[key])  # type: ignore
@@ -539,9 +532,7 @@ def set_global_key(
         while (
             len(remaining_keys) > 1
         ):  # as long as we didn't arrive at the last branch (the one that contains the target key)..
-            last_branch = last_branch[
-                remaining_keys[0]
-            ]  # ..walk one level further down
+            last_branch = last_branch[remaining_keys[0]]  # ..walk one level further down
             remaining_keys = remaining_keys[1:]
             ii += 1
             if ii == 10:
@@ -551,9 +542,7 @@ def set_global_key(
     return
 
 
-def global_key_exists(
-    arg: MutableMapping[Any, Any], global_key: MutableSequence[Any]
-) -> bool:
+def global_key_exists(arg: MutableMapping[Any, Any], global_key: MutableSequence[Any]) -> bool:
     """Checks whether the specified global key exists in the passed in dict.
 
     Parameters
@@ -609,14 +598,8 @@ def _merge_dicts(
             value_in_target_dict_contains_circular_reference = False
             if key in target_dict and isinstance(target_dict, CppDict):
                 value = _insert_expression(target_dict[key], target_dict)
-                value_in_target_dict_contains_circular_reference = (
-                    _value_contains_circular_reference(key, value)
-                )
-            if (
-                overwrite
-                or key not in target_dict
-                or value_in_target_dict_contains_circular_reference
-            ):
+                value_in_target_dict_contains_circular_reference = _value_contains_circular_reference(key, value)
+            if overwrite or key not in target_dict or value_in_target_dict_contains_circular_reference:
                 target_dict[key] = dict_to_merge[key]  # Update
 
     return
@@ -626,11 +609,7 @@ def _insert_expression(value: Any, dict: CppDict) -> str:
     if isinstance(value, str) and re.search(r"EXPRESSION\d{6}", value):
         if match_index := re.search(r"\d{6}", value):
             index = int(match_index[0])
-            value = (
-                dict.expressions[index]["expression"]
-                if index in dict.expressions
-                else value
-            )
+            value = dict.expressions[index]["expression"] if index in dict.expressions else value
     return value
 
 

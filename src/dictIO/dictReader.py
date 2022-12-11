@@ -88,9 +88,7 @@ class DictReader:
         """
 
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
-        source_file = (
-            source_file if isinstance(source_file, Path) else Path(source_file)
-        )
+        source_file = source_file if isinstance(source_file, Path) else Path(source_file)
         if not source_file.exists():
             logger.error(f"source_file not found: {source_file}")
             raise FileNotFoundError(source_file)
@@ -156,13 +154,9 @@ class DictReader:
 
                 if prove_recursive_include is True:
                     call_chain = "->".join(list(djv.strings))
-                    logger.warning(
-                        f"Recursive include detected. Merging of {call_chain} into {dict.name} aborted."
-                    )
+                    logger.warning(f"Recursive include detected. Merging of {call_chain} into {dict.name} aborted.")
                 elif not path.exists():
-                    logger.warning(
-                        f"included dict not found. Merging of {path} aborted."
-                    )
+                    logger.warning(f"included dict not found. Merging of {path} aborted.")
                 else:
                     parser = Parser.get_parser(path)
                     included_dict = parser.parse_file(path, None, comments=comments)
@@ -202,9 +196,7 @@ class DictReader:
             ret = vars[ref]  # singular value or field
 
             ref_changed_through_recursion = False
-            while re.search(
-                r"\$", str(ret)
-            ):  # resolve nested references, if existing, through recursion
+            while re.search(r"\$", str(ret)):  # resolve nested references, if existing, through recursion
                 ref = ret
                 ref_changed_through_recursion = True
                 ret = __class__._resolve_reference(ref, vars)  # recursion
@@ -226,17 +218,13 @@ class DictReader:
             _references.extend(_refs)
         # Resolve references
         variables: Dict[str, Any] = dict.variables
-        references: Dict[str, Any] = {
-            ref: __class__._resolve_reference(ref, variables) for ref in _references
-        }
+        references: Dict[str, Any] = {ref: __class__._resolve_reference(ref, variables) for ref in _references}
         references_resolved: Dict[str, Any] = {
             ref: value
             for ref, value in references.items()
             if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
         }
-        references_not_resolved: List[str] = [
-            ref for ref in references if ref not in references_resolved
-        ]
+        references_not_resolved: List[str] = [ref for ref in references if ref not in references_resolved]
 
         # Iteratively try to evaluate expressions contained in the dict and then re-resolve all references
         # With every iteration, this should reduce the number of remaining, non resolved references
@@ -267,10 +255,7 @@ class DictReader:
                         eval_result = expression
                         eval_successful = True
                     except SyntaxError:
-                        logger.warning(
-                            'DictReader.(): evaluation of "%s" not yet possible'
-                            % expression
-                        )
+                        logger.warning('DictReader.(): evaluation of "%s" not yet possible' % expression)
                 if eval_successful:
                     while global_key := dict.find_global_key(query=placeholder):
                         # Substitute the placeholder in the dict with the result of the evaluated expression
@@ -286,23 +271,19 @@ class DictReader:
                 _refs = re.findall(r"\$\w[\w\[\]]+", item["expression"])
                 _references.extend(_refs)
             variables = dict.variables
-            references = {
-                ref: __class__._resolve_reference(ref, variables) for ref in _references
-            }
+            references = {ref: __class__._resolve_reference(ref, variables) for ref in _references}
             references_resolved = {
                 ref: value
                 for ref, value in references.items()
                 if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
             }
-            references_not_resolved = [
-                ref for ref in references if ref not in references_resolved
-            ]
+            references_not_resolved = [ref for ref in references if ref not in references_resolved]
 
             keep_on = len(references_not_resolved) < references_not_resolved_old
 
         # For expressions that could NOT successfully be evaluated, even after iteration:
         # Back insert the expression string into the dict
-        for key, item in dict.expressions.items():
+        for _, item in dict.expressions.items():
             placeholder: str = item["name"]
             expression: str = item["expression"]
             while global_key := dict.find_global_key(query=placeholder):
@@ -324,9 +305,7 @@ class DictReader:
         with contextlib.suppress(Exception):
             for key in temp_dict.keys():
                 if isinstance(data[key], MutableMapping):
-                    data.update(
-                        {key: __class__._remove_comment_keys(data[key])}
-                    )  # recursion
+                    data.update({key: __class__._remove_comment_keys(data[key])})  # recursion
                 elif not re.search(remove, key):
                     data.update({key: temp_dict[key]})
         return

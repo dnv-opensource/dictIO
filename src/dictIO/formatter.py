@@ -87,9 +87,7 @@ class Formatter:
         """
         return ""
 
-    def format_dict(
-        self, arg: Union[MutableMapping[Any, Any], MutableSequence[Any], Any]
-    ) -> str:
+    def format_dict(self, arg: Union[MutableMapping[Any, Any], MutableSequence[Any], Any]) -> str:
         """Formats a dict or list object.
 
         Note: Override this method when implementing a specific Formatter.
@@ -442,9 +440,7 @@ class CppFormatter(Formatter):
         sep: str = " ",
         items_per_line: int = 10,
         end: str = "\n",
-        ancestry: Union[
-            Type[MutableMapping[Any, Any]], Type[MutableSequence[Any]]
-        ] = MutableMapping,
+        ancestry: Union[Type[MutableMapping[Any, Any]], Type[MutableSequence[Any]]] = MutableMapping,
     ) -> str:
         """Formats a dict or list object."""
         total_indent = 30
@@ -512,9 +508,7 @@ class CppFormatter(Formatter):
 
                     if last_item_on_this_line:
                         # Add a line ending
-                        s += self.format_dict(
-                            value, level=item_level, end="\n"
-                        )  # (recursion)
+                        s += self.format_dict(value, level=item_level, end="\n")  # (recursion)
                         last_item_on_this_line = False  # (effective with next item)
                         first_item_on_this_line = True  # (effective with next item)
                     else:
@@ -626,9 +620,7 @@ class CppFormatter(Formatter):
             ):  # if placeholders exist in s that match the key of the current block_comment
                 # Substitude the placehlder with the actual block_comment
                 # s.sub(search_pattern, block_comment)
-                s = re.sub(
-                    search_pattern, re.sub(r"\\", "\\\\\\\\", block_comment), s
-                )  # no comment
+                s = re.sub(search_pattern, re.sub(r"\\", "\\\\\\\\", block_comment), s)  # no comment
                 # Document which block comments we already inserted.
                 block_comments_inserted_so_far += block_comment
 
@@ -690,9 +682,7 @@ class CppFormatter(Formatter):
             if match := re.search("[\r\n]*$", line):
                 line_ending = match[0]
                 line_without_ending = line[: len(line) - len(line_ending)]
-                line_without_trailingspaces = (
-                    re.sub(r"\s+$", "", line_without_ending) + line_ending
-                )
+                line_without_trailingspaces = re.sub(r"\s+$", "", line_without_ending) + line_ending
                 ns += line_without_trailingspaces
         return ns
 
@@ -930,9 +920,7 @@ class XmlFormatter(Formatter):
             string representation of the dict in XML format
         """
         # Default configuration
-        namespaces: MutableMapping[Any, Any] = {
-            "xs": "https://www.w3.org/2009/XMLSchema/XMLSchema.xsd"
-        }
+        namespaces: MutableMapping[Any, Any] = {"xs": "https://www.w3.org/2009/XMLSchema/XMLSchema.xsd"}
         root_tag: str = "NOTSPECIFIED"
         root_attributes: Union[MutableMapping[Any, Any], None] = None
         indent = " " * 4
@@ -941,19 +929,11 @@ class XmlFormatter(Formatter):
         # If so, read and use them
         if "_xmlOpts" in dict.keys():
             xml_opts: MutableMapping[Any, Any] = dict["_xmlOpts"]
-            namespaces = (
-                xml_opts["_nameSpaces"] if "_nameSpaces" in xml_opts else namespaces
-            )
+            namespaces = xml_opts["_nameSpaces"] if "_nameSpaces" in xml_opts else namespaces
             root_tag = xml_opts["_rootTag"] if "_rootTag" in xml_opts else root_tag
-            root_attributes = (
-                xml_opts["_rootAttributes"]
-                if "_rootAttributes" in xml_opts
-                else root_attributes
-            )
+            root_attributes = xml_opts["_rootAttributes"] if "_rootAttributes" in xml_opts else root_attributes
             self.remove_node_numbering = (
-                xml_opts["_removeNodeNumbering"]
-                if "_removeNodeNumbering" in xml_opts
-                else self.remove_node_numbering
+                xml_opts["_removeNodeNumbering"] if "_removeNodeNumbering" in xml_opts else self.remove_node_numbering
             )
 
         prefixes: List[str] = []
@@ -980,9 +960,7 @@ class XmlFormatter(Formatter):
         root_element = Element("{%s}%s" % (xsd_uri, root_tag), attrib=attributes)
         if self.integrate_attributes:
             # integrate attributes in root element
-            root_element.attrib = {
-                k: str(v) for k, v in attributes.items() if str(v) != ""
-            }
+            root_element.attrib = {k: str(v) for k, v in attributes.items() if str(v) != ""}
 
         self.populate_into_element(root_element, dict, xsd_uri)
 
@@ -1044,9 +1022,7 @@ class XmlFormatter(Formatter):
                     # correct occurence of true false -> de-pythonize for lowercase
                     # if here is more expense needed, we have to revoke the one-liner
                     element.attrib = {
-                        k: str(v).lower()
-                        if re.match("^(true|false)$", str(v), re.I)
-                        else str(v)
+                        k: str(v).lower() if re.match("^(true|false)$", str(v), re.I) else str(v)
                         for k, v in item.items()
                         if str(v) != ""
                     }

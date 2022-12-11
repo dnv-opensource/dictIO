@@ -2,6 +2,10 @@
 requires = ["lxml", "setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.black]
+line-length = 120
+target-version = ["py39", "py310"]
+
 [tool.isort]
 profile = "black"
 extend_skip = ["__init__.py"]

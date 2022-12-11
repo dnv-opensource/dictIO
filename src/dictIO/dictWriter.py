@@ -54,9 +54,7 @@ class DictWriter:
 
         # Check argument
         if source_dict is None:
-            logger.warning(
-                "dictWriter.write(): argument 'source_dict' is missing. No file written."
-            )
+            logger.warning("dictWriter.write(): argument 'source_dict' is missing. No file written.")
             return
         if mode not in ["a", "w"]:
             logger.warning(
@@ -68,15 +66,11 @@ class DictWriter:
             if isinstance(source_dict, CppDict) and source_dict.source_file:
                 target_file = create_target_file_name(source_dict.source_file)
             else:
-                logger.error(
-                    "DictWriter.write(): parameter target_file is missing. No file written."
-                )
+                logger.error("DictWriter.write(): parameter target_file is missing. No file written.")
                 return
 
         # Make sure target_file argument is of type Path. If not, cast it to Path type.
-        target_file = (
-            target_file if isinstance(target_file, Path) else Path(target_file)
-        )
+        target_file = target_file if isinstance(target_file, Path) else Path(target_file)
 
         # Create formatter
         # If a formatter has been passed to write(), use that.

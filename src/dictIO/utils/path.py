@@ -78,18 +78,13 @@ def relative_path(from_path: Path, to_path: Path) -> Path:
     try:
         relative_path = to_path.relative_to(from_path)
     except ValueError:
-        msg = (
-            "Resolving relative path failed using pathlib.\n"
-            "Next try will use os.path instead of pathlib."
-        )
+        msg = "Resolving relative path failed using pathlib.\n" "Next try will use os.path instead of pathlib."
         logger.debug(msg)
         try:
             relative_path = Path(os.path.relpath(to_path, from_path))
             msg = "Resolving relative path succeeded using os.path"
             logger.debug(msg)
         except Exception as e:
-            raise ValueError(
-                "Resolving relative path failed using both pathlib and os.path."
-            ) from e
+            raise ValueError("Resolving relative path failed using both pathlib and os.path.") from e
 
     return relative_path
