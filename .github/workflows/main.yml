@@ -114,7 +114,7 @@ jobs:
       - name: Run pytest
         run: tox -e ${{matrix.python.toxenv}}-${{matrix.platform.toxenv}}
 
-  build_source_dist:
+  build:
     name: Build source distribution
     runs-on: ubuntu-latest
     environment: pypi
@@ -137,28 +137,28 @@ jobs:
         with:
           path: ./dist/*.tar.gz
 
-  build_wheels:
-    name: Build wheels for ${{ matrix.platform }}
-    runs-on: ${{ matrix.platform }}
-    strategy:
-      matrix:
-        platform: [ubuntu-latest, macos-latest, windows-latest]
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 1
-          lfs: true
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          cache: 'pip' # cache pip dependencies
-      - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.3.1
-      - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheels
-      - uses: actions/upload-artifact@v3
-        with:
-          path: ./wheels/*.whl
+  # build_wheels:
+  #   name: Build wheels for ${{ matrix.platform }}
+  #   runs-on: ${{ matrix.platform }}
+  #   strategy:
+  #     matrix:
+  #       platform: [ubuntu-latest, macos-latest, windows-latest]
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 1
+  #         lfs: true
+  #     - uses: actions/setup-python@v4
+  #       with:
+  #         python-version: '3.10'
+  #         cache: 'pip' # cache pip dependencies
+  #     - name: Install cibuildwheel
+  #       run: python -m pip install cibuildwheel==2.3.1
+  #     - name: Build wheels
+  #       run: python -m cibuildwheel --output-dir wheels
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         path: ./wheels/*.whl
 
   publish:
     name: Publish package
@@ -169,8 +169,8 @@ jobs:
       - flake8
       - pyright
       - test
-      - build_source_dist
-      - build_wheels
+      - build
+      # - build_wheels
     runs-on: ubuntu-latest
     environment: pypi
     steps:
