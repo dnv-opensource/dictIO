@@ -7,6 +7,31 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 * --
 
+## [0.2.4] - 2022-12-12
+
+### Changed
+
+* Moved dev-only dependencies from requirements.txt to requirements-dev.txt
+* dictIO/`__utils__`.py : ensured that imported symbols get also exported <br>
+  (added "as" clause -> "from x import y as y" instead of only "from x import y")
+* Configured code quality tools flake8, black, isort, pyright
+* Improved code quality, resolving all warnings and errors flagged by the configured code quality tools
+  (flake8, black, isort, pyright, sourcery)
+
+### Added
+
+* Added support for selected numpy functions (diag, eye, ones, zeros)
+  which can now be used in expressions. <br>
+  This is an experimental feature which might be removed or changed in future.
+* Added GitHub workflow 'main.yml' for continuous integration (runs all CI tasks except Sphinx)
+    * format checks: black, isort
+    * lint check: flake8, flake8-bugbear
+    * type check: pyright
+    * test: uses tox to run pytest on {Windows, Linux, MacOS} with {py39, py310}
+    * publish: publishing to PyPI (runs only on push of new tag vx.x.x, and after all other jobs succeeded)
+    * merge_to_release_branch: merge tagged commit to release branch (runs after publish)
+
+
 ## [0.2.3] - 2022-12-01
 
 ### Changed
@@ -130,7 +155,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.3...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/dnv-opensource/dictIO/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/dnv-opensource/dictIO/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/dnv-opensource/dictIO/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/dnv-opensource/dictIO/compare/v0.2.0...v0.2.1
