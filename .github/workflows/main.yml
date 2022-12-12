@@ -178,7 +178,7 @@ jobs:
         with:
           name: artifact
           path: ./dist/
-      - uses: pypa/gh-action-pypi-publish@1.5.0
+      - uses: pypa/gh-action-pypi-publish@v1.5.2
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
@@ -194,7 +194,7 @@ jobs:
           fetch-depth: '0'
           # The branch you want to checkout (usually equal to `branchtomerge`)
           ref: 'main'
-      - uses: devmasx/merge-branch@1.4.0
+      - uses: devmasx/merge-branch@v1.4.0
         with:
           type: now
           target_branch: release
