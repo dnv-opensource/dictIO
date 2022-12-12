@@ -184,7 +184,7 @@ jobs:
           password: ${{ secrets.PYPI_API_TOKEN }}
 
   merge_to_release_branch:
-    name: Merge ${{github.event.ref}} -> release branch
+    name: Merge ${{ github.event.ref }} -> release branch
     needs: publish
     runs-on: ubuntu-latest
     steps:
