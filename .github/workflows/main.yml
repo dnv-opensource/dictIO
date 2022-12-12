@@ -195,8 +195,16 @@ jobs:
           fetch-depth: 0
           # The branch you want to checkout (usually equal to `branchtomerge`)
           # ref: ${{ github.event.ref }}
-      - uses: devmasx/merge-branch@v1.4.0
+      - uses: MaximeHeckel/github-action-merge-fast-forward@v1.1.0
         with:
-          type: now
-          target_branch: release
-          github_token: ${{ secrets.RELEASE_TOKEN }}
+          # Branch to merge
+          branchtomerge: ${{ github.event.ref }}
+          # Branch that will be updated
+          branch: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      # - uses: devmasx/merge-branch@v1.4.0
+      #   with:
+      #     type: now
+      #     target_branch: release
+      #     github_token: ${{ secrets.RELEASE_TOKEN }}
