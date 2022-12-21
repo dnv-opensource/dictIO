@@ -50,9 +50,8 @@ jobs:
         with:
           python-version: '3.10'
           cache: 'pip' # cache pip dependencies
-      - run: pip install -r requirements.txt
-      - name: Install pyright
-        run: pip install pyright==1.1.284
+      - name: Install dependencies including pyright
+        run: pip install -r requirements-dev.txt
       - name: Run pyright
         run: pyright .
       # - uses: jakebailey/pyright-action@v1
