@@ -105,7 +105,7 @@ class Parser:
         # Check whether file to read from exists.
         if not self.source_file.exists():
             logger.warning(
-                "Parser.parse_file(): File or path does not exist: '%s'. Empty dict will be returned." % source_file
+                f"Parser.parse_file(): File or path does not exist: '{source_file}'. Empty dict will be returned."
             )
             file_content = ""
         else:
@@ -125,8 +125,7 @@ class Parser:
         # or a dict was given (can also contain nothing)
         if not self.source_file.exists() and target_dict is None:
             logger.error(
-                "Parser.parse_file(): File or path does not exist ('%s') or no target dict (%s) was given."
-                % (source_file, target_dict)
+                f"Parser.parse_file(): File or path does not exist ('{source_file}') or no target dict ({target_dict}) was given."
             )
 
         # Parse file content
@@ -139,7 +138,7 @@ class Parser:
         string: str,
         target_dict: CppDict,
         comments: bool = True,
-    ) -> CppDict:
+    ) -> CppDict:  # sourcery skip: lift-return-into-if
         """Parses a string and deserializes it into a CppDict.
 
         Note: Override this method when implementing a specific Parser.

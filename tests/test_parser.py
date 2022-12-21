@@ -1,3 +1,4 @@
+# pyright: reportPrivateUsage=false
 import re
 from copy import deepcopy
 from pathlib import Path
@@ -24,7 +25,7 @@ class TestParser:
         source_file = Path("this_file_does_not_exist")
         # Execute and Assert
         with pytest.raises(FileNotFoundError):
-            parser.parse_file(source_file)
+            _ = parser.parse_file(source_file)
 
     def test_remove_quotes_from_string(self):
         str_in_1 = "'a string with single quotes'"
@@ -104,7 +105,7 @@ class TestParser:
         str_out_3 = "a string with 'inside' quotes"
 
         dict_out = deepcopy(dict_in)
-        Parser.remove_quotes_from_strings(dict_out)
+        _ = Parser.remove_quotes_from_strings(dict_out)
         assert dict_out[key_1] == str_out_1
         assert dict_out[key_2] == str_out_2
         # changes here parser.remove_quotes_from_string: "all" to True to protect inside strings in e.g. farn filter expression "var in ['item1', 'item2']"
@@ -145,6 +146,7 @@ class TestParser:
         assert float_out == float_in
 
     def test_parse_type_bool(self):
+        # sourcery skip: extract-duplicate-method, inline-variable
         parser = Parser()
         bool_in = True
         bool_out = parser.parse_type(bool_in)
@@ -228,6 +230,7 @@ class TestParser:
         assert none_out == none_in
 
     def test_parse_type_string_numbers(self):
+        # sourcery skip: extract-duplicate-method, inline-variable
         parser = Parser()
         str_in = "1234"
         int_out = parser.parse_type(str_in)
@@ -330,7 +333,7 @@ class TestParser:
         source_file = Path("test_parser_dict")
         parser = Parser()
         # Execute
-        parser.parse_file(source_file, target_dict)
+        _ = parser.parse_file(source_file, target_dict)
         # Assert
         assert target_dict.source_file == source_file.absolute()
         assert target_dict.path == source_file.parent
@@ -886,6 +889,8 @@ class TestCppParser:
         # This test case adresses issue #6 that Frank raised on Github
         # https://github.com/MaritimeOSPx/ModelVerification/issues/6
 
+        # sourcery skip: extract-duplicate-method
+
         # Prepare
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9, comments=False)
@@ -1102,4 +1107,4 @@ class SetupHelper:
 
         for i in range(until_step + 1):
             funcs[i][0](*funcs[i][1:])
-        return dict_to_prepare
+        return

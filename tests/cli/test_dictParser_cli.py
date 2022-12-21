@@ -1,3 +1,4 @@
+# pyright: reportPrivateUsage=false
 import sys
 from argparse import ArgumentError
 from dataclasses import dataclass
