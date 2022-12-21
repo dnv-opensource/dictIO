@@ -73,7 +73,6 @@ class Parser:
         target_dict: Union[CppDict, None] = None,
         comments: bool = True,
     ) -> CppDict:
-        # sourcery skip: inline-immediately-returned-variable
         """Parses a file and deserializes it into a dict.
 
         Parameters
@@ -141,7 +140,6 @@ class Parser:
         target_dict: CppDict,
         comments: bool = True,
     ) -> CppDict:
-        # sourcery skip: inline-immediately-returned-variable, lift-return-into-if
         """Parses a string and deserializes it into a CppDict.
 
         Note: Override this method when implementing a specific Parser.
@@ -1179,7 +1177,6 @@ class FoamParser(CppParser):
         target_dict: CppDict,
         comments: bool = True,
     ) -> CppDict:
-        # sourcery skip: inline-immediately-returned-variable
         """Parses a string in OpenFOAM dictionary format and deserializes it into a CppDict.
 
         Parameters

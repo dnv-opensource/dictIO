@@ -803,7 +803,6 @@ class JsonFormatter(Formatter):
         str
             string representation of the dict in JSON dictionary format
         """
-        # sourcery skip: inline-immediately-returned-variable
         import json
 
         # For the json dump, we need to distinguish between whether the passed in dict is of type dict or CppDict.
