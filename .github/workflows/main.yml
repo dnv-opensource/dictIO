@@ -50,13 +50,14 @@ jobs:
         with:
           python-version: '3.10'
           cache: 'pip' # cache pip dependencies
-      - name: Install dependencies including pyright
-        run: pip install -r requirements-dev.txt
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+      - name: Install pyright
+        run: pip install pyright==1.1.284
       - name: Run pyright
         run: pyright .
-      # - uses: jakebailey/pyright-action@v1
-      #   with:
-      #     working-directory: '.'
 
   test:
     name: Test on ${{matrix.python.toxenv}}-${{matrix.platform.toxenv}}
