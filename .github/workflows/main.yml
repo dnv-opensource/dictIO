@@ -160,8 +160,7 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
     needs:
       - black
-      - isort
-      - flake8
+      - ruff
       - pyright
       - test
       - build
