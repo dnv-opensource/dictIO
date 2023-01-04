@@ -69,3 +69,5 @@ autodoc_default_options = {
     "exclude-members": "__weakref__",
 }
 autodoc_preserve_defaults = True
+
+myst_heading_anchors = 3
