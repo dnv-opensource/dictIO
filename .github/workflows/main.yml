@@ -111,6 +111,11 @@ jobs:
 
   build:
     name: Build source distribution
+    needs:
+      - black
+      - ruff
+      - pyright
+      - test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -133,6 +138,11 @@ jobs:
 
   # build_wheels:
   #   name: Build wheels for ${{ matrix.platform }}
+  #   needs:
+  #     - black
+  #     - ruff
+  #     - pyright
+  #     - test
   #   runs-on: ${{ matrix.platform }}
   #   strategy:
   #     matrix:
@@ -158,10 +168,6 @@ jobs:
     name: Publish package
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
     needs:
-      - black
-      - ruff
-      - pyright
-      - test
       - build
       # - build_wheels
     runs-on: ubuntu-latest
