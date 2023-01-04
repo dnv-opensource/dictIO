@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 class CppDict(UserDict[Any, Any]):
-    """Data structure for generic dictionaries
+    """Data structure for generic dictionaries.
 
     CppDict inherits from UserDict. It can hence be used transparently also in a context
     where a dict or any other MutableMapping type is expected.
@@ -98,7 +98,7 @@ class CppDict(UserDict[Any, Any]):
         return
 
     def include(self, dict_to_include: "CppDict"):
-        """Adds an include directive for the passed in dict
+        """Adds an include directive for the passed in dict.
 
         Parameters
         ----------
@@ -173,6 +173,8 @@ class CppDict(UserDict[Any, Any]):
         ----------
         __m : Mapping
             dict containing the keys to be updated and its new values
+        **kwargs: Any
+            optional keyword arguments. These will be passed on to the update() method of the parent class.
         """
         # sourcery skip: class-extract-method
         # call base class method. This takes care of updating self.data
@@ -218,15 +220,15 @@ class CppDict(UserDict[Any, Any]):
         return
 
     def __str__(self):
-        """string representation of the CppDict instance in dictIO dict file format
+        """string representation of the CppDict instance in dictIO dict file format.
 
         Returns
         -------
         str
             the string representation
         """
-        from dictIO import (  # __str__ shall be formatted in default dict file format
-            CppFormatter,
+        from dictIO import (
+            CppFormatter,  # __str__ shall be formatted in default dict file format
         )
 
         formatter = CppFormatter()
@@ -239,7 +241,7 @@ class CppDict(UserDict[Any, Any]):
         return str(self) == str(other) if isinstance(other, CppDict) else False
 
     def order_keys(self):
-        """alpha-numeric sorting of keys, recursively"""
+        """alpha-numeric sorting of keys, recursively."""
         self.data = dict(order_keys(self.data))
         self.line_comments = order_keys(self.line_comments)
         self.block_comments = order_keys(self.block_comments)
@@ -447,7 +449,7 @@ class CppDict(UserDict[Any, Any]):
 
 
 def order_keys(arg: MutableMapping[_KT, _VT]) -> Dict[_KT, _VT]:
-    """alpha-numeric sorting of keys, recursively
+    """alpha-numeric sorting of keys, recursively.
 
     Parameters
     ----------

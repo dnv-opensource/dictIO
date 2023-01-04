@@ -1,3 +1,4 @@
+# pyright: reportPrivateUsage=false
 import os
 import re
 import sys
@@ -19,7 +20,7 @@ def test_file_not_found_exception():
     source_file = Path("this_file_does_not_exist")
     # Execute and Assert
     with pytest.raises(FileNotFoundError):
-        DictReader.read(source_file)
+        _ = DictReader.read(source_file)
 
 
 def test_merge_includes():
@@ -514,7 +515,7 @@ def test_read_circular_includes_log_warning(caplog: LogCaptureFixture):
     log_level_expected = "WARNING"
     log_message_expected = "Recursive include detected. Merging of test_ref1_dict->test_ref2_dict->test_base_dict->test_ref1_dict into test_base_dict aborted."
     # Execute
-    DictReader.read(source_file)
+    _ = DictReader.read(source_file)
     # Assert
     assert len(caplog.records) == 1
     assert caplog.records[0].levelname == log_level_expected
@@ -532,7 +533,7 @@ class SetupHelper:
         file_name = Path.cwd() / file_to_read
 
         parser = CppParser()
-        parser.parse_file(file_name, dict_to_prepare)
+        _ = parser.parse_file(file_name, dict_to_prepare)
 
         funcs = [
             (DictReader._merge_includes, dict_to_prepare),  # Step 00
@@ -541,4 +542,4 @@ class SetupHelper:
 
         for i in range(until_step + 1):
             funcs[i][0](*funcs[i][1:])
-        return dict_to_prepare
+        return

@@ -1,23 +1,25 @@
 {
-	"python.languageServer": "Pylance",
-	"python.testing.pytestEnabled": true,
-	"python.linting.flake8Enabled": true,
-	"python.linting.enabled": true,
-	"python.formatting.provider": "black",
-	"editor.formatOnSave": true,
-	"[python]": {
-		"editor.formatOnSave": true,
-		"editor.codeActionsOnSave": {
-			"source.organizeImports": true
-		},
-	},
-	"isort.args": [
-		"--profile",
-		"black",
-		"--extend-skip __init__.py",
-	],
-	"autoDocstring.docstringFormat": "numpy",
-	"python.analysis.completeFunctionParens": true,
-	"python.analysis.logLevel": "Warning",
-	"python.terminal.activateEnvInCurrentTerminal": true,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.languageServer": "Pylance",
+    "ruff.importStrategy": "fromEnvironment",
+    "python.linting.flake8Enabled": false,
+    "python.linting.enabled": true,
+    "python.formatting.provider": "black",
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        },
+    },
+    "autoDocstring.docstringFormat": "numpy",
+    "python.analysis.logLevel": "Warning",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.useLibraryCodeForTypes": true,
+    "python.analysis.completeFunctionParens": true,
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportGeneralTypeIssues": "none"
+    },
+    "python.testing.pytestEnabled": true,
 }

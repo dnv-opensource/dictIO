@@ -2,14 +2,13 @@ pytest>=7.2
 pytest-cov>=4.0
 pytest-randomly>=3.12
 black>=22.10.0
-flake8>=6.0
-flake8-bugbear>=22.12
-pep8-naming>=0.13
-isort>=5.10.1
-pyright>=1.1.282
+ruff>=0.0.209
+pyright>=1.1.286
 Sphinx>=5.3
 sphinx-argparse-cli>=1.10
 myst-parser>=0.18
 furo>=2022.9.29
+sourcery>=1.2.7
+sourcery-cli>=1.0.2
 
 -r requirements.txt

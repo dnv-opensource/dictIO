@@ -13,7 +13,7 @@ def test_parse_dict():
     parsed_param_dict.unlink(missing_ok=True)
 
     # Execute
-    DictParser.parse(source_file)
+    _ = DictParser.parse(source_file)
     # Assert
     assert parsed_dict.exists()
     assert not parsed_param_dict.exists()
@@ -50,7 +50,7 @@ def test_parse_dict_foam_format():
     parsed_file.unlink(missing_ok=True)
     parsed_file_foam.unlink(missing_ok=True)
     # Execute
-    DictParser.parse(source_file, output="foam")
+    _ = DictParser.parse(source_file, output="foam")
     # Assert
     assert not parsed_file.exists()
     assert parsed_file_foam.exists()

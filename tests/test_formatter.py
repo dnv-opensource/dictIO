@@ -245,6 +245,7 @@ class TestCppFormatter:
         assert str_out == str_expected
 
     def test_remove_trailing_spaces(self):
+        # sourcery skip: extract-duplicate-method, move-assign-in-block
         # Prepare
         # Construct 7 test strings, each having a different number of leading and trailing spaces
         str_in_1 = "a string with one trailing space "
@@ -465,7 +466,7 @@ class TestXmlFormatter:
         # @TODO: Nothing is de facto asserted here. By intention?
         # -> Needs to checked and properly implemented. CLAROS, 2021-12-23
         with open(target_file, "w") as f:
-            f.write(str_out)
+            _ = f.write(str_out)
         # Clean up
         target_file.unlink()
 
@@ -489,7 +490,7 @@ class TestXmlFormatter:
         assert dict_reparsed == dict_parsed
 
     def test_format_xml_namespace_explicit(self):
-        # sourcery skip: avoid-builtin-shadow
+        # sourcery skip: avoid-builtin-shadow, class-extract-method
         # Prepare
         source_file = Path("test_formatter_dict")
         dict = DictReader.read(source_file)
@@ -560,4 +561,4 @@ class SetupHelper:
         if dict_to_prepare is None:
             dict_to_prepare = DictReader.read(file_name)
 
-        return dict_to_prepare
+        return

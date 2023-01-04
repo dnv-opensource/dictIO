@@ -38,7 +38,7 @@ class Parser:
 
     @classmethod
     def get_parser(cls, source_file: Union[Path, None] = None):
-        """Factory method returning a Parser instance matching the source file type to be parsed
+        """Factory method returning a Parser instance matching the source file type to be parsed.
 
         Parameters
         ----------
@@ -73,7 +73,6 @@ class Parser:
         target_dict: Union[CppDict, None] = None,
         comments: bool = True,
     ) -> CppDict:
-        # sourcery skip: inline-immediately-returned-variable
         """Parses a file and deserializes it into a dict.
 
         Parameters
@@ -106,7 +105,7 @@ class Parser:
         # Check whether file to read from exists.
         if not self.source_file.exists():
             logger.warning(
-                "Parser.parse_file(): File or path does not exist: '%s'. Empty dict will be returned." % source_file
+                f"Parser.parse_file(): File or path does not exist: '{source_file}'. Empty dict will be returned."
             )
             file_content = ""
         else:
@@ -126,8 +125,7 @@ class Parser:
         # or a dict was given (can also contain nothing)
         if not self.source_file.exists() and target_dict is None:
             logger.error(
-                "Parser.parse_file(): File or path does not exist ('%s') or no target dict (%s) was given."
-                % (source_file, target_dict)
+                f"Parser.parse_file(): File or path does not exist ('{source_file}') or no target dict ({target_dict}) was given."
             )
 
         # Parse file content
@@ -140,8 +138,7 @@ class Parser:
         string: str,
         target_dict: CppDict,
         comments: bool = True,
-    ) -> CppDict:
-        # sourcery skip: inline-immediately-returned-variable, lift-return-into-if
+    ) -> CppDict:  # sourcery skip: lift-return-into-if
         """Parses a string and deserializes it into a CppDict.
 
         Note: Override this method when implementing a specific Parser.
@@ -194,7 +191,7 @@ class Parser:
         return parsed_dict
 
     def parse_type(self, arg: Any) -> Any:
-        """Parses a single value
+        """Parses a single value.
 
         Parses a single value and casts it to its native type (str, int, float, boolean or None).
 
@@ -270,7 +267,7 @@ class Parser:
         return __class__.remove_quotes_from_string(arg)
 
     def parse_types(self, arg: Union[MutableMapping[Any, Any], MutableSequence[Any]]):
-        """Parses multiple values
+        """Parses multiple values.
 
         Parses all values inside a dict or list and casts them to its native types (str, int, float, boolean or None).
         The function traverses the passed in dict or list recursively
@@ -298,7 +295,7 @@ class Parser:
 
     @staticmethod
     def remove_quotes_from_string(arg: str, all: bool = False) -> str:
-        """Removes quotes from a string
+        """Removes quotes from a string.
 
         Removes quotes (single and double quotes) from the string object passed in.
 
@@ -329,7 +326,7 @@ class Parser:
     def remove_quotes_from_strings(
         arg: Union[MutableMapping[Any, Any], MutableSequence[Any]]
     ) -> Union[MutableMapping[Any, Any], MutableSequence[Any]]:
-        """Removes quotes from multiple strings
+        """Removes quotes from multiple strings.
 
         Removes quotes (single and double quotes) from all string objects inside a dict or list.
         The function traverses the passed in dict or list recursively
@@ -367,9 +364,7 @@ class CppParser(Parser):
     """Parser to deserialize a string in dictIO dict file format into a CppDict."""
 
     def __init__(self):
-        """
-        Implementation specific default configuration of CppParser
-        """
+        """Implementation specific default configuration of CppParser."""
         # Invoke base class constructor
         super().__init__()
 
@@ -676,7 +671,7 @@ class CppParser(Parser):
         dict: CppDict,
         delimiters: Union[List[str], None] = None,
     ):
-        """Ensures that delimiters are separated by exactly one space before and after.
+        r"""Ensures that delimiters are separated by exactly one space before and after.
 
         Parses .block_content for occurences of the delimiters passed in, and strips any spaces surrounding each
         delimiter to exactly one single space before and one single space after the delimiter.
@@ -717,7 +712,7 @@ class CppParser(Parser):
 
     def _determine_token_hierarchy(self, dict: CppDict):
         # sourcery skip: use-join
-        """Creates the hierarchy among the tokens and tests their indentation"""
+        """Creates the hierarchy among the tokens and tests their indentation."""
         level = 0
         count_open: List[str] = []
         count_close: List[str] = []
@@ -765,7 +760,7 @@ class CppParser(Parser):
         return
 
     def _convert_tokens_to_dict(self, dict: CppDict):
-        """Converts the hierarchic tokens into a dict"""
+        """Converts the hierarchic tokens into a dict."""
         dict.update(self._parse_tokenized_dict(dict))
         dict.tokens.clear()
 
@@ -1129,7 +1124,7 @@ class CppParser(Parser):
         return companion
 
     def _insert_string_literals(self, dict: CppDict):
-        """Substitutes STRINGLITERAL placeholders in the dict with the corresponding entry from dict.string_literals"""
+        """Substitutes STRINGLITERAL placeholders in the dict with the corresponding entry from dict.string_literals."""
 
         for index, string_literal in dict.string_literals.items():
             # Properties of the expression to be evaluated
@@ -1167,9 +1162,7 @@ class FoamParser(CppParser):
     """Parser to deserialize a string in OpenFOAM dictionary format into a CppDict."""
 
     def __init__(self):
-        """
-        Implementation specific default configuration of FoamParser
-        """
+        """Implementation specific default configuration of FoamParser."""
         # Invoke base class constructor
         super().__init__()
 
@@ -1179,7 +1172,6 @@ class FoamParser(CppParser):
         target_dict: CppDict,
         comments: bool = True,
     ) -> CppDict:
-        # sourcery skip: inline-immediately-returned-variable
         """Parses a string in OpenFOAM dictionary format and deserializes it into a CppDict.
 
         Parameters
@@ -1212,9 +1204,7 @@ class JsonParser(Parser):
     """Parser to deserialize a string in JSON dictionary format into a CppDict."""
 
     def __init__(self):
-        """
-        Implementation specific default configuration of JsonParser
-        """
+        """Implementation specific default configuration of JsonParser."""
         # Invoke base class constructor
         super().__init__()
 
@@ -1293,7 +1283,7 @@ class JsonParser(Parser):
         parsed_dict: CppDict,
         string: str,
     ) -> str:
-        """Extracts a single expression
+        """Extracts a single expression.
 
         Parses a string, checks whether it contains an expression, and if so,
         extracts the expression and replaces it with a placeholder.
@@ -1414,9 +1404,7 @@ class XmlParser(Parser):
         self,
         add_node_numbering: bool = True,
     ):
-        """
-        Implementation specific default configuration of XmlParser
-        """
+        """Implementation specific default configuration of XmlParser."""
         # Invoke base class constructor
         super().__init__()
         # Save default configuration as attributes
@@ -1512,7 +1500,7 @@ class XmlParser(Parser):
         root_element: Element,
         namespaces: Dict[str, str],
     ) -> Dict[str, Any]:
-        """Recursively parses all nodes and saves the nodes' content in a dict"""
+        """Recursively parses all nodes and saves the nodes' content in a dict."""
         # Default case: Make all node tags temporarily unique by indexing them using BorgCounter
         node_tags: List[str] = [
             re.sub(r"^(\{.*\})", "", node.tag) for node in root_element.findall("*", dict(namespaces))

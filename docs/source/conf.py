@@ -22,7 +22,7 @@ copyright = "2022, DNV. Frank Lumpitzsch, Claas Rostock, Seung Hyeon Yoo"
 author = "Frank Lumpitzsch, Claas Rostock, Seung Hyeon Yoo"
 
 # The full version, including alpha/beta/rc tags
-release = "0.2.4"
+release = "0.2.5"
 
 # -- General configuration ---------------------------------------------------
 
@@ -69,3 +69,5 @@ autodoc_default_options = {
     "exclude-members": "__weakref__",
 }
 autodoc_preserve_defaults = True
+
+myst_heading_anchors = 3

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class DictParser:
-    """Parser for dictionaries in dictIO dict file format, as well as JSON and XML
+    """Parser for dictionaries in dictIO dict file format, as well as JSON and XML.
 
     DictParser is a convenience class.
     DictParser.parse() combines the operations of DictReader.read() and DictWriter.write() .
@@ -30,7 +30,7 @@ class DictParser:
         scope: Union[MutableSequence[str], None] = None,
         output: Union[str, None] = None,
     ) -> Union[CppDict, None]:
-        """Parses a dictionary file and saves it with prefix 'parsed.'
+        """Parses a dictionary file and saves it with prefix 'parsed.'.
 
         DictParser.parse() combines the otherwise atomic operations
         of DictReader.read() and DictWriter.write() in one chunk:

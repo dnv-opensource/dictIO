@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class DictWriter:
-    """Writer for dictionaries in dictIO dict file format, as well as JSON, XML and OpenFoam"""
+    """Writer for dictionaries in dictIO dict file format, as well as JSON, XML and OpenFoam."""
 
     def __init__(self):
         return

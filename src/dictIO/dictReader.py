@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 class DictReader:
-    """Reader for dictionaries in dictIO dict file format, as well as JSON and XML"""
+    """Reader for dictionaries in dictIO dict file format, as well as JSON and XML."""
 
     def __init__(self):
         return
@@ -135,9 +135,7 @@ class DictReader:
 
     @staticmethod
     def _merge_includes(dict: CppDict, comments: bool = True):
-        """
-        Parses and merges any (child) dicts that are referenced in the dict file through #include directives
-        """
+        """Parses and merges any (child) dicts that are referenced in the dict file through #include directives."""
         # Create dejavue string watchdog
         djv = DejaVue()
         djv.reset()
@@ -295,9 +293,7 @@ class DictReader:
 
     @staticmethod
     def _remove_comment_keys(data: MutableMapping[Any, Any]):
-        """
-        remove comments from data structure for read function call from other programs
-        """
+        """Remove comments from data structure for read function call from other programs."""
         remove = "[A-Z]+COMMENT[0-9;]+"
 
         temp_dict = deepcopy(data)
@@ -312,9 +308,7 @@ class DictReader:
 
     @staticmethod
     def _remove_include_keys(data: MutableMapping[Any, Any]):
-        """
-        remove includes from data structure for read function call from other programs
-        """
+        """Remove includes from data structure for read function call from other programs."""
         remove = "INCLUDE[0-9;]+"
 
         temp_dict = deepcopy(data)
