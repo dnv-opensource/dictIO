@@ -5,10 +5,11 @@ from pathlib import Path
 from typing import Dict
 
 import pytest
+from pytest import LogCaptureFixture
+
 from dictIO import CppDict, CppParser, Parser, XmlParser
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.strings import string_diff
-from pytest import LogCaptureFixture
 
 
 class TestParser:

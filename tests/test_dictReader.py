@@ -7,9 +7,10 @@ from pathlib import Path, PurePath
 from typing import Any, Dict, List
 
 import pytest
-from dictIO import CppDict, CppParser, DictReader, DictWriter
 from numpy.testing import assert_array_equal
 from pytest import LogCaptureFixture
+
+from dictIO import CppDict, CppParser, DictReader, DictWriter
 
 WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(not sys.platform.startswith("win"), reason="windows only test")
 

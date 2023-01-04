@@ -138,7 +138,7 @@ def _argparser() -> argparse.ArgumentParser:
 
 
 def main():
-    """Entry point for console script as configured in setup.cfg
+    """Entry point for console script as configured in setup.cfg.
 
     Runs the command line interface and parses arguments and options entered on the console.
     """

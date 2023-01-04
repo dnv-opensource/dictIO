@@ -36,7 +36,7 @@ class Formatter:
 
     @classmethod
     def get_formatter(cls, target_file: Union[Path, None] = None):
-        """Factory method returning a Formatter instance matching the target file type to be formatted
+        """Factory method returning a Formatter instance matching the target file type to be formatted.
 
         Parameters
         ----------
@@ -105,7 +105,7 @@ class Formatter:
         return ""
 
     def format_type(self, arg: Any) -> str:
-        """Formats a single value type (str, int, float, boolean or None)
+        """Formats a single value type (str, int, float, boolean or None).
 
         Parameters
         ----------
@@ -135,7 +135,7 @@ class Formatter:
         return self.format_string(arg)
 
     def format_bool(self, arg: bool) -> str:
-        """Formats a boolean
+        """Formats a boolean.
 
         Note: Override this method for specific formatting of booleans when implementing a Formatter.
 
@@ -152,7 +152,7 @@ class Formatter:
         return str(arg)
 
     def format_int(self, arg: int) -> str:
-        """Formats an integer
+        """Formats an integer.
 
         Note: Override this method for specific formatting of integers when implementing a Formatter.
 
@@ -169,7 +169,7 @@ class Formatter:
         return str(arg)
 
     def format_float(self, arg: float) -> str:
-        """Formats a floating point number
+        """Formats a floating point number.
 
         Note: Override this method for specific formatting of floating point numbers when implementing a Formatter.
 
@@ -186,7 +186,7 @@ class Formatter:
         return str(arg)
 
     def format_none(self) -> str:
-        """Formats None
+        """Formats None.
 
         Note: Override this method for specific formatting of None when implementing a Formatter.
 
@@ -198,7 +198,7 @@ class Formatter:
         return str(None)
 
     def format_string(self, arg: str) -> str:
-        """Formats a string
+        """Formats a string.
 
         Parameters
         ----------
@@ -223,7 +223,7 @@ class Formatter:
             return self.format_single_word_string(arg)
 
     def format_empty_string(self, arg: str) -> str:
-        """Formats an empty string
+        """Formats an empty string.
 
         Note: Override this method for specific formatting of empty strings when implementing a Formatter.
 
@@ -240,7 +240,7 @@ class Formatter:
         return arg
 
     def format_single_word_string(self, arg: str) -> str:
-        """Formats a single word string
+        """Formats a single word string.
 
         Note: Override this method for specific formatting of single word strings when implementing a Formatter.
 
@@ -257,7 +257,7 @@ class Formatter:
         return arg
 
     def format_multi_word_string(self, arg: str) -> str:
-        """Formats a multi word string
+        """Formats a multi word string.
 
         Note: Override this method for specific formatting of multi word strings when implementing a Formatter.
 
@@ -274,7 +274,7 @@ class Formatter:
         return arg
 
     def format_reference_string(self, arg: str) -> str:
-        """Formats a reference
+        """Formats a reference.
 
         Note: Override this method for specific formatting of references when implementing a Formatter.
 
@@ -291,7 +291,7 @@ class Formatter:
         return arg
 
     def format_expression_string(self, arg: str) -> str:
-        """Formats an expression
+        """Formats an expression.
 
         Note: Override this method for specific formatting of expressions when implementing a Formatter.
 
@@ -308,7 +308,7 @@ class Formatter:
         return arg
 
     def add_single_quotes(self, arg: str) -> str:
-        """Adds single quotes to a string
+        """Adds single quotes to a string.
 
         Leading and trailing single quotes will added to the passed in string
         (i.e. it will be wrapped in single quotes).
@@ -328,7 +328,7 @@ class Formatter:
         return "'" + arg + "'"
 
     def add_double_quotes(self, arg: str) -> str:
-        """Adds double quotes to a string
+        """Adds double quotes to a string.
 
         Leading and trailing double quotes will added to the passed in string
         (i.e. it will be wrapped in double quotes).
@@ -349,12 +349,10 @@ class Formatter:
 
 
 class CppFormatter(Formatter):
-    """Formatter to serialize a dict into a string in dictIO dict file format"""
+    """Formatter to serialize a dict into a string in dictIO dict file format."""
 
     def __init__(self):
-        """
-        Implementation specific default configuration of CppFormatter
-        """
+        """Implementation specific default configuration of CppFormatter."""
         # Invoke base class constructor
         super().__init__()
 
@@ -588,7 +586,7 @@ class CppFormatter(Formatter):
         return self.add_double_quotes(arg)
 
     def insert_block_comments(self, dict: CppDict, s: str) -> str:
-        """Inserts back all block comments
+        """Inserts back all block comments.
 
         Replaces all BLOCKCOMMENT placeholders in s with the actual block_comments saved in dict
         str s is expected to contain the CppDict's block_content containing block comment placeholders to substitute (BLOCKCOMMENT... BLOCKCOMMENT...)
@@ -631,7 +629,7 @@ class CppFormatter(Formatter):
         return s
 
     def make_default_block_comment(self, block_comment: str = "") -> str:
-        """Creates the default block comment (header) for files in dictIO dict file format"""
+        """Creates the default block comment (header) for files in dictIO dict file format."""
         # If there is no ' C++ ' contained in block_comment,
         # then insert the C++ default block comment in front:
         # sourcery skip: move-assign
@@ -646,7 +644,7 @@ class CppFormatter(Formatter):
         return block_comment
 
     def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
-        """Inserts back all include directives"""
+        """Inserts back all include directives."""
         for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original include directive.
@@ -659,7 +657,7 @@ class CppFormatter(Formatter):
         return s
 
     def insert_line_comments(self, cpp_dict: CppDict, s: str) -> str:
-        """Inserts back all line directives"""
+        """Inserts back all line directives."""
         for key, line_comment in cpp_dict.line_comments.items():
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original block_comment.
@@ -669,7 +667,7 @@ class CppFormatter(Formatter):
         return s
 
     def remove_trailing_spaces(self, s: str) -> str:
-        """Removes trailing spaces from all lines
+        """Removes trailing spaces from all lines.
 
         Reads all lines from the passed in string, removes trailing spaces from each line and
         returns a new string with trailing spaces removed.
@@ -688,12 +686,10 @@ class CppFormatter(Formatter):
 
 
 class FoamFormatter(CppFormatter):
-    """Formatter to serialize a dict into a string in OpenFOAM dictionary format"""
+    """Formatter to serialize a dict into a string in OpenFOAM dictionary format."""
 
     def __init__(self):
-        """
-        Implementation specific default configuration of FoamFormatter
-        """
+        """Implementation specific default configuration of FoamFormatter."""
         # Invoke base class constructor
         super().__init__()
 
@@ -749,7 +745,7 @@ class FoamFormatter(CppFormatter):
         return self.add_double_quotes(arg)
 
     def make_default_block_comment(self, block_comment: str = "") -> str:
-        """Creates the default block comment (header) for files in OpenFOAM dictionary format"""
+        """Creates the default block comment (header) for files in OpenFOAM dictionary format."""
         # If there is no ' C++ ' and 'OpenFoam' contained in block_comment,
         # then insert the OpenFOAM default block comment in front:
         default_block_comment = (
@@ -778,12 +774,10 @@ class FoamFormatter(CppFormatter):
 
 
 class JsonFormatter(Formatter):
-    """Formatter to serialize a dict into a string in JSON dictionary format"""
+    """Formatter to serialize a dict into a string in JSON dictionary format."""
 
     def __init__(self):
-        """
-        Implementation specific default configuration of JsonFormatter
-        """
+        """Implementation specific default configuration of JsonFormatter."""
         # Invoke base class constructor
         super().__init__()
 
@@ -824,7 +818,7 @@ class JsonFormatter(Formatter):
         return s
 
     def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
-        """Inserts back all include directives"""
+        """Inserts back all include directives."""
         for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
             # Search for the placeholder key in the Json string,
             # and insert back the original include directive.
@@ -838,7 +832,7 @@ class JsonFormatter(Formatter):
 
 
 class XmlFormatter(Formatter):
-    """Formatter to serialize a dict into a string in xml format
+    r"""Formatter to serialize a dict into a string in xml format.
 
     Defaults:
         namespaces:      'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd' \n
@@ -892,9 +886,7 @@ class XmlFormatter(Formatter):
         integrate_attributes: bool = True,
         remove_node_numbering: bool = True,
     ):
-        """
-        Implementation specific default configuration of XmlFormatter
-        """
+        """Implementation specific default configuration of XmlFormatter."""
         # Invoke base class constructor
         super().__init__()
         # Save default configuration as attributes

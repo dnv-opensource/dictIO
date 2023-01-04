@@ -2,6 +2,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
+
 from dictIO import (
     CppDict,
     CppParser,
