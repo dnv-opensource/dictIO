@@ -16,7 +16,7 @@ exclude = [
     "__pycache__",
     "./docs/source/conf.py",
 ]
-ignore = []
+ignore = ["E501"]
 line-length = 120
 select = [
     "E",
