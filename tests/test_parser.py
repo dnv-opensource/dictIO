@@ -5,18 +5,17 @@ from pathlib import Path
 from typing import Dict
 
 import pytest
-from pytest import LogCaptureFixture
-
 from dictIO import CppDict, CppParser, Parser, XmlParser
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.strings import string_diff
+from pytest import LogCaptureFixture
 
 
 class TestParser:
 
     # @TODO: To be implemented
     @pytest.mark.skip(reason="To be implemented")
-    def test_getParser(self):
+    def test_get_parser(self):
         pass
 
     def test_file_not_found_exception(self):
@@ -885,7 +884,7 @@ class TestCppParser:
         assert dict_out["expressions"]["expressionG2"]["value"][:10] == "EXPRESSION"
         assert dict_out["expressions"]["expressionG3"]["value"][:10] == "EXPRESSION"
 
-    def test_parse_tokenized_dict_theDictInAListPitfall(self):
+    def test_parse_tokenized_dict_theDictInAListPitfall(self):  # noqa: N802
         # This test case adresses issue #6 that Frank raised on Github
         # https://github.com/MaritimeOSPx/ModelVerification/issues/6
 

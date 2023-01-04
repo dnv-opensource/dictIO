@@ -6,10 +6,9 @@ from pathlib import Path
 from typing import List, MutableSequence, Union
 
 import pytest
-from pytest import MonkeyPatch
-
 from dictIO import DictParser
 from dictIO.cli.dictParser import _argparser, _validate_scope, main
+from pytest import MonkeyPatch
 
 # *****Test commandline interface (CLI)************************************************************
 

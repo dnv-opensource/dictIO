@@ -4,7 +4,6 @@ from pathlib import Path, PurePath
 from typing import Any, Dict
 
 import pytest
-
 from dictIO import CppDict, DictReader, DictWriter, FoamParser, create_target_file_name
 from dictIO.utils.counter import BorgCounter
 

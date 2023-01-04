@@ -225,8 +225,8 @@ class CppDict(UserDict[Any, Any]):
         str
             the string representation
         """
-        from dictIO import (  # __str__ shall be formatted in default dict file format
-            CppFormatter,
+        from dictIO import (
+            CppFormatter,  # __str__ shall be formatted in default dict file format
         )
 
         formatter = CppFormatter()

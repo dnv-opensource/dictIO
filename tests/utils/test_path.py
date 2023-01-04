@@ -2,7 +2,6 @@ import sys
 from pathlib import Path
 
 import pytest
-
 from dictIO.utils.path import highest_common_root_folder, relative_path
 
 WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(not sys.platform.startswith("win"), reason="windows only test")
