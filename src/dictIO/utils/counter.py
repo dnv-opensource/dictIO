@@ -31,9 +31,7 @@ class BorgCounter:
 
 
 class DejaVue:
-    """
-    return True if string repeats after initializing class
-    """
+    """Return True if string repeats after initializing class."""
 
     djv: Dict[str, List[str]] = {"strings": []}
 

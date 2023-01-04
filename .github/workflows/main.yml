@@ -16,30 +16,21 @@ jobs:
           options: '--check --diff'
           src: '.'
 
-  isort:
-    name: isort
+  ruff:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: isort/isort-action@v1.1.0
-        with:
-          configuration: '--check-only'
-          sort-paths: '.'
-          requirements-files: 'requirements.txt'
-
-  flake8:
-    runs-on: ubuntu-latest
-    name: flake8
+    name: ruff
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
           cache: 'pip' # cache pip dependencies
-      - run: pip install -r requirements.txt
-      - uses: py-actions/flake8@v2
-        with:
-          path: '.'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Install ruff
+        run: pip install ruff>=0.0.209
+      - name: Run ruff
+        run: ruff .
 
   pyright:
     runs-on: ubuntu-latest
@@ -55,7 +46,7 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
       - name: Install pyright
-        run: pip install pyright==1.1.284
+        run: pip install pyright>=1.1.286
       - name: Run pyright
         run: pyright .
 
@@ -120,8 +111,12 @@ jobs:
 
   build:
     name: Build source distribution
+    needs:
+      - black
+      - ruff
+      - pyright
+      - test
     runs-on: ubuntu-latest
-    environment: pypi
     steps:
       - uses: actions/checkout@v3
         with:
@@ -143,6 +138,11 @@ jobs:
 
   # build_wheels:
   #   name: Build wheels for ${{ matrix.platform }}
+  #   needs:
+  #     - black
+  #     - ruff
+  #     - pyright
+  #     - test
   #   runs-on: ${{ matrix.platform }}
   #   strategy:
   #     matrix:
@@ -168,11 +168,6 @@ jobs:
     name: Publish package
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
     needs:
-      - black
-      - isort
-      - flake8
-      - pyright
-      - test
       - build
       # - build_wheels
     runs-on: ubuntu-latest

@@ -5,7 +5,13 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
-* --
+### Changed
+
+* Linter: Migrated from flake8 to ruff. <br>
+  (Added ruff; removed flake8 and isort)
+* Adjusted GitHub CI workflow accordingly. <br>
+  (Added ruff job; removed flake8 and isort jobs)
+
 
 ## [0.2.4] - 2022-12-12
 
