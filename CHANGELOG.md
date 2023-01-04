@@ -5,12 +5,23 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
+* -/-
+
+
+## [0.2.5] - 2023-01-04
+
 ### Changed
 
 * Linter: Migrated from flake8 to ruff. <br>
   (Added ruff; removed flake8 and isort)
 * Adjusted GitHub CI workflow accordingly. <br>
   (Added ruff job; removed flake8 and isort jobs)
+* VS Code settings: Adjusted Pylance configuration
+* Sphinx documentation: Rebuilt API documentation
+
+### Added
+
+* Added a batch file 'qa.bat' in root folder to ease local execution of code quality checks
 
 
 ## [0.2.4] - 2022-12-12
@@ -161,7 +172,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.4...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.5...HEAD
+[0.2.5]: https://github.com/dnv-opensource/dictIO/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/dnv-opensource/dictIO/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/dnv-opensource/dictIO/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/dnv-opensource/dictIO/compare/v0.2.1...v0.2.2
