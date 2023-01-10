@@ -253,7 +253,7 @@ class DictReader:
                         eval_result = expression
                         eval_successful = True
                     except SyntaxError:
-                        logger.warning('DictReader.(): evaluation of "%s" not yet possible' % expression)
+                        logger.warning(f'DictReader.(): evaluation of "{expression}" not yet possible')
                 if eval_successful:
                     while global_key := dict.find_global_key(query=placeholder):
                         # Substitute the placeholder in the dict with the result of the evaluated expression

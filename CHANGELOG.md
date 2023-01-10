@@ -5,7 +5,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
-* -/-
+* Added missing DocStrings for public classes, methods and functions
 
 
 ## [0.2.5] - 2023-01-04

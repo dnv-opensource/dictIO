@@ -12,12 +12,19 @@ class BorgCounter:
     (as would be the case otherwise when merging included dicts).
     """
 
-    Borg = {"theCount": -1}
+    Borg: Dict[str, int] = {"theCount": -1}
 
     def __init__(self):
         self.__dict__ = BorgCounter.Borg
 
-    def __call__(self):
+    def __call__(self) -> int:
+        """Increments BorgCounter and returns next value.
+
+        Returns
+        -------
+        int
+            the next value (after incrementation)
+        """
         self.theCount += 1
         #   Small tweak for our use case: As we have only six digits available in our placeholder strings,
         #   we don't want the counter to exceed this. Fair to start again at 0 then :-)
@@ -27,11 +34,12 @@ class BorgCounter:
 
     @staticmethod
     def reset():
+        """Reset the BorgCounter."""
         BorgCounter.Borg["theCount"] = -1
 
 
 class DejaVue:
-    """Return True if string repeats after initializing class."""
+    """A class that implements a static global registry of strings."""
 
     djv: Dict[str, List[str]] = {"strings": []}
 
@@ -39,7 +47,22 @@ class DejaVue:
         self.__dict__ = DejaVue.djv
         self.ret_val: bool = False
 
-    def __call__(self, string: str):
+    def __call__(self, string: str) -> bool:
+        """Call DejaVue with passed string.
+
+        Checks whether the passed in string is already registered in DejaVue.
+        If so, returns True. Otherwise False.
+
+        Parameters
+        ----------
+        string : str
+            the string to be checked
+
+        Returns
+        -------
+        bool
+            True if string is already registered. False otherwise.
+        """
 
         if string in self.djv["strings"]:
             self.ret_val = True
@@ -49,9 +72,20 @@ class DejaVue:
         return self.ret_val
 
     @property
-    def strings(self):
+    def strings(self) -> List[str]:
+        """Return a list with all strings currently registered with DejaVue.
+
+        Returns
+        -------
+        List[str]
+            list with all strings currently registered with DejaVue.
+        """
         return self.djv["strings"]
 
     def reset(self):
+        """Reset DejaVue.
+
+        Clears the list of registered strings.
+        """
         self.djv["strings"] = []
         self.ret_val = False

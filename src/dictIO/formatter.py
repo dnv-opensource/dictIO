@@ -142,12 +142,12 @@ class Formatter:
         Parameters
         ----------
         arg : bool
-            the bool value to be formatted
+            the boolean value to be formatted
 
         Returns
         -------
         str
-            the formatted string representation of the passed in bool value
+            the formatted string representation of the passed in boolean value
         """
         return str(arg)
 
@@ -325,7 +325,7 @@ class Formatter:
         str
             the string wrapped in single quotes
         """
-        return "'" + arg + "'"
+        return f"'{arg}'"
 
     def add_double_quotes(self, arg: str) -> str:
         """Adds double quotes to a string.
@@ -345,7 +345,7 @@ class Formatter:
         str
             the string wrapped in double quotes
         """
-        return '"' + arg + '"'
+        return f'"{arg}"'
 
 
 class CppFormatter(Formatter):
@@ -571,18 +571,73 @@ class CppFormatter(Formatter):
         return s
 
     def format_bool(self, arg: bool) -> str:
+        """Formats a boolean.
+
+        Parameters
+        ----------
+        arg : bool
+            the boolean value to be formatted
+
+        Returns
+        -------
+        str
+            the formatted string representation of the passed in boolean value
+        """
         return str(arg).lower()
 
     def format_none(self) -> str:
+        """Formats None.
+
+        Returns
+        -------
+        str
+            the formatted string representation of None
+        """
         return "NULL"
 
     def format_empty_string(self, arg: str) -> str:
+        """Formats an empty string.
+
+        Parameters
+        ----------
+        arg : str
+            the empty string to be formatted
+
+        Returns
+        -------
+        str
+            the formatted empty string
+        """
         return self.add_single_quotes(arg)
 
     def format_multi_word_string(self, arg: str) -> str:
+        """Formats a multi word string.
+
+        Parameters
+        ----------
+        arg : str
+            the multi word string to be formatted
+
+        Returns
+        -------
+        str
+            the formatted multi word string
+        """
         return self.add_single_quotes(arg)
 
     def format_expression_string(self, arg: str) -> str:
+        """Formats an expression.
+
+        Parameters
+        ----------
+        arg : str
+            the expression to be formatted
+
+        Returns
+        -------
+        str
+            the formatted expression
+        """
         return self.add_double_quotes(arg)
 
     def insert_block_comments(self, dict: CppDict, s: str) -> str:
@@ -736,12 +791,48 @@ class FoamFormatter(CppFormatter):
         return s
 
     def format_empty_string(self, arg: str) -> str:
+        """Formats an empty string.
+
+        Parameters
+        ----------
+        arg : str
+            the empty string to be formatted
+
+        Returns
+        -------
+        str
+            the formatted empty string
+        """
         return self.add_double_quotes(arg)
 
     def format_multi_word_string(self, arg: str) -> str:
+        """Formats a multi word string.
+
+        Parameters
+        ----------
+        arg : str
+            the multi word string to be formatted
+
+        Returns
+        -------
+        str
+            the formatted multi word string
+        """
         return self.add_double_quotes(arg)
 
     def format_expression_string(self, arg: str) -> str:
+        """Formats an expression.
+
+        Parameters
+        ----------
+        arg : str
+            the expression to be formatted
+
+        Returns
+        -------
+        str
+            the formatted expression
+        """
         return self.add_double_quotes(arg)
 
     def make_default_block_comment(self, block_comment: str = "") -> str:

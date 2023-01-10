@@ -317,11 +317,20 @@ class CppDict(UserDict[Any, Any]):
             try:
                 self.data = eval("self.data['" + "']['".join(scope) + "']")
             except KeyError as e:
-                logger.warning("CppDict.reduce_scope(): no scope '%s' in dictionary %s" % (e.args[0], self.source_file))
+                logger.warning(
+                    f"CppDict.reduce_scope(): no scope '{e.args[0]}' in dictionary {self.source_file}"
+                )
         return
 
     @property
     def variables(self) -> Dict[str, Any]:
+        """Returns a dict with all Variables currently registered.
+
+        Returns
+        -------
+        Dict[str, Any]
+            dict of all Variables currently registered.
+        """
         variables: Dict[str, Any] = {}
 
         def extract_variables_from_dict(dict: MutableMapping[Any, Any]):
