@@ -317,9 +317,7 @@ class CppDict(UserDict[Any, Any]):
             try:
                 self.data = eval("self.data['" + "']['".join(scope) + "']")
             except KeyError as e:
-                logger.warning(
-                    f"CppDict.reduce_scope(): no scope '{e.args[0]}' in dictionary {self.source_file}"
-                )
+                logger.warning(f"CppDict.reduce_scope(): no scope '{e.args[0]}' in dictionary {self.source_file}")
         return
 
     @property
