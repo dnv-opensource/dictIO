@@ -119,6 +119,6 @@ Distributed under the MIT license. See [LICENSE](LICENSE.md) for more informatio
 For your contribution, please make sure you follow the [STYLEGUIDE](STYLEGUIDE.md) before creating the Pull Request.
 
 <!-- Markdown link & img dfn's -->
-[dictIO_docs]: https://dnv-opensource.github.io/dictIO/
-[ospx_docs]: https://dnv-opensource.github.io/ospx/
-[farn_docs]: https://dnv-opensource.github.io/farn/
+[dictIO_docs]: https://dnv-opensource.github.io/dictIO/README.html
+[ospx_docs]: https://dnv-opensource.github.io/ospx/README.html
+[farn_docs]: https://dnv-opensource.github.io/farn/README.html
