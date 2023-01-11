@@ -5,7 +5,14 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
+* -/-
+
+## [0.2.6] - 2023-01-11
+
+### Changed
+
 * Added missing DocStrings for public classes, methods and functions
+* Changed links to package documentation to open README.html, not the default index page
 
 
 ## [0.2.5] - 2023-01-04
@@ -172,7 +179,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.5...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.6...HEAD
+[0.2.6]: https://github.com/dnv-opensource/dictIO/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/dnv-opensource/dictIO/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/dnv-opensource/dictIO/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/dnv-opensource/dictIO/compare/v0.2.2...v0.2.3
