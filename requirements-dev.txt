@@ -1,14 +1,14 @@
 pytest>=7.2
 pytest-cov>=4.0
 pytest-randomly>=3.12
-black>=22.12.0
-ruff>=0.0.218
-pyright>=1.1.288
+black>=23.1.0
+ruff>=0.0.240
+pyright>=1.1.292
 Sphinx>=5.3
 sphinx-argparse-cli>=1.10
 myst-parser>=0.18
 furo>=2022.9.29
-sourcery>=1.2.7
+sourcery>=1.0.3
 sourcery-cli>=1.0.3
 
 -r requirements.txt
