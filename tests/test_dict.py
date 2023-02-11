@@ -249,30 +249,30 @@ def test_order_keys():  # sourcery skip: avoid-builtin-shadow
     dict.data.update(deepcopy(dict_in))
 
     # 1. negative test: assert dict_in is not alphanumerically ordered
-    for (index, key) in enumerate(dict_in):
+    for index, key in enumerate(dict_in):
         assert key != keys_expected[index]
-    for (index, key) in enumerate(dict_in[key_4]):
+    for index, key in enumerate(dict_in[key_4]):
         assert key != keys_expected_nested[index]
 
     # 2. negative test: assert dict is not alphanumerically ordered
-    for (index, key) in enumerate(dict.data):
+    for index, key in enumerate(dict.data):
         assert key != keys_expected[index]
-    for (index, key) in enumerate(dict.data[key_4]):
+    for index, key in enumerate(dict.data[key_4]):
         assert key != keys_expected_nested[index]
 
     dict_out = order_keys(dict_in)  # order_keys function defined in dict.py module
     dict.order_keys()  # order_keys instance method of CppDict class
 
     # 1. positive test for dict_out: assert dict_out is alphanumerically ordered
-    for (index, key) in enumerate(dict_out):
+    for index, key in enumerate(dict_out):
         assert key == keys_expected[index]
-    for (index, key) in enumerate(dict_out[key_4]):
+    for index, key in enumerate(dict_out[key_4]):
         assert key == keys_expected_nested[index]
 
     # 2. positive test for dict: assert dict.data is alphanumerically ordered
-    for (index, key) in enumerate(dict.data):
+    for index, key in enumerate(dict.data):
         assert key == keys_expected[index]
-    for (index, key) in enumerate(dict.data[key_4]):
+    for index, key in enumerate(dict.data[key_4]):
         assert key == keys_expected_nested[index]
 
 

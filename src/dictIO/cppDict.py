@@ -98,7 +98,7 @@ class CppDict(UserDict[Any, Any]):
         return
 
     def include(self, dict_to_include: "CppDict"):
-        """Adds an include directive for the passed in dict.
+        """Add an include directive for the passed in dict.
 
         Parameters
         ----------
@@ -156,7 +156,7 @@ class CppDict(UserDict[Any, Any]):
         return
 
     def update(self, __m: Mapping[Any, Any], **kwargs: Any) -> None:
-        """Updates top-level keys with the keys from the passed in dict.
+        """Update top-level keys with the keys from the passed in dict.
 
         Overrides the update() method of UserDict base class in order to include also CppDict class attributes in the update.
 
@@ -190,7 +190,7 @@ class CppDict(UserDict[Any, Any]):
         return
 
     def merge(self, dict: MutableMapping[Any, Any]):
-        """Merges the passed in dict into the existing CppDict instance.
+        """Merge the passed in dict into the existing CppDict instance.
 
         In contrast to update(), merge() works recursively. That is, it does not simply substitute top-level keys but
         recursively merges (potentially nested) content from the passed in dict into the existing.
@@ -226,7 +226,7 @@ class CppDict(UserDict[Any, Any]):
         -------
         str
             the string representation
-        """
+        """  # noqa: D401
         from dictIO import (
             CppFormatter,  # __str__ shall be formatted in default dict file format
         )
@@ -251,7 +251,7 @@ class CppDict(UserDict[Any, Any]):
         return
 
     def find_global_key(self, query: str = "") -> Union[List[Any], None]:
-        """Returns the global key thread to the first key the value of which matches the passed in query.
+        """Return the global key thread to the first key the value of which matches the passed in query.
 
         Function works recursively on nested dicts and is non-greedy: The key of the first match is returned.
         Return value is a sequence of keys: The 'global key thread'.
@@ -271,7 +271,7 @@ class CppDict(UserDict[Any, Any]):
         return find_global_key(self.data, query)
 
     def set_global_key(self, global_key: MutableSequence[Any], value: Any = None):
-        """Sets the value for the passed in global key.
+        """Set the value for the passed in global key.
 
         The global key thread is traversed downwards until arrival at the target key,
         the value of which is then set.
@@ -288,7 +288,7 @@ class CppDict(UserDict[Any, Any]):
         return
 
     def global_key_exists(self, global_key: MutableSequence[Any]) -> bool:
-        """Checks whether the specified global key exists.
+        """Check whether the specified global key exists.
 
         Parameters
         ----------
@@ -380,8 +380,9 @@ class CppDict(UserDict[Any, Any]):
 
     def _clean(self, dict: Union[MutableMapping[Any, Any], None] = None):
         # sourcery skip: avoid-builtin-shadow
-        """
-        Finds and removes doublettes of following PLACEHOLDER keys within self.data
+        """Find and remove doublettes of PLACEHOLDER keys.
+
+        Find and remove doublettes of following PLACEHOLDER keys within self.data:
         - BLOCKCOMMENT
         - INCLUDE
         - LINECOMMENT
@@ -479,7 +480,7 @@ def find_global_key(
     arg: Union[MutableMapping[Any, Any], MutableSequence[Any]],
     query: str = "",
 ) -> Union[List[Any], None]:
-    """Returns the global key thread to the first key the value of which matches the passed in query.
+    """Return the global key thread to the first key the value of which matches the passed in query.
 
     Parameters
     ----------
@@ -523,7 +524,7 @@ def set_global_key(
     global_key: MutableSequence[Any],
     value: Any = None,
 ):
-    """Sets the value for the passed in global key.
+    """Set the value for the passed in global key.
 
     Parameters
     ----------
@@ -552,7 +553,7 @@ def set_global_key(
 
 
 def global_key_exists(arg: MutableMapping[Any, Any], global_key: MutableSequence[Any]) -> bool:
-    """Checks whether the specified global key exists in the passed in dict.
+    """Check whether the specified global key exists in the passed in dict.
 
     Parameters
     ----------
@@ -581,7 +582,7 @@ def _merge_dicts(
     dict_to_merge: MutableMapping[Any, Any],
     overwrite: bool = False,
 ):
-    """Merges dict_to_merge into target_dict.
+    """Merge dict_to_merge into target_dict.
 
     In contrast to dict.update(), _merge_dicts() works recursively. That is, it does not simply substitute top-level keys
     in target_dict but recursively merges (potentially nested) content from dict_to_merge into target_dict.

@@ -529,7 +529,6 @@ class SetupHelper:
         until_step: int = -1,
         file_to_read: str = "test_dictReader_dict",
     ):
-
         file_name = Path.cwd() / file_to_read
 
         parser = CppParser()

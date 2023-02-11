@@ -10,7 +10,6 @@ from dictIO import CppDict, CppFormatter, DictReader, FoamFormatter, XmlFormatte
 # @TODO: To be implemented
 @pytest.mark.skip(reason="To be implemented")
 class TestFormatter:
-
     # @TODO: To be implemented
     @pytest.mark.skip(reason="To be implemented")
     def test_returned_formatter_type(self):
@@ -123,7 +122,6 @@ class TestCppFormatter:
     ):
         # sourcery skip: avoid-builtin-shadow
         dict = CppDict()
-        SetupHelper.prepare_dict(dict_to_prepare=dict, file_to_read="test_formatter_dict")
         str_in_template = formatter.format_dict(
             dict.data
         )  # as we used test_simpleDict, str_in does not have a block comment yet
@@ -229,7 +227,6 @@ class TestCppFormatter:
         # sourcery skip: avoid-builtin-shadow
         # Prepare
         dict = CppDict()
-        SetupHelper.prepare_dict(dict_to_prepare=dict, file_to_read="test_formatter_dict")
         line_comment_in = "// This is a line comment"
         formatter = CppFormatter()
         str_in_template = formatter.format_dict(dict.data)
@@ -547,18 +544,3 @@ class TestXmlFormatter:
         # Assert
         assert '?xml version="1.0" encoding="UTF-8"?' in str_out
         assert '?xml version="1.0"?' not in str_out
-
-
-class SetupHelper:
-    @staticmethod
-    def prepare_dict(
-        dict_to_prepare: CppDict,
-        file_to_read: str = "test_formatter_dict",
-    ):
-
-        file_name = Path.cwd() / file_to_read
-
-        if dict_to_prepare is None:
-            dict_to_prepare = DictReader.read(file_name)
-
-        return

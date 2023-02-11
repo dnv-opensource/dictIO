@@ -38,7 +38,7 @@ class Parser:
 
     @classmethod
     def get_parser(cls, source_file: Union[Path, None] = None):
-        """Factory method returning a Parser instance matching the source file type to be parsed.
+        """Return a Parser instance matching the type of the source file to be parsed (factory method).
 
         Parameters
         ----------
@@ -73,7 +73,7 @@ class Parser:
         target_dict: Union[CppDict, None] = None,
         comments: bool = True,
     ) -> CppDict:
-        """Parses a file and deserializes it into a dict.
+        """Parse a file and deserialize it into a dict.
 
         Parameters
         ----------
@@ -120,13 +120,9 @@ class Parser:
             target_dict.path = source_file.parent
             target_dict.name = source_file.name
 
-        # one final check only
-        # whether a file exists (can also have zero content)
-        # or a dict was given (can also contain nothing)
-        if not self.source_file.exists() and target_dict is None:
-            logger.error(
-                f"Parser.parse_file(): File or path does not exist ('{source_file}') or no target dict ({target_dict}) was given."
-            )
+        # one final check that the source file exists
+        if not self.source_file.exists():
+            logger.error(f"Parser.parse_file(): Source file does not exist ('{source_file}').")
 
         # Parse file content
         parsed_dict = self.parse_string(file_content, target_dict, comments)
@@ -139,7 +135,7 @@ class Parser:
         target_dict: CppDict,
         comments: bool = True,
     ) -> CppDict:  # sourcery skip: lift-return-into-if
-        """Parses a string and deserializes it into a CppDict.
+        """Parse a string and deserialize it into a CppDict.
 
         Note: Override this method when implementing a specific Parser.
 
@@ -164,13 +160,6 @@ class Parser:
         if not string:
             logger.warning(f"Parser.parse_string(): String to parse is empty: {string}")
 
-        # Create target dict in case no specific target dict was passed in
-        if target_dict is None:
-            logger.warning(
-                "Parser.parse_string(): Target dict is None. Will create new target dict, however, with empty filename."
-            )
-            target_dict = CppDict()
-
         # Create a local CppDict instance where the stringcontent is temporarily parsed into
         if target_dict.source_file:
             parsed_dict = CppDict(target_dict.source_file)
@@ -191,7 +180,7 @@ class Parser:
         return parsed_dict
 
     def parse_type(self, arg: Any) -> Any:
-        """Parses a single value.
+        """Parse a single value.
 
         Parses a single value and casts it to its native type (str, int, float, boolean or None).
 
@@ -267,7 +256,7 @@ class Parser:
         return __class__.remove_quotes_from_string(arg)
 
     def parse_types(self, arg: Union[MutableMapping[Any, Any], MutableSequence[Any]]):
-        """Parses multiple values.
+        """Parse multiple values.
 
         Parses all values inside a dict or list and casts them to its native types (str, int, float, boolean or None).
         The function traverses the passed in dict or list recursively
@@ -295,7 +284,7 @@ class Parser:
 
     @staticmethod
     def remove_quotes_from_string(arg: str, all: bool = False) -> str:
-        """Removes quotes from a string.
+        """Remove quotes from a string.
 
         Removes quotes (single and double quotes) from the string object passed in.
 
@@ -326,7 +315,7 @@ class Parser:
     def remove_quotes_from_strings(
         arg: Union[MutableMapping[Any, Any], MutableSequence[Any]]
     ) -> Union[MutableMapping[Any, Any], MutableSequence[Any]]:
-        """Removes quotes from multiple strings.
+        """Remove quotes from multiple strings.
 
         Removes quotes (single and double quotes) from all string objects inside a dict or list.
         The function traverses the passed in dict or list recursively
@@ -364,7 +353,7 @@ class CppParser(Parser):
     """Parser to deserialize a string in dictIO dict file format into a CppDict."""
 
     def __init__(self):
-        """Implementation specific default configuration of CppParser."""
+        """Implementation specific default configuration of CppParser."""  # noqa: D401
         # Invoke base class constructor
         super().__init__()
 
@@ -374,7 +363,7 @@ class CppParser(Parser):
         target_dict: CppDict,
         comments: bool = True,
     ) -> CppDict:
-        """Parses a string in dictIO dict file format and deserializes it into a CppDict.
+        """Parse a string in dictIO dict file format and deserialize it into a CppDict.
 
         Parameters
         ----------
@@ -450,7 +439,7 @@ class CppParser(Parser):
         return parsed_dict
 
     def _extract_line_comments(self, dict: CppDict, comments: bool):
-        """Finds and extracts C++ line comments (// ..) from dict.line_content, and replaces them with Placeholders.
+        """Find and extract C++ line comments (// ..) from dict.line_content, and replace them with Placeholders.
 
         Finds C++ line comments (// line_comment), extracts them,
         and replaces the complete line with a placeholder in the form LINECOMMENT000000 .
@@ -482,7 +471,7 @@ class CppParser(Parser):
         return
 
     def _extract_includes(self, dict: CppDict):
-        """Finds and extracts #include directives from dict.line_content, and replaces them with Placeholders.
+        """Find and extract #include directives from dict.line_content, and replace them with Placeholders.
 
         Finds #includes directives (#include file), extracts them,
         and replaces the complete line where the include directive was found
@@ -523,12 +512,12 @@ class CppParser(Parser):
         return
 
     def _remove_line_endings_from_block_content(self, dict: CppDict):
-        """Removes all line endings in .block_content and substuitutes them by single spaces."""
+        """Remove all line endings in .block_content and substuitute them by single spaces."""
         dict.block_content = re.sub(r"\n", " ", dict.block_content).strip()
         return
 
     def _extract_block_comments(self, dict: CppDict, comments: bool):
-        """Finds and extracts C++ block comments (/* .. */) from dict.block_content, and replaces them with Placeholders.
+        """Find and extract C++ block comments (/* .. */) from dict.block_content, and replace them with Placeholders.
 
         Finds C++ block comments (/* block_comment */), extracts them,
         and replaces them with a placeholder in the form BLOCKCOMMENT000000.
@@ -557,7 +546,7 @@ class CppParser(Parser):
         return
 
     def _extract_string_literals(self, dict: CppDict):
-        """Finds and extracts string literals from dict.block_content, and replaces them with Placeholders.
+        """Find and extract string literals from dict.block_content, and replace them with Placeholders.
 
         Finds string literals, extracts them,
         and replaces them with a placeholder in the form STRINGLITERAL000000.
@@ -577,7 +566,6 @@ class CppParser(Parser):
         search_pattern = r"\'.*?\'"
         string_literals = re.findall(search_pattern, dict.block_content, re.MULTILINE)
         for string_literal in string_literals:
-
             index = self.counter()
             placeholder = "STRINGLITERAL%06i" % index
 
@@ -598,7 +586,6 @@ class CppParser(Parser):
         string_literals = re.findall(search_pattern, dict.block_content, re.MULTILINE)
         for string_literal in string_literals:
             if "$" not in string_literal:
-
                 index = self.counter()
                 placeholder = "STRINGLITERAL%06i" % index
 
@@ -615,7 +602,7 @@ class CppParser(Parser):
         return
 
     def _extract_expressions(self, dict: CppDict):
-        """Finds and extracts expressions from dict.block_content, and replaces them with Placeholders.
+        """Find and extract expressions from dict.block_content, and replace them with Placeholders.
 
         Finds expressions, extracts them,
         and replaces them with a placeholder in the form EXPRESSION000000.
@@ -638,7 +625,6 @@ class CppParser(Parser):
         search_pattern = r'"[^"]*\$.*?"'
         expressions = re.findall(search_pattern, dict.block_content, re.MULTILINE)
         for expression in expressions:
-
             index = self.counter()
             placeholder = "EXPRESSION%06i" % index
 
@@ -671,7 +657,7 @@ class CppParser(Parser):
         dict: CppDict,
         delimiters: Union[List[str], None] = None,
     ):
-        r"""Ensures that delimiters are separated by exactly one space before and after.
+        r"""Ensure that delimiters are separated by exactly one space before and after.
 
         Parses .block_content for occurences of the delimiters passed in, and strips any spaces surrounding each
         delimiter to exactly one single space before and one single space after the delimiter.
@@ -712,12 +698,11 @@ class CppParser(Parser):
 
     def _determine_token_hierarchy(self, dict: CppDict):
         # sourcery skip: use-join
-        """Creates the hierarchy among the tokens and tests their indentation."""
+        """Create the hierarchy among the tokens and test their indentation."""
         level = 0
         count_open: List[str] = []
         count_close: List[str] = []
         for index, item in enumerate(dict.tokens):
-
             if item[1] in dict.openingBrackets:
                 push_pop = 1
                 count_open.append(item[1])
@@ -760,7 +745,7 @@ class CppParser(Parser):
         return
 
     def _convert_tokens_to_dict(self, dict: CppDict):
-        """Converts the hierarchic tokens into a dict."""
+        """Convert the hierarchic tokens into a dict."""
         dict.update(self._parse_tokenized_dict(dict))
         dict.tokens.clear()
 
@@ -772,7 +757,7 @@ class CppParser(Parser):
         tokens: Union[List[Tuple[int, str]], None] = None,
         level: int = 0,
     ) -> Dict[str, Any]:
-        """Parses a tokenized dict and returns the parsed dict.
+        """Parse a tokenized dict and return the parsed dict.
 
         Parses all tokens, identifies the element within the tokenized dict each token represents or belongs to,
         converts related tokens into the element's type and stores it in local dict (parsed_dict).
@@ -801,7 +786,6 @@ class CppParser(Parser):
 
             # Nested data struct (list or dict)   '(' = list    '{' = dict
             if tokens[token_index][1] in dict.openingBrackets:
-
                 # The name (key) of the data struct is by convention directly preceeding the opening bracket.
                 # ..except if there are line comments in between. skip those:
                 offset: int = 1
@@ -892,7 +876,6 @@ class CppParser(Parser):
 
             # Key value pair
             elif tokens[token_index][1] == ";" and tokens[token_index - 1][1] != ")":
-
                 # Read the name (key) and the value from the key value pair
                 # Parse from right to left, starting at the identified ';'
                 # and then copy the tokens into a temporary key_value_pair_tokens list:
@@ -992,7 +975,7 @@ class CppParser(Parser):
         tokens: Union[List[Tuple[int, str]], None] = None,
         level: int = 0,
     ) -> List[Any]:
-        """Parses a tokenized list and returns the parsed list.
+        """Parse a tokenized list and return the parsed list.
 
         Parses all tokens, identifies the element within the tokenized list each token represents or belongs to,
         converts related tokens into the element's type and stores it in local list (parsed_list).
@@ -1111,7 +1094,7 @@ class CppParser(Parser):
         return parsed_list
 
     def _find_companion(self, dict: CppDict, bracket: str) -> str:
-        """Returns the companion bracket character for the passed in bracket character.
+        """Return the companion bracket character for the passed in bracket character.
 
         Example: If you pass in '{', _find_companion() will return '}'  (and vice versa)
         """
@@ -1144,7 +1127,7 @@ class CppParser(Parser):
         return
 
     def _clean(self, dict: CppDict):
-        """Removes CppFormatter / CppParser specific internal keys from dict.
+        """Remove CppFormatter / CppParser specific internal keys from dict.
 
         Removes keys written by CppFormatter for documentation purposes
         but which shall not be created as keys in dict.data.
@@ -1162,7 +1145,7 @@ class FoamParser(CppParser):
     """Parser to deserialize a string in OpenFOAM dictionary format into a CppDict."""
 
     def __init__(self):
-        """Implementation specific default configuration of FoamParser."""
+        """Implementation specific default configuration of FoamParser."""  # noqa: D401
         # Invoke base class constructor
         super().__init__()
 
@@ -1172,7 +1155,7 @@ class FoamParser(CppParser):
         target_dict: CppDict,
         comments: bool = True,
     ) -> CppDict:
-        """Parses a string in OpenFOAM dictionary format and deserializes it into a CppDict.
+        """Parse a string in OpenFOAM dictionary format and deserialize it into a CppDict.
 
         Parameters
         ----------
@@ -1204,7 +1187,7 @@ class JsonParser(Parser):
     """Parser to deserialize a string in JSON dictionary format into a CppDict."""
 
     def __init__(self):
-        """Implementation specific default configuration of JsonParser."""
+        """Implementation specific default configuration of JsonParser."""  # noqa: D401
         # Invoke base class constructor
         super().__init__()
 
@@ -1214,7 +1197,7 @@ class JsonParser(Parser):
         target_dict: CppDict,
         comments: bool = True,
     ) -> CppDict:
-        """Parses a string in JSON dictionary format and deserializes it into a CppDict.
+        """Parse a string in JSON dictionary format and deserialize it into a CppDict.
 
         Parameters
         ----------
@@ -1283,7 +1266,7 @@ class JsonParser(Parser):
         parsed_dict: CppDict,
         string: str,
     ) -> str:
-        """Extracts a single expression.
+        """Extract a single expression.
 
         Parses a string, checks whether it contains an expression, and if so,
         extracts the expression and replaces it with a placeholder.
@@ -1332,8 +1315,8 @@ class JsonParser(Parser):
         string: str,
         expression: str,
     ) -> str:
-        """Replaces all occurances of expression in string with a placeholder (EXPRESSION000000)
-        and registers the expression in parsed_dict.
+        """Replace all occurances of expression in string with a placeholder (EXPRESSION000000)
+        and register the expression in parsed_dict.
 
         Parameters
         ----------
@@ -1364,7 +1347,7 @@ class JsonParser(Parser):
         parsed_dict: CppDict,
         arg: Union[MutableMapping[Any, Any], MutableSequence[Any]],
     ):
-        """Finds and extracts expressions in a dict or list and replaces them with Placeholders.
+        """Find and extract expressions in a dict or list and replace them with Placeholders.
 
         Finds expressions, extracts them, and replaces them with a placeholder in the form EXPRESSION000000.
         String values that contain minimum one $reference are identified as expressions.
@@ -1404,7 +1387,7 @@ class XmlParser(Parser):
         self,
         add_node_numbering: bool = True,
     ):
-        """Implementation specific default configuration of XmlParser."""
+        """Implementation specific default configuration of XmlParser."""  # noqa: D401
         # Invoke base class constructor
         super().__init__()
         # Save default configuration as attributes
@@ -1416,7 +1399,7 @@ class XmlParser(Parser):
         target_dict: CppDict,
         comments: bool = True,
     ) -> CppDict:
-        """Parses a string in XML format and deserializes it into a CppDict.
+        """Parse a string in XML format and deserialize it into a CppDict.
 
         Parameters
         ----------
@@ -1461,7 +1444,7 @@ class XmlParser(Parser):
         # Reformat None keys in namespaces to key 'None' (as string)
         temp_keys_copy: List[str] = list(namespaces)
         for key in temp_keys_copy:
-            if key is None:
+            if key is None:  # pyright: ignore
                 try:
                     value = namespaces[key]
                     del namespaces[key]

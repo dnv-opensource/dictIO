@@ -25,7 +25,7 @@ class DictWriter:
         order: bool = False,
         formatter: Union[Formatter, None] = None,
     ):
-        """Writes a dictionary file in dictIO dict file format, as well as JSON, XML and OpenFoam.
+        """Write a dictionary file in dictIO dict file format, as well as JSON, XML and OpenFoam.
 
         Writes a dictIO dict (parameter source_dict of type CppDict) to target_file.
         Following file formats are supported and interpreted through target_file's file ending:
@@ -52,10 +52,7 @@ class DictWriter:
             formatter to be used, by default None
         """
 
-        # Check argument
-        if source_dict is None:
-            logger.warning("dictWriter.write(): argument 'source_dict' is missing. No file written.")
-            return
+        # Check arguments
         if mode not in ["a", "w"]:
             logger.warning(
                 f"dictWriter.write(): argument 'mode' has invalid value '{mode}'. Used default mode 'w' instead as fallback."
@@ -134,7 +131,7 @@ def create_target_file_name(
     -------
     Path
         target dict file name
-    """
+    """  # noqa: D401
 
     # Make sure source_file argument is of type Path. If not, cast it to Path type.
     source_file = source_file if isinstance(source_file, Path) else Path(source_file)

@@ -10,14 +10,17 @@ logger = logging.getLogger(__name__)
 
 
 def remove_quotes(string: str):
-    """
-    Removes quotes (single or double quotes) from the string object passed in.
+    """Remove quotes (single or double quotes) from the string object passed in.
+
     Not only leading and trailing quotes are removed; also any quotes inside a string, if so, are removed.
     """
-    # search_pattern = re.compile(r'(^[\'\\"]{1}|[\'\\"]{1}$)')  #Removes only leading and trailing quotes. Quotes inside a string are kept.
-    search_pattern = re.compile(
-        r"[\'\"]"
-    )  # Removes ALL quotes in a string. Meaning, not only leading and trailing quotes, but also quotes inside a string are removed.
+    # Pattern 1 removes only leading and trailing quotes. Quotes inside a string are kept.
+    # @NOTE: Left here for documentation purposes only. Pattern 2 is the one used.
+    # search_pattern = re.compile(r'(^[\'\\"]{1}|[\'\\"]{1}$)')
+
+    # Pattern 2 removes ALL quotes in a string.
+    # Meaning, not only leading and trailing quotes, but also quotes inside a string are removed.
+    search_pattern = re.compile(r"[\'\"]")
     return re.sub(search_pattern, "", string)
 
 
