@@ -220,7 +220,7 @@ class CppDict(UserDict[Any, Any]):
         return
 
     def __str__(self):
-        """string representation of the CppDict instance in dictIO dict file format.
+        """String representation of the CppDict instance in dictIO dict file format.
 
         Returns
         -------
