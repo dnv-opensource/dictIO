@@ -28,6 +28,12 @@ ignore = [
     "D205",  # 1 blank line required between summary line and description
     "D212",  # Multi-line docstring summary should start at the first line
     "D213",  # Multi-line docstring summary should start at the second line
+    # "N802",  # Function name should be lowercase  (uncomment if you want to allow Uppercase function names)
+    # "N803",  # Argument name should be lowercase  (uncomment if you want to allow Uppercase argument names)
+    "N806",  # Variable in function should be lowercase  (uncomment if you want to allow Uppercase variable names in functions)
+    # "N815",  # Variable in class scope should not be mixedCase  (uncomment if you want to allow mixedCase variable names in class scope)
+    # "N816",  # Variable in global scope should not be mixedCase  (uncomment if you want to allow mixedCase variable names in global scope)
+    "N999",  # Invalid module name
     ]
 line-length = 120
 select = [
@@ -99,3 +105,8 @@ reportUntypedNamedTuple = "warning"
 # reportUnnecessaryTypeIgnoreComment = "information"
 # reportImportCycles = "warning"
 # reportImplicitStringConcatenation = "warning"
+
+[tool.pytest.ini_options]
+testpaths = "tests"
+addopts = "--strict-markers"
+xfail_strict = true
