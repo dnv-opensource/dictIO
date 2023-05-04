@@ -97,7 +97,7 @@ jobs:
           - runner: windows-latest
             toxenv: windows
         python:
-          - version: '3.12'
+          - version: '3.12.0-alpha.7'
             toxenv: 'py312'
     steps:
       - uses: actions/checkout@v3
