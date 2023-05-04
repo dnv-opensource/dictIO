@@ -178,7 +178,7 @@ class DictReader:
         return
 
     @staticmethod
-    def _resolve_reference(ref: Any, vars: MutableMapping[Any, Any]):
+    def _resolve_reference(ref: Any, vars: MutableMapping[Any, Any]) -> Union[Any, None]:
         # resolves a single reference
         ret: Union[Any, None] = None
         try:

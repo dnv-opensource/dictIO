@@ -4,7 +4,7 @@ import re
 import sys
 from copy import deepcopy
 from pathlib import Path, PurePath
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 import pytest
 from numpy.testing import assert_array_equal
@@ -388,7 +388,7 @@ def _get_references_in_expressions(dict: CppDict) -> List[str]:
     return references
 
 
-def _resolve_references(dict: CppDict, references: List[str]):
+def _resolve_references(dict: CppDict, references: List[str]) -> Dict[str, Union[Any, None]]:
     # Resolve references
     variables: Dict[str, Any] = dict.variables
     references_resolved = {ref: DictReader._resolve_reference(ref, variables) for ref in references}

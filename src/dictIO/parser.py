@@ -1429,7 +1429,7 @@ class XmlParser(Parser):
         # Create XML parser
         parser: XMLParser = ETCompatXMLParser()
         # Read root element from XML string
-        root_element: Element = fromstring(string.encode("utf-8"), parser)
+        root_element: Element = fromstring(string.encode("utf-8"), parser)  # type: ignore
         # Read root tag from XML string
         # there is a problem with .tag :
         # fromstring does not completely push all attributes into .attrib
