@@ -50,7 +50,7 @@ class DictReader:
         scope: Union[MutableSequence[str], None] = None,
         parser: Union[Parser, None] = None,
     ) -> CppDict:
-        """Reads a dictionary file in dictIO dict file format, as well as JSON and XML.
+        """Read a dictionary file in dictIO dict file format, as well as JSON and XML.
 
         Reads a dict file, parses it and transforms its content into a dictIO dict object (CppDict).
         Following file formats are supported and interpreted through source_file's file ending:
@@ -135,14 +135,13 @@ class DictReader:
 
     @staticmethod
     def _merge_includes(dict: CppDict, comments: bool = True):
-        """Parses and merges any (child) dicts that are referenced in the dict file through #include directives."""
+        """Parse and merge any (child) dicts that are referenced in the dict file through #include directives."""
         # Create dejavue string watchdog
         djv = DejaVue()
         djv.reset()
 
         # Inner function: Merge all includes, recursively
         def _merge_includes_recursive(dict: CppDict):
-
             # empty dict to merge in temporarily, avoiding dict-has-change-error inside the for loop
             temp_dict = CppDict()
 
@@ -179,7 +178,7 @@ class DictReader:
         return
 
     @staticmethod
-    def _resolve_reference(ref: Any, vars: MutableMapping[Any, Any]):
+    def _resolve_reference(ref: Any, vars: MutableMapping[Any, Any]) -> Union[Any, None]:
         # resolves a single reference
         ret: Union[Any, None] = None
         try:

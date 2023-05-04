@@ -96,7 +96,7 @@ _For a detailed documentation of the dict file format used by dictIO, see [File 
 
 ## Meta
 
-Copyright (c) 2022 [DNV](https://www.dnv.com) [open source](https://github.com/dnv-opensource)
+Copyright (c) 2023 [DNV](https://www.dnv.com) [open source](https://github.com/dnv-opensource)
 
 Frank Lumpitzsch – [@LinkedIn](https://www.linkedin.com/in/frank-lumpitzsch-23013196/) – frank.lumpitzsch@dnv.com
 

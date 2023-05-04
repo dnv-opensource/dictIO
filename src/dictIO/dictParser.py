@@ -30,7 +30,7 @@ class DictParser:
         scope: Union[MutableSequence[str], None] = None,
         output: Union[str, None] = None,
     ) -> Union[CppDict, None]:
-        """Parses a dictionary file and saves it with prefix 'parsed.'.
+        """Parse a dictionary file and save it with prefix 'parsed.'.
 
         DictParser.parse() combines the otherwise atomic operations
         of DictReader.read() and DictWriter.write() in one chunk:

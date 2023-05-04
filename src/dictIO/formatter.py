@@ -36,7 +36,7 @@ class Formatter:
 
     @classmethod
     def get_formatter(cls, target_file: Union[Path, None] = None):
-        """Factory method returning a Formatter instance matching the target file type to be formatted.
+        """Return a Formatter instance matching the type of the target file to be formatted (factory method).
 
         Parameters
         ----------
@@ -71,7 +71,7 @@ class Formatter:
         self,
         dict: Union[MutableMapping[Any, Any], CppDict],
     ) -> str:
-        """Creates a string representation of the passed in dict.
+        """Create a string representation of the passed in dict.
 
         Note: Override this method when implementing a specific Formatter.
 
@@ -88,7 +88,7 @@ class Formatter:
         return ""
 
     def format_dict(self, arg: Union[MutableMapping[Any, Any], MutableSequence[Any], Any]) -> str:
-        """Formats a dict or list object.
+        """Format a dict or list object.
 
         Note: Override this method when implementing a specific Formatter.
 
@@ -105,7 +105,7 @@ class Formatter:
         return ""
 
     def format_type(self, arg: Any) -> str:
-        """Formats a single value type (str, int, float, boolean or None).
+        """Format a single value type (str, int, float, boolean or None).
 
         Parameters
         ----------
@@ -135,7 +135,7 @@ class Formatter:
         return self.format_string(arg)
 
     def format_bool(self, arg: bool) -> str:
-        """Formats a boolean.
+        """Format a boolean.
 
         Note: Override this method for specific formatting of booleans when implementing a Formatter.
 
@@ -152,7 +152,7 @@ class Formatter:
         return str(arg)
 
     def format_int(self, arg: int) -> str:
-        """Formats an integer.
+        """Format an integer.
 
         Note: Override this method for specific formatting of integers when implementing a Formatter.
 
@@ -169,7 +169,7 @@ class Formatter:
         return str(arg)
 
     def format_float(self, arg: float) -> str:
-        """Formats a floating point number.
+        """Format a floating point number.
 
         Note: Override this method for specific formatting of floating point numbers when implementing a Formatter.
 
@@ -186,7 +186,7 @@ class Formatter:
         return str(arg)
 
     def format_none(self) -> str:
-        """Formats None.
+        """Format None value.
 
         Note: Override this method for specific formatting of None when implementing a Formatter.
 
@@ -198,7 +198,7 @@ class Formatter:
         return str(None)
 
     def format_string(self, arg: str) -> str:
-        """Formats a string.
+        """Format a string.
 
         Parameters
         ----------
@@ -223,7 +223,7 @@ class Formatter:
             return self.format_single_word_string(arg)
 
     def format_empty_string(self, arg: str) -> str:
-        """Formats an empty string.
+        """Format an empty string.
 
         Note: Override this method for specific formatting of empty strings when implementing a Formatter.
 
@@ -240,7 +240,7 @@ class Formatter:
         return arg
 
     def format_single_word_string(self, arg: str) -> str:
-        """Formats a single word string.
+        """Format a single word string.
 
         Note: Override this method for specific formatting of single word strings when implementing a Formatter.
 
@@ -257,7 +257,7 @@ class Formatter:
         return arg
 
     def format_multi_word_string(self, arg: str) -> str:
-        """Formats a multi word string.
+        """Format a multi word string.
 
         Note: Override this method for specific formatting of multi word strings when implementing a Formatter.
 
@@ -274,7 +274,7 @@ class Formatter:
         return arg
 
     def format_reference_string(self, arg: str) -> str:
-        """Formats a reference.
+        """Format a reference.
 
         Note: Override this method for specific formatting of references when implementing a Formatter.
 
@@ -291,7 +291,7 @@ class Formatter:
         return arg
 
     def format_expression_string(self, arg: str) -> str:
-        """Formats an expression.
+        """Format an expression.
 
         Note: Override this method for specific formatting of expressions when implementing a Formatter.
 
@@ -308,7 +308,7 @@ class Formatter:
         return arg
 
     def add_single_quotes(self, arg: str) -> str:
-        """Adds single quotes to a string.
+        """Add single quotes to a string.
 
         Leading and trailing single quotes will added to the passed in string
         (i.e. it will be wrapped in single quotes).
@@ -328,7 +328,7 @@ class Formatter:
         return f"'{arg}'"
 
     def add_double_quotes(self, arg: str) -> str:
-        """Adds double quotes to a string.
+        """Add double quotes to a string.
 
         Leading and trailing double quotes will added to the passed in string
         (i.e. it will be wrapped in double quotes).
@@ -352,7 +352,7 @@ class CppFormatter(Formatter):
     """Formatter to serialize a dict into a string in dictIO dict file format."""
 
     def __init__(self):
-        """Implementation specific default configuration of CppFormatter."""
+        """Implementation specific default configuration of CppFormatter."""  # noqa: D401
         # Invoke base class constructor
         super().__init__()
 
@@ -360,7 +360,7 @@ class CppFormatter(Formatter):
         self,
         dict: Union[MutableMapping[Any, Any], CppDict],
     ) -> str:  # sourcery skip: avoid-builtin-shadow, dict-comprehension
-        """Creates a string representation of the passed in dict in dictIO dict file format.
+        """Create a string representation of the passed in dict in dictIO dict file format.
 
         Parameters
         ----------
@@ -440,14 +440,13 @@ class CppFormatter(Formatter):
         end: str = "\n",
         ancestry: Union[Type[MutableMapping[Any, Any]], Type[MutableSequence[Any]]] = MutableMapping,
     ) -> str:
-        """Formats a dict or list object."""
+        """Format a dict or list object."""
         total_indent = 30
         s = str()
         indent = sep * tab_len * level
 
         # list
         if isinstance(arg, MutableSequence):
-
             # Opening bracket
             s += self.format_dict("(", level=level, end=end)
 
@@ -456,7 +455,6 @@ class CppFormatter(Formatter):
             last_item_on_this_line = False
 
             for index, item in enumerate(arg):
-
                 # ndarray -> list
                 if isinstance(item, ndarray):
                     item = item.tolist()
@@ -527,7 +525,6 @@ class CppFormatter(Formatter):
         # dict
         elif isinstance(arg, MutableMapping):
             for key in arg.keys():
-
                 # ndarray -> list
                 if isinstance(arg[key], ndarray):
                     arg[key] = arg[key].tolist()
@@ -571,7 +568,7 @@ class CppFormatter(Formatter):
         return s
 
     def format_bool(self, arg: bool) -> str:
-        """Formats a boolean.
+        """Format a boolean.
 
         Parameters
         ----------
@@ -586,7 +583,7 @@ class CppFormatter(Formatter):
         return str(arg).lower()
 
     def format_none(self) -> str:
-        """Formats None.
+        """Format None.
 
         Returns
         -------
@@ -596,7 +593,7 @@ class CppFormatter(Formatter):
         return "NULL"
 
     def format_empty_string(self, arg: str) -> str:
-        """Formats an empty string.
+        """Format an empty string.
 
         Parameters
         ----------
@@ -611,7 +608,7 @@ class CppFormatter(Formatter):
         return self.add_single_quotes(arg)
 
     def format_multi_word_string(self, arg: str) -> str:
-        """Formats a multi word string.
+        """Format a multi word string.
 
         Parameters
         ----------
@@ -626,7 +623,7 @@ class CppFormatter(Formatter):
         return self.add_single_quotes(arg)
 
     def format_expression_string(self, arg: str) -> str:
-        """Formats an expression.
+        """Format an expression.
 
         Parameters
         ----------
@@ -641,7 +638,7 @@ class CppFormatter(Formatter):
         return self.add_double_quotes(arg)
 
     def insert_block_comments(self, dict: CppDict, s: str) -> str:
-        """Inserts back all block comments.
+        """Insert back all block comments.
 
         Replaces all BLOCKCOMMENT placeholders in s with the actual block_comments saved in dict
         str s is expected to contain the CppDict's block_content containing block comment placeholders to substitute (BLOCKCOMMENT... BLOCKCOMMENT...)
@@ -651,7 +648,6 @@ class CppFormatter(Formatter):
         block_comments_inserted_so_far = ""
         first_block_comment = True  # MonoFlop, armed
         for key, block_comment in dict.block_comments.items():
-
             # If this is the first block_comment, make sure it contains the default block comment
             if first_block_comment:
                 # if not re.search(r'\s[Cc]\+{2}\s', block_comment):
@@ -684,7 +680,7 @@ class CppFormatter(Formatter):
         return s
 
     def make_default_block_comment(self, block_comment: str = "") -> str:
-        """Creates the default block comment (header) for files in dictIO dict file format."""
+        """Create the default block comment (header) for files in dictIO dict file format."""
         # If there is no ' C++ ' contained in block_comment,
         # then insert the C++ default block comment in front:
         # sourcery skip: move-assign
@@ -699,7 +695,7 @@ class CppFormatter(Formatter):
         return block_comment
 
     def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
-        """Inserts back all include directives."""
+        """Insert back all include directives."""
         for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original include directive.
@@ -712,7 +708,7 @@ class CppFormatter(Formatter):
         return s
 
     def insert_line_comments(self, cpp_dict: CppDict, s: str) -> str:
-        """Inserts back all line directives."""
+        """Insert back all line directives."""
         for key, line_comment in cpp_dict.line_comments.items():
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original block_comment.
@@ -722,7 +718,7 @@ class CppFormatter(Formatter):
         return s
 
     def remove_trailing_spaces(self, s: str) -> str:
-        """Removes trailing spaces from all lines.
+        """Remove trailing spaces from all lines.
 
         Reads all lines from the passed in string, removes trailing spaces from each line and
         returns a new string with trailing spaces removed.
@@ -744,7 +740,7 @@ class FoamFormatter(CppFormatter):
     """Formatter to serialize a dict into a string in OpenFOAM dictionary format."""
 
     def __init__(self):
-        """Implementation specific default configuration of FoamFormatter."""
+        """Implementation specific default configuration of FoamFormatter."""  # noqa: D401
         # Invoke base class constructor
         super().__init__()
 
@@ -752,7 +748,7 @@ class FoamFormatter(CppFormatter):
         self,
         dict: Union[MutableMapping[Any, Any], CppDict],
     ) -> str:
-        """Creates a string representation of the passed in dict in OpenFOAM dictionary format.
+        """Create a string representation of the passed in dict in OpenFOAM dictionary format.
 
         Parameters
         ----------
@@ -791,7 +787,7 @@ class FoamFormatter(CppFormatter):
         return s
 
     def format_empty_string(self, arg: str) -> str:
-        """Formats an empty string.
+        """Format an empty string.
 
         Parameters
         ----------
@@ -806,7 +802,7 @@ class FoamFormatter(CppFormatter):
         return self.add_double_quotes(arg)
 
     def format_multi_word_string(self, arg: str) -> str:
-        """Formats a multi word string.
+        """Format a multi word string.
 
         Parameters
         ----------
@@ -821,7 +817,7 @@ class FoamFormatter(CppFormatter):
         return self.add_double_quotes(arg)
 
     def format_expression_string(self, arg: str) -> str:
-        """Formats an expression.
+        """Format an expression.
 
         Parameters
         ----------
@@ -836,7 +832,7 @@ class FoamFormatter(CppFormatter):
         return self.add_double_quotes(arg)
 
     def make_default_block_comment(self, block_comment: str = "") -> str:
-        """Creates the default block comment (header) for files in OpenFOAM dictionary format."""
+        """Create the default block comment (header) for files in OpenFOAM dictionary format."""
         # If there is no ' C++ ' and 'OpenFoam' contained in block_comment,
         # then insert the OpenFOAM default block comment in front:
         default_block_comment = (
@@ -868,7 +864,7 @@ class JsonFormatter(Formatter):
     """Formatter to serialize a dict into a string in JSON dictionary format."""
 
     def __init__(self):
-        """Implementation specific default configuration of JsonFormatter."""
+        """Implementation specific default configuration of JsonFormatter."""  # noqa: D401
         # Invoke base class constructor
         super().__init__()
 
@@ -876,7 +872,7 @@ class JsonFormatter(Formatter):
         self,
         dict: Union[MutableMapping[Any, Any], CppDict],
     ) -> str:
-        """Creates a string representation of the passed in dict in JSON dictionary format.
+        """Create a string representation of the passed in dict in JSON dictionary format.
 
         Parameters
         ----------
@@ -909,7 +905,7 @@ class JsonFormatter(Formatter):
         return s
 
     def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
-        """Inserts back all include directives."""
+        """Insert back all include directives."""
         for key, (include_directive, include_file_name, _) in cpp_dict.includes.items():
             # Search for the placeholder key in the Json string,
             # and insert back the original include directive.
@@ -977,7 +973,7 @@ class XmlFormatter(Formatter):
         integrate_attributes: bool = True,
         remove_node_numbering: bool = True,
     ):
-        """Implementation specific default configuration of XmlFormatter."""
+        """Implementation specific default configuration of XmlFormatter."""  # noqa: D401
         # Invoke base class constructor
         super().__init__()
         # Save default configuration as attributes
@@ -989,7 +985,7 @@ class XmlFormatter(Formatter):
         self,
         dict: Union[MutableMapping[Any, Any], CppDict],
     ) -> str:
-        """Creates a string representation of the passed in dict in XML format.
+        """Create a string representation of the passed in dict in XML format.
 
         Parameters
         ----------
@@ -1062,7 +1058,7 @@ class XmlFormatter(Formatter):
         arg: Union[MutableMapping[Any, Any], MutableSequence[Any], Any],
         xsd_uri: Union[str, None] = None,
     ):
-        """Populates arg into the XML element node.
+        """Populate arg into the XML element node.
 
         If arg is a dict or list, method will call itself recursively until all nested content within the dict or list
         is populated into nested elements, eventually creating an XML dom.
@@ -1087,7 +1083,6 @@ class XmlFormatter(Formatter):
             child_nodes = list(arg.keys())
 
             for index, (key, item) in enumerate(arg.items()):
-
                 if re.match("_content", key):
                     # Write back content (from the key-value pair "_content <content>;") into xml node.text
                     # In case of multiline content, do not write it inline between opening and closing tag,

@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 def highest_common_root_folder(paths: Sequence[Path]) -> Path:
-    """Returns the highest common root folder among the passed in paths.
+    """Return the highest common root folder among the passed in paths.
 
     Parameters
     ----------
@@ -55,7 +55,7 @@ def highest_common_root_folder(paths: Sequence[Path]) -> Path:
 
 
 def relative_path(from_path: Path, to_path: Path) -> Path:
-    """Returns the relative path from one path to another.
+    """Return the relative path from one path to another.
 
     Parameters
     ----------

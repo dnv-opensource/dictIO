@@ -13,7 +13,6 @@ from dictIO.utils.strings import string_diff
 
 
 class TestParser:
-
     # @TODO: To be implemented
     @pytest.mark.skip(reason="To be implemented")
     def test_get_parser(self):
@@ -1071,15 +1070,11 @@ class SetupHelper:
         file_to_read: str = "test_parser_dict",
         comments: bool = True,
     ):
-
         source_file = Path.cwd() / file_to_read
 
-        if dict_to_prepare is None:
-            dict_to_prepare = CppDict(source_file)
-        else:
-            dict_to_prepare.source_file = source_file.absolute()
-            dict_to_prepare.path = source_file.parent
-            dict_to_prepare.name = source_file.name
+        dict_to_prepare.source_file = source_file.absolute()
+        dict_to_prepare.path = source_file.parent
+        dict_to_prepare.name = source_file.name
 
         with open(source_file, "r") as f:
             file_content = f.read()

@@ -67,6 +67,8 @@ jobs:
             toxenv: 'py39'
           - version: '3.10'
             toxenv: 'py310'
+          - version: '3.11'
+            toxenv: 'py311'
     steps:
       - uses: actions/checkout@v3
       - name: Install Python ${{ matrix.python.version }}
@@ -79,8 +81,8 @@ jobs:
       - name: Run pytest
         run: tox -e ${{matrix.python.toxenv}}-${{matrix.platform.toxenv}}
 
-  # Test also with Python 3.11 (experimental; workflow will not fail on error.)
-  test311:
+  # Test also with Python 3.12 (experimental; workflow will not fail on error.)
+  test312:
     name: Test on ${{matrix.python.toxenv}}-${{matrix.platform.toxenv}} (experimental)
     needs: test
     continue-on-error: true
@@ -95,8 +97,8 @@ jobs:
           - runner: windows-latest
             toxenv: windows
         python:
-          - version: '3.11'
-            toxenv: 'py311'
+          - version: '3.12.0-alpha.7'
+            toxenv: 'py312'
     steps:
       - uses: actions/checkout@v3
       - name: Install Python ${{ matrix.python.version }}

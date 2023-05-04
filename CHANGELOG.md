@@ -7,6 +7,14 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 * -/-
 
+## [0.2.7] - 2023-05-04
+
+### Changed
+
+* dependencies: updated dependencies to latest versions
+* ruff: added rule-set "B" (flake8-bugbear)
+
+
 ## [0.2.6] - 2023-01-11
 
 ### Changed
@@ -179,7 +187,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.6...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.7...HEAD
+[0.2.7]: https://github.com/dnv-opensource/dictIO/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/dnv-opensource/dictIO/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/dnv-opensource/dictIO/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/dnv-opensource/dictIO/compare/v0.2.3...v0.2.4

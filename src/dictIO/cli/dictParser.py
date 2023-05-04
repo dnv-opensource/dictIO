@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 def _argparser() -> argparse.ArgumentParser:
-
     parser = argparse.ArgumentParser(
         prog="dictParser",
         usage="%(prog)s dict [options [args]]",

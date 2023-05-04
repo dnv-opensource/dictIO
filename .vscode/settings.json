@@ -2,8 +2,7 @@
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.languageServer": "Pylance",
     "ruff.importStrategy": "fromEnvironment",
-    "python.linting.flake8Enabled": false,
-    "python.linting.enabled": true,
+    "python.linting.enabled": false,
     "python.formatting.provider": "black",
     "editor.formatOnSave": true,
     "[python]": {
@@ -13,13 +12,14 @@
         },
     },
     "autoDocstring.docstringFormat": "numpy",
-    "python.analysis.logLevel": "Warning",
-    "python.analysis.typeCheckingMode": "basic",
-    "python.analysis.useLibraryCodeForTypes": true,
-    "python.analysis.completeFunctionParens": true,
-    "python.analysis.diagnosticMode": "workspace",
-    "python.analysis.diagnosticSeverityOverrides": {
-        "reportGeneralTypeIssues": "none"
-    },
     "python.testing.pytestEnabled": true,
+    "python.analysis.logLevel": "Warning",
+    "python.analysis.completeFunctionParens": false,
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.diagnosticSeverityOverrides": {},
+    "python.analysis.indexing": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.inlayHints.variableTypes": false,
+    "python.analysis.inlayHints.functionReturnTypes": false,
+    "python.analysis.inlayHints.pytestParameters": true,
 }
