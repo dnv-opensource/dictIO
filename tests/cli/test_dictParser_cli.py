@@ -82,6 +82,8 @@ def test_cli(
     expected: Union[CliArgs, type],
     monkeypatch: MonkeyPatch,
 ):
+    # sourcery skip: no-conditionals-in-tests
+    # sourcery skip: no-loop-in-tests
     # Prepare
     monkeypatch.setattr(sys, "argv", ["dictParser"] + inputs)
     parser = _argparser()
@@ -158,6 +160,8 @@ def test_invoke_api(
     expected: Union[ApiArgs, type],
     monkeypatch: MonkeyPatch,
 ):
+    # sourcery skip: no-conditionals-in-tests
+    # sourcery skip: no-loop-in-tests
     # Prepare
     monkeypatch.setattr(sys, "argv", ["dictParser"] + inputs)
     args: ApiArgs = ApiArgs()

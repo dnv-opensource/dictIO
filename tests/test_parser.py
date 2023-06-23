@@ -2,7 +2,7 @@
 import re
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Tuple
 
 import pytest
 from pytest import LogCaptureFixture
@@ -342,6 +342,7 @@ class TestParser:
 class TestCppParser:
     def test_extract_line_comments(self):
         # sourcery skip: avoid-builtin-shadow
+        # sourcery skip: no-loop-in-tests
         # Prepare
         dict = CppDict()
         parser = CppParser()
@@ -363,6 +364,7 @@ class TestCppParser:
 
     def test_extract_includes(self):
         # sourcery skip: avoid-builtin-shadow
+        # sourcery skip: no-loop-in-tests
         # Prepare
         dict = CppDict()
         parser = CppParser()
@@ -599,6 +601,7 @@ class TestCppParser:
 
     def test_separate_delimiters(self):
         # sourcery skip: avoid-builtin-shadow
+        # sourcery skip: no-loop-in-tests
         # Prepare
         dict = CppDict()
         parser = CppParser()
@@ -655,8 +658,8 @@ class TestCppParser:
             "level0 [ level1 [ level2 [ level3 ] level2 ] level1 ] level0\n"
             "level0 ( level1 ( level2 ( level3 ) level2 ) level1 ) level0"
         )
-        tokens = re.split(r"\s", text_block)
-        tokens_in = [(0, token) for token in tokens]
+        tokens: List[str] = re.split(r"\s", text_block)
+        tokens_in: List[Tuple[int, str]] = [(0, token) for token in tokens]
         levels_expected = [0, 0, 1, 1, 2, 2, 3, 2, 2, 1, 1, 0, 0] * 3
         tokens_expected = list(zip(levels_expected, tokens))
         dict.tokens = tokens_in
