@@ -1,3 +1,4 @@
+# pyright: reportIncompatibleMethodOverride=false
 import contextlib
 import logging
 import os
