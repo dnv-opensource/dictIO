@@ -360,6 +360,7 @@ def test_read_json():
 
 
 def test_compare_expressions_in_dict_format_with_expressions_in_json_format():
+    # sourcery skip: no-loop-in-tests
     # Prepare
     source_file_dict = Path("test_dictReader_dict")
     source_file_json = Path("test_dictReader_json.json")

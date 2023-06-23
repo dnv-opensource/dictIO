@@ -44,6 +44,7 @@ def test_init_with_file():  # sourcery skip: avoid-builtin-shadow
 
 
 def test_find_global_key():
+    # sourcery skip: no-loop-in-tests
     # Prepare
     str_in_1 = "PLACEHOLDER000001"
     str_in_2 = "PLACEHOLDER000002"
@@ -209,6 +210,7 @@ def test_find_global_key():
 
 
 def test_order_keys():  # sourcery skip: avoid-builtin-shadow
+    # sourcery skip: no-loop-in-tests
     # Prepare
     str_1 = "string 1"
     str_2 = "string 2"

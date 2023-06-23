@@ -342,6 +342,7 @@ class TestParser:
 class TestCppParser:
     def test_extract_line_comments(self):
         # sourcery skip: avoid-builtin-shadow
+        # sourcery skip: no-loop-in-tests
         # Prepare
         dict = CppDict()
         parser = CppParser()
@@ -363,6 +364,7 @@ class TestCppParser:
 
     def test_extract_includes(self):
         # sourcery skip: avoid-builtin-shadow
+        # sourcery skip: no-loop-in-tests
         # Prepare
         dict = CppDict()
         parser = CppParser()
@@ -599,6 +601,7 @@ class TestCppParser:
 
     def test_separate_delimiters(self):
         # sourcery skip: avoid-builtin-shadow
+        # sourcery skip: no-loop-in-tests
         # Prepare
         dict = CppDict()
         parser = CppParser()
