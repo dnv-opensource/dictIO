@@ -1,13 +1,13 @@
 pytest>=7.3
 pytest-cov>=4.0
 pytest-randomly>=3.12
-black>=23.3
-ruff>=0.0.264
-pyright==1.1.305
-Sphinx>=6.2
+black[jupyter]>=23.3
+ruff>=0.0.275
+pyright==1.1.314
+Sphinx>=7.0
 sphinx-argparse-cli>=1.11
-myst-parser>=1.0
-furo>=2023.3.27
-sourcery>=1.2.0
+myst-parser>=2.0
+furo>=2023.5.20
+sourcery>=1.4.0
 
 -r requirements.txt
