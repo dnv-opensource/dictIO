@@ -1026,7 +1026,7 @@ class XmlFormatter(Formatter):
         xsd_uri: str = namespaces[prefixes[0]]
 
         attributes: MutableMapping[Any, Any] = {}
-        if root_attributes and isinstance(root_attributes, MutableMapping):
+        if root_attributes:
             for key, item in root_attributes.items():
                 attributes.update({key: item})
 
