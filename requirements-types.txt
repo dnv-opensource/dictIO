@@ -1,0 +1,2 @@
+types-lxml>=2023.3.28
+# lxml-stubs>=0.4.0

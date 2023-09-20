@@ -14,7 +14,7 @@ from typing import (
 )
 from xml.etree.ElementTree import Element
 
-from lxml.etree import ETCompatXMLParser, XMLParser, fromstring
+from lxml.etree import ETCompatXMLParser, fromstring
 
 from dictIO import CppDict
 from dictIO.utils.counter import BorgCounter
@@ -1427,7 +1427,7 @@ class XmlParser(Parser):
         root_tag: str = "NOTSPECIFIED"
 
         # Create XML parser
-        parser: XMLParser = ETCompatXMLParser()
+        parser = ETCompatXMLParser()
         # Read root element from XML string
         root_element: Element = fromstring(string.encode("utf-8"), parser)  # type: ignore
         # Read root tag from XML string
