@@ -7,6 +7,13 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 * -/-
 
+## [0.2.9] - 2023-09-20
+
+### Dependencies
+
+* Updated dependencies to latest versions
+
+
 ## [0.2.8] - 2023-06-22
 
 ### Changed
@@ -199,7 +206,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.8...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.9...HEAD
+[0.2.9]: https://github.com/dnv-opensource/dictIO/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/dnv-opensource/dictIO/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/dnv-opensource/dictIO/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/dnv-opensource/dictIO/compare/v0.2.5...v0.2.6
