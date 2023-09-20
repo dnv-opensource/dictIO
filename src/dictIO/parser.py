@@ -14,7 +14,7 @@ from typing import (
 )
 from xml.etree.ElementTree import Element
 
-from lxml.etree import ETCompatXMLParser, XMLParser, fromstring
+from lxml.etree import ETCompatXMLParser, fromstring
 
 from dictIO import CppDict
 from dictIO.utils.counter import BorgCounter
