@@ -41,7 +41,7 @@ jobs:
           pip list
 
       # Build documentation
-      - uses: ammaraskar/sphinx-problem-matcher@master
+      - uses: sphinx-doc/github-problem-matcher@master
       - name: Build documentation
         run: |
           cd docs

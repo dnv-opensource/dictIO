@@ -1,4 +1,3 @@
 lxml>=4.9
-lxml-stubs>=0.4.0
-jsonschema>=4.17
-numpy>=1.23
+jsonschema>=4.19
+numpy>=1.24
