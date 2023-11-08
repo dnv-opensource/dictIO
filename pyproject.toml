@@ -1,5 +1,5 @@
 [build-system]
-requires = ["lxml", "setuptools", "wheel"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
@@ -70,6 +70,7 @@ exclude = [
     "dist",
     "**/__pycache__",
     "./docs/source/conf.py",
+    "./venv",
 ]
 extraPaths = ["./src"]
 typeCheckingMode = "basic"
@@ -110,3 +111,4 @@ reportUntypedNamedTuple = "warning"
 testpaths = "tests"
 addopts = "--strict-markers"
 xfail_strict = true
+pythonpath = ["src"]

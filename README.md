@@ -13,6 +13,7 @@ Further, dictIO
 * can read and write also JSON, XML and OpenFOAM (with some limitations)
 
 ## Installation
+
 ```sh
 pip install dictIO
 ```
@@ -20,12 +21,12 @@ pip install dictIO
 ## Usage Example
 
 dictIO provides a simple, high level API that allows reading and writing Python dicts from/to dict files:
-~~~py
+```py
 from dictIO import DictReader, DictWriter
 
 my_dict = DictReader.read('myDict')
 DictWriter.write(my_dict, 'parsed.myDict')
-~~~
+```
 
 The above example reads a dict file, merges any (sub-)dicts included through #include directives, evaluates expressions contained in the dict,
 and finally saves the read and evaluated dict with prefix 'parsed' as 'parsed.myDict'.
@@ -33,16 +34,16 @@ and finally saves the read and evaluated dict with prefix 'parsed' as 'parsed.my
 This sequence of reading, evaluating and writing a dict is also called 'parsing' in dictIO.
 Because this task is so common, dictIO provides a convenience class for it:
 Using DictParser.parse() the above task can be accomplished in one line of code:
-~~~py
+```py
 from dictIO import DictParser
 
 DictParser.parse('myDict')
-~~~
+```
 
 The above task can also be invoked from the command line, using the 'dictParser' command line script installed with dictIO:
-~~~sh
+```sh
 dictParser myDict
-~~~
+```
 
 _For more examples and usage, please refer to dictIO's [documentation][dictIO_docs]._
 
@@ -56,43 +57,72 @@ _For a detailed documentation of the dict file format used by dictIO, see [File 
 
 ## Development Setup
 
-1. Install Python 3.9 or higher, i.e. [Python 3.9](https://www.python.org/downloads/release/python-3912/) or [Python 3.10](https://www.python.org/downloads/release/python-3104/)
+1. Install Python 3.9 or higher, i.e. [Python 3.10](https://www.python.org/downloads/release/python-3104/) or [Python 3.11](https://www.python.org/downloads/release/python-3114/)
 
 2. Update pip and setuptools:
 
-    ~~~sh
-    $ python -m pip install --upgrade pip setuptools
-    ~~~
+    ```sh
+    python -m pip install --upgrade pip setuptools
+    ```
 
 3. git clone the dictIO repository into your local development directory:
 
-    ~~~sh
+    ```sh
     git clone https://github.com/dnv-opensource/dictIO path/to/your/dev/dictIO
-    ~~~
+    ```
 
 4. In the dictIO root folder:
 
     Create a Python virtual environment:
-    ~~~sh
-    $ python -m venv .venv
-    ~~~
-    Activate the virtual environment: <br>
+
+    ```sh
+    python -m venv .venv
+    ```
+
+    Activate the virtual environment:
+
     ..on Windows:
-    ~~~sh
+
+    ```sh
     > .venv\Scripts\activate.bat
-    ~~~
+    ```
+
     ..on Linux:
-    ~~~sh
-    $ source .venv/bin/activate
-    ~~~
+
+    ```sh
+    source .venv/bin/activate
+    ```
+
     Update pip and setuptools:
-    ~~~sh
-    $ python -m pip install --upgrade pip setuptools
-    ~~~
+
+    ```sh
+    (.venv) $ python -m pip install --upgrade pip setuptools
+    ```
+
     Install dictIO's dependencies:
-    ~~~sh
-    $ pip install -r requirements-dev.txt
-    ~~~
+    ```sh
+    (.venv) $ pip install -r requirements-dev.txt
+    ```
+
+    This should return without errors.
+
+5. Setup your development environment to locate Python source codes:
+
+    For example, Visual Studio Code on Windows assumes the Python environment is specified in a `.env` file. <br>
+    If you are developing and running the Python code from VSCode, make sure to create a `.env` file in the mypackage root folder with below content. <br>
+    Set the path for `PROJ_DIR` to where your mypackage folder is on your system. <br>
+    _Note_: `.env` is part of `.gitignore`, such that you do not commit your `.env` file to the repository.
+
+    ```ini
+    PROJ_DIR=<path-to-mypackage-root-dir>
+    PYTHONPATH=${PROJ_DIR}/src
+    ```
+
+6. Test that the installation works (in the mypackage root folder):
+
+    ```sh
+    (.venv) $ pytest .
+    ```
 
 ## Meta
 
@@ -112,9 +142,9 @@ Distributed under the MIT license. See [LICENSE](LICENSE.md) for more informatio
 
 1. Fork it (<https://github.com/dnv-opensource/dictIO/fork>)
 2. Create your branch (`git checkout -b myBranchName`)
-3. Commit your changes (`git commit -am 'place your commit message here'`)
-4. Push to the branch (`git push origin myBranchName`)
-5. Create a new Pull Request
+3. Commit your changes (e.g. `git commit -m 'place a descriptive commit message here'`)
+4. Push to the branch (e.g. `git push origin myBranchName`)
+5. Create a new Pull Request in GitHub
 
 For your contribution, please make sure you follow the [STYLEGUIDE](STYLEGUIDE.md) before creating the Pull Request.
 

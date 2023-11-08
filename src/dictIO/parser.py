@@ -638,7 +638,7 @@ class CppParser(Parser):
 
             # Register the expression in .expressions
             expression = re.sub(r"\"", "", expression)
-            dict.expressions.update({index: {"expression": expression, "name": placeholder}})
+            dict.expressions |= {index: {"expression": expression, "name": placeholder}}
 
         # Step 2: Find references in .block_content (single references to key'd entries that are NOT in double quotes).
         search_pattern = r"\$\w[\w\[\]]+"

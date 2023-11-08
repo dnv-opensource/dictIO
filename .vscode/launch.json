@@ -7,31 +7,35 @@
         {
             "name": "Debug Unit Test",
             "type": "python",
-            "request": "test",
+            "request": "launch",
             "justMyCode": false,
+            "program": "${file}"
         },
         {
-            "name": "Python: Current File",
+            "name": "Python: Current File, cwd = file dir, envFile",
             "type": "python",
             "request": "launch",
-            "cwd": "${fileDirname}",
+            "cwd": "${fileDirname}", // working dir = dir where current file is
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true,
+            "justMyCode": false,
             "autoReload": {
                 "enable": true
-            }
+            },
+            "envFile": "${workspaceFolder}/.env" // specify where mvx is
         },
         {
-            "name": "Python: Current File, cwd = workspace root folder",
+            "name": "Python: Current File, cwd = workspace root folder, envFile",
             "type": "python",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}", // working dir = workspace (mvx) dir
             "program": "${file}",
             "console": "integratedTerminal",
             "autoReload": {
                 "enable": true
-            }
+            },
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env" // specify where mvx is
         },
         {
             "name": "dictParser test_dict",
@@ -46,7 +50,9 @@
             "console": "integratedTerminal",
             "autoReload": {
                 "enable": true
-            }
+            },
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env" // specify where mvx is
         },
         {
             "name": "dictParser include\\initialConditions",
@@ -61,7 +67,9 @@
             "console": "integratedTerminal",
             "autoReload": {
                 "enable": true
-            }
+            },
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env" // specify where mvx is
         },
         {
             "name": "dictParser test_dict .env",
@@ -77,7 +85,9 @@
             "console": "integratedTerminal",
             "autoReload": {
                 "enable": true
-            }
+            },
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env" // specify where mvx is
         },
     ]
 }
