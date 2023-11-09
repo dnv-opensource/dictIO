@@ -114,7 +114,7 @@ _For a detailed documentation of the dict file format used by dictIO, see [File 
     _Note_: `.env` is part of `.gitignore`, such that you do not commit your `.env` file to the repository.
 
     ```ini
-    PROJ_DIR=<path-to-mypackage-root-dir>
+    PROJ_DIR=<path-to-dictIO-root-dir>
     PYTHONPATH=${PROJ_DIR}/src
     ```
 

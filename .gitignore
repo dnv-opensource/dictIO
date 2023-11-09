@@ -131,6 +131,9 @@ dmypy.json
 # PyCharm
 .idea
 
+# modules
+modules.txt
+
 # VS Code Settings
 .vscode/*
 !.vscode/settings.json

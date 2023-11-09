@@ -22,7 +22,7 @@
             "autoReload": {
                 "enable": true
             },
-            "envFile": "${workspaceFolder}/.env" // specify where mvx is
+            "envFile": "${workspaceFolder}/.env" // specify where .env file is
         },
         {
             "name": "Python: Current File, cwd = workspace root folder, envFile",
@@ -35,7 +35,7 @@
                 "enable": true
             },
             "justMyCode": false,
-            "envFile": "${workspaceFolder}/.env" // specify where mvx is
+            "envFile": "${workspaceFolder}/.env" // specify where .env file is
         },
         {
             "name": "dictParser test_dict",
@@ -52,7 +52,7 @@
                 "enable": true
             },
             "justMyCode": false,
-            "envFile": "${workspaceFolder}/.env" // specify where mvx is
+            "envFile": "${workspaceFolder}/.env" // specify where .env file is
         },
         {
             "name": "dictParser include\\initialConditions",
@@ -69,7 +69,7 @@
                 "enable": true
             },
             "justMyCode": false,
-            "envFile": "${workspaceFolder}/.env" // specify where mvx is
+            "envFile": "${workspaceFolder}/.env" // specify where .env file is
         },
         {
             "name": "dictParser test_dict .env",
@@ -87,7 +87,7 @@
                 "enable": true
             },
             "justMyCode": false,
-            "envFile": "${workspaceFolder}/.env" // specify where mvx is
+            "envFile": "${workspaceFolder}/.env" // specify where .env file is
         },
     ]
 }
