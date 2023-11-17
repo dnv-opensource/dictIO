@@ -18,10 +18,10 @@
             "cwd": "${fileDirname}", // working dir = dir where current file is
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": false,
             "autoReload": {
                 "enable": true
             },
+            "justMyCode": false,
             "envFile": "${workspaceFolder}/.env" // specify where .env file is
         },
         {
@@ -75,7 +75,6 @@
             "name": "dictParser test_dict .env",
             "type": "python",
             "request": "launch",
-            "envFile": "${workspaceFolder}\\.env",
             "cwd": "${workspaceFolder}\\tests",
             "program": "${workspaceFolder}\\src\\dictIO\\cli\\dictParser.py",
             "args": [
