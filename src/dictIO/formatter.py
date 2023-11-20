@@ -396,7 +396,7 @@ class CppFormatter(Formatter):
         dict.data = sorted_data
 
         # Create the string representation of the dictionary in its basic structure.
-        s += self.format_dict(dict.data)
+        s += self.format_dict(dict.data)  # type: ignore
 
         # The following elements a CppDict's .data attribute
         # are usually still substituted by placeholders:

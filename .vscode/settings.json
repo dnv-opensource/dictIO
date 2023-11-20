@@ -1,4 +1,7 @@
 {
+    "terminal.integrated.env.windows": {
+        "PYTHONPATH": "${workspaceFolder}/src"
+    },
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.languageServer": "Pylance",
     "ruff.importStrategy": "fromEnvironment",
@@ -19,7 +22,9 @@
     "python.analysis.diagnosticSeverityOverrides": {},
     "python.analysis.indexing": true,
     "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoImportUserSymbols": true,
     "python.analysis.inlayHints.variableTypes": false,
     "python.analysis.inlayHints.functionReturnTypes": false,
     "python.analysis.inlayHints.pytestParameters": true,
+    "python.terminal.executeInFileDir": true,
 }
