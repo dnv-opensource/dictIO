@@ -248,21 +248,21 @@ def test_eval_expressions_with_included_numpy_expressions():
     dict_out = dict.data
     assert dict_out["keysContainingNumpyExpressions"]["npKeyA"] == 2
 
-    assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyB"], [[1, 1], [1, 1]])
+    assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyB"], [[1, 1], [1, 1]])  # type: ignore
 
     assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyC"], [2, 2, 2])
 
     assert_array_equal(
         dict_out["keysContainingNumpyExpressions"]["npKeyD"],
-        [[2, 0, 0], [0, 2, 0], [0, 0, 2]],
+        [[2, 0, 0], [0, 2, 0], [0, 0, 2]],  # type: ignore
     )
 
     assert_array_equal(
         dict_out["keysContainingNumpyExpressions"]["npKeyE"],
-        [[2, 0, 0], [0, 2, 0], [0, 0, 2]],
+        [[2, 0, 0], [0, 2, 0], [0, 0, 2]],  # type: ignore
     )
 
-    assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyZ"], [[0, 0, 0, 0]])
+    assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyZ"], [[0, 0, 0, 0]])  # type: ignore
 
 
 def test_reread_string_literals():
