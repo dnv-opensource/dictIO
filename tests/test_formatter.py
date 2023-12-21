@@ -48,6 +48,8 @@ class TestCppFormatter:
             r"C:\a\path\in\windows",
             r"C:/a/path/in/linux",
             "",
+            r'contains a "nested string" literal with double quotes',
+            r"contains a \"nested string\" literal with escaped double quotes",
         ],
     )
     def test_format_type_string_additional_single_quotes_expected(self, str_in: str):
@@ -65,6 +67,8 @@ class TestCppFormatter:
             "$keyword+1",
             "$keyword - 3.0",
             "$keyword1 * $keyword2",
+            r"contains a 'nested string' literal with single quotes",
+            r"contains a \'nested string\' literal with escaped single quotes",
         ],
     )
     def test_format_type_string_additional_double_quotes_expected(self, str_in: str):
