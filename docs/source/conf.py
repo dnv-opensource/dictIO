@@ -22,7 +22,7 @@ copyright = "2023, DNV. Frank Lumpitzsch, Claas Rostock, Seung Hyeon Yoo"
 author = "Frank Lumpitzsch, Claas Rostock, Seung Hyeon Yoo"
 
 # The full version, including alpha/beta/rc tags
-release = "0.2.9"
+release = "0.3.0"
 
 # -- General configuration ---------------------------------------------------
 
