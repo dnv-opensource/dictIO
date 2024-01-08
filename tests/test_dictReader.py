@@ -248,21 +248,21 @@ def test_eval_expressions_with_included_numpy_expressions():
     dict_out = dict.data
     assert dict_out["keysContainingNumpyExpressions"]["npKeyA"] == 2
 
-    assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyB"], [[1, 1], [1, 1]])
+    assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyB"], [[1, 1], [1, 1]])  # type: ignore
 
     assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyC"], [2, 2, 2])
 
     assert_array_equal(
         dict_out["keysContainingNumpyExpressions"]["npKeyD"],
-        [[2, 0, 0], [0, 2, 0], [0, 0, 2]],
+        [[2, 0, 0], [0, 2, 0], [0, 0, 2]],  # type: ignore
     )
 
     assert_array_equal(
         dict_out["keysContainingNumpyExpressions"]["npKeyE"],
-        [[2, 0, 0], [0, 2, 0], [0, 0, 2]],
+        [[2, 0, 0], [0, 2, 0], [0, 0, 2]],  # type: ignore
     )
 
-    assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyZ"], [[0, 0, 0, 0]])
+    assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyZ"], [[0, 0, 0, 0]])  # type: ignore
 
 
 def test_reread_string_literals():
@@ -521,6 +521,45 @@ def test_read_circular_includes_log_warning(caplog: LogCaptureFixture):
     assert len(caplog.records) == 1
     assert caplog.records[0].levelname == log_level_expected
     assert caplog.records[0].message == log_message_expected
+
+
+def test_read_strings_dict():
+    # sourcery skip: avoid-builtin-shadow
+    # Prepare
+    source_file = Path("test_strings_dict")
+    # Execute
+    dict = DictReader.read(source_file)
+    # Assert strings are parsed correctly
+    assert dict["subDict"]["string_00_dq_empty"] == ""
+    assert dict["subDict"]["string_01_sq_empty"] == ""
+    assert dict["subDict"]["string_02_dq_word"] == "string_02_dq_word"
+    assert dict["subDict"]["string_03_sq_word"] == "string_03_sq_word"
+    assert dict["subDict"]["string_04_dq_sq_word"] == r"quote('string_04_dq_sq_word')"
+    assert dict["subDict"]["string_05_dq_escsq_word"] == r"quote(\'string_05_dq_escsq_word\')"
+    assert dict["subDict"]["string_06_sq_dq_word"] == r'quote("string_06_sq_dq_word")'
+    assert dict["subDict"]["string_07_sq_escdq_word"] == r"quote(\"string_07_sq_escdq_word\")"
+
+
+def test_reread_strings_dict():
+    # sourcery skip: avoid-builtin-shadow
+    # Prepare
+    source_file = Path("test_strings_dict")
+    parsed_file = Path(f"parsed.{source_file.name}")
+    parsed_file.unlink(missing_ok=True)
+    # Execute
+    dict = DictReader.read(source_file)
+    DictWriter.write(dict, parsed_file)
+    assert parsed_file.exists()
+    # Assert strings are parsed correctly
+    reread_dict = DictReader.read(parsed_file)
+    assert reread_dict["subDict"]["string_00_dq_empty"] == ""
+    assert reread_dict["subDict"]["string_01_sq_empty"] == ""
+    assert reread_dict["subDict"]["string_02_dq_word"] == "string_02_dq_word"
+    assert reread_dict["subDict"]["string_03_sq_word"] == "string_03_sq_word"
+    assert reread_dict["subDict"]["string_04_dq_sq_word"] == r"quote('string_04_dq_sq_word')"
+    assert reread_dict["subDict"]["string_05_dq_escsq_word"] == r"quote(\'string_05_dq_escsq_word\')"
+    assert reread_dict["subDict"]["string_06_sq_dq_word"] == r'quote("string_06_sq_dq_word")'
+    assert reread_dict["subDict"]["string_07_sq_escdq_word"] == r"quote(\"string_07_sq_escdq_word\")"
 
 
 class SetupHelper:

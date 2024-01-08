@@ -7,6 +7,21 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 * -/-
 
+
+## [0.3.0] - 2024-01-08
+
+### Changed
+
+* Enabled recognition of strings with nested quotes in it (solves [#2](https://github.com/dnv-opensource/dictIO/issues/2))
+* GitHub workflows: Included Python 3.12 release version as standard, and Python 3.13.0a2 as "future" test.
+
+### Dependencies
+
+* updated to black[jupyter]==23.12  (from black[jupyter]==23.11)
+* updated to ruff==0.1.8  (from ruff==0.1.6)
+* updated to pyright==1.1.338  (from pyright==1.1.336)
+
+
 ## [0.2.9] - 2023-09-20
 
 ### Dependencies
@@ -206,7 +221,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.2.9...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/dnv-opensource/dictIO/compare/v0.2.9...v0.3.0
 [0.2.9]: https://github.com/dnv-opensource/dictIO/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/dnv-opensource/dictIO/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/dnv-opensource/dictIO/compare/v0.2.6...v0.2.7

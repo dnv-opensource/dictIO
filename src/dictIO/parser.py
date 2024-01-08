@@ -2,6 +2,7 @@ import logging
 import os
 import re
 from pathlib import Path
+from re import Match
 from typing import (
     Any,
     Dict,
@@ -313,7 +314,7 @@ class Parser:
 
     @staticmethod
     def remove_quotes_from_strings(
-        arg: Union[MutableMapping[Any, Any], MutableSequence[Any]]
+        arg: Union[MutableMapping[Any, Any], MutableSequence[Any]],
     ) -> Union[MutableMapping[Any, Any], MutableSequence[Any]]:
         """Remove quotes from multiple strings.
 
@@ -563,8 +564,87 @@ class CppParser(Parser):
         string_literals: List[str]
 
         # Step 1: Find single quoted string literals in .block_content
-        search_pattern = r"\'.*?\'"
-        string_literals = re.findall(search_pattern, dict.block_content, re.MULTILINE)
+        search_pattern = re.compile(
+            pattern=r"(?P<sq>((?<!\\)\\{8}')|((?<!\\)\\{6}')|((?<!\\)\\{4}')|((?<!\\)\\{2}')|(?<!\\)').*?(?P=sq)",
+            flags=re.MULTILINE,
+        )
+        single_quoted_matches: List[Match[str]] = list(re.finditer(search_pattern, dict.block_content))
+
+        # Step 2: Find double quoted string literals in .block_content
+        # Double quoted strings are identified as string literals only in case they do not contain a $ character.
+        # (double quoted strings containing a $ character are considered expressions, not string literals.)
+        search_pattern = re.compile(
+            pattern=r'(?P<dq>((?<!\\)\\{8}")|((?<!\\)\\{6}")|((?<!\\)\\{4}")|((?<!\\)\\{2}")|(?<!\\)").*?(?P=dq)',
+        )
+        double_quoted_matches: List[Match[str]] = []
+        for match in re.finditer(search_pattern, dict.block_content):
+            string_literal = match.string[match.start(0) : match.end(0)]
+            if "$" not in string_literal:
+                double_quoted_matches.append(match)
+
+        # Check for string literals nested inside another string literal
+
+        # Classify all single quoted string literals as to whether they are (also)
+        # found as a nested literal in any double quoted string literal, or not.
+        _single_quoted_string_literals_found_nested: List[str] = []
+        _single_quoted_string_literals_not_nested: List[str] = []
+        for single_quoted_match in single_quoted_matches:
+            single_quoted_string_literal: str = single_quoted_match.string[
+                single_quoted_match.start(0) : single_quoted_match.end(0)
+            ]
+            dq_start: int = single_quoted_match.start(0)
+            sq_start: int
+            sq_end: int
+            found_nested_in_double_quoted_match: bool = False
+            for double_quoted_match in double_quoted_matches:
+                sq_start = double_quoted_match.start(0)
+                sq_end = double_quoted_match.end(0)
+                if dq_start > sq_start and dq_start < sq_end:
+                    # sq match is inside dq match -> sq match is nested
+                    found_nested_in_double_quoted_match = True
+                    break
+            if found_nested_in_double_quoted_match:
+                _single_quoted_string_literals_found_nested.append(single_quoted_string_literal)
+            else:
+                _single_quoted_string_literals_not_nested.append(single_quoted_string_literal)
+
+        # Classify all double quoted string literals as to whether they are (also)
+        # found as a nested literal in any single quoted string literal, or not.
+        _double_quoted_string_literals_found_nested: List[str] = []
+        _double_quoted_string_literals_not_nested: List[str] = []
+        for double_quoted_match in double_quoted_matches:
+            double_quoted_string_literal: str = double_quoted_match.string[
+                double_quoted_match.start(0) : double_quoted_match.end(0)
+            ]
+            dq_start: int = double_quoted_match.start(0)
+            sq_start: int
+            sq_end: int
+            found_nested_in_single_quoted_match: bool = False
+            for single_quoted_match in single_quoted_matches:
+                sq_start = single_quoted_match.start(0)
+                sq_end = single_quoted_match.end(0)
+                if dq_start > sq_start and dq_start < sq_end:
+                    # dq match is inside sq match -> dq match is nested
+                    found_nested_in_single_quoted_match = True
+                    break
+            if found_nested_in_single_quoted_match:
+                _double_quoted_string_literals_found_nested.append(double_quoted_string_literal)
+            else:
+                _double_quoted_string_literals_not_nested.append(double_quoted_string_literal)
+
+        # For replacement of the string literals inside dict.block_content:
+        # Chain the different identified string literals in such a sequence that
+        # outer literals (i.e. those that are NOT found nested inside another literal)
+        # are replaced first.  String literals that were found (also) nested inside other literals
+        # are replaced last. The latter then would only replace occurences of these string literals
+        # where they are NOT nested (as the nested occurences are already replaced by
+        # the placeholders of the outer string literals they were nested in).
+        string_literals: List[str] = (
+            _single_quoted_string_literals_not_nested
+            + _double_quoted_string_literals_not_nested
+            + _single_quoted_string_literals_found_nested
+            + _double_quoted_string_literals_found_nested
+        )
         for string_literal in string_literals:
             index = self.counter()
             placeholder = "STRINGLITERAL%06i" % index
@@ -572,32 +652,10 @@ class CppParser(Parser):
             # Replace all occurances of the string literal in .block_content with the placeholder (STRINGLITERAL000000)
             # Note: For re.sub() to work properly we need to escape all special characters
             search_pattern = re.compile(re.escape(string_literal))
-            dict.block_content = re.sub(
-                search_pattern, placeholder, dict.block_content
-            )  # replace string literal in .block_content with placeholder
+            dict.block_content = re.sub(search_pattern, placeholder, dict.block_content)
 
             # Register the string literal in .string_literals
             dict.string_literals.update({index: __class__.remove_quotes_from_string(string_literal)})
-
-        # Step 2: Find double quoted string literals in .block_content
-        # Double quoted strings are identified as string literals only in case they do not contain a $ character.
-        # (double quoted strings containing a $ character are considered expressions, not string literals.)
-        search_pattern = r"\".*?\""
-        string_literals = re.findall(search_pattern, dict.block_content, re.MULTILINE)
-        for string_literal in string_literals:
-            if "$" not in string_literal:
-                index = self.counter()
-                placeholder = "STRINGLITERAL%06i" % index
-
-                # Replace all occurances of the string literal in .block_content with the placeholder (STRINGLITERAL000000)
-                # Note: For re.sub() to work properly we need to escape all special characters
-                search_pattern = re.compile(re.escape(string_literal))
-                dict.block_content = re.sub(
-                    search_pattern, placeholder, dict.block_content
-                )  # replace expression in .block_content with placeholder
-
-                # Register the string literal in .string_literals
-                dict.string_literals.update({index: __class__.remove_quotes_from_string(string_literal)})
 
         return
 
@@ -638,7 +696,7 @@ class CppParser(Parser):
 
             # Register the expression in .expressions
             expression = re.sub(r"\"", "", expression)
-            dict.expressions.update({index: {"expression": expression, "name": placeholder}})
+            dict.expressions |= {index: {"expression": expression, "name": placeholder}}
 
         # Step 2: Find references in .block_content (single references to key'd entries that are NOT in double quotes).
         search_pattern = r"\$\w[\w\[\]]+"

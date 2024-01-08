@@ -217,6 +217,8 @@ class Formatter:
                 return self.format_expression_string(arg)
         elif not arg:  # empty string
             return self.format_empty_string(arg)
+        elif re.search(r"[\"']", arg):  # contains a nested string
+            return self.format_string_with_nested_string(arg)
         elif re.search(r"[\s:/\\]", arg):  # contains spaces or path -> complex string
             return self.format_multi_word_string(arg)
         else:  # single word string
@@ -255,6 +257,23 @@ class Formatter:
             the formatted single word string
         """
         return arg
+
+    def format_string_with_nested_string(self, arg: str) -> str:
+        """Format a string that contains a nested string.
+
+        Note: Override this method for specific formatting of strings with nested strings when implementing a Formatter.
+
+        Parameters
+        ----------
+        arg : str
+            the string with a nested string to be formatted
+
+        Returns
+        -------
+        str
+            the formatted string with a nested string
+        """
+        return self.add_single_quotes(arg)
 
     def format_multi_word_string(self, arg: str) -> str:
         """Format a multi word string.
@@ -396,7 +415,7 @@ class CppFormatter(Formatter):
         dict.data = sorted_data
 
         # Create the string representation of the dictionary in its basic structure.
-        s += self.format_dict(dict.data)
+        s += self.format_dict(dict.data)  # type: ignore
 
         # The following elements a CppDict's .data attribute
         # are usually still substituted by placeholders:
@@ -607,6 +626,26 @@ class CppFormatter(Formatter):
         """
         return self.add_single_quotes(arg)
 
+    def format_string_with_nested_string(self, arg: str) -> str:
+        """Format a string that contains a nested string.
+
+        Parameters
+        ----------
+        arg : str
+            the string with a nested string to be formatted
+
+        Returns
+        -------
+        str
+            the formatted string with a nested string
+        """
+        if re.search(r'"', arg):
+            return self.add_single_quotes(arg)
+        elif re.search(r"'", arg):
+            return self.add_double_quotes(arg)
+        else:
+            raise ValueError(f"expected a string with a nested string. However, following string was passed in: {arg}")
+
     def format_multi_word_string(self, arg: str) -> str:
         """Format a multi word string.
 
@@ -800,6 +839,27 @@ class FoamFormatter(CppFormatter):
             the formatted empty string
         """
         return self.add_double_quotes(arg)
+
+    def format_string_with_nested_string(self, arg: str) -> str:
+        """Format a string that contains a nested string.
+
+        Parameters
+        ----------
+        arg : str
+            the string with a nested string to be formatted
+
+        Returns
+        -------
+        str
+            the formatted string with a nested string
+        """
+        if re.search(r'"', arg):
+            _arg: str = re.sub(r'"', '\\"', arg)
+            return self.add_double_quotes(_arg)
+        elif re.search(r"'", arg):
+            return self.add_double_quotes(arg)
+        else:
+            raise ValueError(f"expected a string with a nested string. However, following string was passed in: {arg}")
 
     def format_multi_word_string(self, arg: str) -> str:
         """Format a multi word string.

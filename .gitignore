@@ -3,18 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-#vi & emacs
-*~
-'#'*
-
-#packaging
-*.whl
-*.tar.gz
-
-
-#doxygen
-html/
-
 # C extensions
 *.so
 
@@ -140,6 +128,12 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# PyCharm
+.idea
+
+# modules
+modules.txt
+
 # VS Code Settings
 .vscode/*
 !.vscode/settings.json
@@ -147,3 +141,4 @@ dmypy.json
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
+
