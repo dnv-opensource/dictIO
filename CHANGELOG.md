@@ -8,7 +8,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * -/-
 
 
-## [0.3.0] - 2023-12-22
+## [0.3.0] - 2024-01-08
 
 ### Changed
 
