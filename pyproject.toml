@@ -111,4 +111,3 @@ reportUntypedNamedTuple = "warning"
 testpaths = "tests"
 addopts = "--strict-markers"
 xfail_strict = true
-pythonpath = ["src"]
