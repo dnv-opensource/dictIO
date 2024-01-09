@@ -211,7 +211,7 @@ class Formatter:
             the formatted string
         """
         if re.search(r"[$]", arg):
-            if re.search(r"^\$\w[\w\[\]]+$", arg):  # reference
+            if re.search(r"^\$\w[\w\[\]]*$", arg):  # reference
                 return self.format_reference_string(arg)
             else:  # expression
                 return self.format_expression_string(arg)
