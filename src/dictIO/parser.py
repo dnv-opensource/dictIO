@@ -699,7 +699,7 @@ class CppParser(Parser):
             dict.expressions |= {index: {"expression": expression, "name": placeholder}}
 
         # Step 2: Find references in .block_content (single references to key'd entries that are NOT in double quotes).
-        search_pattern = r"\$\w[\w\[\]]+"
+        search_pattern = r"\$\w[\w\[\]]*"
         while match := re.search(search_pattern, dict.block_content, re.MULTILINE):
             reference = match[0]
             index = self.counter()
@@ -1346,14 +1346,14 @@ class JsonParser(Parser):
         # References are denoted using the '$' syntax familiar from shell programming.
         # Any key'd entries in a dict are considered variables and can be referenced.
         # If string does not contain minimum one reference, return.
-        search_pattern = r"\$\w[\w\[\]]+"
+        search_pattern = r"\$\w[\w\[\]]*"
         references = re.findall(search_pattern, string, re.MULTILINE)
         if not references:
             return string
 
         # Case 1: Reference
         # The string contains only a single plain reference (single reference to a key'd entry in the parsed dict).
-        search_pattern = r"^\s*(\$\w[\w\[\]]+){1}\s*$"
+        search_pattern = r"^\s*(\$\w[\w\[\]]*){1}\s*$"
         if match := re.search(search_pattern, string, re.MULTILINE):
             reference: str = match.groups()[0]
             # Replace the reference in string with a placeholder (EXPRESSION000000) and register it in parsed_dict:

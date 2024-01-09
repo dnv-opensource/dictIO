@@ -384,7 +384,7 @@ def test_compare_expressions_in_dict_format_with_expressions_in_json_format():
 def _get_references_in_expressions(dict: CppDict) -> List[str]:
     references: List[str] = []
     for item in dict.expressions.values():
-        _refs: List[str] = re.findall(r"\$\w[\w\[\]]+", item["expression"])
+        _refs: List[str] = re.findall(r"\$\w[\w\[\]]*", item["expression"])
         references.extend(_refs)
     return references
 
@@ -560,6 +560,38 @@ def test_reread_strings_dict():
     assert reread_dict["subDict"]["string_05_dq_escsq_word"] == r"quote(\'string_05_dq_escsq_word\')"
     assert reread_dict["subDict"]["string_06_sq_dq_word"] == r'quote("string_06_sq_dq_word")'
     assert reread_dict["subDict"]["string_07_sq_escdq_word"] == r"quote(\"string_07_sq_escdq_word\")"
+
+
+def test_single_character_vars():
+    # sourcery skip: avoid-builtin-shadow
+    # Prepare
+    source_file = Path("test_single_character_vars_dict")
+    # Execute
+    dict = DictReader.read(source_file, includes=False)
+    # Assert single character variables are properly parsed
+    assert dict["a"] == 1.0
+    assert dict["b"] is True
+    assert dict["c"]["d"] == 4.0
+    assert dict["c"]["e"] is False
+
+
+def test_single_character_references():
+    # sourcery skip: avoid-builtin-shadow
+    # Prepare
+    source_file = Path("test_single_character_vars_dict")
+    # Execute
+    dict = DictReader.read(source_file)
+    # Assert included dict has been merged and single character references been resolved
+    assert dict["c"]["f"] == 6.0
+    assert dict["c"]["g"] is True
+    assert dict["c"]["h"] == 8.0
+    assert dict["c"]["i"] is False
+    assert dict["j"] == 10.0
+    assert dict["k"] == 12.0
+    assert dict["u"] == 3
+    assert dict["v"] == "Alice"
+    assert dict["w"] == "paragliding contest"
+    assert dict["ww"] == "AliceandBobfailtheparagliding contest"
 
 
 class SetupHelper:

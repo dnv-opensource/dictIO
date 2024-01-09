@@ -599,6 +599,92 @@ class TestCppParser:
         assert list(dict.expressions.values())[8]["name"][:10] == "EXPRESSION"
         assert list(dict.expressions.values())[8]["expression"] == "$varName1[1][2]"
 
+    def test_extract_single_character_expressions(self):
+        # sourcery skip: avoid-builtin-shadow
+        # Prepare
+        dict = CppDict()
+        parser = CppParser()
+        text_block_in = (
+            "This is a text block\n"
+            "with multiple lines. Within this text block, there are key value pairs where the value\n"
+            "is a string surrounded by double quotes and containing at least one reference to a variable starting with $.\n"
+            "Such strings are identified as expressions. Expressions will be evaluated by DictReader.\n"
+            "The following examples will be identified as expressions:\n"
+            "   reference1      $a\n"
+            "   reference2      $a[0]\n"
+            "   reference3      $a[1][2]\n"
+            '   expression1     "$a"\n'
+            '   expression2     "$b + 4"\n'
+            '   expression3     "4 + $b"\n'
+            '   expression4     "$b + $c" and some blabla thereafter\n'
+            '   expression5     "$a + $b + $c" and some blabla thereafter\n'
+            '   expression6     "$b + $c + $a" and some blabla thereafter\n'
+            "The following example will NOT be identified as expression but as string literal:\n"
+            "   string1         '$a is not an expression but a string literal because it is in single instead of double quotes'\n"
+            '   string2         "not an expression but a string literal as it does not contain a Dollar character"\n'
+            "_extract_expressions() will extract expressions and substitute them with a placeholder\n"
+            "in the form E X P R E S S I O N 0 0 0 0 0 0."
+            "The actual evaluation of an expression is not part of _extract_expressions(). The evaluation is done within ()."
+        )
+        text_block_expected = (
+            "This is a text block\n"
+            "with multiple lines. Within this text block, there are key value pairs where the value\n"
+            "is a string surrounded by double quotes and containing at least one reference to a variable starting with $.\n"
+            "Such strings are identified as expressions. Expressions will be evaluated by DictReader.\n"
+            "The following examples will be identified as expressions:\n"
+            "   reference1      EXPRESSION000000\n"
+            "   reference2      EXPRESSION000000\n"
+            "   reference3      EXPRESSION000000\n"
+            "   expression1     EXPRESSION000000\n"
+            "   expression2     EXPRESSION000000\n"
+            "   expression3     EXPRESSION000000\n"
+            "   expression4     EXPRESSION000000 and some blabla thereafter\n"
+            "   expression5     EXPRESSION000000 and some blabla thereafter\n"
+            "   expression6     EXPRESSION000000 and some blabla thereafter\n"
+            "The following example will NOT be identified as expression but as string literal:\n"
+            "   string1         STRINGLITERAL000000\n"
+            "   string2         STRINGLITERAL000000\n"
+            "_extract_expressions() will extract expressions and substitute them with a placeholder\n"
+            "in the form E X P R E S S I O N 0 0 0 0 0 0."
+            "The actual evaluation of an expression is not part of _extract_expressions(). The evaluation is done within ()."
+        )
+        dict.block_content = text_block_in
+        parser._extract_string_literals(dict)
+        # Execute
+        parser._extract_expressions(dict)
+        # Assert
+        text_block_out = re.sub(r"[0-9]{6}", "000000", dict.block_content)
+        assert text_block_out == text_block_expected
+        string_diff(text_block_out, text_block_expected)
+        assert len(dict.expressions) == 9
+
+        assert list(dict.expressions.values())[0]["name"][:10] == "EXPRESSION"
+        assert list(dict.expressions.values())[0]["expression"] == "$a"
+
+        assert list(dict.expressions.values())[1]["name"][:10] == "EXPRESSION"
+        assert list(dict.expressions.values())[1]["expression"] == "$b + 4"
+
+        assert list(dict.expressions.values())[2]["name"][:10] == "EXPRESSION"
+        assert list(dict.expressions.values())[2]["expression"] == "4 + $b"
+
+        assert list(dict.expressions.values())[3]["name"][:10] == "EXPRESSION"
+        assert list(dict.expressions.values())[3]["expression"] == "$b + $c"
+
+        assert list(dict.expressions.values())[4]["name"][:10] == "EXPRESSION"
+        assert list(dict.expressions.values())[4]["expression"] == "$a + $b + $c"
+
+        assert list(dict.expressions.values())[5]["name"][:10] == "EXPRESSION"
+        assert list(dict.expressions.values())[5]["expression"] == "$b + $c + $a"
+
+        assert list(dict.expressions.values())[6]["name"][:10] == "EXPRESSION"
+        assert list(dict.expressions.values())[6]["expression"] == "$a"
+
+        assert list(dict.expressions.values())[7]["name"][:10] == "EXPRESSION"
+        assert list(dict.expressions.values())[7]["expression"] == "$a[0]"
+
+        assert list(dict.expressions.values())[8]["name"][:10] == "EXPRESSION"
+        assert list(dict.expressions.values())[8]["expression"] == "$a[1][2]"
+
     def test_separate_delimiters(self):
         # sourcery skip: avoid-builtin-shadow
         # sourcery skip: no-loop-in-tests
