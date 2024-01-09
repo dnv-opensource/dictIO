@@ -1,0 +1,21 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+
+#include 'test_single_character_vars_paramDict'
+
+a    1.0;
+b    true;
+
+c
+{
+    d                     4.0;
+    e                     false;
+    f                     $x;
+    g                     $y;
+    h                     $h;
+    i                     $i;
+}
+
+j    $z;
+k    $k;
