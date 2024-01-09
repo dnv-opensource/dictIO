@@ -588,7 +588,10 @@ def test_single_character_references():
     assert dict["c"]["i"] is False
     assert dict["j"] == 10.0
     assert dict["k"] == 12.0
-
+    assert dict["u"] == 3
+    assert dict["v"] == "Alice"
+    assert dict["w"] == "paragliding contest"
+    #assert dict["ww"] == "AliceandBobfailtheparagliding contest"
 
 class SetupHelper:
     @staticmethod

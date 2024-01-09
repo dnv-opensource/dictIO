@@ -2,6 +2,8 @@
 filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
 \*----------------------------------------------------------------------------*/
 
+a             -1.0;
+b            false;
 x              6.0;
 y             true;
 h              8.0;
