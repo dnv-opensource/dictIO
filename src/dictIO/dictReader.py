@@ -211,7 +211,7 @@ class DictReader:
         # Collect all references contained in expressions
         _references: List[str] = []
         for item in dict.expressions.values():
-            _refs: List[str] = re.findall(r"\$\w[\w\[\]]+", item["expression"])
+            _refs: List[str] = re.findall(r"\$\w[\w\[\]]*", item["expression"])
             _references.extend(_refs)
         # Resolve references
         variables: Dict[str, Any] = dict.variables
@@ -233,7 +233,7 @@ class DictReader:
             for key, item in expressions_copy.items():
                 placeholder: str = item["name"]
                 expression: str = item["expression"]
-                _refs: List[str] = re.findall(r"\$\w[\w\[\]]+", expression)
+                _refs: List[str] = re.findall(r"\$\w[\w\[\]]*", expression)
                 for ref in _refs:
                     if ref in references_resolved:
                         expression = re.sub(
@@ -265,7 +265,7 @@ class DictReader:
             # At the end of each iteration, re-resolve all references based on the now updated variables table of dict
             _references = []
             for item in dict.expressions.values():
-                _refs = re.findall(r"\$\w[\w\[\]]+", item["expression"])
+                _refs = re.findall(r"\$\w[\w\[\]]*", item["expression"])
                 _references.extend(_refs)
             variables = dict.variables
             references = {ref: __class__._resolve_reference(ref, variables) for ref in _references}

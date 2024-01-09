@@ -1,0 +1,29 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+
+#include 'test_single_character_vars_paramDict'
+
+a    1.0;
+b    true;
+
+n  (0 1 2 3);
+m  (Alice and Bob fail the "paragliding contest");
+
+c
+{
+    d                     4.0;
+    e                     false;
+    f                     $x;
+    g                     $y;
+    h                     $h;
+    i                     $i;
+}
+
+j    $z;
+k    $k;
+
+u    $n[3];
+v    $m[0];
+w    $m[5];
+ww   "$m[0]$m[1]$m[2]$m[3]$m[4]$m[5]";
