@@ -8,6 +8,14 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * -/-
 
 
+## [0.3.1] - 2024-01-09
+
+### Solved
+
+* Solved a bug that led to single character references not being identified
+  (solves [#14](https://github.com/dnv-opensource/dictIO/issues/14)).
+
+
 ## [0.3.0] - 2024-01-08
 
 ### Changed
@@ -221,7 +229,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.3.0...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/dnv-opensource/dictIO/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/dnv-opensource/dictIO/compare/v0.2.9...v0.3.0
 [0.2.9]: https://github.com/dnv-opensource/dictIO/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/dnv-opensource/dictIO/compare/v0.2.7...v0.2.8
