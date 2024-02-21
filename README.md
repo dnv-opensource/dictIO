@@ -103,22 +103,14 @@ _For a detailed documentation of the dict file format used by dictIO, see [File 
     ```sh
     (.venv) $ pip install -r requirements-dev.txt
     ```
-
     This should return without errors.
 
-5. Setup your development environment to locate Python source codes:
-
-    For example, Visual Studio Code on Windows assumes the Python environment is specified in a `.env` file. <br>
-    If you are developing and running the Python code from VSCode, make sure to create a `.env` file in the mypackage root folder with below content. <br>
-    Set the path for `PROJ_DIR` to where your mypackage folder is on your system. <br>
-    _Note_: `.env` is part of `.gitignore`, such that you do not commit your `.env` file to the repository.
-
-    ```ini
-    PROJ_DIR=<path-to-dictIO-root-dir>
-    PYTHONPATH=${PROJ_DIR}/src
+    Finally, install dictIO itself, yet not as a regular package but as an _editable_ package instead, using the pip install option -e:
+    ```sh
+    (.venv) $ pip install -e .
     ```
 
-6. Test that the installation works (in the mypackage root folder):
+5. Test that the installation works (in the dictIO root folder):
 
     ```sh
     (.venv) $ pytest .
