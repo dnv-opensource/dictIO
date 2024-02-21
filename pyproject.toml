@@ -2,6 +2,57 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "dictIO"
+version = "0.3.2"
+description = "Python package to read, write and manipulate dictionary text files. Supports dictIOs dict file format, as well as JSON, XML and OpenFOAM."
+readme = "README.md"
+requires-python = ">= 3.9"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Frank Lumpitzsch", email = "frank.lumpitzsch@dnv.com"},
+    {name = "Claas Rostock", email = "claas.rostock@dnv.com"},
+]
+maintainers = [
+    {name = "Claas Rostock", email = "claas.rostock@dnv.com"},
+]
+keywords = []
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "lxml>=5.1",
+    "jsonschema>=4.20",
+    "numpy>=1.26",
+]
+
+[project.urls]
+Homepage = "https://github.com/dnv-opensource/dictIO"
+Documentation = "https://dnv-opensource.github.io/dictIO/README.html"
+Repository = "https://github.com/dnv-opensource/dictIO.git"
+Issues = "https://github.com/dnv-opensource/dictIO/issues"
+Changelog = "https://github.com/dnv-opensource/dictIO/blob/main/CHANGELOG.md"
+
+[project.scripts]
+dictIO = "dictIO.cli.dictParser:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["test*"]
+
 [tool.black]
 line-length = 120
 target-version = ["py39", "py310", "py311", "py312"]
@@ -17,6 +68,10 @@ exclude = [
     "./docs/source/conf.py",
 ]
 src = ["src"]
+line-length = 120
+target-version = "py39"
+
+[tool.ruff.lint]
 ignore = [
     "E501",  # Line length too long
     "D100",  # Missing docstring in public module
@@ -35,7 +90,6 @@ ignore = [
     # "N816",  # Variable in global scope should not be mixedCase  (uncomment if you want to allow mixedCase variable names in global scope)
     "N999",  # Invalid module name
     ]
-line-length = 120
 select = [
     "E",
     "D",
@@ -45,19 +99,18 @@ select = [
     "I",
     "B",
 ]
-target-version = "py39"
 
-[tool.ruff.pep8-naming]
+[tool.ruff.lint.pep8-naming]
 ignore-names = [
     "test_*",
     "setUp",
     "tearDown",
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["I001"]
 "./tests/*" = ["D"]
 
@@ -106,8 +159,3 @@ reportUntypedNamedTuple = "warning"
 # reportUnnecessaryTypeIgnoreComment = "information"
 # reportImportCycles = "warning"
 # reportImplicitStringConcatenation = "warning"
-
-[tool.pytest.ini_options]
-testpaths = "tests"
-addopts = "--strict-markers"
-xfail_strict = true

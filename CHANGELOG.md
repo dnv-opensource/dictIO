@@ -8,6 +8,30 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * -/-
 
 
+## [0.3.2] - 2024-02-21
+
+### Added
+* README.md : Under `Development Setup`, added a step to install current package in "editable" mode, using the pip install -e option.
+This removes the need to manually add /src to the PythonPath environment variable in order for debugging and tests to work.
+
+### Removed
+* VS Code settings: Removed the setting which added the /src folder to PythonPath. This is no longer necessary. Installing the project itself as a package in "editable" mode, using the pip install -e option, solves the issue and removes the need to manually add /src to the PythonPath environment variable.
+
+### Changed
+* Moved all project configuration from setup.cfg to pyproject.toml
+* Moved all tox configuration from setup.cfg to tox.ini.
+* Moved pytest configuration from pyproject.toml to pytest.ini
+* Deleted setup.cfg
+
+### Dependencies
+* updated to black[jupyter]==24.1  (from black[jupyter]==23.12)
+* updated to version: '==24.1'  (from version: '==23.12')
+* updated to ruff==0.2.1  (from ruff==0.1.8)
+* updated to pyright==1.1.350  (from pyright==1.1.338)
+* updated to sourcery==1.15  (from sourcery==1.14)
+* updated to lxml>=5.1  (from lxml>=4.9)
+
+
 ## [0.3.1] - 2024-01-09
 
 ### Solved
@@ -229,7 +253,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.3.1...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/dnv-opensource/dictIO/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/dnv-opensource/dictIO/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/dnv-opensource/dictIO/compare/v0.2.9...v0.3.0
 [0.2.9]: https://github.com/dnv-opensource/dictIO/compare/v0.2.8...v0.2.9

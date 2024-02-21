@@ -1,1 +1,1 @@
-types-lxml>=2023.10.21
+types-lxml>=5.1
