@@ -118,7 +118,7 @@ _For a detailed documentation of the dict file format used by dictIO, see [File 
 
 ## Meta
 
-Copyright (c) 2024 [DNV](https://www.dnv.com) [open source](https://github.com/dnv-opensource)
+Copyright (c) 2024 [DNV](https://www.dnv.com) SE. All rights reserved.
 
 Frank Lumpitzsch – [@LinkedIn](https://www.linkedin.com/in/frank-lumpitzsch-23013196/) – frank.lumpitzsch@dnv.com
 
@@ -133,9 +133,9 @@ Distributed under the MIT license. See [LICENSE](LICENSE.md) for more informatio
 ## Contributing
 
 1. Fork it (<https://github.com/dnv-opensource/dictIO/fork>)
-2. Create your branch (`git checkout -b myBranchName`)
-3. Commit your changes (e.g. `git commit -m 'place a descriptive commit message here'`)
-4. Push to the branch (e.g. `git push origin myBranchName`)
+2. Create your branch (`git checkout -b my-branch-name`)
+3. Commit your changes (`git commit -am 'place a descriptive commit message here'`)
+4. Push to the branch (`git push origin my-branch-name`)
 5. Create a new Pull Request in GitHub
 
 For your contribution, please make sure you follow the [STYLEGUIDE](STYLEGUIDE.md) before creating the Pull Request.
