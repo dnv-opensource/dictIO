@@ -15,10 +15,11 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../../src"))
 
+
 # -- Project information -----------------------------------------------------
 
 project = "dictIO"
-copyright = "2024, DNV. Frank Lumpitzsch, Claas Rostock, Seung Hyeon Yoo"
+copyright = "2024, DNV SE. All rights reserved."
 author = "Frank Lumpitzsch, Claas Rostock, Seung Hyeon Yoo"
 
 # The full version, including alpha/beta/rc tags
