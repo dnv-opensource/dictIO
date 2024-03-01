@@ -8,6 +8,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
 * Changed publishing workflow to use OpenID Connect (Trusted Publisher Management) when publishing to PyPI
 * Updated copyright statement
+* VS Code settings: Turned off automatic venv activation
 
 
 ## [0.3.3] - 2024-02-21
