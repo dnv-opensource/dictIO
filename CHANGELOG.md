@@ -5,6 +5,12 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
+### Dependencies
+* updated to ruff==0.3.0  (from ruff==0.2.1)
+* updated to pyright==1.1.352  (from pyright==1.1.350)
+* updated to numpy>=1.26,<2.0  (from numpy>=1.26
+)
+
 ### Changed
 * Changed publishing workflow to use OpenID Connect (Trusted Publisher Management) when publishing to PyPI
 * Updated copyright statement
