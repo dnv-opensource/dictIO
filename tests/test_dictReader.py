@@ -481,14 +481,14 @@ def test_read_dict_in_subfolder_parsed_via_dictparser_cli():
     parsed_file.unlink(missing_ok=True)
     parsed_file_foam.unlink(missing_ok=True)
     # Execute
-    _ = os.system(f"python -m dictIO.cli.dictParser --quiet {source_file}")
+    _ = os.system(f"dictParser --quiet {source_file}")
     # Assert
     assert parsed_file.exists()
     assert not parsed_file_foam.exists()
     # Clean up
     parsed_file.unlink()
     # Execute
-    _ = os.system(f"python -m dictIO.cli.dictParser --quiet --output=foam {source_file}")
+    _ = os.system(f"dictParser --quiet --output=foam {source_file}")
     # Assert
     assert not parsed_file.exists()
     assert parsed_file_foam.exists()

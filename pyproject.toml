@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dictIO"
-version = "0.3.3"
+version = "0.3.4"
 description = "Python package to read, write and manipulate dictionary text files. Supports dictIOs dict file format, as well as JSON, XML and OpenFOAM."
 readme = "README.md"
 requires-python = ">= 3.9"
@@ -34,9 +34,9 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "lxml>=5.1",
+    "lxml>=5.2",
     "jsonschema>=4.20",
-    "numpy>=1.26",
+    "numpy>=1.26,<2.0",
 ]
 
 [project.urls]
@@ -52,10 +52,6 @@ dictParser = "dictIO.cli.dictParser:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["test*"]
-
-[tool.black]
-line-length = 120
-target-version = ["py39", "py310", "py311", "py312"]
 
 [tool.ruff]
 exclude = [
@@ -113,6 +109,9 @@ convention = "numpy"
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["I001"]
 "./tests/*" = ["D"]
+
+[tool.ruff.format]
+docstring-code-format = true
 
 [tool.pyright]
 exclude = [
