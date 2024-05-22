@@ -5,6 +5,11 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
+* -/-
+
+
+## [0.3.4] - 2024-05-22
+
 ### Dependencies
 * updated to ruff==0.4.2  (from ruff==0.3.0)
 * updated to pyright==1.1.360  (from pyright==1.1.352)
@@ -284,7 +289,8 @@ This removes the need to manually add /src to the PythonPath environment variabl
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.3.3...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.3.4...HEAD
+[0.3.4]: https://github.com/dnv-opensource/dictIO/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/dnv-opensource/dictIO/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/dnv-opensource/dictIO/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/dnv-opensource/dictIO/compare/v0.3.0...v0.3.1
