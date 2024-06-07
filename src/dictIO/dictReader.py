@@ -3,7 +3,8 @@ import logging
 import os
 import re
 from copy import deepcopy
-
+from pathlib import Path
+from typing import Any, Dict, List, MutableMapping, MutableSequence, Union
 # Import from math all functions we want to allow inside expressions in a dict.
 # This is a bit ugly, but necessary to enable evaluation of parsed expressions with the help of eval().
 from math import (  # noqa: F401
@@ -22,11 +23,15 @@ from math import (  # noqa: F401
     sqrt,
     tan,
 )
-from pathlib import Path
-from typing import Any, Dict, List, MutableMapping, MutableSequence, Union
-
-from numpy import diag, eye, ndarray, ones, zeros  # noqa: F401
-
+from numpy import (  # noqa: F401
+    diag, 
+    eye,
+    ndarray, 
+    ones, 
+    zeros,
+    mean, 
+    std,
+)    
 from dictIO import CppDict, Parser
 from dictIO.utils.counter import DejaVue
 
@@ -245,9 +250,9 @@ class DictReader:
                 eval_successful: bool = False
                 eval_result: Union[Any, None] = None
                 if "$" not in expression:
+                    eval(expression)
                     try:
                         eval_result = eval(expression)
-                        eval_successful = True
                     except NameError:
                         eval_result = expression
                         eval_successful = True
