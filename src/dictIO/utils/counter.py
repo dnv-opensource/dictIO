@@ -1,6 +1,6 @@
-from typing import Dict, List
+from typing import Dict, List, Any
 
-__all__ = ["BorgCounter", "DejaVue"]
+__all__ = ["BorgCounter", "Indenter", "DejaVue"]
 
 
 class BorgCounter:
@@ -42,10 +42,14 @@ class Indenter:
     """
     A class that implements a static global indentation.
     Instances of this class all share the same global indentation.
-    This is used in logger class to assure a readable message hirarchy
+    This is used in logger class to assure a readable message hirarchy.
     """
 
-    Ind: Dict[str, int] = {"Indent": 0}
+    Ind: Dict[Any, Any] = {
+        "Indent": 0,
+        "TabSize": 4,
+        "TabChar": ' ',
+    }
 
     def __init__(
         self, 
@@ -53,20 +57,18 @@ class Indenter:
         tab_char: str = ' ',
     ):
         self.__dict__ = Indenter.Ind
-        Indenter.Ind.update({
-            'TabSize':tab_size, 
-            'TabChar':tab_char,
-        })
-        
-    def __call__(self) -> int:
-        """call does not increment and returns next value.
+        Indenter.Ind['TabSize'] = tab_size
+        Indenter.Ind['TabChar'] = tab_char
+
+    def __call__(self) -> str:
+        """Call does not increment and returns next value.
 
         Returns
         -------
         str
             indent string
         """
-        return str(Indenter.Ind["Indent"] * Indenter.Ind["TabSize"] * Indenter.Ind["TabChar"])
+        return ''.join([Indenter.Ind["TabChar"] for x in range(Indenter.Ind["Indent"] * Indenter.Ind["TabSize"])])
 
     @staticmethod
     def incr(increase: int=1):
