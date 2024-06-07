@@ -38,6 +38,52 @@ class BorgCounter:
         BorgCounter.Borg["theCount"] = -1
 
 
+class Indenter:
+    """
+    A class that implements a static global indentation.
+    Instances of this class all share the same global indentation.
+    This is used in logger class to assure a readable message hirarchy
+    """
+
+    Ind: Dict[str, int] = {"Indent": 0}
+
+    def __init__(
+        self, 
+        tab_size: int = 4,
+        tab_char: str = ' ',
+    ):
+        self.__dict__ = Indenter.Ind
+        Indenter.Ind.update({
+            'TabSize':tab_size, 
+            'TabChar':tab_char,
+        })
+        
+    def __call__(self) -> int:
+        """call does not increment and returns next value.
+
+        Returns
+        -------
+        str
+            indent string
+        """
+        return str(Indenter.Ind["Indent"] * Indenter.Ind["TabSize"] * Indenter.Ind["TabChar"])
+
+    @staticmethod
+    def incr(increase: int=1):
+        """Increase the Indent."""
+        Indenter.Ind["Indent"] += increase
+
+    @staticmethod
+    def decr(decrease: int=1):
+        """Decreas the Indent."""
+        Indenter.Ind["Indent"] -= decrease
+
+    @staticmethod
+    def reset():
+        """Reset the Indent."""
+        Indenter.Ind["Indent"] = 0
+        
+        
 class DejaVue:
     """A class that implements a static global registry of strings."""
 
