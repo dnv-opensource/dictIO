@@ -1,4 +1,4 @@
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 __all__ = ["BorgCounter", "Indenter", "DejaVue"]
 
@@ -48,17 +48,17 @@ class Indenter:
     Ind: Dict[Any, Any] = {
         "Indent": 0,
         "TabSize": 4,
-        "TabChar": ' ',
+        "TabChar": " ",
     }
 
     def __init__(
-        self, 
+        self,
         tab_size: int = 4,
-        tab_char: str = ' ',
+        tab_char: str = " ",
     ):
         self.__dict__ = Indenter.Ind
-        Indenter.Ind['TabSize'] = tab_size
-        Indenter.Ind['TabChar'] = tab_char
+        Indenter.Ind["TabSize"] = tab_size
+        Indenter.Ind["TabChar"] = tab_char
 
     def __call__(self) -> str:
         """Call does not increment and returns next value.
@@ -68,15 +68,15 @@ class Indenter:
         str
             indent string
         """
-        return ''.join([Indenter.Ind["TabChar"] for x in range(Indenter.Ind["Indent"] * Indenter.Ind["TabSize"])])
+        return "".join([Indenter.Ind["TabChar"] for _ in range(Indenter.Ind["Indent"] * Indenter.Ind["TabSize"])])
 
     @staticmethod
-    def incr(increase: int=1):
+    def incr(increase: int = 1):
         """Increase the Indent."""
         Indenter.Ind["Indent"] += increase
 
     @staticmethod
-    def decr(decrease: int=1):
+    def decr(decrease: int = 1):
         """Decreas the Indent."""
         Indenter.Ind["Indent"] -= decrease
 
@@ -84,8 +84,8 @@ class Indenter:
     def reset():
         """Reset the Indent."""
         Indenter.Ind["Indent"] = 0
-        
-        
+
+
 class DejaVue:
     """A class that implements a static global registry of strings."""
 
