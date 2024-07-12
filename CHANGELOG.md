@@ -10,7 +10,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * updated to pyright==1.1.371  (from pyright==1.1.371)
 * updated to setup-python@v5  (from setup-python@v5)
 * updated to actions-gh-pages@v4  (from actions-gh-pages@v4)
-* updated to upload-artifact@v4  (from upload-artifact@v3)
+* updated to upload-artifact@v4  (from upload-artifact@v4)
 
 * -/-
 
