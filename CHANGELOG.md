@@ -6,7 +6,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
-* updated to ruff==0.5.1  (from ruff==0.4.2)
+* updated to ruff==0.5.1  (from ruff==0.5.1)
 * updated to pyright==1.1.371  (from pyright==1.1.360)
 * updated to setup-python@v5  (from setup-python@v4)
 * updated to actions-gh-pages@v4  (from actions-gh-pages@v3)
@@ -18,7 +18,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [0.3.4] - 2024-05-22
 
 ### Dependencies
-* updated to ruff==0.4.2  (from ruff==0.2.1)
+* updated to ruff==0.5.1  (from ruff==0.5.1)
 * updated to pyright==1.1.360  (from pyright==1.1.350)
 * updated to sourcery==1.16  (from sourcery==1.15)
 * updated to lxml>=5.2  (from lxml>=5.1)
@@ -63,7 +63,7 @@ This removes the need to manually add /src to the PythonPath environment variabl
 ### Dependencies
 * updated to black[jupyter]==24.4  (from black[jupyter]==24.4)
 * updated to version: '==24.1'  (from version: '==24.4')
-* updated to ruff==0.2.1  (from ruff==0.1.8)
+* updated to ruff==0.5.1  (from ruff==0.5.1)
 * updated to pyright==1.1.350  (from pyright==1.1.338)
 * updated to sourcery==1.15  (from sourcery==1.14)
 * updated to lxml>=5.1  (from lxml>=4.9)
@@ -87,7 +87,7 @@ This removes the need to manually add /src to the PythonPath environment variabl
 ### Dependencies
 
 * updated to black[jupyter]==24.4  (from black[jupyter]==24.4)
-* updated to ruff==0.1.8  (from ruff==0.1.6)
+* updated to ruff==0.5.1  (from ruff==0.5.1)
 * updated to pyright==1.1.338  (from pyright==1.1.336)
 
 
