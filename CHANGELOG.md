@@ -8,7 +8,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Dependencies
 * updated to ruff==0.5.1  (from ruff==0.5.1)
 * updated to pyright==1.1.371  (from pyright==1.1.371)
-* updated to setup-python@v5  (from setup-python@v4)
+* updated to setup-python@v5  (from setup-python@v5)
 * updated to actions-gh-pages@v4  (from actions-gh-pages@v3)
 * updated to upload-artifact@v4  (from upload-artifact@v3)
 
@@ -177,7 +177,7 @@ This removes the need to manually add /src to the PythonPath environment variabl
 * requirements.txt: Updated dependencies to their most recent versions
 * GitHub actions (yml files): Updated following actions to their most recent versions:
     * checkout@v4 -> checkout@v4
-    * setup-python@v2 -> setup-python@v4
+    * setup-python@v5 -> setup-python@v5
     * cache@v2 -> cache@v3
 
 ### Added
