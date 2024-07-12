@@ -5,6 +5,13 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
+### Dependencies
+* updated to ruff==0.5.1  (from ruff==0.4.2)
+* updated to pyright==1.1.371  (from pyright==1.1.360)
+* updated to setup-python@v5  (from setup-python@v4)
+* updated to actions-gh-pages@v4  (from actions-gh-pages@v3)
+* updated to upload-artifact@v4  (from upload-artifact@v3)
+
 * -/-
 
 

@@ -8,14 +8,14 @@ jobs:
     name: ruff format
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip' # cache pip dependencies
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Install ruff
-        run: pip install ruff==0.4.2
+        run: pip install ruff==0.5.1
       - name: Run ruff format
         run: ruff format --diff .
 
@@ -24,14 +24,14 @@ jobs:
     name: ruff check
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip' # cache pip dependencies
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Install ruff
-        run: pip install ruff==0.4.2
+        run: pip install ruff==0.5.1
       - name: Run ruff check
         run: ruff check --diff .
 
@@ -40,7 +40,7 @@ jobs:
     name: pyright
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip' # cache pip dependencies
@@ -49,6 +49,6 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
       - name: Install pyright
-        run: pip install pyright==1.1.360
+        run: pip install pyright==1.1.371
       - name: Run pyright
         run: pyright .
