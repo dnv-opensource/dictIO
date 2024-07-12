@@ -29,7 +29,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * updated to sphinx-argparse-cli>=1.15  (from sphinx-argparse-cli>=1.11)
 * updated to myst-parser>=3.0  (from myst-parser>=2.0)
 * updated to furo>=2024.4  (from furo>=2023.9.10)
-* updated to numpy>=1.26,<2.0  (from numpy>=1.26)
+* updated to numpy>=1.26,<2.0  (from numpy>=1.26,<2.0)
 * removed black
 
 ### Changed
