@@ -6,11 +6,31 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
-* updated to ruff==0.5.1  (from ruff==0.4.2)
-* updated to pyright==1.1.371  (from pyright==1.1.360)
-* updated to setup-python@v5  (from setup-python@v4)
-* updated to actions-gh-pages@v4  (from actions-gh-pages@v3)
-* updated to upload-artifact@v4  (from upload-artifact@v3)
+* updated to black[jupyter]==24.4  (from black[jupyter]==24.1)
+* updated to version: '==24.4'  (from version: '==23.12')
+* updated to ruff==0.5.1  (from ruff==0.5.1)
+* updated to pyright==1.1.371  (from pyright==1.1.371)
+* updated to sourcery==1.21  (from sourcery==1.16)
+* updated to lxml>=5.2  (from lxml>=5.2)
+* updated to types-lxml>=2024.4  (from types-lxml>=2024.4)
+* updated to numpy>=1.26,<2.0  (from numpy>=1.26,<2.0)
+* updated to pytest>=8.2  (from pytest>=8.2)
+* updated to pytest-cov>=5.0  (from pytest-cov>=5.0)
+* updated to Sphinx>=7.3  (from Sphinx>=7.3)
+* updated to sphinx-argparse-cli>=1.16  (from sphinx-argparse-cli>=1.15)
+* updated to myst-parser>=3.0  (from myst-parser>=3.0)
+* updated to furo>=2024.5  (from furo>=2024.4)
+* updated to checkout@v4  (from checkout@v4)
+* updated to setup-python@v5  (from setup-python@v5)
+* updated to actions-gh-pages@v4  (from actions-gh-pages@v4)
+* updated to upload-artifact@v4  (from upload-artifact@v4)
+
+### Dependencies
+* updated to ruff==0.5.1  (from ruff==0.5.1)
+* updated to pyright==1.1.371  (from pyright==1.1.371)
+* updated to setup-python@v5  (from setup-python@v5)
+* updated to actions-gh-pages@v4  (from actions-gh-pages@v4)
+* updated to upload-artifact@v4  (from upload-artifact@v4)
 
 * -/-
 
@@ -18,18 +38,18 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [0.3.4] - 2024-05-22
 
 ### Dependencies
-* updated to ruff==0.4.2  (from ruff==0.2.1)
-* updated to pyright==1.1.360  (from pyright==1.1.350)
-* updated to sourcery==1.16  (from sourcery==1.15)
-* updated to lxml>=5.2  (from lxml>=5.1)
-* updated to types-lxml>=2024.4  (from types-lxml>=5.1)
-* updated to pytest>=8.2  (from pytest>=7.4)
-* updated to pytest-cov>=5.0  (from pytest-cov>=4.1)
-* updated to Sphinx>=7.3  (from Sphinx>=7.2)
-* updated to sphinx-argparse-cli>=1.15  (from sphinx-argparse-cli>=1.11)
-* updated to myst-parser>=3.0  (from myst-parser>=2.0)
-* updated to furo>=2024.4  (from furo>=2023.9.10)
-* updated to numpy>=1.26,<2.0  (from numpy>=1.26)
+* updated to ruff==0.5.1  (from ruff==0.5.1)
+* updated to pyright==1.1.371  (from pyright==1.1.371)
+* updated to sourcery==1.21  (from sourcery==1.21)
+* updated to lxml>=5.2  (from lxml>=5.2)
+* updated to types-lxml>=2024.4  (from types-lxml>=2024.4)
+* updated to pytest>=8.2  (from pytest>=8.2)
+* updated to pytest-cov>=5.0  (from pytest-cov>=5.0)
+* updated to Sphinx>=7.3  (from Sphinx>=7.3)
+* updated to sphinx-argparse-cli>=1.16  (from sphinx-argparse-cli>=1.16)
+* updated to myst-parser>=3.0  (from myst-parser>=3.0)
+* updated to furo>=2024.5  (from furo>=2024.5)
+* updated to numpy>=1.26,<2.0  (from numpy>=1.26,<2.0)
 * removed black
 
 ### Changed
@@ -61,12 +81,12 @@ This removes the need to manually add /src to the PythonPath environment variabl
 * Deleted setup.cfg
 
 ### Dependencies
-* updated to black[jupyter]==24.1  (from black[jupyter]==23.12)
-* updated to version: '==24.1'  (from version: '==23.12')
-* updated to ruff==0.2.1  (from ruff==0.1.8)
-* updated to pyright==1.1.350  (from pyright==1.1.338)
-* updated to sourcery==1.15  (from sourcery==1.14)
-* updated to lxml>=5.1  (from lxml>=4.9)
+* updated to black[jupyter]==24.4  (from black[jupyter]==24.4)
+* updated to version: '==24.1'  (from version: '==24.4')
+* updated to ruff==0.5.1  (from ruff==0.5.1)
+* updated to pyright==1.1.371  (from pyright==1.1.371)
+* updated to sourcery==1.21  (from sourcery==1.21)
+* updated to lxml>=5.2  (from lxml>=5.2)
 
 
 ## [0.3.1] - 2024-01-09
@@ -86,9 +106,9 @@ This removes the need to manually add /src to the PythonPath environment variabl
 
 ### Dependencies
 
-* updated to black[jupyter]==23.12  (from black[jupyter]==23.11)
-* updated to ruff==0.1.8  (from ruff==0.1.6)
-* updated to pyright==1.1.338  (from pyright==1.1.336)
+* updated to black[jupyter]==24.4  (from black[jupyter]==24.4)
+* updated to ruff==0.5.1  (from ruff==0.5.1)
+* updated to pyright==1.1.371  (from pyright==1.1.371)
 
 
 ## [0.2.9] - 2023-09-20
@@ -176,8 +196,8 @@ This removes the need to manually add /src to the PythonPath environment variabl
 * VS Code settings: Updated to use black as formatter
 * requirements.txt: Updated dependencies to their most recent versions
 * GitHub actions (yml files): Updated following actions to their most recent versions:
-    * checkout@v1 -> checkout@v3
-    * setup-python@v2 -> setup-python@v4
+    * checkout@v4 -> checkout@v4
+    * setup-python@v5 -> setup-python@v5
     * cache@v2 -> cache@v3
 
 ### Added
