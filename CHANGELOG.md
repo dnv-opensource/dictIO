@@ -6,6 +6,26 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
+* updated to black[jupyter]==24.4  (from black[jupyter]==24.1)
+* updated to version: '==24.4'  (from version: '==23.12')
+* updated to ruff==0.5.1  (from ruff==0.5.1)
+* updated to pyright==1.1.371  (from pyright==1.1.371)
+* updated to sourcery==1.21  (from sourcery==1.16)
+* updated to lxml>=5.2  (from lxml>=5.2)
+* updated to types-lxml>=2024.4  (from types-lxml>=2024.4)
+* updated to numpy>=1.26,<2.0  (from numpy>=1.26,<2.0)
+* updated to pytest>=8.2  (from pytest>=8.2)
+* updated to pytest-cov>=5.0  (from pytest-cov>=5.0)
+* updated to Sphinx>=7.3  (from Sphinx>=7.3)
+* updated to sphinx-argparse-cli>=1.16  (from sphinx-argparse-cli>=1.15)
+* updated to myst-parser>=3.0  (from myst-parser>=3.0)
+* updated to furo>=2024.5  (from furo>=2024.4)
+* updated to checkout@v4  (from checkout@v4)
+* updated to setup-python@v5  (from setup-python@v5)
+* updated to actions-gh-pages@v4  (from actions-gh-pages@v4)
+* updated to upload-artifact@v4  (from upload-artifact@v4)
+
+### Dependencies
 * updated to ruff==0.5.1  (from ruff==0.5.1)
 * updated to pyright==1.1.371  (from pyright==1.1.371)
 * updated to setup-python@v5  (from setup-python@v5)
