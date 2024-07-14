@@ -6,6 +6,16 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
+* GitHub workflows: Replaced pip install tox with pip install tox-uv
+* GitHub workflows: Removed cache: 'pip' for tox-uv compatibility
+* GitHub workflows: Install dependencies: change singleline run statements to multiline run statements
+* GitHub workflows: Add step to install 'uv' package
+* GitHub workflows: Add step to install 'uv' package
+* GitHub workflows: Install dependencies: change from 'pip install' to 'uv pip install'
+* GitHub workflow _test_future.yml : updated Python version to 3.13.0-alpha - 3.13.0
+* GitHub workflow _test_future.yml : updated name of test job to 'test313'
+
+### Dependencies
 * updated to ruff==0.5.1  (from ruff==0.4.2)
 * updated to pyright==1.1.371  (from pyright==1.1.360)
 * updated to setup-python@v5  (from setup-python@v4)
