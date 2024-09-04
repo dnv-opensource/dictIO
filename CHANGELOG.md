@@ -6,6 +6,9 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
+* Updated to download-artifact@v4  (from download-artifact@v3)
+
+### Dependencies
 * GitHub workflows: Replaced pip install tox with pip install tox-uv
 * GitHub workflows: Removed cache: 'pip' for tox-uv compatibility
 * GitHub workflows: Install dependencies: change singleline run statements to multiline run statements
