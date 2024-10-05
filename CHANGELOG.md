@@ -6,6 +6,17 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
+* Updated to ruff>=0.6.3  (from ruff==0.5.1)
+* Updated to pyright>=1.1.378  (from pyright==1.1.371)
+* Updated to sourcery>=1.22  (from sourcery==1.21)
+* Updated to pytest>=8.3  (from pytest>=8.2)
+* Updated to Sphinx>=8.0  (from Sphinx>=7.3)
+* Updated to sphinx-argparse-cli>=1.17  (from sphinx-argparse-cli>=1.16)
+* Updated to myst-parser>=4.0  (from myst-parser>=3.0)
+* Updated to furo>=2024.8  (from furo>=2024.5)
+* GitHub workflows: Install dependencies: change from 'pip install' to 'uv pip install'
+
+### Dependencies
 * Updated to download-artifact@v4  (from download-artifact@v3)
 
 ### Dependencies
