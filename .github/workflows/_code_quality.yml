@@ -60,6 +60,6 @@ jobs:
           uv pip install --system pytest
       - name: Install pyright
         run: |
-          uv pip install --system pyright==1.1.371
+          uv pip install --system pyright>=1.1.378
       - name: Run pyright
         run: pyright .
