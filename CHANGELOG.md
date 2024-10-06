@@ -5,39 +5,35 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
+### Changed
+* Changed from `pip`/`tox` to `uv` as package manager
+* README.md : Completely rewrote section "Development Setup", introducing `uv` as package manager.
+* Changed publishing workflow to use OpenID Connect (Trusted Publisher Management) when publishing to PyPI
+* Updated copyright statement
+* VS Code settings: Turned off automatic venv activation
+* Replaced black formatter with ruff formatter
+
+### Added
+* Added `mypy` as static type checker (in addition to `pyright`)
+
+### GitHub workflows
+* (all workflows): Adapted to use `uv` as package manager
+* _test_future.yml : updated Python version to 3.13.0-alpha - 3.13.0
+* _test_future.yml : updated name of test job to 'test313'
+
 ### Dependencies
-* Updated to ruff>=0.6.3  (from ruff==0.5.1)
-* Updated to pyright>=1.1.378  (from pyright==1.1.371)
-* Updated to sourcery>=1.22  (from sourcery==1.21)
+* Updated to ruff>=0.6.3  (from ruff==0.4.2)
+* Updated to pyright>=1.1.378  (from pyright==1.1.360)
+* Updated to sourcery>=1.22  (from sourcery==1.16)
 * Updated to pytest>=8.3  (from pytest>=8.2)
 * Updated to Sphinx>=8.0  (from Sphinx>=7.3)
 * Updated to sphinx-argparse-cli>=1.17  (from sphinx-argparse-cli>=1.16)
 * Updated to myst-parser>=4.0  (from myst-parser>=3.0)
 * Updated to furo>=2024.8  (from furo>=2024.5)
-* GitHub workflows: Install dependencies: change from 'pip install' to 'uv pip install'
-
-### Dependencies
-* Updated to download-artifact@v4  (from download-artifact@v3)
-
-### Dependencies
-* GitHub workflows: Replaced pip install tox with pip install tox-uv
-* GitHub workflows: Removed cache: 'pip' for tox-uv compatibility
-* GitHub workflows: Install dependencies: change singleline run statements to multiline run statements
-* GitHub workflows: Add step to install 'uv' package
-* GitHub workflows: Add step to install 'uv' package
-* GitHub workflows: Install dependencies: change from 'pip install' to 'uv pip install'
-* GitHub workflow _test_future.yml : updated Python version to 3.13.0-alpha - 3.13.0
-* GitHub workflow _test_future.yml : updated name of test job to 'test313'
-
-### Dependencies
-* updated to ruff==0.5.1  (from ruff==0.4.2)
-* updated to pyright==1.1.371  (from pyright==1.1.360)
 * updated to setup-python@v5  (from setup-python@v4)
 * updated to actions-gh-pages@v4  (from actions-gh-pages@v3)
 * updated to upload-artifact@v4  (from upload-artifact@v3)
-* updated to black[jupyter]==24.4  (from black[jupyter]==23.12)
-* updated to version: '==24.4'  (from version: '==23.12')
-* updated to sourcery==1.21  (from sourcery==1.16)
+* Updated to download-artifact@v4  (from download-artifact@v3)
 * updated to checkout@v4  (from checkout@v3)
 
 

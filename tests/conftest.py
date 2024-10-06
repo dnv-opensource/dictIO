@@ -1,20 +1,18 @@
 import logging
 import os
-from glob import glob
 from pathlib import Path
 from shutil import rmtree
 
 import pytest
-from pytest import LogCaptureFixture
 
 
 @pytest.fixture(scope="package", autouse=True)
-def chdir():
+def chdir() -> None:
     os.chdir(Path(__file__).parent.absolute() / "test_dicts")
 
 
 @pytest.fixture(scope="package", autouse=True)
-def test_dir():
+def test_dir() -> Path:
     return Path(__file__).parent.absolute()
 
 
@@ -25,27 +23,27 @@ output_files = [
 
 
 @pytest.fixture(autouse=True)
-def default_setup_and_teardown(caplog: LogCaptureFixture):
+def default_setup_and_teardown():
     _remove_output_dirs_and_files()
     yield
     _remove_output_dirs_and_files()
 
 
-def _remove_output_dirs_and_files():
+def _remove_output_dirs_and_files() -> None:
     for folder in output_dirs:
         rmtree(folder, ignore_errors=True)
     for pattern in output_files:
-        for file in glob(pattern):
-            file = Path(file)
-            file.unlink(missing_ok=True)
+        for file in Path.cwd().glob(pattern):
+            _file = Path(file)
+            _file.unlink(missing_ok=True)
 
 
 @pytest.fixture(autouse=True)
-def setup_logging(caplog: LogCaptureFixture):
+def setup_logging(caplog: pytest.LogCaptureFixture) -> None:
     caplog.set_level("INFO")
     caplog.clear()
 
 
 @pytest.fixture(autouse=True)
-def logger():
+def logger() -> logging.Logger:
     return logging.getLogger()

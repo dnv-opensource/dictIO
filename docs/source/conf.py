@@ -1,7 +1,9 @@
+# ruff: noqa
+# mypy: ignore-errors
+
 # Configuration file for the Sphinx documentation builder.
 #
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
+# For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 # -- Path setup --------------------------------------------------------------
@@ -10,13 +12,14 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath("../../src"))
+sys.path.insert(0, str(Path("../../src").absolute()))
 
 
 # -- Project information -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "dictIO"
 copyright = "2024, DNV SE. All rights reserved."
@@ -26,15 +29,17 @@ author = "Frank Lumpitzsch, Claas Rostock, Seung Hyeon Yoo"
 release = "0.3.4"
 
 # -- General configuration ---------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx_argparse_cli",
+    "sphinx.ext.mathjax",
+    "matplotlib.sphinxext.plot_directive",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.todo",
 ]
 
 # The file extensions of source files.
@@ -51,19 +56,14 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+
 # -- Options for HTML output -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
+html_title = f"dictIO {release}"
 html_theme = "furo"
-html_logo = "_static/dictIO.svg"
-
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
-
+html_logo = "_static/dictIO.svg"
 autodoc_default_options = {
     "member-order": "bysource",
     "undoc-members": True,

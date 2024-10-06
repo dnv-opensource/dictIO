@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: Debug Tests",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "purpose": [
@@ -19,37 +19,35 @@
             "autoReload": {
                 "enable": true
             },
-            "justMyCode": false,
+            "justMyCode": true,
         },
         {
-            "name": "Python: Current File, cwd = file dir, envFile",
-            "type": "python",
+            "name": "Python: Current File, cwd = file dir",
+            "type": "debugpy",
             "request": "launch",
             "cwd": "${fileDirname}", // working dir = dir where current file is
             "program": "${file}",
             "console": "integratedTerminal",
+            "justMyCode": true,
             "autoReload": {
                 "enable": true
             },
-            "justMyCode": false,
-            "envFile": "${workspaceFolder}/.env" // specify where .env file is
         },
         {
-            "name": "Python: Current File, cwd = workspace root folder, envFile",
-            "type": "python",
+            "name": "Python: Current File, cwd = workspace root folder",
+            "type": "debugpy",
             "request": "launch",
-            "cwd": "${workspaceFolder}", // working dir = workspace (mvx) dir
+            "cwd": "${workspaceFolder}", // working dir = workspace root folder
             "program": "${file}",
             "console": "integratedTerminal",
             "autoReload": {
                 "enable": true
             },
-            "justMyCode": false,
-            "envFile": "${workspaceFolder}/.env" // specify where .env file is
+            "justMyCode": true,
         },
         {
             "name": "dictParser test_dict",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}\\tests",
             "program": "${workspaceFolder}\\src\\dictIO\\cli\\dictParser.py",
@@ -61,12 +59,11 @@
             "autoReload": {
                 "enable": true
             },
-            "justMyCode": false,
-            "envFile": "${workspaceFolder}/.env" // specify where .env file is
+            "justMyCode": true,
         },
         {
             "name": "dictParser include\\initialConditions",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}\\tests",
             "program": "${workspaceFolder}\\src\\dictIO\\cli\\dictParser.py",
@@ -78,12 +75,11 @@
             "autoReload": {
                 "enable": true
             },
-            "justMyCode": false,
-            "envFile": "${workspaceFolder}/.env" // specify where .env file is
+            "justMyCode": true,
         },
         {
-            "name": "dictParser test_dict .env",
-            "type": "python",
+            "name": "dictParser test_dict",
+            "type": "debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}\\tests",
             "program": "${workspaceFolder}\\src\\dictIO\\cli\\dictParser.py",
@@ -95,8 +91,7 @@
             "autoReload": {
                 "enable": true
             },
-            "justMyCode": false,
-            "envFile": "${workspaceFolder}/.env" // specify where .env file is
+            "justMyCode": true,
         },
     ]
 }
