@@ -1,15 +1,15 @@
 # pyright: reportPrivateUsage=false
 import sys
 from argparse import ArgumentError
+from collections.abc import MutableSequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, MutableSequence, Union
 
 import pytest
-from pytest import MonkeyPatch
 
-from dictIO import DictParser
 from dictIO.cli.dictParser import _argparser, _validate_scope, main
+from dictIO.dictParser import DictParser
+from dictIO.types import TKey
 
 # *****Test commandline interface (CLI)************************************************************
 
@@ -19,15 +19,15 @@ class CliArgs:
     # Expected default values for the CLI arguments when dictParser gets called via the commandline
     quiet: bool = False
     verbose: bool = False
-    log: Union[str, None] = None
+    log: str | None = None
     log_level: str = "WARNING"
 
-    dict: Union[str, None] = "test_dictParser_dict"
+    dict: str | None = "test_dictParser_dict"
     ignore_includes: bool = False
     mode: str = "w"
     order: bool = False
     ignore_comments: bool = False
-    scope: Union[str, None] = None
+    scope: str | None = None
     output: str = "cpp"
 
 
@@ -78,14 +78,14 @@ class CliArgs:
     ],
 )
 def test_cli(
-    inputs: List[str],
-    expected: Union[CliArgs, type],
-    monkeypatch: MonkeyPatch,
+    inputs: list[str],
+    expected: CliArgs | type,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     # sourcery skip: no-conditionals-in-tests
     # sourcery skip: no-loop-in-tests
     # Prepare
-    monkeypatch.setattr(sys, "argv", ["dictParser"] + inputs)
+    monkeypatch.setattr(sys, "argv", ["dictParser", *inputs])
     parser = _argparser()
     # Execute
     if isinstance(expected, CliArgs):
@@ -100,7 +100,7 @@ def test_cli(
         with pytest.raises((exception, SystemExit)):
             args = parser.parse_args()
     else:
-        raise AssertionError()
+        raise AssertionError
 
 
 # *****Ensure the CLI correctly invokes the API****************************************************
@@ -114,8 +114,8 @@ class ApiArgs:
     mode: str = "w"
     order: bool = False
     comments: bool = True
-    scope: Union[MutableSequence[str], None] = None
-    output: Union[str, None] = "cpp"
+    scope: MutableSequence[TKey] | None = None
+    output: str | None = "cpp"
 
 
 @pytest.mark.parametrize(
@@ -156,24 +156,25 @@ class ApiArgs:
     ],
 )
 def test_invoke_api(
-    inputs: List[str],
-    expected: Union[ApiArgs, type],
-    monkeypatch: MonkeyPatch,
+    inputs: list[str],
+    expected: ApiArgs | type,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     # sourcery skip: no-conditionals-in-tests
     # sourcery skip: no-loop-in-tests
     # Prepare
-    monkeypatch.setattr(sys, "argv", ["dictParser"] + inputs)
+    monkeypatch.setattr(sys, "argv", ["dictParser", *inputs])
     args: ApiArgs = ApiArgs()
 
     def fake_parse(
         source_file: Path,
+        *,
         includes: bool = True,
         mode: str = "w",
         order: bool = False,
         comments: bool = True,
-        scope: Union[MutableSequence[str], None] = None,
-        output: Union[str, None] = None,
+        scope: MutableSequence[TKey] | None = None,
+        output: str | None = None,
     ):
         args.source_file = source_file
         args.includes = includes
@@ -197,18 +198,18 @@ def test_invoke_api(
         with pytest.raises((exception, SystemExit)):
             main()
     else:
-        raise AssertionError()
+        raise AssertionError
 
 
 # *****Test _validate_scope() helper function******************************************************
 
 
-def test_validate_scope():
+def test_validate_scope() -> None:
     # Vary scope to different types and each time test whether setOptions works as expected
-
+    scope_in: str | list[str] | int | None
     # None
     scope_in = None
-    scope_out = _validate_scope(scope_in)  # type: ignore
+    scope_out = _validate_scope(scope_in)
     assert scope_out is None
 
     # empty string -> should be returned as a one-element list
@@ -263,5 +264,5 @@ def test_validate_scope():
 
     # int  -> should not be accepted and result in None
     scope_in = 1
-    scope_out = _validate_scope(scope_in)  # type: ignore
+    scope_out = _validate_scope(scope_in)
     assert scope_out is None

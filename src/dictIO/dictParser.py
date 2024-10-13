@@ -1,9 +1,10 @@
 import logging
 import os
+from collections.abc import MutableSequence
 from pathlib import Path
-from typing import MutableSequence, Union
 
 from dictIO import CppDict, DictReader, DictWriter, create_target_file_name
+from dictIO.types import TKey
 
 __ALL__ = ["DictParser"]
 
@@ -17,19 +18,20 @@ class DictParser:
     DictParser.parse() combines the operations of DictReader.read() and DictWriter.write() .
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         return
 
     @staticmethod
     def parse(
-        source_file: Union[str, os.PathLike[str]],
+        source_file: str | os.PathLike[str],
+        *,
         includes: bool = True,
         mode: str = "w",
         order: bool = False,
         comments: bool = True,
-        scope: Union[MutableSequence[str], None] = None,
-        output: Union[str, None] = None,
-    ) -> Union[CppDict, None]:
+        scope: MutableSequence[TKey] | None = None,
+        output: str | None = None,
+    ) -> CppDict | None:
         """Parse a dictionary file and save it with prefix 'parsed.'.
 
         DictParser.parse() combines the otherwise atomic operations
@@ -72,7 +74,6 @@ class DictParser:
         FileNotFoundError
             if source_file does not exist
         """
-
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
         source_file = source_file if isinstance(source_file, Path) else Path(source_file)
         if not source_file.exists():
@@ -90,7 +91,12 @@ class DictParser:
             scope=scope,
         )
         # Create filename for the parsed dict
-        target_file = create_target_file_name(source_file, "parsed", scope, output)
+        target_file = create_target_file_name(
+            source_file=source_file,
+            prefix="parsed",
+            scope=scope,
+            output=output,
+        )
         # Save the parsed dict as a default dict file
         DictWriter.write(
             source_dict=parsed_dict,

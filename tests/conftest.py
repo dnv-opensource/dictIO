@@ -16,8 +16,8 @@ def test_dir() -> Path:
     return Path(__file__).parent.absolute()
 
 
-output_dirs = []
-output_files = [
+output_dirs: list[str] = []
+output_files: list[str] = [
     "parsed.*",
 ]
 

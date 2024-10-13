@@ -1,7 +1,7 @@
 import re
 from copy import deepcopy
 from pathlib import Path, PurePath
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
@@ -9,10 +9,11 @@ from dictIO import CppDict, DictReader, DictWriter, FoamParser, create_target_fi
 from dictIO.utils.counter import BorgCounter
 
 
-def test_write_dict():
+def test_write_dict() -> None:
+    # sourcery skip: extract-duplicate-method
     # Prepare
     target_file: Path = Path("temp_file_test_write_dict")
-    test_dict: Dict[str, Any] = {
+    test_dict: dict[str, Any] = {
         "param1": -10.0,
         "param2": 0.0,
         "param3": 0.0,
@@ -21,7 +22,7 @@ def test_write_dict():
             "_level": 1,
             "_no_of_samples": 108,
             "_index": 0,
-            "_path": r"C:\Users\CLAROS\Documents\SystemSimulation\ModelVerification\tools\farn\test\cases\gp_0\lhsvar_000",
+            "_path": r"C:\Users\CLAROS\Documents\SystemSimulation\ModelVerification\tools\farn\test\cases\gp_0\lhsvar_000",  # noqa: E501
             "_key": "lhsvar_000",
             "_is_leaf": False,
             "_condition": None,
@@ -30,7 +31,17 @@ def test_write_dict():
             "_commands": {"ls": ["echo %PATH%", "dir"]},
         },
     }
-    test_str: str = r"/*---------------------------------*- C++ -*----------------------------------*\ filetype dictionary; coding utf-8; version 0.1; local --; purpose --; \*----------------------------------------------------------------------------*/ param1 -10.0; param2 0.0; param3 0.0; _case { _layer lhsvar; _level 1; _no_of_samples 108; _index 0; _path 'C:\Users\CLAROS\Documents\SystemSimulation\ModelVerification\tools\farn\test\cases\gp_0\lhsvar_000'; _key lhsvar_000; _is_leaf false; _condition NULL; _names ( param1 param2 param3 ); _values ( -10.0 0.0 0.0 ); _commands { ls ( 'echo %PATH%' dir ); } } "
+    test_str: str = (
+        r"/*---------------------------------*- C++ -*----------------------------------*\ "
+        r"filetype dictionary; coding utf-8; version 0.1; local --; purpose --; "
+        r"\*----------------------------------------------------------------------------*/ "
+        r"param1 -10.0; param2 0.0; param3 0.0; "
+        r"_case { _layer lhsvar; _level 1; _no_of_samples 108; _index 0; "
+        r"_path 'C:\Users\CLAROS\Documents\SystemSimulation\ModelVerification\tools\farn\test\cases\gp_0\lhsvar_000'; "
+        r"_key lhsvar_000; _is_leaf false; _condition NULL; "
+        r"_names ( param1 param2 param3 ); _values ( -10.0 0.0 0.0 ); "
+        r"_commands { ls ( 'echo %PATH%' dir ); } } "
+    )
     test_cpp_dict: CppDict = CppDict()
     test_cpp_dict.update(test_dict)
 
@@ -68,7 +79,8 @@ def test_write_dict():
     target_file.unlink()
 
 
-def test_write_mode():
+def test_write_mode() -> None:
+    # sourcery skip: extract-duplicate-method
     # Prepare
     source_file = Path("test_dictWriter_dict")
     target_file = Path(f"parsed.{source_file}")
@@ -100,7 +112,10 @@ def test_write_mode():
 
 
 @pytest.mark.parametrize("includes", [False, True])
-def test_read_dict_write_dict(includes: bool):
+def test_read_dict_write_dict(
+    *,
+    includes: bool,
+) -> None:
     # Prepare
     source_file = Path("test_dictWriter_dict")
     target_file = Path(f"parsed.{source_file.name}")
@@ -117,7 +132,7 @@ def test_read_dict_write_dict(includes: bool):
     target_file.unlink()
 
 
-def test_read_dict_write_dict_target_file_given_as_str():
+def test_read_dict_write_dict_target_file_given_as_str() -> None:
     # Prepare
     source_file = Path("test_dictWriter_dict")
     target_file = Path.cwd().absolute() / "parsed.test_dictWriter_dict"
@@ -135,7 +150,7 @@ def test_read_dict_write_dict_target_file_given_as_str():
     target_file.unlink()
 
 
-def test_read_dict_write_dict_target_file_given_as_purepath():
+def test_read_dict_write_dict_target_file_given_as_purepath() -> None:
     # Prepare
     source_file = Path("test_dictWriter_dict")
     target_file = Path.cwd().absolute() / "parsed.test_dictWriter_dict"
@@ -154,7 +169,10 @@ def test_read_dict_write_dict_target_file_given_as_purepath():
 
 
 @pytest.mark.parametrize("includes", [False, True])
-def test_read_dict_write_abc(includes: bool):
+def test_read_dict_write_abc(
+    *,
+    includes: bool,
+) -> None:
     # sourcery skip: class-extract-method
     # Prepare
     source_file = Path("test_dictWriter_dict")
@@ -176,7 +194,10 @@ def test_read_dict_write_abc(includes: bool):
 
 
 @pytest.mark.parametrize("includes", [False, True])
-def test_read_dict_write_cpp(includes: bool):
+def test_read_dict_write_cpp(
+    *,
+    includes: bool,
+) -> None:
     # sourcery skip: class-extract-method
     # Prepare
     source_file = Path("test_dictWriter_dict")
@@ -198,7 +219,10 @@ def test_read_dict_write_cpp(includes: bool):
 
 
 @pytest.mark.parametrize("includes", [False, True])
-def test_read_dict_write_foam(includes: bool):
+def test_read_dict_write_foam(
+    *,
+    includes: bool,
+) -> None:
     # sourcery skip: class-extract-method
     # Prepare
     source_file = Path("test_dictWriter_dict")
@@ -211,7 +235,8 @@ def test_read_dict_write_foam(includes: bool):
     DictWriter.write(dict_read, target_file_foam)
     dict_reread = DictReader.read(target_file_foam, includes=includes, comments=False)
     # Assert
-    # (The 'FoamFile' element is foam dicts specific. Before comparison with the original cpp dict, we need to delete it.)
+    # (The 'FoamFile' element is foam dicts specific.
+    #  Before comparison with the original cpp dict, we need to delete it.)
     del dict_reread["FoamFile"]
     assert not target_file.exists()
     assert target_file_foam.exists()
@@ -229,12 +254,17 @@ def test_read_dict_write_foam(includes: bool):
 @pytest.mark.skip(
     reason=(
         "XmlParser and XmlFormatter do not support yet all dict elements.\n"
-        "E.g. the XMLFormatter does currently not support writing None / NULL values. This causes this test to fail,\n"
-        "as the None values in the source file (test_dictWriter_dict) are not persisted in XML and get hence lost on rereading."
+        "E.g. the XMLFormatter does currently not support writing None / NULL values. "
+        "This causes this test to fail,\n"
+        "as the None values in the source file (test_dictWriter_dict) "
+        "are not persisted in XML and get hence lost on rereading."
     )
 )
 @pytest.mark.parametrize("includes", [False, True])
-def test_read_dict_write_xml(includes: bool):
+def test_read_dict_write_xml(
+    *,
+    includes: bool,
+) -> None:
     # sourcery skip: class-extract-method
     # Prepare
     source_file = Path("test_dictWriter_dict")
@@ -256,7 +286,10 @@ def test_read_dict_write_xml(includes: bool):
 
 
 @pytest.mark.parametrize("includes", [False, True])
-def test_read_dict_write_json(includes: bool):
+def test_read_dict_write_json(
+    *,
+    includes: bool,
+) -> None:
     # sourcery skip: class-extract-method
     # Prepare
     source_file = Path("test_dictWriter_dict")
@@ -278,7 +311,10 @@ def test_read_dict_write_json(includes: bool):
 
 
 @pytest.mark.parametrize("includes", [False, True])
-def test_read_foam_write_foam(includes: bool):
+def test_read_foam_write_foam(
+    *,
+    includes: bool,
+) -> None:
     # Prepare
     source_file = Path("test_dictWriter_foam")
     target_file = Path(f"parsed.{source_file}.foam")
@@ -297,7 +333,10 @@ def test_read_foam_write_foam(includes: bool):
 
 
 @pytest.mark.parametrize("includes", [False, True])
-def test_read_xml_write_xml(includes: bool):
+def test_read_xml_write_xml(
+    *,
+    includes: bool,
+) -> None:
     # Prepare
     source_file = Path("test_dictWriter_xml.xml")
     target_file = Path(f"parsed.{source_file}")
@@ -317,7 +356,10 @@ def test_read_xml_write_xml(includes: bool):
 
 
 @pytest.mark.parametrize("includes", [False, True])
-def test_read_json_write_json(includes: bool):
+def test_read_json_write_json(
+    *,
+    includes: bool,
+) -> None:
     # Prepare
     source_file = Path("test_dictWriter_json.json")
     target_file = Path(f"parsed.{source_file}")
@@ -346,7 +388,7 @@ class TestCreateTargetFileName:
             "xml",
         ],
     )
-    def test_file_ending(self, file_ending: str):
+    def test_file_ending(self, file_ending: str) -> None:
         # Prepare
         file_name = f"someDictFile.{file_ending}" if file_ending else "someDictFile"
         source_file = Path(file_name)
@@ -367,17 +409,17 @@ class TestCreateTargetFileName:
             ("notdefinedformat", ""),
         ],
     )
-    def test_output_format_file_ending(self, output_format: str, file_ending: str):
+    def test_output_format_file_ending(self, output_format: str, file_ending: str) -> None:
         # Prepare
         source_file = Path("someDictFile")
         assert_file_name = f"someDictFile.{file_ending}" if file_ending else "someDictFile"
         assert_file = Path(assert_file_name)
         # Execute
-        target_file = create_target_file_name(source_file, format=output_format)
+        target_file = create_target_file_name(source_file, output=output_format)
         # Assert
         assert target_file == assert_file
 
-    def test_target_file_does_not_contain_double_prefix(self):
+    def test_target_file_does_not_contain_double_prefix(self) -> None:
         # Prepare
         source_file = Path("test_dictWriter_dict")
         target_file_expected = Path("prefix.test_dictWriter_dict")

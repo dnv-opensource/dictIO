@@ -1,5 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -16,34 +17,34 @@ from dictIO import (
 
 
 @pytest.fixture()
-def test_dict():
+def test_dict() -> CppDict:
     parser = CppParser()
     return parser.parse_file(Path("test_dict_dict"))
 
 
-def test_init():  # sourcery skip: avoid-builtin-shadow
-    dict = CppDict()
-    assert dict.source_file is None
-    assert dict.path == Path.cwd()
-    assert dict.name == ""
-    assert dict.line_content == []
-    assert dict.line_comments == {}
-    assert dict.includes == {}
-    assert dict.block_content == ""
-    assert dict.block_comments == {}
-    assert dict.string_literals == {}
-    assert dict.expressions == {}
+def test_init() -> None:  # sourcery skip: avoid-builtin-shadow
+    test_dict = CppDict()
+    assert test_dict.source_file is None
+    assert test_dict.path == Path.cwd()
+    assert test_dict.name == ""
+    assert test_dict.line_content == []
+    assert test_dict.line_comments == {}
+    assert test_dict.includes == {}
+    assert test_dict.block_content == ""
+    assert test_dict.block_comments == {}
+    assert test_dict.string_literals == {}
+    assert test_dict.expressions == {}
     # assert dict.delimiters == ['{','}','[',']','(',')','<','>',';',',']
-    assert dict.delimiters == ["{", "}", "(", ")", "<", ">", ";", ","]
+    assert test_dict.delimiters == ["{", "}", "(", ")", "<", ">", ";", ","]
 
 
-def test_init_with_file():  # sourcery skip: avoid-builtin-shadow
-    dict = CppDict("someDict")
-    assert dict.path == Path.cwd()
-    assert dict.source_file == Path.cwd() / "someDict"
+def test_init_with_file() -> None:  # sourcery skip: avoid-builtin-shadow
+    test_dict = CppDict("someDict")
+    assert test_dict.path == Path.cwd()
+    assert test_dict.source_file == Path.cwd() / "someDict"
 
 
-def test_find_global_key():
+def test_find_global_key() -> None:
     # sourcery skip: no-loop-in-tests
     # Prepare
     str_in_1 = "PLACEHOLDER000001"
@@ -87,7 +88,7 @@ def test_find_global_key():
     ldl_nested = [deepcopy(dl_nested)]
 
     # Construct a dictionary dict_in with single entries, nested dicts and nested lists
-    dict_in = {
+    dict_in: dict[str, Any] = {
         key_1: str_in_1,
         key_2: str_in_2,
         key_3: str_in_3,
@@ -209,7 +210,7 @@ def test_find_global_key():
     assert dict_out[keyldl][0][keyl][2] == str_out_3
 
 
-def test_order_keys():  # sourcery skip: avoid-builtin-shadow
+def test_order_keys() -> None:  # sourcery skip: avoid-builtin-shadow
     # sourcery skip: no-loop-in-tests
     # Prepare
     str_1 = "string 1"
@@ -235,7 +236,7 @@ def test_order_keys():  # sourcery skip: avoid-builtin-shadow
         key_n_1: not_a_str_1,
         key_n_2: not_a_str_2,
     }
-    dict_in = {
+    dict_in: dict[str, Any] = {
         key_3: str_3,
         key_1: str_1,
         key_2: str_2,
@@ -247,8 +248,8 @@ def test_order_keys():  # sourcery skip: avoid-builtin-shadow
     keys_expected = [key_1, key_2, key_3, key_4, key_n_1, key_n_2, key_n_3]
     keys_expected_nested = [key_1, key_2, key_3, key_n_1, key_n_2, key_n_3]
 
-    dict = CppDict()
-    dict.data.update(deepcopy(dict_in))
+    cpp_dict = CppDict()
+    cpp_dict.data.update(deepcopy(dict_in))
 
     # 1. negative test: assert dict_in is not alphanumerically ordered
     for index, key in enumerate(dict_in):
@@ -257,13 +258,13 @@ def test_order_keys():  # sourcery skip: avoid-builtin-shadow
         assert key != keys_expected_nested[index]
 
     # 2. negative test: assert dict is not alphanumerically ordered
-    for index, key in enumerate(dict.data):
+    for index, key in enumerate(cpp_dict.data):
         assert key != keys_expected[index]
-    for index, key in enumerate(dict.data[key_4]):
+    for index, key in enumerate(cpp_dict.data[key_4]):
         assert key != keys_expected_nested[index]
 
     dict_out = order_keys(dict_in)  # order_keys function defined in dict.py module
-    dict.order_keys()  # order_keys instance method of CppDict class
+    cpp_dict.order_keys()  # order_keys instance method of CppDict class
 
     # 1. positive test for dict_out: assert dict_out is alphanumerically ordered
     for index, key in enumerate(dict_out):
@@ -272,13 +273,13 @@ def test_order_keys():  # sourcery skip: avoid-builtin-shadow
         assert key == keys_expected_nested[index]
 
     # 2. positive test for dict: assert dict.data is alphanumerically ordered
-    for index, key in enumerate(dict.data):
+    for index, key in enumerate(cpp_dict.data):
         assert key == keys_expected[index]
-    for index, key in enumerate(dict.data[key_4]):
+    for index, key in enumerate(cpp_dict.data[key_4]):
         assert key == keys_expected_nested[index]
 
 
-def test_order_keys_of_test_dict(test_dict: CppDict):
+def test_order_keys_of_test_dict(test_dict: CppDict) -> None:
     # Prepare
     # Execute
     test_dict.order_keys()
@@ -286,7 +287,7 @@ def test_order_keys_of_test_dict(test_dict: CppDict):
     assert str(test_dict.data["unordered"]) == str(test_dict.data["ordered"])
 
 
-def test_reduce_scope_of_test_dict(test_dict: CppDict):
+def test_reduce_scope_of_test_dict(test_dict: CppDict) -> None:
     # Prepare
     scope = ["scope", "subscope1"]
     # Execute
@@ -298,7 +299,7 @@ def test_reduce_scope_of_test_dict(test_dict: CppDict):
     assert dict_out["subscope12"]["name"] == "subscope12"
 
 
-def test_include():
+def test_include() -> None:
     # Prepare
     source_dict_file = Path("test_dict_add_include")
     param_dict_file = Path("test_dict_paramDict")

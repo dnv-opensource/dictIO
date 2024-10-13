@@ -20,6 +20,13 @@ select = [
     "ALL",
 ]
 ignore = [
+    # Ruff lint rules temporarily ignored, but which should be reactivated and resolved in the future.
+    "D",       # Missing docstrings   <- @TODO: reactivate and resolve docstring issues  @CLAROS, 2024-10-11
+    "N999",    # Invalid module name   <- @TODO: reactivate and resolve  @CLAROS, 2024-10-11
+    "C901",    # Function is too complex   <- @TODO: reactivate and resolve print statements  @CLAROS, 2024-09-22
+    "PLR0911", # Too many return statements   <- @TODO: reactivate and resolve  @CLAROS, 2024-10-11
+    "PLR0912", # Too many branches   <- @TODO: reactivate and resolve  @CLAROS, 2024-10-11
+    "PLR0915", # Too many statements   <- @TODO: reactivate and resolve  @CLAROS, 2024-10-11
     # Ruff lint rules considered as too strict and hence ignored
     "ANN101",  # Missing type annotation for `self` argument in instance methods (NOTE: also listed as deprecated by Ruff)
     "ANN102",  # Missing type annotation for `cls` argument in class methods (NOTE: also listed as deprecated by Ruff)
@@ -108,6 +115,8 @@ raises-require-match-for = [
     "INP001",  # File is part of an implicit namespace package. Add an `__init__.py`. (NOTE: tests are not intended to be a module, __init__.py hence not required.)
     "SLF001",  # Private member accessed
     "TRY004",  # Prefer `TypeError` exception for invalid type
+    "PLR0915", # Too many statements
+    "RUF015",  # Prefer `next(iter({Sequence))` over single element slice
 ]
 # `stubs` specific ignores
 "stubs/**/*" = [

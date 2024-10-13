@@ -1,11 +1,12 @@
 # pyright: reportPrivateUsage=false
+# pyright: reportUnnecessaryTypeIgnoreComment=false
+# ruff: noqa: T201, E501
 import re
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Any
 
 import pytest
-from pytest import LogCaptureFixture
 
 from dictIO import CppDict, CppParser, Parser, XmlParser
 from dictIO.utils.counter import BorgCounter
@@ -15,10 +16,10 @@ from dictIO.utils.strings import string_diff
 class TestParser:
     # @TODO: To be implemented
     @pytest.mark.skip(reason="To be implemented")
-    def test_get_parser(self):
+    def test_get_parser(self) -> None:
         pass
 
-    def test_file_not_found_exception(self):
+    def test_file_not_found_exception(self) -> None:
         # Prepare
         parser = Parser()
         source_file = Path("this_file_does_not_exist")
@@ -26,7 +27,7 @@ class TestParser:
         with pytest.raises(FileNotFoundError):
             _ = parser.parse_file(source_file)
 
-    def test_remove_quotes_from_string(self):
+    def test_remove_quotes_from_string(self) -> None:
         str_in_1 = "'a string with single quotes'"
         str_in_2 = '"a string with double quotes"'
         str_in_3 = "'a string with 'inside' quotes'"
@@ -46,23 +47,23 @@ class TestParser:
         assert str_out_4 == 'a string with "inside" double quotes'
 
         # Test with argument 'all' = True
-        str_out_1 = Parser.remove_quotes_from_string(str_in_1, all=True)
+        str_out_1 = Parser.remove_quotes_from_string(str_in_1, all_quotes=True)
         assert str_out_1 == "a string with single quotes"
-        str_out_2 = Parser.remove_quotes_from_string(str_in_2, all=True)
+        str_out_2 = Parser.remove_quotes_from_string(str_in_2, all_quotes=True)
         assert str_out_2 == "a string with double quotes"
-        str_out_3 = Parser.remove_quotes_from_string(str_in_3, all=True)
+        str_out_3 = Parser.remove_quotes_from_string(str_in_3, all_quotes=True)
         assert str_out_3 == "a string with inside quotes"
-        str_out_4 = Parser.remove_quotes_from_string(str_in_4, all=True)
+        str_out_4 = Parser.remove_quotes_from_string(str_in_4, all_quotes=True)
         assert str_out_4 == "a string with inside double quotes"
 
         with pytest.raises(TypeError):
-            Parser.remove_quotes_from_string(not_a_str_1)  # type: ignore
+            _ = Parser.remove_quotes_from_string(not_a_str_1)  # type: ignore[arg-type, reportArgumentType]
         with pytest.raises(TypeError):
-            Parser.remove_quotes_from_string(not_a_str_2)  # type: ignore
+            _ = Parser.remove_quotes_from_string(not_a_str_2)  # type: ignore[arg-type, reportArgumentType]
         with pytest.raises(TypeError):
-            Parser.remove_quotes_from_string(not_a_str_3)  # type: ignore
+            _ = Parser.remove_quotes_from_string(not_a_str_3)  # type: ignore[arg-type, reportArgumentType]
 
-    def test_remove_quotes_from_strings(self):
+    def test_remove_quotes_from_strings(self) -> None:
         str_in_1 = "'a string with single quotes'"
         str_in_2 = '"a string with double quotes"'
         str_in_3 = "'a string with 'inside' quotes'"
@@ -88,7 +89,7 @@ class TestParser:
         }
         l_nested = [str_in_1, str_in_2, str_in_3, not_a_str_1, not_a_str_2, not_a_str_3]
         # construct a dictionary with single entries, a nested dict and a nested list
-        dict_in = {
+        dict_in: dict[str, Any | dict[str | int, Any]] = {
             key_1: str_in_1,
             key_2: str_in_2,
             key_3: str_in_3,
@@ -107,7 +108,8 @@ class TestParser:
         _ = Parser.remove_quotes_from_strings(dict_out)
         assert dict_out[key_1] == str_out_1
         assert dict_out[key_2] == str_out_2
-        # changes here parser.remove_quotes_from_string: "all" to True to protect inside strings in e.g. farn filter expression "var in ['item1', 'item2']"
+        # changes here parser.remove_quotes_from_string: "all" to True
+        # to protect inside strings in e.g. farn filter expression "var in ['item1', 'item2']"
         assert dict_out[key_3] == str_out_3
         assert dict_out[keyd][key_1] == str_out_1
         assert dict_out[keyd][key_2] == str_out_2
@@ -126,27 +128,28 @@ class TestParser:
         assert dict_out[keyl][5] == not_a_str_3
 
         with pytest.raises(TypeError):
-            Parser.remove_quotes_from_strings(str_in_1)  # type: ignore
+            _ = Parser.remove_quotes_from_strings(str_in_1)  # type: ignore[arg-type, reportArgumentType]
         with pytest.raises(TypeError):
-            Parser.remove_quotes_from_strings(not_a_str_1)  # type: ignore
+            _ = Parser.remove_quotes_from_strings(not_a_str_1)  # type: ignore[arg-type, reportArgumentType]
 
-    def test_parse_type_int(self):
+    def test_parse_type_int(self) -> None:
         parser = Parser()
         int_in = 1
         int_out = parser.parse_type(int_in)
         assert isinstance(int_out, int)
         assert int_out == int_in
 
-    def test_parse_type_float(self):
+    def test_parse_type_float(self) -> None:
         parser = Parser()
         float_in = 1.0
         float_out = parser.parse_type(float_in)
         assert isinstance(float_out, float)
         assert float_out == float_in
 
-    def test_parse_type_bool(self):
+    def test_parse_type_bool(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
         parser = Parser()
+        bool_in: str | bool
         bool_in = True
         bool_out = parser.parse_type(bool_in)
         assert isinstance(bool_out, bool)
@@ -194,7 +197,7 @@ class TestParser:
         assert isinstance(bool_out, bool)
         assert bool_out is False
 
-    def test_parse_type_none(self):
+    def test_parse_type_none(self) -> None:
         parser = Parser()
         none_in = None
         none_out = parser.parse_type(none_in)
@@ -228,7 +231,7 @@ class TestParser:
         assert isinstance(none_out, str)
         assert none_out == none_in
 
-    def test_parse_type_string_numbers(self):
+    def test_parse_type_string_numbers(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
         parser = Parser()
         str_in = "1234"
@@ -255,7 +258,7 @@ class TestParser:
             ('""', ""),
         ],
     )
-    def test_parse_type_str(self, str_in: str, str_expected: str):
+    def test_parse_type_str(self, str_in: str, str_expected: str) -> None:
         """Make sure additional surrounding quotes of strings, if existing, get removed by parsing"""
         # Prepare
         parser = Parser()
@@ -265,7 +268,7 @@ class TestParser:
         assert isinstance(str_out, str)
         assert str_out == str_expected
 
-    def test_parse_list(self):
+    def test_parse_list(self) -> None:
         # Prepare
         parser = Parser()
         str_1 = "string 1"
@@ -326,7 +329,7 @@ class TestParser:
         assert list_out == list_expected
         assert list_out[3] == list_expected[3]
 
-    def test_parse_file_into_existing_dict(self):
+    def test_parse_file_into_existing_dict(self) -> None:
         # Prepare
         target_dict = CppDict()
         source_file = Path("test_parser_dict")
@@ -340,33 +343,33 @@ class TestParser:
 
 
 class TestCppParser:
-    def test_extract_line_comments(self):
+    def test_extract_line_comments(self) -> None:
         # sourcery skip: avoid-builtin-shadow
         # sourcery skip: no-loop-in-tests
         # Prepare
-        dict = CppDict()
+        cpp_dict = CppDict()
         parser = CppParser()
         line1 = "a line with no line comment\n"
         line2 = "//a line comment\n"
         line3 = "a line with //an inline comment\n"
         line4 = "a line with no line comment\n"
-        dict.line_content.extend([line1, line2, line3, line4])
-        assert len(dict.line_content) == 4
+        cpp_dict.line_content.extend([line1, line2, line3, line4])
+        assert len(cpp_dict.line_content) == 4
         # Execute
-        parser._extract_line_comments(dict, comments=True)
+        parser._extract_line_comments(cpp_dict, comments=True)
         # Assert
-        assert len(dict.line_content) == 4
-        for line in dict.line_content:
+        assert len(cpp_dict.line_content) == 4
+        for line in cpp_dict.line_content:
             assert re.search(r"//", line) is None
-        assert len(dict.line_comments) == 2
-        for line in dict.line_comments.values():
+        assert len(cpp_dict.line_comments) == 2
+        for line in cpp_dict.line_comments.values():
             assert re.search("//", str(line)) is not None
 
-    def test_extract_includes(self):
+    def test_extract_includes(self) -> None:
         # sourcery skip: avoid-builtin-shadow
         # sourcery skip: no-loop-in-tests
         # Prepare
-        dict = CppDict()
+        cpp_dict = CppDict()
         parser = CppParser()
         line1 = "a line with no include directive\n"
         line2 = "#include testDict\n"
@@ -376,62 +379,62 @@ class TestCppParser:
         line5 = "   #include testDict   \n"
         line6 = "   # include testDict   \n"
         line7 = "a line with no include directive\n"
-        dict.line_content.extend([line1, line2, line3, line4, line5, line6, line7])
-        assert len(dict.line_content) == 7
+        cpp_dict.line_content.extend([line1, line2, line3, line4, line5, line6, line7])
+        assert len(cpp_dict.line_content) == 7
         file_name_expected = "testDict"
         file_path_expected = Path("testDict").absolute()
         # Execute
-        parser._extract_includes(dict)
+        parser._extract_includes(cpp_dict)
         # Assert
-        assert len(dict.line_content) == 7
-        for line in dict.line_content:
+        assert len(cpp_dict.line_content) == 7
+        for line in cpp_dict.line_content:
             assert "#include" not in line
-        assert len(dict.includes) == 5
+        assert len(cpp_dict.includes) == 5
         for (
             include_directive,
             include_file_name,
             include_file_path,
-        ) in dict.includes.values():
+        ) in cpp_dict.includes.values():
             assert bool(re.search(r"#\s*include", str(include_directive)))
             assert not bool(re.search(r"\n", str(include_directive)))
             assert include_file_name == file_name_expected
             assert include_file_path == file_path_expected
 
-    def test_convert_line_content_to_block_content(self):
+    def test_convert_line_content_to_block_content(self) -> None:
         # sourcery skip: avoid-builtin-shadow
         # Prepare
-        dict = CppDict()
+        cpp_dict = CppDict()
         parser = CppParser()
         # Three lines with line endings
         line1 = "line 1\n"
         line2 = "line 2\n"
         line3 = "line 3\n"
-        dict.line_content.extend([line1, line2, line3])
+        cpp_dict.line_content.extend([line1, line2, line3])
         # Execute
-        parser._convert_line_content_to_block_content(dict)
+        parser._convert_line_content_to_block_content(cpp_dict)
         # Assert
-        assert dict.block_content == "line 1\nline 2\nline 3\n"
+        assert cpp_dict.block_content == "line 1\nline 2\nline 3\n"
 
-    def test_remove_line_endings_from_block_content(self):
+    def test_remove_line_endings_from_block_content(self) -> None:
         # sourcery skip: avoid-builtin-shadow
         # Prepare
-        dict = CppDict()
+        cpp_dict = CppDict()
         parser = CppParser()
         # Three lines with line endings
         line1 = "line 1\n"
         line2 = "line 2\n"
         line3 = "line 3\n"
-        dict.line_content.extend([line1, line2, line3])
-        parser._convert_line_content_to_block_content(dict)
+        cpp_dict.line_content.extend([line1, line2, line3])
+        parser._convert_line_content_to_block_content(cpp_dict)
         # Execute
-        parser._remove_line_endings_from_block_content(dict)
+        parser._remove_line_endings_from_block_content(cpp_dict)
         # Assert
-        assert dict.block_content == "line 1 line 2 line 3"
+        assert cpp_dict.block_content == "line 1 line 2 line 3"
 
-    def test_extract_block_comments(self):
+    def test_extract_block_comments(self) -> None:
         # sourcery skip: avoid-builtin-shadow
         # Prepare
-        dict = CppDict()
+        cpp_dict = CppDict()
         parser = CppParser()
         text_block_in = (
             "This is a text block\n"
@@ -451,24 +454,24 @@ class TestCppParser:
             "Identified block comments are extracted and replaced by a placeholder\n"
             "in the form B L O C K C O M M E N T 0 0 0 0 0 0 ."
         )
-        dict.block_content = text_block_in
+        cpp_dict.block_content = text_block_in
         # Execute
-        parser._extract_block_comments(dict, comments=True)
+        parser._extract_block_comments(cpp_dict, comments=True)
         # Assert
-        text_block_out = re.sub(r"[0-9]{6}", "000000", dict.block_content)
+        text_block_out = re.sub(r"[0-9]{6}", "000000", cpp_dict.block_content)
         assert text_block_out == text_block_expected
-        string_diff(text_block_out, text_block_expected)
-        assert len(dict.block_comments) == 1
-        assert list(dict.block_comments.values())[0] == (
+        print(string_diff(text_block_out, text_block_expected))
+        assert len(cpp_dict.block_comments) == 1
+        assert list(cpp_dict.block_comments.values())[0] == (
             "/*---------------------------------*- C++ -*----------------------------------*\\\n"
             "This is a block comment; coding utf-8; version 0.1;\n"
             "\\*----------------------------------------------------------------------------*/"
         )
 
-    def test_extract_string_literals(self):
+    def test_extract_string_literals(self) -> None:
         # sourcery skip: avoid-builtin-shadow
         # Prepare
-        dict = CppDict()
+        cpp_dict = CppDict()
         parser = CppParser()
         text_block_in = (
             "This is a text block\n"
@@ -498,25 +501,25 @@ class TestCppParser:
             'This is a line with an expression, e.g. "$varName2 + 4". Expressions are double quoted strings that contain minimum one $ character (denoting a reference).\n'
             "And here we close our small test with a final line with no string literal at all"
         )
-        dict.block_content = text_block_in
+        cpp_dict.block_content = text_block_in
         # Execute
-        parser._extract_string_literals(dict)
+        parser._extract_string_literals(cpp_dict)
         # Assert
-        text_block_out = re.sub(r"[0-9]{6}", "000000", dict.block_content)
-        string_diff(text_block_out, text_block_expected)
+        text_block_out = re.sub(r"[0-9]{6}", "000000", cpp_dict.block_content)
+        print(string_diff(text_block_out, text_block_expected))
         assert text_block_out == text_block_expected
-        assert len(dict.string_literals) == 6
-        assert list(dict.string_literals.values())[0] == "a string literal1"
-        assert list(dict.string_literals.values())[1] == "a string literal2"
-        assert list(dict.string_literals.values())[2] == " a string literal3 with leading and trailing spaces "
-        assert list(dict.string_literals.values())[3] == "This line starts with a string literal4"
-        assert list(dict.string_literals.values())[4] == "This line is nothing else than a string literal5"
-        assert list(dict.string_literals.values())[5] == "a string literal6 in double quotes"
+        assert len(cpp_dict.string_literals) == 6
+        assert list(cpp_dict.string_literals.values())[0] == "a string literal1"
+        assert list(cpp_dict.string_literals.values())[1] == "a string literal2"
+        assert list(cpp_dict.string_literals.values())[2] == " a string literal3 with leading and trailing spaces "
+        assert list(cpp_dict.string_literals.values())[3] == "This line starts with a string literal4"
+        assert list(cpp_dict.string_literals.values())[4] == "This line is nothing else than a string literal5"
+        assert list(cpp_dict.string_literals.values())[5] == "a string literal6 in double quotes"
 
-    def test_extract_expressions(self):
+    def test_extract_expressions(self) -> None:
         # sourcery skip: avoid-builtin-shadow
         # Prepare
-        dict = CppDict()
+        cpp_dict = CppDict()
         parser = CppParser()
         text_block_in = (
             "This is a text block\n"
@@ -562,47 +565,47 @@ class TestCppParser:
             "in the form E X P R E S S I O N 0 0 0 0 0 0."
             "The actual evaluation of an expression is not part of _extract_expressions(). The evaluation is done within ()."
         )
-        dict.block_content = text_block_in
-        parser._extract_string_literals(dict)
+        cpp_dict.block_content = text_block_in
+        parser._extract_string_literals(cpp_dict)
         # Execute
-        parser._extract_expressions(dict)
+        parser._extract_expressions(cpp_dict)
         # Assert
-        text_block_out = re.sub(r"[0-9]{6}", "000000", dict.block_content)
+        text_block_out = re.sub(r"[0-9]{6}", "000000", cpp_dict.block_content)
         assert text_block_out == text_block_expected
-        string_diff(text_block_out, text_block_expected)
-        assert len(dict.expressions) == 9
+        print(string_diff(text_block_out, text_block_expected))
+        assert len(cpp_dict.expressions) == 9
 
-        assert list(dict.expressions.values())[0]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[0]["expression"] == "$varName1"
+        assert list(cpp_dict.expressions.values())[0]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[0]["expression"] == "$varName1"
 
-        assert list(dict.expressions.values())[1]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[1]["expression"] == "$varName2 + 4"
+        assert list(cpp_dict.expressions.values())[1]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[1]["expression"] == "$varName2 + 4"
 
-        assert list(dict.expressions.values())[2]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[2]["expression"] == "4 + $varName2"
+        assert list(cpp_dict.expressions.values())[2]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[2]["expression"] == "4 + $varName2"
 
-        assert list(dict.expressions.values())[3]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[3]["expression"] == "$varName2 + $varName3"
+        assert list(cpp_dict.expressions.values())[3]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[3]["expression"] == "$varName2 + $varName3"
 
-        assert list(dict.expressions.values())[4]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[4]["expression"] == "$varName1 + $varName2 + $varName3"
+        assert list(cpp_dict.expressions.values())[4]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[4]["expression"] == "$varName1 + $varName2 + $varName3"
 
-        assert list(dict.expressions.values())[5]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[5]["expression"] == "$varName2 + $varName3 + $varName1"
+        assert list(cpp_dict.expressions.values())[5]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[5]["expression"] == "$varName2 + $varName3 + $varName1"
 
-        assert list(dict.expressions.values())[6]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[6]["expression"] == "$varName1"
+        assert list(cpp_dict.expressions.values())[6]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[6]["expression"] == "$varName1"
 
-        assert list(dict.expressions.values())[7]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[7]["expression"] == "$varName1[0]"
+        assert list(cpp_dict.expressions.values())[7]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[7]["expression"] == "$varName1[0]"
 
-        assert list(dict.expressions.values())[8]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[8]["expression"] == "$varName1[1][2]"
+        assert list(cpp_dict.expressions.values())[8]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[8]["expression"] == "$varName1[1][2]"
 
-    def test_extract_single_character_expressions(self):
+    def test_extract_single_character_expressions(self) -> None:
         # sourcery skip: avoid-builtin-shadow
         # Prepare
-        dict = CppDict()
+        cpp_dict = CppDict()
         parser = CppParser()
         text_block_in = (
             "This is a text block\n"
@@ -648,48 +651,48 @@ class TestCppParser:
             "in the form E X P R E S S I O N 0 0 0 0 0 0."
             "The actual evaluation of an expression is not part of _extract_expressions(). The evaluation is done within ()."
         )
-        dict.block_content = text_block_in
-        parser._extract_string_literals(dict)
+        cpp_dict.block_content = text_block_in
+        parser._extract_string_literals(cpp_dict)
         # Execute
-        parser._extract_expressions(dict)
+        parser._extract_expressions(cpp_dict)
         # Assert
-        text_block_out = re.sub(r"[0-9]{6}", "000000", dict.block_content)
+        text_block_out = re.sub(r"[0-9]{6}", "000000", cpp_dict.block_content)
         assert text_block_out == text_block_expected
-        string_diff(text_block_out, text_block_expected)
-        assert len(dict.expressions) == 9
+        print(string_diff(text_block_out, text_block_expected))
+        assert len(cpp_dict.expressions) == 9
 
-        assert list(dict.expressions.values())[0]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[0]["expression"] == "$a"
+        assert list(cpp_dict.expressions.values())[0]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[0]["expression"] == "$a"
 
-        assert list(dict.expressions.values())[1]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[1]["expression"] == "$b + 4"
+        assert list(cpp_dict.expressions.values())[1]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[1]["expression"] == "$b + 4"
 
-        assert list(dict.expressions.values())[2]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[2]["expression"] == "4 + $b"
+        assert list(cpp_dict.expressions.values())[2]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[2]["expression"] == "4 + $b"
 
-        assert list(dict.expressions.values())[3]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[3]["expression"] == "$b + $c"
+        assert list(cpp_dict.expressions.values())[3]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[3]["expression"] == "$b + $c"
 
-        assert list(dict.expressions.values())[4]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[4]["expression"] == "$a + $b + $c"
+        assert list(cpp_dict.expressions.values())[4]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[4]["expression"] == "$a + $b + $c"
 
-        assert list(dict.expressions.values())[5]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[5]["expression"] == "$b + $c + $a"
+        assert list(cpp_dict.expressions.values())[5]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[5]["expression"] == "$b + $c + $a"
 
-        assert list(dict.expressions.values())[6]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[6]["expression"] == "$a"
+        assert list(cpp_dict.expressions.values())[6]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[6]["expression"] == "$a"
 
-        assert list(dict.expressions.values())[7]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[7]["expression"] == "$a[0]"
+        assert list(cpp_dict.expressions.values())[7]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[7]["expression"] == "$a[0]"
 
-        assert list(dict.expressions.values())[8]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[8]["expression"] == "$a[1][2]"
+        assert list(cpp_dict.expressions.values())[8]["name"][:10] == "EXPRESSION"
+        assert list(cpp_dict.expressions.values())[8]["expression"] == "$a[1][2]"
 
-    def test_separate_delimiters(self):
+    def test_separate_delimiters(self) -> None:
         # sourcery skip: avoid-builtin-shadow
         # sourcery skip: no-loop-in-tests
         # Prepare
-        dict = CppDict()
+        cpp_dict = CppDict()
         parser = CppParser()
         text_block_in = (
             "This is a text block\n"
@@ -721,40 +724,40 @@ class TestCppParser:
             "delimiters burried between other text: bla { bla } bla ( bla ) bla < bla > bla ; bla , bla "
             "And here we close our small test with a final line with no delimiter at all"
         )
-        dict.block_content = text_block_in
+        cpp_dict.block_content = text_block_in
         # Execute
-        parser._separate_delimiters(dict, dict.delimiters)
+        parser._separate_delimiters(cpp_dict, cpp_dict.delimiters)
         # Assert
-        assert dict.block_content == text_block_expected
-        string_diff(dict.block_content, text_block_expected)
+        assert cpp_dict.block_content == text_block_expected
+        print(string_diff(cpp_dict.block_content, text_block_expected))
         # In addition, test whether re.split('\s', block_content) results in tokens containing one single word each
         # because this exactly is what _separate_delimiters() is meant to ensure
-        dict.tokens = [(0, i) for i in re.split(r"\s", dict.block_content)]
-        assert len(dict.tokens) == 184
-        for _, token in dict.tokens:
+        cpp_dict.tokens = [(0, i) for i in re.split(r"\s", cpp_dict.block_content)]
+        assert len(cpp_dict.tokens) == 184
+        for _, token in cpp_dict.tokens:
             assert len(token) > 0
 
-    def test_determine_token_hierarchy(self):
+    def test_determine_token_hierarchy(self) -> None:
         # sourcery skip: avoid-builtin-shadow
         # Prepare
-        dict = CppDict()
+        cpp_dict = CppDict()
         parser = CppParser()
         text_block = (
             "level0 { level1 { level2 { level3 } level2 } level1 } level0\n"
             "level0 [ level1 [ level2 [ level3 ] level2 ] level1 ] level0\n"
             "level0 ( level1 ( level2 ( level3 ) level2 ) level1 ) level0"
         )
-        tokens: List[str] = re.split(r"\s", text_block)
-        tokens_in: List[Tuple[int, str]] = [(0, token) for token in tokens]
+        tokens: list[str] = re.split(r"\s", text_block)
+        tokens_in: list[tuple[int, str]] = [(0, token) for token in tokens]
         levels_expected = [0, 0, 1, 1, 2, 2, 3, 2, 2, 1, 1, 0, 0] * 3
-        tokens_expected = list(zip(levels_expected, tokens))
-        dict.tokens = tokens_in
+        tokens_expected = list(zip(levels_expected, tokens, strict=False))
+        cpp_dict.tokens = tokens_in
         # Execute
-        parser._determine_token_hierarchy(dict)
+        parser._determine_token_hierarchy(cpp_dict)
         # Assert
-        assert dict.tokens == tokens_expected
+        assert cpp_dict.tokens == tokens_expected
 
-    def test_parse_tokenized_dict(self):
+    def test_parse_tokenized_dict(self) -> None:
         # Prepare
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
@@ -777,7 +780,7 @@ class TestCppParser:
         assert list(dict_out.keys())[11] == "expressions"
         assert list(dict_out.keys())[12] == "theDictInAListPitfall"
 
-    def test_parse_tokenized_dict_booleans(self):
+    def test_parse_tokenized_dict_booleans(self) -> None:
         # Prepare
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
@@ -803,7 +806,7 @@ class TestCppParser:
         assert dict_out["booleans"]["bool7"] is True
         assert dict_out["booleans"]["bool8"] is False
 
-    def test_parse_tokenized_dict_numbers(self):
+    def test_parse_tokenized_dict_numbers(self) -> None:
         # Prepare
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
@@ -819,7 +822,7 @@ class TestCppParser:
         assert dict_out["numbers"]["int2"] == 120
         assert dict_out["numbers"]["float1"] == 3.5
 
-    def test_parse_tokenized_dict_nones(self):
+    def test_parse_tokenized_dict_nones(self) -> None:
         # Prepare
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
@@ -833,7 +836,7 @@ class TestCppParser:
         assert dict_out["nones"]["none3"] is None
         assert dict_out["nones"]["none4"] is None
 
-    def test_parse_tokenized_dict_strings(self):
+    def test_parse_tokenized_dict_strings(self) -> None:
         # Prepare
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
@@ -854,7 +857,7 @@ class TestCppParser:
         assert dict_out["strings"]["listWithStrings"][3][:13] == "STRINGLITERAL"
         assert dict_out["strings"]["listWithStrings"][4][:13] == "STRINGLITERAL"
 
-    def test_parse_tokenized_dict_invalid(self, caplog: LogCaptureFixture):
+    def test_parse_tokenized_dict_invalid(self, caplog: pytest.LogCaptureFixture) -> None:
         # Prepare
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
@@ -880,7 +883,7 @@ class TestCppParser:
         assert caplog.records[0].message == log_message_0_expected
         assert caplog.records[1].message == log_message_1_expected
 
-    def test_parse_tokenized_dict_nesting(self):
+    def test_parse_tokenized_dict_nesting(self) -> None:
         # Prepare
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
@@ -945,7 +948,7 @@ class TestCppParser:
         assert dict_out["nesting"]["nestedListWithNestedDict"][2][1] == 32
         assert dict_out["nesting"]["nestedListWithNestedDict"][2][2] == 33
 
-    def test_parse_tokenized_dict_expressions(self):
+    def test_parse_tokenized_dict_expressions(self) -> None:
         # Prepare
         dict_in = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
@@ -973,7 +976,7 @@ class TestCppParser:
         assert dict_out["expressions"]["expressionG2"]["value"][:10] == "EXPRESSION"
         assert dict_out["expressions"]["expressionG3"]["value"][:10] == "EXPRESSION"
 
-    def test_parse_tokenized_dict_theDictInAListPitfall(self):  # noqa: N802
+    def test_parse_tokenized_dict_theDictInAListPitfall(self) -> None:
         # This test case adresses issue #6 that Frank raised on Github
         # https://github.com/MaritimeOSPx/ModelVerification/issues/6
 
@@ -1014,16 +1017,16 @@ class TestCppParser:
         assert dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6]["key1"] == "value1"
         assert dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6]["key2"] == "value2"
 
-    def test_insert_string_literals(self):
+    def test_insert_string_literals(self) -> None:
         # sourcery skip: avoid-builtin-shadow
         # Prepare
-        dict = CppDict()
-        SetupHelper.prepare_dict_until(dict_to_prepare=dict, until_step=10)
+        cpp_dict = CppDict()
+        SetupHelper.prepare_dict_until(dict_to_prepare=cpp_dict, until_step=10)
         parser = CppParser()
         # Execute
-        parser._insert_string_literals(dict)
+        parser._insert_string_literals(cpp_dict)
         # Assert
-        dict_out = dict.data
+        dict_out = cpp_dict.data
         assert dict_out["strings"]["listWithStrings"][0] == "string1"
         assert dict_out["strings"]["listWithStrings"][1] == "string2 has spaces"
         assert dict_out["strings"]["listWithStrings"][2] == "string3"
@@ -1032,7 +1035,7 @@ class TestCppParser:
 
 
 class TestXmlParser:
-    def test_default_options(self):
+    def test_default_options(self) -> None:
         # Execute
         parser = XmlParser()
         # Assert
@@ -1041,11 +1044,11 @@ class TestXmlParser:
         # assert parser.xsd_uri == 'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd'
         # assert parser.root_tag == 'NOTSPECIFIED'
 
-    def test_parse_generic_xml_without_node_numbering(self):
+    def test_parse_generic_xml_without_node_numbering(self) -> None:
         # Prepare XML string to be parsed
         file_name = Path("test_parser_xml.xml")
         str_in = ""
-        with open(file_name, "r") as f:
+        with Path.open(file_name) as f:
             str_in = f.read()
         dict_out = CppDict(file_name)
         parser = XmlParser(add_node_numbering=False)
@@ -1079,11 +1082,11 @@ class TestXmlParser:
             "_attributes": {"ATTR0": 0, "ATTR1": 1},
         }
 
-    def test_parse_generic_xml_with_node_numbering(self):
+    def test_parse_generic_xml_with_node_numbering(self) -> None:
         # Prepare XML string to be parsed
         file_name = Path("test_parser_xml.xml")
         str_in = ""
-        with open(file_name, "r") as f:
+        with Path.open(file_name) as f:
             str_in = f.read()
         dict_out = CppDict(file_name)
         parser = XmlParser(add_node_numbering=True)
@@ -1118,33 +1121,33 @@ class TestXmlParser:
             "_attributes": {"ATTR0": 0, "ATTR1": 1},
         }
 
-    def test_parse_xml_namespace_explicit(self):
+    def test_parse_xml_namespace_explicit(self) -> None:
         # Prepare XML string to be parsed
         file_name = Path("test_xml_namespace_explicit.xml")
         str_in = ""
-        with open(file_name, "r") as f:
+        with Path.open(file_name) as f:
             str_in = f.read()
         dict_out: CppDict = CppDict(file_name)
         parser = XmlParser()
         # Execute
         dict_out = parser.parse_string(str_in, dict_out)
-        namespaces: Dict[str, str] = dict_out["_xmlOpts"]["_nameSpaces"]
+        namespaces: dict[str, str] = dict_out["_xmlOpts"]["_nameSpaces"]
         # Assert
         assert len(namespaces) == 1
         assert "xs" in namespaces
         assert namespaces["xs"] == "http://www.w3.org/2001/XMLSchema"
 
-    def test_parse_xml_namespace_default(self):
+    def test_parse_xml_namespace_default(self) -> None:
         # Prepare XML string to be parsed
         file_name = Path("test_xml_namespace_default.xml")
         str_in = ""
-        with open(file_name, "r") as f:
+        with Path.open(file_name) as f:
             str_in = f.read()
         dict_out: CppDict = CppDict(file_name)
         parser = XmlParser()
         # Execute
         dict_out = parser.parse_string(str_in, dict_out)
-        namespaces: Dict[str, str] = dict_out["_xmlOpts"]["_nameSpaces"]
+        namespaces: dict[str, str] = dict_out["_xmlOpts"]["_nameSpaces"]
         # Assert
         assert len(namespaces) == 1
         assert "None" in namespaces
@@ -1157,15 +1160,16 @@ class SetupHelper:
         dict_to_prepare: CppDict,
         until_step: int = -1,
         file_to_read: str = "test_parser_dict",
+        *,
         comments: bool = True,
-    ):
+    ) -> None:
         source_file = Path.cwd() / file_to_read
 
         dict_to_prepare.source_file = source_file.absolute()
         dict_to_prepare.path = source_file.parent
         dict_to_prepare.name = source_file.name
 
-        with open(source_file, "r") as f:
+        with Path.open(source_file) as f:
             file_content = f.read()
         dict_to_prepare.line_content = file_content.splitlines(keepends=True)
 
@@ -1190,5 +1194,5 @@ class SetupHelper:
         ]
 
         for i in range(until_step + 1):
-            funcs[i][0](*funcs[i][1:])
+            funcs[i][0](*funcs[i][1:])  # type: ignore[arg-type, call-arg, operator]
         return
