@@ -7,12 +7,12 @@ import sys
 from copy import deepcopy
 from functools import partial
 from pathlib import Path, PurePath
-from typing import Any
 
 import pytest
 from numpy.testing import assert_array_equal
 
 from dictIO import CppDict, CppParser, DictReader, DictWriter
+from dictIO.types import TValue
 
 WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(not sys.platform.startswith("win"), reason="windows only test")
 
@@ -412,9 +412,9 @@ def _get_references_in_expressions(
 def _resolve_references(
     cpp_dict: CppDict,
     references: list[str],
-) -> dict[str, Any | None]:
+) -> dict[str, TValue | None]:
     # Resolve references
-    variables: dict[str, Any] = cpp_dict.variables
+    variables: dict[str, TValue] = cpp_dict.variables
     references_resolved = {ref: DictReader._resolve_reference(ref, variables) for ref in references}
 
     return {

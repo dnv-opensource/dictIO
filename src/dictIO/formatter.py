@@ -5,7 +5,7 @@ from collections.abc import MutableMapping, MutableSequence
 from copy import deepcopy
 from pathlib import Path
 from re import Pattern
-from typing import Any, cast
+from typing import cast
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, register_namespace, tostring
 
@@ -90,7 +90,7 @@ class Formatter:
 
     def format_dict(
         self,
-        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue] | Any,  # noqa: ANN401, ARG002
+        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue] | TValue,  # noqa: ARG002
     ) -> str:
         """Format a dict or list object.
 
@@ -98,7 +98,7 @@ class Formatter:
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[Any], Any]
+        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue], TValue]
             the dict or list to be formatted
 
         Returns
@@ -454,13 +454,13 @@ class CppFormatter(Formatter):
 
     def format_dict(
         self,
-        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue] | Any,  # noqa: ANN401
+        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue] | TValue,
         tab_len: int = 4,
         level: int = 0,
         sep: str = " ",
         items_per_line: int = 10,
         end: str = "\n",
-        ancestry: type[MutableMapping[TKey, TValue]] | type[MutableSequence[Any]] = MutableMapping,
+        ancestry: type[MutableMapping[TKey, TValue]] | type[MutableSequence[TValue]] = MutableMapping,
     ) -> str:
         """Format a dict or list object."""
         total_indent = 30
@@ -1137,7 +1137,7 @@ class XmlFormatter(Formatter):
     def populate_into_element(
         self,
         element: Element,
-        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue] | Any,  # noqa: ANN401
+        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue] | TValue,
         xsd_uri: str | None = None,
     ) -> None:
         """Populate arg into the XML element node.
@@ -1149,7 +1149,7 @@ class XmlFormatter(Formatter):
         ----------
         element : Element
             element which will be populated
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[Any], Any]
+        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue], TValue]
             value to be populated into the element
         xsd_uri : str, optional
             xsd uri, by default None

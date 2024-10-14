@@ -25,7 +25,7 @@ from math import (  # noqa: F401
     tan,
 )
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 from numpy import diag, eye, ndarray, ones, zeros  # noqa: F401
 
@@ -189,7 +189,7 @@ class DictReader:
     @staticmethod
     def _resolve_reference(
         reference: str,
-        variables: MutableMapping[str, Any],
+        variables: MutableMapping[str, TValue],
     ) -> TValue:
         # resolves a single reference
         value: TValue = None
@@ -228,9 +228,9 @@ class DictReader:
             _refs = re.findall(r"\$\w[\w\[\]]*", item["expression"])
             _references.extend(_refs)
         # Resolve references
-        variables: dict[str, Any] = dict_in.variables
-        references: dict[str, Any] = {ref: DictReader._resolve_reference(ref, variables) for ref in _references}
-        references_resolved: dict[str, Any] = {
+        variables: dict[str, TValue] = dict_in.variables
+        references: dict[str, TValue] = {ref: DictReader._resolve_reference(ref, variables) for ref in _references}
+        references_resolved: dict[str, TValue] = {
             ref: value
             for ref, value in references.items()
             if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
@@ -257,7 +257,7 @@ class DictReader:
                         )
 
                 eval_successful: bool = False
-                eval_result: Any | None = None
+                eval_result: TValue | None = None
                 if "$" not in expression:
                     try:
                         eval_result = eval(expression)  # noqa: S307

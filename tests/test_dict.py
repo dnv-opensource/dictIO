@@ -1,6 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -14,6 +14,9 @@ from dictIO import (
     order_keys,
     set_global_key,
 )
+
+if TYPE_CHECKING:
+    from dictIO.types import TValue
 
 
 @pytest.fixture()
@@ -53,7 +56,7 @@ def test_init_with_file() -> None:
 
 
 def test_init_with_base_dict() -> None:
-    base_dict: dict[str, Any] = {
+    base_dict: dict[str, TValue] = {
         "key1": "value1",
         "key2": "value2",
     }
@@ -116,7 +119,7 @@ def test_find_global_key() -> None:
     ldl_nested = [deepcopy(dl_nested)]
 
     # Construct a dictionary dict_in with single entries, nested dicts and nested lists
-    dict_in: dict[str, Any] = {
+    dict_in: dict[str, TValue] = {
         key_1: str_in_1,
         key_2: str_in_2,
         key_3: str_in_3,
@@ -264,7 +267,7 @@ def test_order_keys() -> None:
         key_n_1: not_a_str_1,
         key_n_2: not_a_str_2,
     }
-    dict_in: dict[str, Any] = {
+    dict_in: dict[str, TValue] = {
         key_3: str_3,
         key_1: str_1,
         key_2: str_2,

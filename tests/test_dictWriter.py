@@ -1,19 +1,22 @@
 import re
 from copy import deepcopy
 from pathlib import Path, PurePath
-from typing import Any
+from typing import TYPE_CHECKING
 
 import pytest
 
 from dictIO import CppDict, DictReader, DictWriter, FoamParser, create_target_file_name
 from dictIO.utils.counter import BorgCounter
 
+if TYPE_CHECKING:
+    from dictIO.types import TValue
+
 
 def test_write_dict() -> None:
     # sourcery skip: extract-duplicate-method
     # Prepare
     target_file: Path = Path("temp_file_test_write_dict")
-    test_dict: dict[str, Any] = {
+    test_dict: dict[str, TValue] = {
         "param1": -10.0,
         "param2": 0.0,
         "param3": 0.0,

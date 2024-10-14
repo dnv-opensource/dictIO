@@ -6,7 +6,6 @@ from collections.abc import MutableMapping, MutableSequence, Sequence
 from pathlib import Path
 from re import Match, Pattern
 from typing import (
-    Any,
     cast,
 )
 
@@ -321,8 +320,8 @@ class Parser:
 
     @staticmethod
     def remove_quotes_from_strings(
-        arg: MutableMapping[TKey, TValue] | MutableSequence[Any],
-    ) -> MutableMapping[TKey, TValue] | MutableSequence[Any]:
+        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue],
+    ) -> MutableMapping[TKey, TValue] | MutableSequence[TValue]:
         """Remove quotes from multiple strings.
 
         Removes quotes (single and double quotes) from all string objects inside a dict or list.
@@ -332,12 +331,12 @@ class Parser:
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[Any]]
+        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
             the dict or list containing strings the quotes in which shall be removed
 
         Returns
         -------
-        Union[MutableMapping[TKey, TValue], MutableSequence[Any]]
+        Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
             the original dict or list, yet with quotes in all strings being removed
 
         """
@@ -896,7 +895,7 @@ class CppParser(Parser):
         cpp_dict: CppDict,
         tokens: list[tuple[int, str]] | None = None,
         level: int = 0,
-    ) -> dict[str, Any]:
+    ) -> dict[str, TValue]:
         """Parse a tokenized dict and return the parsed dict.
 
         Parses all tokens, identifies the element within the tokenized dict each token represents or belongs to,
@@ -913,7 +912,7 @@ class CppParser(Parser):
         """
         # sourcery skip: remove-redundant-pass
 
-        parsed_dict: dict[str, Any] = {}
+        parsed_dict: dict[str, TValue] = {}
 
         if tokens is None:
             tokens = cpp_dict.tokens
@@ -1102,7 +1101,7 @@ class CppParser(Parser):
         cpp_dict: CppDict,
         tokens: list[tuple[int, str]] | None = None,
         level: int = 0,
-    ) -> list[Any]:
+    ) -> list[TValue]:
         """Parse a tokenized list and return the parsed list.
 
         Parses all tokens, identifies the element within the tokenized list each token represents or belongs to,
@@ -1118,7 +1117,7 @@ class CppParser(Parser):
         """
         # sourcery skip: remove-empty-nested-block, remove-redundant-if, remove-redundant-pass
 
-        parsed_list: list[Any] = []
+        parsed_list: list[TValue] = []
 
         if tokens is None:
             tokens = cpp_dict.tokens
@@ -1502,7 +1501,7 @@ class JsonParser(Parser):
     def _extract_expressions(
         self,
         parsed_dict: CppDict,
-        arg: MutableMapping[TKey, TValue] | MutableSequence[Any],
+        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue],
     ) -> None:
         """Find and extract expressions in a dict or list and replace them with Placeholders.
 
@@ -1516,7 +1515,7 @@ class JsonParser(Parser):
         ----------
         parsed_dict : CppDict
             the CppDict instance the extracted expressions shall be saved in
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[Any]]
+        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
             the dict or list containing values to be parsed for expressions
         """
         if isinstance(arg, MutableMapping):  # Dict
@@ -1656,7 +1655,7 @@ class XmlParser(Parser):
         self,
         root_element: LxmlElement,
         namespaces: dict[str, str],
-    ) -> dict[str, Any]:
+    ) -> dict[str, TValue]:
         """Recursively parses all nodes and saves the nodes' content in a dict."""
         # Default case: Make all node tags temporarily unique by indexing them using BorgCounter
         node_tags: list[str] = [
@@ -1668,7 +1667,7 @@ class XmlParser(Parser):
             index = self.counter()
             indexed_node_tags.append(("%06i_%s" % (index, node_tag), node_tag))
 
-        content_dict: dict[str, Any] = {}
+        content_dict: dict[str, TValue] = {}
 
         # Parse all nodes
         for index, indexed_node_tag in enumerate(indexed_node_tags):

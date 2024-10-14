@@ -46,7 +46,7 @@ class Indenter:
     This is used in logger class to assure a readable message hirarchy.
     """
 
-    Ind: dict[Any, Any] = {  # noqa: RUF012
+    Ind: dict[str, Any] = {  # noqa: RUF012
         "Indent": 0,
         "TabSize": 4,
         "TabChar": " ",

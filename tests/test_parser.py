@@ -5,13 +5,16 @@ import re
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 import pytest
 
 from dictIO import CppDict, CppParser, Parser, XmlParser
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.strings import string_diff
+
+if TYPE_CHECKING:
+    from dictIO.types import TValue
 
 
 class TestParser:
@@ -90,7 +93,7 @@ class TestParser:
         }
         l_nested = [str_in_1, str_in_2, str_in_3, not_a_str_1, not_a_str_2, not_a_str_3]
         # construct a dictionary with single entries, a nested dict and a nested list
-        dict_in: dict[str, Any | dict[str | int, Any]] = {
+        dict_in: dict[str, TValue | dict[str | int, TValue]] = {
             key_1: str_in_1,
             key_2: str_in_2,
             key_3: str_in_3,

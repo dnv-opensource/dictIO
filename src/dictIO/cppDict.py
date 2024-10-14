@@ -10,14 +10,13 @@ from copy import deepcopy
 from pathlib import Path
 from types import NoneType
 from typing import (
-    Any,
     Self,
-    TypeAlias,
     TypeVar,
     cast,
     overload,
 )
 
+from dictIO.types import TKey, TValue
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.path import relative_path
 
@@ -31,11 +30,6 @@ __ALL__ = [
     "global_key_exists",
 ]
 
-# Type aliases for keys and values
-# TKey: TypeAlias = int | str
-# TValue: TypeAlias = int | float | str | bool | MutableMapping[TKey, Any] | MutableSequence[Any] | Any | None
-TKey: TypeAlias = Any
-TValue: TypeAlias = Any
 
 # Type variables for keys and values
 _KT = TypeVar("_KT", bound=TKey)
@@ -255,7 +249,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         ----------
         __m : Mapping[TKey, TValue]
             dict containing the keys to be updated and its new values
-        **kwargs: Any
+        **kwargs: TValue
             optional keyword arguments. These will be passed on to the update() method of the parent class.
         """
         # sourcery skip: class-extract-method
@@ -411,7 +405,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         ----------
         global_key : MutableSequence[TValue]
             list of keys defining the global key thread to the target key (such as returned by method find_global_key())
-        value : Any, optional
+        value : TValue, optional
             value the target key shall be set to, by default None
         """
         set_global_key(
@@ -465,7 +459,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
 
         Returns
         -------
-        Dict[str, Any]
+        Dict[str, TValue]
             dict of all Variables currently registered.
         """
         variables: dict[str, TValue] = {}
@@ -934,7 +928,7 @@ def global_key_exists(
         True if the specified global key exists, otherwise False
     """
     _last_branch: MutableMapping[TKey, TValue] = dict_in
-    _next_branch: MutableMapping[TKey, TValue] | Any
+    _next_branch: MutableMapping[TKey, TValue] | TValue
     try:
         for key in global_key:
             _next_branch = _last_branch[key]
