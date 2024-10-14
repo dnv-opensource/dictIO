@@ -124,7 +124,6 @@ class TestCppFormatter:
         as_is_block_comment: str,
         default_block_comment: str,
     ) -> None:
-        # sourcery skip: avoid-builtin-shadow
         cpp_dict = CppDict()
         str_in_template = formatter.format_dict(
             cpp_dict.data
@@ -206,7 +205,6 @@ class TestCppFormatter:
         assert str_out == str_expected
 
     def test_insert_includes(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         include_directive_in = '#include "test formatter paramDict"'
         include_file_name_in = "test formatter paramDict"
@@ -228,7 +226,6 @@ class TestCppFormatter:
         assert str_out == str_expected
 
     def test_insert_line_comments(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         cpp_dict = CppDict()
         line_comment_in = "// This is a line comment"
@@ -308,7 +305,6 @@ class TestCppFormatter:
         assert str_out == ""
 
     def test_list_with_nested_list(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         test_obj = {
             "blocks": [
@@ -384,7 +380,6 @@ class TestFoamFormatter:
         )
 
     def test_insert_includes(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         include_directive_in = "#include 'test formatter paramDict'"
         include_file_name_in = "test formatter paramDict"
@@ -406,7 +401,6 @@ class TestFoamFormatter:
         assert str_out == str_expected
 
     def test_ensure_string_does_not_contain_single_quotes(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare dict until and including ()
         dict_in = DictReader.read(Path("test_formatter_dict"), comments=True)
         formatter = FoamFormatter()
@@ -416,7 +410,6 @@ class TestFoamFormatter:
         assert re.search(r"\'", str_out) is None
 
     def test_ensure_string_does_not_contain_underscore_variables(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare dict until and including ()
         dict_in = DictReader.read(Path("test_formatter_dict"), comments=False)
         formatter = FoamFormatter()
@@ -448,7 +441,6 @@ class TestXmlFormatter:
         # ) > 0
 
     def test_to_string(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         source_file = Path("test_formatter_dict")
         target_file = Path(f"parsed.{source_file}.xml")
@@ -491,7 +483,7 @@ class TestXmlFormatter:
         assert dict_reparsed == dict_parsed
 
     def test_format_xml_namespace_explicit(self) -> None:
-        # sourcery skip: avoid-builtin-shadow, class-extract-method
+        # sourcery skip: class-extract-method
         # Prepare
         source_file = Path("test_formatter_dict")
         dict_in = DictReader.read(source_file)
@@ -509,7 +501,6 @@ class TestXmlFormatter:
         assert 'xmlns="https://opensimulationplatform.com/xsd/OspModelDescription"' not in str_out
 
     def test_format_xml_namespace_default(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         source_file = Path("test_formatter_dict")
         dict_in = DictReader.read(source_file)
@@ -528,7 +519,6 @@ class TestXmlFormatter:
 
     @pytest.mark.skip(reason="XML pretty printing is not solved yet. The root attribute for encoding still gets lost.")
     def test_format_xml_root_attributes(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         source_file = Path("test_formatter_dict")
         dict_in = DictReader.read(source_file)

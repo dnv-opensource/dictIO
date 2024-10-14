@@ -3,6 +3,7 @@
 # ruff: noqa: T201, E501
 import re
 from copy import deepcopy
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -344,7 +345,6 @@ class TestParser:
 
 class TestCppParser:
     def test_extract_line_comments(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # sourcery skip: no-loop-in-tests
         # Prepare
         cpp_dict = CppDict()
@@ -366,7 +366,6 @@ class TestCppParser:
             assert re.search("//", str(line)) is not None
 
     def test_extract_includes(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # sourcery skip: no-loop-in-tests
         # Prepare
         cpp_dict = CppDict()
@@ -401,7 +400,6 @@ class TestCppParser:
             assert include_file_path == file_path_expected
 
     def test_convert_line_content_to_block_content(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         cpp_dict = CppDict()
         parser = CppParser()
@@ -416,7 +414,6 @@ class TestCppParser:
         assert cpp_dict.block_content == "line 1\nline 2\nline 3\n"
 
     def test_remove_line_endings_from_block_content(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         cpp_dict = CppDict()
         parser = CppParser()
@@ -432,7 +429,6 @@ class TestCppParser:
         assert cpp_dict.block_content == "line 1 line 2 line 3"
 
     def test_extract_block_comments(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         cpp_dict = CppDict()
         parser = CppParser()
@@ -469,7 +465,6 @@ class TestCppParser:
         )
 
     def test_extract_string_literals(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         cpp_dict = CppDict()
         parser = CppParser()
@@ -517,7 +512,6 @@ class TestCppParser:
         assert list(cpp_dict.string_literals.values())[5] == "a string literal6 in double quotes"
 
     def test_extract_expressions(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         cpp_dict = CppDict()
         parser = CppParser()
@@ -603,7 +597,6 @@ class TestCppParser:
         assert list(cpp_dict.expressions.values())[8]["expression"] == "$varName1[1][2]"
 
     def test_extract_single_character_expressions(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         cpp_dict = CppDict()
         parser = CppParser()
@@ -689,7 +682,6 @@ class TestCppParser:
         assert list(cpp_dict.expressions.values())[8]["expression"] == "$a[1][2]"
 
     def test_separate_delimiters(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # sourcery skip: no-loop-in-tests
         # Prepare
         cpp_dict = CppDict()
@@ -738,7 +730,6 @@ class TestCppParser:
             assert len(token) > 0
 
     def test_determine_token_hierarchy(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         cpp_dict = CppDict()
         parser = CppParser()
@@ -1018,7 +1009,6 @@ class TestCppParser:
         assert dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6]["key2"] == "value2"
 
     def test_insert_string_literals(self) -> None:
-        # sourcery skip: avoid-builtin-shadow
         # Prepare
         cpp_dict = CppDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=cpp_dict, until_step=10)
@@ -1176,23 +1166,58 @@ class SetupHelper:
         parser = CppParser()
 
         funcs = [
-            (parser._extract_line_comments, dict_to_prepare, comments),  # Step 00
-            (parser._extract_includes, dict_to_prepare),  # Step 01
-            (parser._convert_line_content_to_block_content, dict_to_prepare),  # Step 02
-            (parser._extract_block_comments, dict_to_prepare, comments),  # Step 03
-            (
-                parser._remove_line_endings_from_block_content,
+            partial(
+                parser._extract_line_comments,  # Step 00
                 dict_to_prepare,
-            ),  # Step 04
-            (parser._extract_string_literals, dict_to_prepare),  # Step 05
-            (parser._extract_expressions, dict_to_prepare),  # Step 06
-            (parser._separate_delimiters, dict_to_prepare),  # Step 07
-            (parser._convert_block_content_to_tokens, dict_to_prepare),  # Step 08
-            (parser._determine_token_hierarchy, dict_to_prepare),  # Step 09
-            (parser._convert_tokens_to_dict, dict_to_prepare),  # Step 10
-            (parser._insert_string_literals, dict_to_prepare),  # Step 11
+                comments=comments,
+            ),
+            partial(
+                parser._extract_includes,  # Step 01
+                dict_to_prepare,
+            ),
+            partial(
+                parser._convert_line_content_to_block_content,  # Step 02
+                dict_to_prepare,
+            ),
+            partial(
+                parser._extract_block_comments,  # Step 03
+                dict_to_prepare,
+                comments=comments,
+            ),
+            partial(
+                parser._remove_line_endings_from_block_content,  # Step 04
+                dict_to_prepare,
+            ),
+            partial(
+                parser._extract_string_literals,  # Step 05
+                dict_to_prepare,
+            ),
+            partial(
+                parser._extract_expressions,  # Step 06
+                dict_to_prepare,
+            ),
+            partial(
+                parser._separate_delimiters,  # Step 07
+                dict_to_prepare,
+            ),
+            partial(
+                parser._convert_block_content_to_tokens,  # Step 08
+                dict_to_prepare,
+            ),
+            partial(
+                parser._determine_token_hierarchy,  # Step 09
+                dict_to_prepare,
+            ),
+            partial(
+                parser._convert_tokens_to_dict,  # Step 10
+                dict_to_prepare,
+            ),
+            partial(
+                parser._insert_string_literals,  # Step 11
+                dict_to_prepare,
+            ),
         ]
 
         for i in range(until_step + 1):
-            funcs[i][0](*funcs[i][1:])  # type: ignore[arg-type, call-arg, operator]
+            funcs[i]()
         return

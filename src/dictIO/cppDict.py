@@ -17,13 +17,13 @@ from typing import (
     cast,
 )
 
-from _typeshed import SupportsKeysAndGetItem
-
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.path import relative_path
 
 __ALL__ = [
     "ParsableDict",
+    "ComposableDict",
+    "CppDict",
     "order_keys",
     "find_global_key",
     "set_global_key",
@@ -66,7 +66,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         if base_dict is not None:
             self.update(base_dict)
         if kwargs:
-            self.update(cast(SupportsKeysAndGetItem[_KT, _VT], kwargs))
+            self.update(cast(Mapping[_KT, _VT], kwargs))
 
         self.counter: BorgCounter = BorgCounter()
         self.source_file: Path | None = None
@@ -193,7 +193,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
 
     def update(  # type: ignore[override]
         self,
-        __m: SupportsKeysAndGetItem[_KT, _VT],
+        __m: Mapping[_KT, _VT],
         **kwargs: _VT,
     ) -> None:
         """Update top-level keys with the keys from the passed in dict.
@@ -230,7 +230,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
 
     def _post_update(
         self,
-        __m: SupportsKeysAndGetItem[_KT, _VT],
+        __m: Mapping[_KT, _VT],
         **kwargs: _VT,  # noqa: ARG002
     ) -> None:
         # update attributes
@@ -530,7 +530,7 @@ class ComposableDict(ParsableDict[TKey, _VT]):
 
     def _post_update(
         self,
-        __m: SupportsKeysAndGetItem[str, _VT],
+        __m: Mapping[str, _VT],
         **kwargs: _VT,
     ) -> None:
         super()._post_update(__m, **kwargs)
@@ -542,6 +542,7 @@ class ComposableDict(ParsableDict[TKey, _VT]):
         return
 
     def _post_merge(self, other: MutableMapping[str, _VT]) -> None:
+        super()._post_merge(other)
         # merge ComposableDict attributes
         if isinstance(other, ComposableDict):
             self._recursive_merge(self.line_comments, other.line_comments)
@@ -624,8 +625,7 @@ class ComposableDict(ParsableDict[TKey, _VT]):
         By definition, only keys on the same nest level are checked for doublettes.
         Doublettes are identified through equality with their lookup values.
         """
-        # START at nest level 0
-
+        super()._clean_branch(branch)
         # IDENTIFY all placeholders on current level
         _keys_on_this_level: list[TKey] = list(branch.keys())
         key_type_on_this_level: type[TKey | None] = NoneType
@@ -790,17 +790,20 @@ def set_global_key(
     if not global_key:
         return
 
-    last_branch: MutableMapping[TKey, TValue] = arg
-    remaining_keys: MutableSequence[TKey] = global_key
-    ii = 0
+    last_branch: MutableMapping[TKey, TValue] | MutableSequence[TValue]
+    next_branch: MutableMapping[TKey, TValue] | MutableSequence[TValue] | TValue
+    remaining_keys: MutableSequence[TKey]
+
+    last_branch = arg
+    next_branch = None
+    remaining_keys = global_key
+    ii: int = 0
     while len(remaining_keys) > 1:
         # as long as we didn't arrive at the last branch (the one that contains the target key)..
-        _next_branch: MutableMapping[TKey, TValue] | Any = last_branch[
-            remaining_keys[0]
-        ]  # ..walk one level further down
-        if not isinstance(_next_branch, MutableMapping):
+        next_branch = last_branch[remaining_keys[0]]  # ..walk one level further down
+        if not isinstance(next_branch, MutableMapping | MutableSequence):
             raise KeyError(f"KeyError: {global_key} not found in {arg}")
-        last_branch = _next_branch
+        last_branch = next_branch
         remaining_keys = remaining_keys[1:]
         ii += 1
         if ii == 10:  # noqa: PLR2004

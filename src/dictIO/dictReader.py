@@ -214,7 +214,7 @@ class DictReader:
             if indexing:
                 with contextlib.suppress(Exception):
                     # return the value of the referenced variable (at the specified index, if given)
-                    value = eval(f"vars['{reference}']{indexing}")  # noqa: S307
+                    value = eval(f"variables['{reference}']{indexing}")  # noqa: S307
         return value
 
     @staticmethod

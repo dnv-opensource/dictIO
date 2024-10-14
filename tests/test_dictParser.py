@@ -4,7 +4,7 @@ from dictIO import DictParser, DictReader
 
 
 def test_parse_dict() -> None:
-    # sourcery skip: avoid-builtin-shadow, class-extract-method
+    # sourcery skip: class-extract-method
     # Prepare
     source_file = Path("test_dictParser_dict")
     parsed_dict = Path(f"parsed.{source_file.name}")
@@ -22,7 +22,7 @@ def test_parse_dict() -> None:
 
 
 def test_reread_parsed_dict() -> None:
-    # sourcery skip: avoid-builtin-shadow, class-extract-method
+    # sourcery skip: class-extract-method
     # Prepare
     source_file = Path("test_dictParser_dict")
     parsed_dict = Path(f"parsed.{source_file.name}")

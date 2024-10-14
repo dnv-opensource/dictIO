@@ -381,7 +381,7 @@ class CppFormatter(Formatter):
     def to_string(
         self,
         arg: MutableMapping[TKey, TValue] | CppDict,
-    ) -> str:  # sourcery skip: avoid-builtin-shadow, dict-comprehension
+    ) -> str:  # sourcery skip: dict-comprehension
         """Create a string representation of the passed in dict in dictIO dict file format.
 
         Parameters

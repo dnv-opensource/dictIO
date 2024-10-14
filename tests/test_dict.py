@@ -22,7 +22,7 @@ def test_dict() -> CppDict:
     return parser.parse_file(Path("test_dict_dict"))
 
 
-def test_init() -> None:  # sourcery skip: avoid-builtin-shadow
+def test_init() -> None:
     test_dict = CppDict()
     assert test_dict.source_file is None
     assert test_dict.path == Path.cwd()
@@ -38,7 +38,7 @@ def test_init() -> None:  # sourcery skip: avoid-builtin-shadow
     assert test_dict.delimiters == ["{", "}", "(", ")", "<", ">", ";", ","]
 
 
-def test_init_with_file() -> None:  # sourcery skip: avoid-builtin-shadow
+def test_init_with_file() -> None:
     test_dict = CppDict("someDict")
     assert test_dict.path == Path.cwd()
     assert test_dict.source_file == Path.cwd() / "someDict"
@@ -210,7 +210,7 @@ def test_find_global_key() -> None:
     assert dict_out[keyldl][0][keyl][2] == str_out_3
 
 
-def test_order_keys() -> None:  # sourcery skip: avoid-builtin-shadow
+def test_order_keys() -> None:
     # sourcery skip: no-loop-in-tests
     # Prepare
     str_1 = "string 1"

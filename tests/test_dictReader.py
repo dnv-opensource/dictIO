@@ -5,6 +5,7 @@ import os
 import re
 import sys
 from copy import deepcopy
+from functools import partial
 from pathlib import Path, PurePath
 from typing import Any
 
@@ -25,7 +26,7 @@ def test_file_not_found_exception() -> None:
 
 
 def test_merge_includes() -> None:
-    # sourcery skip: avoid-builtin-shadow, class-extract-method
+    # sourcery skip: class-extract-method
     # Prepare dict until and including _parse_tokenized_dict()
     cpp_dict = CppDict()
     SetupHelper.prepare_dict_until(cpp_dict, until_step=-1)
@@ -50,7 +51,6 @@ def test_merge_includes() -> None:
 
 
 def test_resolve_reference() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare dict until and including ()
     cpp_dict = CppDict()
     SetupHelper.prepare_dict_until(cpp_dict, until_step=0)
@@ -107,7 +107,6 @@ def test_resolve_reference() -> None:
 
 
 def test_eval_expressions() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare dict until and including ()
     cpp_dict = CppDict()
     SetupHelper.prepare_dict_until(cpp_dict, until_step=0)
@@ -148,7 +147,6 @@ def test_eval_expressions() -> None:
 
 
 def test_eval_expressions_with_included_keys() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # test keys with the same name as included keys
     # Prepare
     source_file = Path("test_dictReader_dict")
@@ -240,7 +238,6 @@ def test_eval_expressions_with_included_keys() -> None:
 
 
 def test_eval_expressions_with_included_numpy_expressions() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path("test_dictReader_dict")
 
@@ -289,7 +286,6 @@ def test_eval_expressions_with_included_numpy_expressions() -> None:
 
 
 def test_reread_string_literals() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path("test_dictReader_dict")
     parsed_file = Path(f"parsed.{source_file.name}")
@@ -322,7 +318,6 @@ def test_remove_include_keys() -> None:
 
 
 def test_read_dict() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path("test_dictReader_dict")
     # Execute
@@ -353,7 +348,6 @@ def test_read_dict() -> None:
 
 
 def test_read_json() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path("test_dictReader_json.json")
     # Execute
@@ -431,7 +425,6 @@ def _resolve_references(
 
 
 def test_read_foam() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path("test_dictReader_foam")
     # Execute
@@ -442,7 +435,6 @@ def test_read_foam() -> None:
 
 
 def test_read_xml() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path("test_dictReader_xml.xml")
     # Execute
@@ -459,7 +451,6 @@ def test_read_xml() -> None:
 
 @WindowsOnly
 def test_read_dict_in_subfolder_bsl() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path.cwd() / "subfolder" / "test_subfolder_dict_bsl"
     # Execute
@@ -470,7 +461,6 @@ def test_read_dict_in_subfolder_bsl() -> None:
 
 
 def test_read_dict_in_subfolder_fsl() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path.cwd() / "subfolder" / "test_subfolder_dict_fsl"
     # Execute
@@ -481,7 +471,6 @@ def test_read_dict_in_subfolder_fsl() -> None:
 
 
 def test_read_dict_in_subfolder_source_file_given_as_str() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path.cwd().absolute() / "subfolder" / "test_subfolder_dict_fsl"
     source_file_as_str = str(source_file)
@@ -492,7 +481,6 @@ def test_read_dict_in_subfolder_source_file_given_as_str() -> None:
 
 
 def test_read_dict_in_subfolder_source_file_given_as_purepath() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path.cwd().absolute() / "subfolder" / "test_subfolder_dict_fsl"
     source_file_as_purepath = PurePath(str(source_file))
@@ -526,7 +514,6 @@ def test_read_dict_in_subfolder_parsed_via_dictparser_cli() -> None:
 
 
 def test_read_circular_includes() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path("circular_include/test_base_dict")
     # Execute
@@ -557,7 +544,6 @@ def test_read_circular_includes_log_warning(caplog: pytest.LogCaptureFixture) ->
 
 
 def test_read_strings_dict() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path("test_strings_dict")
     # Execute
@@ -574,7 +560,6 @@ def test_read_strings_dict() -> None:
 
 
 def test_reread_strings_dict() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path("test_strings_dict")
     parsed_file = Path(f"parsed.{source_file.name}")
@@ -596,7 +581,6 @@ def test_reread_strings_dict() -> None:
 
 
 def test_single_character_vars() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path("test_single_character_vars_dict")
     # Execute
@@ -609,7 +593,6 @@ def test_single_character_vars() -> None:
 
 
 def test_single_character_references() -> None:
-    # sourcery skip: avoid-builtin-shadow
     # Prepare
     source_file = Path("test_single_character_vars_dict")
     # Execute
@@ -640,10 +623,16 @@ class SetupHelper:
         _ = parser.parse_file(file_name, dict_to_prepare)
 
         funcs = [
-            (DictReader._merge_includes, dict_to_prepare),  # Step 00
-            (DictReader._eval_expressions, dict_to_prepare),  # Step 01
+            partial(
+                DictReader._merge_includes,  # Step 00
+                dict_to_prepare,
+            ),
+            partial(
+                DictReader._eval_expressions,  # Step 01
+                dict_to_prepare,
+            ),
         ]
 
         for i in range(until_step + 1):
-            funcs[i][0](*funcs[i][1:])  # type: ignore[arg-type, call-arg, operator]
+            funcs[i]()
         return

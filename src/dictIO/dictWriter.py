@@ -118,7 +118,7 @@ def create_target_file_name(
     prefix: str | None = None,
     scope: MutableSequence[TKey] | None = None,
     output: str | None = None,
-) -> Path:  # sourcery skip: avoid-builtin-shadow
+) -> Path:
     """Helper function to create a well defined target file name.
 
     Parameters
