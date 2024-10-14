@@ -15,6 +15,7 @@ from typing import (
     TypeAlias,
     TypeVar,
     cast,
+    overload,
 )
 
 from dictIO.utils.counter import BorgCounter
@@ -53,20 +54,52 @@ class ParsableDict(MutableMapping[_KT, _VT]):
     where a dict or any other MutableMapping type is expected.
     """
 
+    @overload
     def __init__(
         self,
-        file: str | os.PathLike[str] | None = None,
-        base_dict: Mapping[_KT, _VT] | None = None,
-        **kwargs: TValue,
+        **kwargs: _VT,
     ) -> None:
-        # At very first: Re-declare member 'data' of base class UserDict with a well defined type hint.
-        # (This allows static type checkers to properly resolve the type of the 'data' member.)
+        pass
+
+    @overload
+    def __init__(
+        self,
+        arg: Mapping[_KT, _VT],
+        **kwargs: _VT,
+    ) -> None:
+        pass
+
+    @overload
+    def __init__(
+        self,
+        arg: Iterable[tuple[_KT, _VT]],
+        **kwargs: _VT,
+    ) -> None:
+        pass
+
+    @overload
+    def __init__(
+        self,
+        arg: str | os.PathLike[str],
+        **kwargs: _VT,
+    ) -> None:
+        pass
+
+    def __init__(
+        self,
+        arg: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | str | os.PathLike[str] | None = None,
+        **kwargs: _VT,
+    ) -> None:
+        file: str | os.PathLike[str] | None = None
+        base_dict: MutableMapping[_KT, _VT] | None = None
+        if isinstance(arg, Mapping):
+            base_dict = dict(cast(Mapping[_KT, _VT], arg))
+        elif isinstance(arg, str | os.PathLike):
+            file = arg
+        elif isinstance(arg, Iterable):
+            base_dict = dict(cast(Iterable[tuple[_KT, _VT]], arg))  # type: ignore[reportUnnecessaryCast]
+
         self.data: dict[_KT, _VT] = {}
-        # Call base class constructor
-        if base_dict is not None:
-            self.update(base_dict)
-        if kwargs:
-            self.update(cast(Mapping[_KT, _VT], kwargs))
 
         self.counter: BorgCounter = BorgCounter()
         self.source_file: Path | None = None
@@ -113,6 +146,12 @@ class ParsableDict(MutableMapping[_KT, _VT]):
             "]",
             ")",
         ]
+
+        if base_dict is not None:
+            self.update(base_dict)
+        if kwargs:
+            self.update(cast(Mapping[_KT, _VT], kwargs))
+
         return
 
     # Implementations of the abstract methods of collections.abc.MutableMapping
@@ -147,13 +186,13 @@ class ParsableDict(MutableMapping[_KT, _VT]):
     # independent of collections.abc.MutableMapping
     def __or__(self, other: MutableMapping[_KT, _VT]) -> "ParsableDict[_KT, _VT]":
         if isinstance(other, ParsableDict):
-            return self.__class__(base_dict=self.data | other.data)  # type(other) is ParsableDict
-        return self.__class__(base_dict=self.data | dict(other))  # type(other) is MutableMapping
+            return self.__class__(self.data | other.data)  # type(other) is ParsableDict
+        return self.__class__(self.data | dict(other))  # type(other) is MutableMapping
 
     def __ror__(self, other: MutableMapping[_KT, _VT]) -> "ParsableDict[_KT, _VT]":
         if isinstance(other, ParsableDict):
-            return self.__class__(base_dict=other.data | self.data)  # type(other) is ParsableDict
-        return self.__class__(base_dict=dict(other) | self.data)  # type(other) is MutableMapping
+            return self.__class__(other.data | self.data)  # type(other) is ParsableDict
+        return self.__class__(dict(other) | self.data)  # type(other) is MutableMapping
 
     def __ior__(self, other: MutableMapping[_KT, _VT]) -> Self:
         if isinstance(other, ParsableDict):
@@ -171,7 +210,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
 
     def copy(self) -> "ParsableDict[_KT, _VT]":
         if self.__class__ is ParsableDict:
-            return ParsableDict(base_dict=self.data.copy())
+            return ParsableDict(self.data.copy())
         import copy
 
         data = self.data
@@ -516,13 +555,43 @@ class ComposableDict(ParsableDict[TKey, _VT]):
     where a dict or any other MutableMapping type is expected.
     """
 
+    @overload
     def __init__(
         self,
-        file: str | os.PathLike[str] | None = None,
-        base_dict: MutableMapping[str, _VT] | None = None,
-        **kwargs: TValue,
+        **kwargs: _VT,
     ) -> None:
-        super().__init__(file, base_dict, **kwargs)
+        pass
+
+    @overload
+    def __init__(
+        self,
+        arg: Mapping[TKey, _VT],
+        **kwargs: _VT,
+    ) -> None:
+        pass
+
+    @overload
+    def __init__(
+        self,
+        arg: Iterable[tuple[TKey, _VT]],
+        **kwargs: _VT,
+    ) -> None:
+        pass
+
+    @overload
+    def __init__(
+        self,
+        arg: str | os.PathLike[str],
+        **kwargs: _VT,
+    ) -> None:
+        pass
+
+    def __init__(
+        self,
+        arg: Mapping[TKey, _VT] | Iterable[tuple[TKey, _VT]] | str | os.PathLike[str] | None = None,
+        **kwargs: _VT,
+    ) -> None:
+        super().__init__(arg, **kwargs)  # type: ignore[arg-type, reportArgumentType, reportCallIssue]
         self.line_comments: dict[int, str] = {}
         self.block_comments: dict[int, str] = {}
         self.includes: dict[int, tuple[str, str, Path]] = {}
@@ -698,13 +767,43 @@ class CppDict(ComposableDict[TValue]):
     where a dict or any other MutableMapping type is expected.
     """
 
+    @overload
     def __init__(
         self,
-        file: str | os.PathLike[str] | None = None,
-        base_dict: MutableMapping[str, TValue] | None = None,
         **kwargs: TValue,
     ) -> None:
-        super().__init__(file, base_dict, **kwargs)
+        pass
+
+    @overload
+    def __init__(
+        self,
+        arg: Mapping[str, TValue],
+        **kwargs: TValue,
+    ) -> None:
+        pass
+
+    @overload
+    def __init__(
+        self,
+        arg: Iterable[tuple[str, TValue]],
+        **kwargs: TValue,
+    ) -> None:
+        pass
+
+    @overload
+    def __init__(
+        self,
+        arg: str | os.PathLike[str],
+        **kwargs: TValue,
+    ) -> None:
+        pass
+
+    def __init__(
+        self,
+        arg: Mapping[str, TValue] | Iterable[tuple[str, TValue]] | str | os.PathLike[str] | None = None,
+        **kwargs: TValue,
+    ) -> None:
+        super().__init__(arg, **kwargs)  # type: ignore[arg-type, reportArgumentType, reportCallIssue]
         return
 
 

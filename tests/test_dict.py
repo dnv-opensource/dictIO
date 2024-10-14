@@ -34,14 +34,42 @@ def test_init() -> None:
     assert test_dict.block_comments == {}
     assert test_dict.string_literals == {}
     assert test_dict.expressions == {}
-    # assert dict.delimiters == ['{','}','[',']','(',')','<','>',';',',']
     assert test_dict.delimiters == ["{", "}", "(", ")", "<", ">", ";", ","]
 
 
 def test_init_with_file() -> None:
     test_dict = CppDict("someDict")
-    assert test_dict.path == Path.cwd()
     assert test_dict.source_file == Path.cwd() / "someDict"
+    assert test_dict.path == Path.cwd()
+    assert test_dict.name == "someDict"
+    assert test_dict.line_content == []
+    assert test_dict.line_comments == {}
+    assert test_dict.includes == {}
+    assert test_dict.block_content == ""
+    assert test_dict.block_comments == {}
+    assert test_dict.string_literals == {}
+    assert test_dict.expressions == {}
+    assert test_dict.delimiters == ["{", "}", "(", ")", "<", ">", ";", ","]
+
+
+def test_init_with_base_dict() -> None:
+    base_dict: dict[str, Any] = {
+        "key1": "value1",
+        "key2": "value2",
+    }
+    test_dict = CppDict(base_dict)
+    assert test_dict.data == base_dict
+    assert test_dict.source_file is None
+    assert test_dict.path == Path.cwd()
+    assert test_dict.name == ""
+    assert test_dict.line_content == []
+    assert test_dict.line_comments == {}
+    assert test_dict.includes == {}
+    assert test_dict.block_content == ""
+    assert test_dict.block_comments == {}
+    assert test_dict.string_literals == {}
+    assert test_dict.expressions == {}
+    assert test_dict.delimiters == ["{", "}", "(", ")", "<", ">", ";", ","]
 
 
 def test_find_global_key() -> None:
