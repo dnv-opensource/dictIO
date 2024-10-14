@@ -221,7 +221,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
     def fromkeys(cls, iterable: Iterable[_KT], value: _VT | None = None) -> "ParsableDict[_KT, _VT]":
         new_dict: ParsableDict[_KT, _VT] = cls()
         for key in iterable:
-            new_dict[key] = cast(_VT, value)  # safe, as _VT_co can be None
+            new_dict[key] = cast(_VT, value)  # cast is safe, as `None` is within the type bounds of _VT
         return new_dict
 
     def update(  # type: ignore[override]
@@ -542,7 +542,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         return
 
 
-class ComposableDict(ParsableDict[TKey, _VT]):
+class ComposableDict(ParsableDict[_KT, _VT]):
     """Data structure for composable dictionaries.
 
     ComposableDict inherits from ParsableDict. It can hence be used transparently also in a context
@@ -559,7 +559,7 @@ class ComposableDict(ParsableDict[TKey, _VT]):
     @overload
     def __init__(
         self,
-        arg: Mapping[TKey, _VT],
+        arg: Mapping[_KT, _VT],
         **kwargs: _VT,
     ) -> None:
         pass
@@ -567,7 +567,7 @@ class ComposableDict(ParsableDict[TKey, _VT]):
     @overload
     def __init__(
         self,
-        arg: Iterable[tuple[TKey, _VT]],
+        arg: Iterable[tuple[_KT, _VT]],
         **kwargs: _VT,
     ) -> None:
         pass
@@ -582,7 +582,7 @@ class ComposableDict(ParsableDict[TKey, _VT]):
 
     def __init__(
         self,
-        arg: Mapping[TKey, _VT] | Iterable[tuple[TKey, _VT]] | str | os.PathLike[str] | None = None,
+        arg: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | str | os.PathLike[str] | None = None,
         **kwargs: _VT,
     ) -> None:
         super().__init__(arg, **kwargs)  # type: ignore[arg-type, reportArgumentType, reportCallIssue]
@@ -593,7 +593,7 @@ class ComposableDict(ParsableDict[TKey, _VT]):
 
     def _post_update(
         self,
-        __m: Mapping[str, _VT],
+        __m: Mapping[_KT, _VT],
         **kwargs: _VT,
     ) -> None:
         super()._post_update(__m, **kwargs)
@@ -604,7 +604,7 @@ class ComposableDict(ParsableDict[TKey, _VT]):
             self.includes.update(__m.includes)
         return
 
-    def _post_merge(self, other: MutableMapping[str, _VT]) -> None:
+    def _post_merge(self, other: MutableMapping[_KT, _VT]) -> None:
         super()._post_merge(other)
         # merge ComposableDict attributes
         if isinstance(other, ComposableDict):
@@ -674,7 +674,8 @@ class ComposableDict(ParsableDict[TKey, _VT]):
             if placeholder in self.data:
                 continue
             break
-        self.data[placeholder] = cast(_VT, placeholder)  # safe, as _VT_co can be str
+        # cast is safe, as `str` is within the type bounds of both _KT and _VT
+        self.data[cast(_KT, placeholder)] = cast(_VT, placeholder)
         self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
         return
 
@@ -690,8 +691,8 @@ class ComposableDict(ParsableDict[TKey, _VT]):
         """
         super()._clean_branch(branch)
         # IDENTIFY all placeholders on current level
-        _keys_on_this_level: list[TKey] = list(branch.keys())
-        key_type_on_this_level: type[TKey | None] = NoneType
+        _keys_on_this_level: list[_KT_local] = list(branch.keys())
+        key_type_on_this_level: type[_KT_local | None] = NoneType
         if _keys_on_this_level:
             key_type_on_this_level = type(_keys_on_this_level[0])
         if key_type_on_this_level is not str:
@@ -754,7 +755,7 @@ class ComposableDict(ParsableDict[TKey, _VT]):
         return
 
 
-class CppDict(ComposableDict[TValue]):
+class CppDict(ComposableDict[TKey, TValue]):
     """Data structure for C++ dictionaries.
 
     CppDict inherits from ParsableDict. It can hence be used transparently also in a context
