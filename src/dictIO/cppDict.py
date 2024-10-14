@@ -208,14 +208,14 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         import copy
 
         data = self.data
-        copied_cpp_dict: ParsableDict[_KT, _VT]
+        copied_dict: ParsableDict[_KT, _VT]
         try:
             self.data = {}
-            copied_cpp_dict = copy.copy(self)
+            copied_dict = copy.copy(self)
         finally:
             self.data = data
-        copied_cpp_dict.update(self)
-        return copied_cpp_dict
+        copied_dict.update(self)
+        return copied_dict
 
     @classmethod
     def fromkeys(cls, iterable: Iterable[_KT], value: _VT | None = None) -> "ParsableDict[_KT, _VT]":
