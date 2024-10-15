@@ -41,7 +41,7 @@ _VT_local = TypeVar("_VT_local", bound=TValue)
 # Type variable `Self` for type hinting in methods that return self.
 # Explicit declaration here necessary for Python 3.10 support.
 # Python >= 3.11 would import `Self` from `typing` module directly.
-# (see https://docs.python.org/3/library/typing.html#typing.TypeVar)
+# (see https://docs.python.org/3/library/typing.html#typing.Self)
 # TODO @CLAROS: Remove this explicit declaration once we drop support for Python 3.10
 Self = TypeVar("Self", bound="ParsableDict[TKey, TValue]")
 
