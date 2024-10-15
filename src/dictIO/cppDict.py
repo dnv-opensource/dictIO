@@ -12,7 +12,6 @@ from copy import deepcopy
 from pathlib import Path
 from types import NoneType
 from typing import (
-    Self,
     TypeVar,
     cast,
     overload,
@@ -39,6 +38,12 @@ _VT = TypeVar("_VT", bound=TValue)
 _KT_local = TypeVar("_KT_local", bound=TKey)
 _VT_local = TypeVar("_VT_local", bound=TValue)
 
+# Type variable `Self` for type hinting in methods that return self.
+# Explicit declaration here necessary for Python 3.10 support.
+# Python >= 3.11 would import `Self` from `typing` module directly.
+# (see https://docs.python.org/3/library/typing.html#typing.TypeVar)
+# TODO @CLAROS: Remove this explicit declaration once we drop support for Python 3.10
+Self = TypeVar("Self", bound="ParsableDict[TKey, TValue]")
 
 logger = logging.getLogger(__name__)
 
@@ -190,7 +195,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
             return self.__class__(other.data | self.data)  # type(other) is ParsableDict
         return self.__class__(dict(other) | self.data)  # type(other) is MutableMapping
 
-    def __ior__(self, other: MutableMapping[_KT, _VT]) -> Self:
+    def __ior__(self: Self, other: MutableMapping[_KT, _VT]) -> Self:  # noqa: PYI034
         if isinstance(other, ParsableDict):
             self.data |= other.data  # type(other) is ParsableDict
         else:
