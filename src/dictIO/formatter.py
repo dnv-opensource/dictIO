@@ -5,9 +5,8 @@ import logging
 import re
 from collections.abc import MutableMapping, MutableSequence
 from copy import deepcopy
-from pathlib import Path
 from re import Pattern
-from typing import cast
+from typing import TYPE_CHECKING, cast
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, register_namespace, tostring
 
@@ -16,6 +15,9 @@ from numpy import ndarray
 from dictIO import CppDict
 from dictIO.types import TKey, TValue
 from dictIO.utils.counter import BorgCounter
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 __ALL__ = [
     "Formatter",
