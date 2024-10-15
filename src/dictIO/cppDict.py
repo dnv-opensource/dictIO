@@ -1,6 +1,8 @@
 # pyright: reportIncompatibleMethodOverride=false
 # pyright: reportUnnecessaryTypeIgnoreComment=false
 # ruff: noqa: ERA001
+from __future__ import annotations
+
 import contextlib
 import logging
 import os
@@ -178,12 +180,12 @@ class ParsableDict(MutableMapping[_KT, _VT]):
 
     # Implementation of additional methods in ParsableDict
     # independent of collections.abc.MutableMapping
-    def __or__(self, other: MutableMapping[_KT, _VT]) -> "ParsableDict[_KT, _VT]":
+    def __or__(self, other: MutableMapping[_KT, _VT]) -> ParsableDict[_KT, _VT]:
         if isinstance(other, ParsableDict):
             return self.__class__(self.data | other.data)  # type(other) is ParsableDict
         return self.__class__(self.data | dict(other))  # type(other) is MutableMapping
 
-    def __ror__(self, other: MutableMapping[_KT, _VT]) -> "ParsableDict[_KT, _VT]":
+    def __ror__(self, other: MutableMapping[_KT, _VT]) -> ParsableDict[_KT, _VT]:
         if isinstance(other, ParsableDict):
             return self.__class__(other.data | self.data)  # type(other) is ParsableDict
         return self.__class__(dict(other) | self.data)  # type(other) is MutableMapping
@@ -195,14 +197,14 @@ class ParsableDict(MutableMapping[_KT, _VT]):
             self.data |= dict(other)  # type(other) is MutableMapping
         return self
 
-    def __copy__(self) -> "ParsableDict[_KT, _VT]":
+    def __copy__(self) -> ParsableDict[_KT, _VT]:
         inst = self.__class__.__new__(self.__class__)
         inst.__dict__.update(self.__dict__)
         # Create a copy and avoid triggering descriptors
         inst.__dict__["data"] = self.__dict__["data"].copy()
         return inst
 
-    def copy(self) -> "ParsableDict[_KT, _VT]":
+    def copy(self) -> ParsableDict[_KT, _VT]:
         if self.__class__ is ParsableDict:
             return ParsableDict(self.data.copy())
         import copy
@@ -218,7 +220,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         return copied_dict
 
     @classmethod
-    def fromkeys(cls, iterable: Iterable[_KT], value: _VT | None = None) -> "ParsableDict[_KT, _VT]":
+    def fromkeys(cls, iterable: Iterable[_KT], value: _VT | None = None) -> ParsableDict[_KT, _VT]:
         new_dict: ParsableDict[_KT, _VT] = cls()
         for key in iterable:
             new_dict[key] = cast(_VT, value)  # cast is safe, as `None` is within the type bounds of _VT

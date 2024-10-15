@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import io
 import logging
 import re
@@ -36,7 +38,7 @@ class Formatter:
         self.counter = BorgCounter()
 
     @classmethod
-    def get_formatter(cls, target_file: Path | None = None) -> "Formatter":
+    def get_formatter(cls, target_file: Path | None = None) -> Formatter:
         """Return a Formatter instance matching the type of the target file to be formatted (factory method).
 
         Parameters
@@ -460,7 +462,7 @@ class CppFormatter(Formatter):
         sep: str = " ",
         items_per_line: int = 10,
         end: str = "\n",
-        ancestry: type[MutableMapping[TKey, TValue]] | type[MutableSequence[TValue]] = MutableMapping,
+        ancestry: type[MutableMapping[TKey, TValue] | MutableSequence[TValue]] = MutableMapping,
     ) -> str:
         """Format a dict or list object."""
         total_indent = 30

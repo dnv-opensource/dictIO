@@ -1,4 +1,6 @@
 # ruff: noqa: ARG002
+from __future__ import annotations
+
 import logging
 import os
 import re
@@ -6,6 +8,8 @@ from collections.abc import MutableMapping, MutableSequence, Sequence
 from pathlib import Path
 from re import Match, Pattern
 from typing import (
+    TypeAlias,
+    TypeVar,
     cast,
 )
 
@@ -13,12 +17,18 @@ from lxml.etree import ETCompatXMLParser, fromstring
 from lxml.etree import _Element as LxmlElement  # pyright: ignore[reportPrivateUsage]
 
 from dictIO import CppDict
+from dictIO.cppDict import ParsableDict
 from dictIO.types import TKey, TSingleValue, TValue
 from dictIO.utils.counter import BorgCounter
 
 __ALL__ = ["Parser", "CppParser", "FoamParser", "JsonParser", "XmlParser"]
 
 logger = logging.getLogger(__name__)
+
+TParsableDict: TypeAlias = ParsableDict[TKey, TValue]
+# TComposableDict: TypeAlias = ComposableDict[TValue]  # noqa: ERA001
+
+_TDict_co = TypeVar("_TDict_co", bound=TParsableDict, covariant=True)
 
 
 class Parser:
@@ -34,7 +44,7 @@ class Parser:
         return
 
     @classmethod
-    def get_parser(cls, source_file: Path | None = None) -> "Parser":
+    def get_parser(cls, source_file: Path | None = None) -> Parser:
         """Return a Parser instance matching the type of the source file to be parsed (factory method).
 
         Parameters
