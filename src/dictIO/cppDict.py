@@ -189,9 +189,9 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         return self.__class__(dict(other) | self.data)  # type(other) is MutableMapping
 
     # TODO @CLAROS: Change return type to `Self` (from `typing`module)
-    #               once we drop support for Python 3.10
-    #               (see https://docs.python.org/3/library/typing.html#typing.Self)
-    #               CLAROS, 2024-10-15
+    #      once we drop support for Python 3.10
+    #      (see https://docs.python.org/3/library/typing.html#typing.Self)
+    #      CLAROS, 2024-10-15
     def __ior__(self, other: MutableMapping[_KT, _VT]) -> ParsableDict[_KT, _VT]:  # noqa: PYI034
         if isinstance(other, ParsableDict):
             self.data |= other.data  # type(other) is ParsableDict
