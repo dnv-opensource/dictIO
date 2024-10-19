@@ -1,6 +1,7 @@
+from collections.abc import MutableMapping
 from copy import deepcopy
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -535,7 +536,6 @@ def test_merge_does_not_change_existings_lists() -> None:
 
 
 def test_merge_does_also_merge_attributes() -> None:
-    # construct two dicts with single entries, a nested dict and a nested list
     dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
     dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
     dict_1.expressions |= {
@@ -569,37 +569,51 @@ def test_merge_does_also_merge_attributes() -> None:
             "name": "EXPRESSION000022",
             "expression": "$varName22",
         },
+        3: {
+            "name": "EXPRESSION000023",
+            "expression": "$varName23",
+        },
     }
     dict_2.line_comments |= {
         1: "// line comment 21",
         2: "// line comment 22",
+        3: "// line comment 23",
     }
     dict_2.block_comments |= {
         1: "/* block comment 21 */",
         2: "/* block comment 22 */",
+        3: "/* block comment 23 */",
     }
     dict_2.includes |= {
         1: ("#include dict_21", "dict_21", Path("dict_21")),
         2: ("#include dict_22", "dict_22", Path("dict_22")),
+        3: ("#include dict_23", "dict_23", Path("dict_23")),
     }
     # merge dict_2 into dict_1
     dict_1.merge(dict_2)
-    # assert the no entry in the attributes of dict_1 has been overwritten
-    # (because the attributes in dict_2 contain only keys that are already present in dict_1)
-    assert dict_1["A"] == "string 11"
-    assert dict_1["B"] == 11
-    assert dict_1["C"] == 11.0
-    assert dict_1["D"] is False
-    assert dict_1["E"]["A"] == "string 12"
-    assert dict_1["E"]["B"] == 12
-    assert dict_1["E"]["C"] == 12.0
-    assert dict_1["E"]["D"] is True
-    assert dict_1["E"]["E"] == "string 24"
-    assert dict_1["F"][0] == "string 13"
-    assert dict_1["F"][1] == 13
-    assert dict_1["F"][2] == 13.0
-    assert dict_1["F"][3] is False
-    assert dict_1["G"] == "string 26"
+    # assert that existing entries in the attributes of dict_1 have NOT been overwritten
+    # and new entries have been added
+    assert dict_1.expressions[1] == {
+        "name": "EXPRESSION000011",
+        "expression": "$varName11",
+    }
+    assert dict_1.expressions[2] == {
+        "name": "EXPRESSION000012",
+        "expression": "$varName12",
+    }
+    assert dict_1.expressions[3] == {
+        "name": "EXPRESSION000023",
+        "expression": "$varName23",
+    }
+    assert dict_1.line_comments[1] == "// line comment 11"
+    assert dict_1.line_comments[2] == "// line comment 12"
+    assert dict_1.line_comments[3] == "// line comment 23"
+    assert dict_1.block_comments[1] == "/* block comment 11 */"
+    assert dict_1.block_comments[2] == "/* block comment 12 */"
+    assert dict_1.block_comments[3] == "/* block comment 23 */"
+    assert dict_1.includes[1] == ("#include dict_11", "dict_11", Path("dict_11"))
+    assert dict_1.includes[2] == ("#include dict_12", "dict_12", Path("dict_12"))
+    assert dict_1.includes[3] == ("#include dict_23", "dict_23", Path("dict_23"))
 
 
 def test_update_does_overwrite_existing_keys() -> None:
@@ -646,7 +660,7 @@ def test_update_does_overwrite_existing_keys() -> None:
     )
     # update dict_1 with dict_2
     dict_1.update(dict_2)
-    # assert âll elements in dict_1 have been overwritten with the elements from dict_2
+    # assert all elements in dict_1 have been overwritten with the elements from dict_2
     assert dict_1["A"] == "string 21"
     assert dict_1["B"] == 21
     assert dict_1["C"] == 21.0
@@ -798,6 +812,87 @@ def test_update_does_change_existings_lists_by_overwrite() -> None:
     assert dict_1["F"][4] == "string 25"
 
 
+def test_update_does_also_update_attributes() -> None:
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
+    dict_1.expressions |= {
+        1: {
+            "name": "EXPRESSION000011",
+            "expression": "$varName11",
+        },
+        2: {
+            "name": "EXPRESSION000012",
+            "expression": "$varName12",
+        },
+    }
+    dict_1.line_comments |= {
+        1: "// line comment 11",
+        2: "// line comment 12",
+    }
+    dict_1.block_comments |= {
+        1: "/* block comment 11 */",
+        2: "/* block comment 12 */",
+    }
+    dict_1.includes |= {
+        1: ("#include dict_11", "dict_11", Path("dict_11")),
+        2: ("#include dict_12", "dict_12", Path("dict_12")),
+    }
+    dict_2.expressions |= {
+        1: {
+            "name": "EXPRESSION000021",
+            "expression": "$varName21",
+        },
+        2: {
+            "name": "EXPRESSION000022",
+            "expression": "$varName22",
+        },
+        3: {
+            "name": "EXPRESSION000023",
+            "expression": "$varName23",
+        },
+    }
+    dict_2.line_comments |= {
+        1: "// line comment 21",
+        2: "// line comment 22",
+        3: "// line comment 23",
+    }
+    dict_2.block_comments |= {
+        1: "/* block comment 21 */",
+        2: "/* block comment 22 */",
+        3: "/* block comment 23 */",
+    }
+    dict_2.includes |= {
+        1: ("#include dict_21", "dict_21", Path("dict_21")),
+        2: ("#include dict_22", "dict_22", Path("dict_22")),
+        3: ("#include dict_23", "dict_23", Path("dict_23")),
+    }
+    # update dict_1 with dict_2
+    dict_1.update(dict_2)
+    # assert that existing entries in the attributes of dict_1 HAVE been overwritten
+    # and new entries have been added
+    assert dict_1.expressions[1] == {
+        "name": "EXPRESSION000021",
+        "expression": "$varName21",
+    }
+    assert dict_1.expressions[2] == {
+        "name": "EXPRESSION000022",
+        "expression": "$varName22",
+    }
+    assert dict_1.expressions[3] == {
+        "name": "EXPRESSION000023",
+        "expression": "$varName23",
+    }
+    assert dict_1.line_comments[1] == "// line comment 21"
+    assert dict_1.line_comments[2] == "// line comment 22"
+    assert dict_1.line_comments[3] == "// line comment 23"
+    assert dict_1.block_comments[1] == "/* block comment 21 */"
+    assert dict_1.block_comments[2] == "/* block comment 22 */"
+    assert dict_1.block_comments[3] == "/* block comment 23 */"
+    assert dict_1.includes[1] == ("#include dict_21", "dict_21", Path("dict_21"))
+    assert dict_1.includes[2] == ("#include dict_22", "dict_22", Path("dict_22"))
+    assert dict_1.includes[3] == ("#include dict_23", "dict_23", Path("dict_23"))
+
+
 def test_inner_or_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
     dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
@@ -842,7 +937,7 @@ def test_inner_or_does_overwrite_existing_keys() -> None:
     )
     # execute inner or operation
     dict_1 |= dict_2
-    # assert âll elements in dict_1 have been overwritten with the elements from dict_2
+    # assert all elements in dict_1 have been overwritten with the elements from dict_2
     assert dict_1["A"] == "string 21"
     assert dict_1["B"] == 21
     assert dict_1["C"] == 21.0
@@ -992,3 +1087,623 @@ def test_inner_or_does_change_existings_lists_by_overwrite() -> None:
     assert dict_1["F"][2] == 23.0
     assert dict_1["F"][3] is True
     assert dict_1["F"][4] == "string 25"
+
+
+def test_inner_or_does_also_update_attributes() -> None:
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
+    dict_1.expressions |= {
+        1: {
+            "name": "EXPRESSION000011",
+            "expression": "$varName11",
+        },
+        2: {
+            "name": "EXPRESSION000012",
+            "expression": "$varName12",
+        },
+    }
+    dict_1.line_comments |= {
+        1: "// line comment 11",
+        2: "// line comment 12",
+    }
+    dict_1.block_comments |= {
+        1: "/* block comment 11 */",
+        2: "/* block comment 12 */",
+    }
+    dict_1.includes |= {
+        1: ("#include dict_11", "dict_11", Path("dict_11")),
+        2: ("#include dict_12", "dict_12", Path("dict_12")),
+    }
+    dict_2.expressions |= {
+        1: {
+            "name": "EXPRESSION000021",
+            "expression": "$varName21",
+        },
+        2: {
+            "name": "EXPRESSION000022",
+            "expression": "$varName22",
+        },
+        3: {
+            "name": "EXPRESSION000023",
+            "expression": "$varName23",
+        },
+    }
+    dict_2.line_comments |= {
+        1: "// line comment 21",
+        2: "// line comment 22",
+        3: "// line comment 23",
+    }
+    dict_2.block_comments |= {
+        1: "/* block comment 21 */",
+        2: "/* block comment 22 */",
+        3: "/* block comment 23 */",
+    }
+    dict_2.includes |= {
+        1: ("#include dict_21", "dict_21", Path("dict_21")),
+        2: ("#include dict_22", "dict_22", Path("dict_22")),
+        3: ("#include dict_23", "dict_23", Path("dict_23")),
+    }
+    # execute inner or operation
+    dict_1 |= dict_2  # pyright: ignore[reportAssignmentType]
+    # assert that existing entries in the attributes of dict_1 HAVE been overwritten
+    # and new entries have been added
+    assert dict_1.expressions[1] == {
+        "name": "EXPRESSION000021",
+        "expression": "$varName21",
+    }
+    assert dict_1.expressions[2] == {
+        "name": "EXPRESSION000022",
+        "expression": "$varName22",
+    }
+    assert dict_1.expressions[3] == {
+        "name": "EXPRESSION000023",
+        "expression": "$varName23",
+    }
+    assert dict_1.line_comments[1] == "// line comment 21"
+    assert dict_1.line_comments[2] == "// line comment 22"
+    assert dict_1.line_comments[3] == "// line comment 23"
+    assert dict_1.block_comments[1] == "/* block comment 21 */"
+    assert dict_1.block_comments[2] == "/* block comment 22 */"
+    assert dict_1.block_comments[3] == "/* block comment 23 */"
+    assert dict_1.includes[1] == ("#include dict_21", "dict_21", Path("dict_21"))
+    assert dict_1.includes[2] == ("#include dict_22", "dict_22", Path("dict_22"))
+    assert dict_1.includes[3] == ("#include dict_23", "dict_23", Path("dict_23"))
+
+
+def test_left_or_does_overwrite_existing_keys() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 21",
+            "B": 21,
+            "C": 21.0,
+            "D": True,
+            "E": {
+                "A": "string 22",
+                "B": 22,
+                "C": 22.0,
+                "D": False,
+            },
+            "F": [
+                "string 23",
+                23,
+                23.0,
+                True,
+            ],
+        }
+    )
+    # execute left or operation
+    new_dict = dict_1 | dict_2
+    # assert all elements in dict_1 have been overwritten with the elements from dict_2
+    assert new_dict["A"] == "string 21"
+    assert new_dict["B"] == 21
+    assert new_dict["C"] == 21.0
+    assert new_dict["D"] is True
+    assert new_dict["E"]["A"] == "string 22"
+    assert new_dict["E"]["B"] == 22
+    assert new_dict["E"]["C"] == 22.0
+    assert new_dict["E"]["D"] is False
+    assert new_dict["F"][0] == "string 23"
+    assert new_dict["F"][1] == 23
+    assert new_dict["F"][2] == 23.0
+    assert new_dict["F"][3] is True
+
+
+def test_left_or_does_delete_nested_elements() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 21",
+            "E": {},
+            "F": [],
+        }
+    )
+    # execute left or operation
+    new_dict = dict_1 | dict_2
+    # assert that formerly existing nested elements have been deleted,
+    # because they are not present in dict_2
+    assert new_dict["A"] == "string 21"  # overwritten by dict_2
+    assert new_dict["B"] == 11  # not deleted by dict_2
+    assert new_dict["C"] == 11.0  # not deleted by dict_2
+    assert new_dict["D"] is False  # not deleted by dict_2
+    assert new_dict["E"] == {}  # overwritten by dict_2, and hence all nested elements have been deleted
+    assert new_dict["F"] == []  # overwritten by dict_2, and hence all nested elements have been deleted
+
+
+def test_left_or_does_add_new_keys_by_overwrite() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "E": {
+                "E": "string 24",
+            },
+            "G": "string 26",
+        }
+    )
+    # execute left or operation
+    new_dict = dict_1 | dict_2
+    # assert dict_1 contains the new keys, but nested keys which do not exist in dict_2 have been deleted
+    assert new_dict["A"] == "string 11"
+    assert new_dict["B"] == 11
+    assert new_dict["C"] == 11.0
+    assert new_dict["D"] is False
+    with pytest.raises(KeyError):
+        _ = new_dict["E"]["A"]
+    with pytest.raises(KeyError):
+        _ = new_dict["E"]["B"]
+    with pytest.raises(KeyError):
+        _ = new_dict["E"]["C"]
+    with pytest.raises(KeyError):
+        _ = new_dict["E"]["D"]
+    assert new_dict["E"]["E"] == "string 24"
+    assert new_dict["F"][0] == "string 13"
+    assert new_dict["F"][1] == 13
+    assert new_dict["F"][2] == 13.0
+    assert new_dict["F"][3] is False
+    assert new_dict["G"] == "string 26"
+
+
+def test_left_or_does_change_existings_lists_by_overwrite() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "F": [
+                "string 23",
+                23,
+                23.0,
+                True,
+                "string 25",
+            ],
+        }
+    )
+    # execute left or operation
+    new_dict = dict_1 | dict_2
+    # assert that list "F" is overwritten with list "F" from dict_2
+    assert new_dict["F"][0] == "string 23"
+    assert new_dict["F"][1] == 23
+    assert new_dict["F"][2] == 23.0
+    assert new_dict["F"][3] is True
+    assert new_dict["F"][4] == "string 25"
+
+
+def test_left_or_does_also_update_attributes() -> None:
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
+    dict_1.expressions |= {
+        1: {
+            "name": "EXPRESSION000011",
+            "expression": "$varName11",
+        },
+        2: {
+            "name": "EXPRESSION000012",
+            "expression": "$varName12",
+        },
+    }
+    dict_1.line_comments |= {
+        1: "// line comment 11",
+        2: "// line comment 12",
+    }
+    dict_1.block_comments |= {
+        1: "/* block comment 11 */",
+        2: "/* block comment 12 */",
+    }
+    dict_1.includes |= {
+        1: ("#include dict_11", "dict_11", Path("dict_11")),
+        2: ("#include dict_12", "dict_12", Path("dict_12")),
+    }
+    dict_2.expressions |= {
+        1: {
+            "name": "EXPRESSION000021",
+            "expression": "$varName21",
+        },
+        2: {
+            "name": "EXPRESSION000022",
+            "expression": "$varName22",
+        },
+        3: {
+            "name": "EXPRESSION000023",
+            "expression": "$varName23",
+        },
+    }
+    dict_2.line_comments |= {
+        1: "// line comment 21",
+        2: "// line comment 22",
+        3: "// line comment 23",
+    }
+    dict_2.block_comments |= {
+        1: "/* block comment 21 */",
+        2: "/* block comment 22 */",
+        3: "/* block comment 23 */",
+    }
+    dict_2.includes |= {
+        1: ("#include dict_21", "dict_21", Path("dict_21")),
+        2: ("#include dict_22", "dict_22", Path("dict_22")),
+        3: ("#include dict_23", "dict_23", Path("dict_23")),
+    }
+    # execute left or operation
+    new_dict: ComposableDict[str, TValue | dict[str | int, TValue]]
+    new_dict = dict_1 | dict_2  # type: ignore[assignment, reportAssignmentType]
+    # assert that existing entries in the attributes of dict_1 HAVE been overwritten
+    # and new entries have been added
+    assert new_dict.expressions[1] == {
+        "name": "EXPRESSION000021",
+        "expression": "$varName21",
+    }
+    assert new_dict.expressions[2] == {
+        "name": "EXPRESSION000022",
+        "expression": "$varName22",
+    }
+    assert new_dict.expressions[3] == {
+        "name": "EXPRESSION000023",
+        "expression": "$varName23",
+    }
+    assert new_dict.line_comments[1] == "// line comment 21"
+    assert new_dict.line_comments[2] == "// line comment 22"
+    assert new_dict.line_comments[3] == "// line comment 23"
+    assert new_dict.block_comments[1] == "/* block comment 21 */"
+    assert new_dict.block_comments[2] == "/* block comment 22 */"
+    assert new_dict.block_comments[3] == "/* block comment 23 */"
+    assert new_dict.includes[1] == ("#include dict_21", "dict_21", Path("dict_21"))
+    assert new_dict.includes[2] == ("#include dict_22", "dict_22", Path("dict_22"))
+    assert new_dict.includes[3] == ("#include dict_23", "dict_23", Path("dict_23"))
+
+
+class DictWithoutOr(dict[Any, Any]):
+    def __or__(self, value: MutableMapping[Any, Any]) -> dict[Any, Any]:
+        return NotImplemented
+
+
+def test_right_or_does_overwrite_existing_keys() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 21",
+            "B": 21,
+            "C": 21.0,
+            "D": True,
+            "E": {
+                "A": "string 22",
+                "B": 22,
+                "C": 22.0,
+                "D": False,
+            },
+            "F": [
+                "string 23",
+                23,
+                23.0,
+                True,
+            ],
+        }
+    )
+    # execute right or operation
+    new_dict = dict_1 | dict_2
+    # assert all elements in dict_1 have been overwritten with the elements from dict_2
+    assert new_dict["A"] == "string 21"
+    assert new_dict["B"] == 21
+    assert new_dict["C"] == 21.0
+    assert new_dict["D"] is True
+    assert new_dict["E"]["A"] == "string 22"
+    assert new_dict["E"]["B"] == 22
+    assert new_dict["E"]["C"] == 22.0
+    assert new_dict["E"]["D"] is False
+    assert new_dict["F"][0] == "string 23"
+    assert new_dict["F"][1] == 23
+    assert new_dict["F"][2] == 23.0
+    assert new_dict["F"][3] is True
+
+
+def test_right_or_does_delete_nested_elements() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 21",
+            "E": {},
+            "F": [],
+        }
+    )
+    # execute right or operation
+    new_dict = dict_1 | dict_2
+    # assert that formerly existing nested elements have been deleted,
+    # because they are not present in dict_2
+    assert new_dict["A"] == "string 21"  # overwritten by dict_2
+    assert new_dict["B"] == 11  # not deleted by dict_2
+    assert new_dict["C"] == 11.0  # not deleted by dict_2
+    assert new_dict["D"] is False  # not deleted by dict_2
+    assert new_dict["E"] == {}  # overwritten by dict_2, and hence all nested elements have been deleted
+    assert new_dict["F"] == []  # overwritten by dict_2, and hence all nested elements have been deleted
+
+
+def test_right_or_does_add_new_keys_by_overwrite() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "E": {
+                "E": "string 24",
+            },
+            "G": "string 26",
+        }
+    )
+    # execute right or operation
+    new_dict = dict_1 | dict_2
+    # assert dict_1 contains the new keys, but nested keys which do not exist in dict_2 have been deleted
+    assert new_dict["A"] == "string 11"
+    assert new_dict["B"] == 11
+    assert new_dict["C"] == 11.0
+    assert new_dict["D"] is False
+    with pytest.raises(KeyError):
+        _ = new_dict["E"]["A"]
+    with pytest.raises(KeyError):
+        _ = new_dict["E"]["B"]
+    with pytest.raises(KeyError):
+        _ = new_dict["E"]["C"]
+    with pytest.raises(KeyError):
+        _ = new_dict["E"]["D"]
+    assert new_dict["E"]["E"] == "string 24"
+    assert new_dict["F"][0] == "string 13"
+    assert new_dict["F"][1] == 13
+    assert new_dict["F"][2] == 13.0
+    assert new_dict["F"][3] is False
+    assert new_dict["G"] == "string 26"
+
+
+def test_right_or_does_change_existings_lists_by_overwrite() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "F": [
+                "string 23",
+                23,
+                23.0,
+                True,
+                "string 25",
+            ],
+        }
+    )
+    # execute right or operation
+    new_dict = dict_1 | dict_2
+    # assert that list "F" is overwritten with list "F" from dict_2
+    assert new_dict["F"][0] == "string 23"
+    assert new_dict["F"][1] == 23
+    assert new_dict["F"][2] == 23.0
+    assert new_dict["F"][3] is True
+    assert new_dict["F"][4] == "string 25"
+
+
+def test_right_or_does_also_update_attributes() -> None:
+    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr()
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
+    dict_2.expressions |= {
+        1: {
+            "name": "EXPRESSION000021",
+            "expression": "$varName21",
+        },
+        2: {
+            "name": "EXPRESSION000022",
+            "expression": "$varName22",
+        },
+        3: {
+            "name": "EXPRESSION000023",
+            "expression": "$varName23",
+        },
+    }
+    dict_2.line_comments |= {
+        1: "// line comment 21",
+        2: "// line comment 22",
+        3: "// line comment 23",
+    }
+    dict_2.block_comments |= {
+        1: "/* block comment 21 */",
+        2: "/* block comment 22 */",
+        3: "/* block comment 23 */",
+    }
+    dict_2.includes |= {
+        1: ("#include dict_21", "dict_21", Path("dict_21")),
+        2: ("#include dict_22", "dict_22", Path("dict_22")),
+        3: ("#include dict_23", "dict_23", Path("dict_23")),
+    }
+    # execute right or operation
+    new_dict: ComposableDict[str, TValue | dict[str | int, TValue]]
+    new_dict = dict_1 | dict_2  # type: ignore[assignment, reportAssignmentType]
+    # assert that existing entries in the attributes of dict_1 HAVE been overwritten
+    # and new entries have been added
+    assert new_dict.expressions[1] == {
+        "name": "EXPRESSION000021",
+        "expression": "$varName21",
+    }
+    assert new_dict.expressions[2] == {
+        "name": "EXPRESSION000022",
+        "expression": "$varName22",
+    }
+    assert new_dict.expressions[3] == {
+        "name": "EXPRESSION000023",
+        "expression": "$varName23",
+    }
+    assert new_dict.line_comments[1] == "// line comment 21"
+    assert new_dict.line_comments[2] == "// line comment 22"
+    assert new_dict.line_comments[3] == "// line comment 23"
+    assert new_dict.block_comments[1] == "/* block comment 21 */"
+    assert new_dict.block_comments[2] == "/* block comment 22 */"
+    assert new_dict.block_comments[3] == "/* block comment 23 */"
+    assert new_dict.includes[1] == ("#include dict_21", "dict_21", Path("dict_21"))
+    assert new_dict.includes[2] == ("#include dict_22", "dict_22", Path("dict_22"))
+    assert new_dict.includes[3] == ("#include dict_23", "dict_23", Path("dict_23"))
