@@ -14,12 +14,13 @@ from dictIO import (
     order_keys,
     set_global_key,
 )
+from dictIO.cppDict import ComposableDict
 
 if TYPE_CHECKING:
     from dictIO.types import TValue
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_dict() -> CppDict:
     parser = CppParser()
     return parser.parse_file(Path("test_dict_dict"))
@@ -350,3 +351,576 @@ def test_include() -> None:
     # Clean up
     temp_dict_file.unlink(missing_ok=True)
     parsed_dict_file.unlink(missing_ok=True)
+
+
+def test_merge_does_not_overwrite_existing_keys() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 21",
+            "B": 21,
+            "C": 21.0,
+            "D": True,
+            "E": {
+                "A": "string 22",
+                "B": 22,
+                "C": 22.0,
+                "D": False,
+            },
+            "F": [
+                "string 23",
+                23,
+                23.0,
+                True,
+            ],
+        }
+    )
+    dict_1_original = deepcopy(dict_1)
+    # merge dict_2 into dict_1
+    dict_1.merge(dict_2)
+    # assert that no entry in dict_1 has been overwritten
+    # (because dict_2 contains only keys that are already present in dict_1)
+    assert dict_1 == dict_1_original
+
+
+def test_merge_does_not_delete_existing_keys() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 21",
+            "E": {},
+            "F": [],
+        }
+    )
+    dict_1_original = deepcopy(dict_1)
+    # merge dict_2 into dict_1
+    dict_1.merge(dict_2)
+    # assert that no entry in dict_1 has been deleted
+    assert dict_1 == dict_1_original
+
+
+def test_merge_does_add_new_keys() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "E": {
+                "E": "string 24",
+            },
+            "G": "string 26",
+        }
+    )
+    # merge dict_2 into dict_1
+    dict_1.merge(dict_2)
+    # assert dict_1 contains the new keys and values from dict_2
+    assert dict_1["A"] == "string 11"
+    assert dict_1["B"] == 11
+    assert dict_1["C"] == 11.0
+    assert dict_1["D"] is False
+    assert dict_1["E"]["A"] == "string 12"
+    assert dict_1["E"]["B"] == 12
+    assert dict_1["E"]["C"] == 12.0
+    assert dict_1["E"]["D"] is True
+    assert dict_1["E"]["E"] == "string 24"
+    assert dict_1["F"][0] == "string 13"
+    assert dict_1["F"][1] == 13
+    assert dict_1["F"][2] == 13.0
+    assert dict_1["F"][3] is False
+    assert dict_1["G"] == "string 26"
+
+
+def test_merge_does_not_change_existings_lists() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "F": [
+                "string 23",
+                23,
+                23.0,
+                True,
+                "string 25",
+            ],
+        }
+    )
+    # merge dict_2 into dict_1
+    dict_1.merge(dict_2)
+    # assert that list "F" remained unchanged and
+    # that the additional element in list "F" has NOT been added to the list.
+    assert dict_1["F"][0] == "string 13"
+    assert dict_1["F"][1] == 13
+    assert dict_1["F"][2] == 13.0
+    assert dict_1["F"][3] is False
+    assert len(dict_1["F"]) == 4
+    with pytest.raises(IndexError):
+        _ = dict_1["F"][4]
+
+
+def test_update_does_overwrite_existing_keys() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 21",
+            "B": 21,
+            "C": 21.0,
+            "D": True,
+            "E": {
+                "A": "string 22",
+                "B": 22,
+                "C": 22.0,
+                "D": False,
+            },
+            "F": [
+                "string 23",
+                23,
+                23.0,
+                True,
+            ],
+        }
+    )
+    # update dict_1 with dict_2
+    dict_1.update(dict_2)
+    # assert âll elements in dict_1 have been overwritten with the elements from dict_2
+    assert dict_1["A"] == "string 21"
+    assert dict_1["B"] == 21
+    assert dict_1["C"] == 21.0
+    assert dict_1["D"] is True
+    assert dict_1["E"]["A"] == "string 22"
+    assert dict_1["E"]["B"] == 22
+    assert dict_1["E"]["C"] == 22.0
+    assert dict_1["E"]["D"] is False
+    assert dict_1["F"][0] == "string 23"
+    assert dict_1["F"][1] == 23
+    assert dict_1["F"][2] == 23.0
+    assert dict_1["F"][3] is True
+
+
+def test_update_does_delete_nested_elements() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 21",
+            "E": {},
+            "F": [],
+        }
+    )
+    # update dict_1 with dict_2
+    dict_1.update(dict_2)
+    # assert that formerly existing nested elements have been deleted,
+    # because they are not present in dict_2
+    assert dict_1["A"] == "string 21"  # overwritten by dict_2
+    assert dict_1["B"] == 11  # not deleted by dict_2
+    assert dict_1["C"] == 11.0  # not deleted by dict_2
+    assert dict_1["D"] is False  # not deleted by dict_2
+    assert dict_1["E"] == {}  # overwritten by dict_2, and hence all nested elements have been deleted
+    assert dict_1["F"] == []  # overwritten by dict_2, and hence all nested elements have been deleted
+
+
+def test_update_does_add_new_keys_by_overwrite() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "E": {
+                "E": "string 24",
+            },
+            "G": "string 26",
+        }
+    )
+    # update dict_1 with dict_2
+    dict_1.update(dict_2)
+    # assert dict_1 contains the new keys, but nested keys which do not exist in dict_2 have been deleted
+    assert dict_1["A"] == "string 11"
+    assert dict_1["B"] == 11
+    assert dict_1["C"] == 11.0
+    assert dict_1["D"] is False
+    with pytest.raises(KeyError):
+        _ = dict_1["E"]["A"]
+    with pytest.raises(KeyError):
+        _ = dict_1["E"]["B"]
+    with pytest.raises(KeyError):
+        _ = dict_1["E"]["C"]
+    with pytest.raises(KeyError):
+        _ = dict_1["E"]["D"]
+    assert dict_1["E"]["E"] == "string 24"
+    assert dict_1["F"][0] == "string 13"
+    assert dict_1["F"][1] == 13
+    assert dict_1["F"][2] == 13.0
+    assert dict_1["F"][3] is False
+    assert dict_1["G"] == "string 26"
+
+
+def test_update_does_change_existings_lists_by_overwrite() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "F": [
+                "string 23",
+                23,
+                23.0,
+                True,
+                "string 25",
+            ],
+        }
+    )
+    # update dict_1 with dict_2
+    dict_1.update(dict_2)
+    # assert that list "F" is overwritten with list "F" from dict_2
+    assert dict_1["F"][0] == "string 23"
+    assert dict_1["F"][1] == 23
+    assert dict_1["F"][2] == 23.0
+    assert dict_1["F"][3] is True
+    assert dict_1["F"][4] == "string 25"
+
+
+def test_inner_or_does_overwrite_existing_keys() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 21",
+            "B": 21,
+            "C": 21.0,
+            "D": True,
+            "E": {
+                "A": "string 22",
+                "B": 22,
+                "C": 22.0,
+                "D": False,
+            },
+            "F": [
+                "string 23",
+                23,
+                23.0,
+                True,
+            ],
+        }
+    )
+    # execute inner or operation
+    dict_1 |= dict_2
+    # assert âll elements in dict_1 have been overwritten with the elements from dict_2
+    assert dict_1["A"] == "string 21"
+    assert dict_1["B"] == 21
+    assert dict_1["C"] == 21.0
+    assert dict_1["D"] is True
+    assert dict_1["E"]["A"] == "string 22"
+    assert dict_1["E"]["B"] == 22
+    assert dict_1["E"]["C"] == 22.0
+    assert dict_1["E"]["D"] is False
+    assert dict_1["F"][0] == "string 23"
+    assert dict_1["F"][1] == 23
+    assert dict_1["F"][2] == 23.0
+    assert dict_1["F"][3] is True
+
+
+def test_inner_or_does_delete_nested_elements() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 21",
+            "E": {},
+            "F": [],
+        }
+    )
+    # execute inner or operation
+    dict_1 |= dict_2
+    # assert that formerly existing nested elements have been deleted,
+    # because they are not present in dict_2
+    assert dict_1["A"] == "string 21"  # overwritten by dict_2
+    assert dict_1["B"] == 11  # not deleted by dict_2
+    assert dict_1["C"] == 11.0  # not deleted by dict_2
+    assert dict_1["D"] is False  # not deleted by dict_2
+    assert dict_1["E"] == {}  # overwritten by dict_2, and hence all nested elements have been deleted
+    assert dict_1["F"] == []  # overwritten by dict_2, and hence all nested elements have been deleted
+
+
+def test_inner_or_does_add_new_keys_by_overwrite() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "E": {
+                "E": "string 24",
+            },
+            "G": "string 26",
+        }
+    )
+    # execute inner or operation
+    dict_1 |= dict_2
+    # assert dict_1 contains the new keys, but nested keys which do not exist in dict_2 have been deleted
+    assert dict_1["A"] == "string 11"
+    assert dict_1["B"] == 11
+    assert dict_1["C"] == 11.0
+    assert dict_1["D"] is False
+    with pytest.raises(KeyError):
+        _ = dict_1["E"]["A"]
+    with pytest.raises(KeyError):
+        _ = dict_1["E"]["B"]
+    with pytest.raises(KeyError):
+        _ = dict_1["E"]["C"]
+    with pytest.raises(KeyError):
+        _ = dict_1["E"]["D"]
+    assert dict_1["E"]["E"] == "string 24"
+    assert dict_1["F"][0] == "string 13"
+    assert dict_1["F"][1] == 13
+    assert dict_1["F"][2] == 13.0
+    assert dict_1["F"][3] is False
+    assert dict_1["G"] == "string 26"
+
+
+def test_inner_or_does_change_existings_lists_by_overwrite() -> None:
+    # construct two dicts with single entries, a nested dict and a nested list
+    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "A": "string 11",
+            "B": 11,
+            "C": 11.0,
+            "D": False,
+            "E": {
+                "A": "string 12",
+                "B": 12,
+                "C": 12.0,
+                "D": True,
+            },
+            "F": [
+                "string 13",
+                13,
+                13.0,
+                False,
+            ],
+        }
+    )
+    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+        {
+            "F": [
+                "string 23",
+                23,
+                23.0,
+                True,
+                "string 25",
+            ],
+        }
+    )
+    # execute inner or operation
+    dict_1 |= dict_2
+    # assert that list "F" is overwritten with list "F" from dict_2
+    assert dict_1["F"][0] == "string 23"
+    assert dict_1["F"][1] == 23
+    assert dict_1["F"][2] == 23.0
+    assert dict_1["F"][3] is True
+    assert dict_1["F"][4] == "string 25"
