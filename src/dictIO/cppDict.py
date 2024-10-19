@@ -193,14 +193,22 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         ParsableDict[_KT, _VT]
             A new ParsableDict instance containing the content of `self` updated with the content of `other`.
         """
+        new_dict: ParsableDict[_KT, _VT]
         if isinstance(other, ParsableDict):
-            return self.__class__(self.data | other.data)  # type(other) is ParsableDict
-        return self.__class__(self.data | dict(other))  # type(other) is MutableMapping
+            new_dict = self.__class__(self.data | other.data)  # type(other) is ParsableDict
+        else:
+            new_dict = self.__class__(self.data | dict(other))  # type(other) is MutableMapping
+        # update attributes
+        new_dict._post_update(other)
+        new_dict._clean()
+        return new_dict
 
     def __ror__(self, other: MutableMapping[_KT, _VT]) -> ParsableDict[_KT, _VT]:
         """right `or` operation: `other | self`.
 
         The `__ror__()` method is called by the ` | ` operator when it is used with `self` on the right-hand side.
+        This method is only called if `other` and `self` are of different types
+        and `other` does not implement `__or__()`, i.e. other.__or__() returns `NotImplemented`.
 
         Parameters
         ----------
@@ -212,9 +220,15 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         ParsableDict[_KT, _VT]
             A new ParsableDict instance containing the content of `other` updated with the content of `self`.
         """
+        new_dict: ParsableDict[_KT, _VT]
         if isinstance(other, ParsableDict):
-            return self.__class__(other.data | self.data)  # type(other) is ParsableDict
-        return self.__class__(dict(other) | self.data)  # type(other) is MutableMapping
+            new_dict = self.__class__(other.data | self.data)  # type(other) is ParsableDict
+        else:
+            new_dict = self.__class__(dict(other) | self.data)  # type(other) is MutableMapping
+        # update attributes
+        new_dict._post_update(self)
+        new_dict._clean()
+        return new_dict
 
     # TODO @CLAROS: Change return type to `Self` (from `typing`module)
     #      once we drop support for Python 3.10
@@ -240,6 +254,9 @@ class ParsableDict(MutableMapping[_KT, _VT]):
             self.data |= other.data  # type(other) is ParsableDict
         else:
             self.data |= dict(other)  # type(other) is MutableMapping
+        # update attributes
+        self._post_update(other)
+        self._clean()
         return self
 
     def __copy__(self) -> ParsableDict[_KT, _VT]:
