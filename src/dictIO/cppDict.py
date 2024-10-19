@@ -179,11 +179,39 @@ class ParsableDict(MutableMapping[_KT, _VT]):
     # Implementation of additional methods in ParsableDict
     # independent of collections.abc.MutableMapping
     def __or__(self, other: MutableMapping[_KT, _VT]) -> ParsableDict[_KT, _VT]:
+        """left `or` operation: `self | other`.
+
+        The `__or__()` method is called by the ` | ` operator when it is used with `self` on the left-hand side.
+
+        Parameters
+        ----------
+        other : MutableMapping[_KT, _VT]
+            The other dictionary
+
+        Returns
+        -------
+        ParsableDict[_KT, _VT]
+            A new ParsableDict instance containing the content of `self` updated with the content of `other`.
+        """
         if isinstance(other, ParsableDict):
             return self.__class__(self.data | other.data)  # type(other) is ParsableDict
         return self.__class__(self.data | dict(other))  # type(other) is MutableMapping
 
     def __ror__(self, other: MutableMapping[_KT, _VT]) -> ParsableDict[_KT, _VT]:
+        """right `or` operation: `other | self`.
+
+        The `__ror__()` method is called by the ` | ` operator when it is used with `self` on the right-hand side.
+
+        Parameters
+        ----------
+        other : MutableMapping[_KT, _VT]
+            The other dictionary
+
+        Returns
+        -------
+        ParsableDict[_KT, _VT]
+            A new ParsableDict instance containing the content of `other` updated with the content of `self`.
+        """
         if isinstance(other, ParsableDict):
             return self.__class__(other.data | self.data)  # type(other) is ParsableDict
         return self.__class__(dict(other) | self.data)  # type(other) is MutableMapping
@@ -193,6 +221,21 @@ class ParsableDict(MutableMapping[_KT, _VT]):
     #      (see https://docs.python.org/3/library/typing.html#typing.Self)
     #      CLAROS, 2024-10-15
     def __ior__(self, other: MutableMapping[_KT, _VT]) -> ParsableDict[_KT, _VT]:  # noqa: PYI034
+        """inner `or` operation: `self |= other`.
+
+        The `__or__()` method is called by the ` |= ` operator with `self` on the left-hand side.
+        The content of `self` gets updated with the content of `other`.
+
+        Parameters
+        ----------
+        other : MutableMapping[_KT, _VT]
+            The other dictionary
+
+        Returns
+        -------
+        ParsableDict[_KT, _VT]
+            Reference to `self`.
+        """
         if isinstance(other, ParsableDict):
             self.data |= other.data  # type(other) is ParsableDict
         else:
