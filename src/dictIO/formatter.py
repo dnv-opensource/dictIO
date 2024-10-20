@@ -12,7 +12,7 @@ from xml.etree.ElementTree import Element, SubElement, register_namespace, tostr
 
 from numpy import ndarray
 
-from dictIO import CppDict
+from dictIO import SDict
 from dictIO.types import TKey, TValue
 from dictIO.utils.counter import BorgCounter
 
@@ -74,7 +74,7 @@ class Formatter:
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | CppDict,  # noqa: ARG002
+        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],  # noqa: ARG002
     ) -> str:
         """Create a string representation of the passed in dict.
 
@@ -82,7 +82,7 @@ class Formatter:
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], CppDict]
+        arg : Union[MutableMapping[TKey, TValue], SDict]
             dict to be formatted
 
         Returns
@@ -384,13 +384,13 @@ class CppFormatter(Formatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | CppDict,
+        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
     ) -> str:  # sourcery skip: dict-comprehension
         """Create a string representation of the passed in dict in dictIO dict file format.
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], CppDict]
+        arg : Union[MutableMapping[TKey, TValue], SDict]
             dict to be formatted
 
         Returns
@@ -400,15 +400,12 @@ class CppFormatter(Formatter):
         """
         s = super().to_string(arg)
 
-        if not isinstance(arg, CppDict):
-            # Turn ordinary dict into CppDict.
-            # That way, any ordinary python dict is treated in this function like a CppDict.
-            temp_dict = CppDict()
-            temp_dict.update(arg)
-            arg = deepcopy(temp_dict)
+        # Create a working copy of the passed in dict, to avoid modifying the original.
+        s_dict: SDict[TKey, TValue]
+        s_dict = deepcopy(arg) if isinstance(arg, SDict) else SDict(deepcopy(arg))
 
         # Sort dict in a way that block comment and include statement come first
-        original_data = deepcopy(arg.data)
+        original_data = deepcopy(s_dict)
         sorted_data = {}
         for key, element in original_data.items():
             if re.search(r"BLOCKCOMMENT\d{6}", key):
@@ -419,23 +416,24 @@ class CppFormatter(Formatter):
         for key in sorted_data:
             del original_data[key]
         sorted_data |= original_data
-        arg.data = sorted_data
+        s_dict.clear()
+        s_dict.update(sorted_data)
 
         # Create the string representation of the dictionary in its basic structure.
-        s += self.format_dict(arg.data)
+        s += self.format_dict(s_dict)
 
-        # The following elements a CppDict's .data attribute
+        # The following elements a SDict's .data attribute
         # are usually still substituted by placeholders:
         # - Block comments
         # - Include directives
         # - Line comments
         # Next step hence is to resolve and insert these three element types:
         # 1. Block comments
-        s = self.insert_block_comments(arg, s)
+        s = self.insert_block_comments(s_dict, s)
         # 2. Include directives
-        s = self.insert_includes(arg, s)
+        s = self.insert_includes(s_dict, s)
         # 3. Line comments
-        s = self.insert_line_comments(arg, s)
+        s = self.insert_line_comments(s_dict, s)
 
         # Remove trailing spaces (if any)
         s = self.remove_trailing_spaces(s)
@@ -689,13 +687,13 @@ class CppFormatter(Formatter):
 
     def insert_block_comments(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
         s: str,
     ) -> str:
         """Insert back all block comments.
 
         Replaces all BLOCKCOMMENT placeholders in s with the actual block_comments saved in dict
-        str s is expected to contain the CppDict's block_content containing block comment placeholders
+        str s is expected to contain the SDict's block_content containing block comment placeholders
         to substitute (BLOCKCOMMENT... BLOCKCOMMENT...)
         """
         # Replace all BLOCKCOMMENT placeholders in s with the actual block_comments saved in dict
@@ -703,8 +701,8 @@ class CppFormatter(Formatter):
         first_block_comment = True  # MonoFlop, armed
         search_pattern: str | Pattern[str]
         block_comment: str
-        for key in cpp_dict.block_comments:
-            block_comment = cpp_dict.block_comments[key]
+        for key in s_dict.block_comments:
+            block_comment = s_dict.block_comments[key]
 
             # If this is the first block_comment, make sure it contains the default block comment
             if first_block_comment:
@@ -747,10 +745,10 @@ class CppFormatter(Formatter):
             block_comment = default_block_comment + block_comment
         return block_comment
 
-    def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
+    def insert_includes(self, s_dict: SDict[TKey, TValue], s: str) -> str:
         """Insert back all include directives."""
         search_pattern: str | Pattern[str]
-        for key, (_, include_file_name, _) in cpp_dict.includes.items():
+        for key, (_, include_file_name, _) in s_dict.includes.items():
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original include directive.
             _include_file_name = include_file_name.replace("\\", "\\\\")
@@ -761,10 +759,10 @@ class CppFormatter(Formatter):
 
         return s
 
-    def insert_line_comments(self, cpp_dict: CppDict, s: str) -> str:
+    def insert_line_comments(self, s_dict: SDict[TKey, TValue], s: str) -> str:
         """Insert back all line directives."""
         search_pattern: str | Pattern[str]
-        for key, line_comment in cpp_dict.line_comments.items():
+        for key, line_comment in s_dict.line_comments.items():
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original block_comment.
             search_pattern = r"LINECOMMENT%06i\s+LINECOMMENT%06i;" % (key, key)
@@ -801,13 +799,13 @@ class FoamFormatter(CppFormatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | CppDict,
+        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
     ) -> str:
         """Create a string representation of the passed in dict in OpenFOAM dictionary format.
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], CppDict]
+        arg : Union[MutableMapping[TKey, TValue], SDict]
             dict to be formatted
 
         Returns
@@ -945,13 +943,13 @@ class JsonFormatter(Formatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | CppDict,
+        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
     ) -> str:
         """Create a string representation of the passed in dict in JSON dictionary format.
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], CppDict]
+        arg : Union[MutableMapping[TKey, TValue], SDict]
             dict to be formatted
 
         Returns
@@ -961,8 +959,8 @@ class JsonFormatter(Formatter):
         """
         import json
 
-        # For the json dump, we need to distinguish between whether the passed in dict is of type dict or CppDict.
-        d = arg.data if isinstance(arg, CppDict) else arg
+        # For the json dump, we need to distinguish between whether the passed in dict is of type dict or SDict.
+        d = arg
         # Json dump
         s = json.dumps(
             d,
@@ -974,15 +972,15 @@ class JsonFormatter(Formatter):
             indent=4,
             separators=(",", ":"),
         )
-        if isinstance(arg, CppDict):
+        if isinstance(arg, SDict):
             s = self.insert_includes(arg, s)
 
         return s
 
-    def insert_includes(self, cpp_dict: CppDict, s: str) -> str:
+    def insert_includes(self, s_dict: SDict[TKey, TValue], s: str) -> str:
         """Insert back all include directives."""
         search_pattern: str | Pattern[str]
-        for key, (_, include_file_name, _) in cpp_dict.includes.items():
+        for key, (_, include_file_name, _) in s_dict.includes.items():
             # Search for the placeholder key in the Json string,
             # and insert back the original include directive.
             _include_file_name = include_file_name.replace("\\", "\\\\\\\\")
@@ -1059,13 +1057,13 @@ class XmlFormatter(Formatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | CppDict,
+        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
     ) -> str:
         """Create a string representation of the passed in dict in XML format.
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], CppDict]
+        arg : Union[MutableMapping[TKey, TValue], SDict]
             dict to be formatted
 
         Returns

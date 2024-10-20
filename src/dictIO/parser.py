@@ -14,7 +14,7 @@ from typing import (
 from lxml.etree import ETCompatXMLParser, fromstring
 from lxml.etree import _Element as LxmlElement  # pyright: ignore[reportPrivateUsage]
 
-from dictIO import CppDict
+from dictIO import SDict
 from dictIO.types import TKey, TSingleValue, TValue
 from dictIO.utils.counter import BorgCounter
 
@@ -25,14 +25,14 @@ __ALL__ = ["Parser", "CppParser", "FoamParser", "JsonParser", "XmlParser"]
 
 logger = logging.getLogger(__name__)
 
-# TParsableDict: TypeAlias = ParsableDict[TKey, TValue]  # noqa: ERA001
-# _TDict_co = TypeVar("_TDict_co", bound=TParsableDict, covariant=True)  # noqa: ERA001
+# TSDict: TypeAlias = SDict[TKey, TValue]  # noqa: ERA001
+# _TDict_co = TypeVar("_TDict_co", bound=TSDict, covariant=True)  # noqa: ERA001
 
 
 class Parser:
     """Base Class for parsers.
 
-    Parsers deserialize a string into a CppDict.
+    Parsers deserialize a string into a SDict.
     Subclasses of Parser implement parsing of different, specifically formatted strings (see also Formatters).
     """
 
@@ -75,24 +75,24 @@ class Parser:
     def parse_file(
         self,
         source_file: str | os.PathLike[str],
-        target_dict: CppDict | None = None,
+        target_dict: SDict[TKey, TValue] | None = None,
         *,
         comments: bool = True,
-    ) -> CppDict:
+    ) -> SDict[TKey, TValue]:
         """Parse a file and deserialize it into a dict.
 
         Parameters
         ----------
         source_file : Union[str, os.PathLike[str]]
             name of the dict file to be parsed
-        target_dict : CppDict, optional
+        target_dict : SDict[TKey, TValue], optional
             the target dict the parsed dict file shall be merged into, by default None
         comments : bool, optional
             reads comments from source file, by default True
 
         Returns
         -------
-        CppDict
+        SDict
             the parsed dict
 
         Raises
@@ -120,7 +120,7 @@ class Parser:
 
         # Create target dict in case no specific target dict was passed in
         if target_dict is None:
-            target_dict = CppDict(source_file)
+            target_dict = SDict(source_file)
         else:
             target_dict.source_file = source_file.absolute()
             target_dict.path = source_file.parent
@@ -142,11 +142,11 @@ class Parser:
     def parse_string(
         self,
         string: str,
-        target_dict: CppDict,
+        target_dict: SDict[TKey, TValue],
         *,
         comments: bool = True,
-    ) -> CppDict:  # sourcery skip: lift-return-into-if
-        """Parse a string and deserialize it into a CppDict.
+    ) -> SDict[TKey, TValue]:  # sourcery skip: lift-return-into-if
+        """Parse a string and deserialize it into a SDict.
 
         Note: Override this method when implementing a specific Parser.
 
@@ -154,14 +154,14 @@ class Parser:
         ----------
         string : str
             the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : CppDict
+        target_dict : SDict
             the target dict the parsed dict file shall be merged into
         comments : bool, optional
             reads comments, by default True
 
         Returns
         -------
-        CppDict
+        SDict
             the parsed dict
         """
         # +++VERIFY STRING CONTENT++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -170,8 +170,8 @@ class Parser:
         if not string:
             logger.warning(f"Parser.parse_string(): String to parse is empty: {string}")
 
-        # Create a local CppDict instance where the stringcontent is temporarily parsed into
-        parsed_dict = CppDict(target_dict.source_file) if target_dict.source_file else target_dict
+        # Create a local SDict instance where the stringcontent is temporarily parsed into
+        parsed_dict = SDict(target_dict.source_file) if target_dict.source_file else target_dict
 
         # +++PARSE DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -365,7 +365,7 @@ class Parser:
 
 
 class CppParser(Parser):
-    """Parser to deserialize a string in dictIO dict file format into a CppDict."""
+    """Parser to deserialize a string in dictIO dict file format into a SDict."""
 
     def __init__(self) -> None:
         """Implementation specific default configuration of CppParser."""
@@ -375,24 +375,24 @@ class CppParser(Parser):
     def parse_string(
         self,
         string: str,
-        target_dict: CppDict,
+        target_dict: SDict[TKey, TValue],
         *,
         comments: bool = True,
-    ) -> CppDict:
-        """Parse a string in dictIO dict file format and deserialize it into a CppDict.
+    ) -> SDict[TKey, TValue]:
+        """Parse a string in dictIO dict file format and deserialize it into a SDict.
 
         Parameters
         ----------
         string : str
             the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : CppDict
+        target_dict : SDict
             the target dict the parsed dict file shall be merged into
         comments : bool, optional
             reads comments, by default True
 
         Returns
         -------
-        CppDict
+        SDict
             the parsed dict
         """
         # +++CALL BASE CLASS IMPLEMENTATION+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -400,12 +400,12 @@ class CppParser(Parser):
 
         # +++PARSE LINE CONTENT+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        # Split file content into lines and store them in the newly created CppDict instance
+        # Split file content into lines and store them in the newly created SDict instance
         parsed_dict.line_content = string.splitlines(keepends=True)
 
         # Extract line comments
         self._extract_line_comments(
-            cpp_dict=parsed_dict,
+            s_dict=parsed_dict,
             comments=comments,
         )
 
@@ -421,7 +421,7 @@ class CppParser(Parser):
         # Extract block comments      ..and remove line endings right thereafter
 
         self._extract_block_comments(
-            cpp_dict=parsed_dict,
+            s_dict=parsed_dict,
             comments=comments,
         )
         self._remove_line_endings_from_block_content(parsed_dict)
@@ -462,7 +462,7 @@ class CppParser(Parser):
 
     def _extract_line_comments(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
         *,
         comments: bool,
     ) -> None:
@@ -475,13 +475,13 @@ class CppParser(Parser):
 
         Parameters
         ----------
-        cpp_dict : CppDict
+        s_dict : SDict
             dict to be processed. _extract_line_comments() works on dict.line_content
         comments : bool
             If False, line comments will be removed
             (they get replaced by an empty placeholder then, which in effect removes them).
         """
-        for index, line in enumerate(cpp_dict.line_content):
+        for index, line in enumerate(s_dict.line_content):
             # if it is a line comment or just a "http://"?
             if re.search(r"(?<!:)/{2}.*$", line):
                 # if re.search(r'/{2}.*$', line):
@@ -489,18 +489,18 @@ class CppParser(Parser):
                 # Search for only the FIRST occurrence of '//' in the line.
                 # From there, consider all chars until line ending as ONE comment.
                 line_comment = re.findall("/{2}.*$", line)[0]
-                cpp_dict.line_comments.update({key: line_comment})
+                s_dict.line_comments.update({key: line_comment})
                 placeholder = "LINECOMMENT%06i" % key
                 if not comments:
                     placeholder = ""
                 # Replace line comment with placeholder
-                cpp_dict.line_content[index] = cpp_dict.line_content[index].replace(line_comment, placeholder)
+                s_dict.line_content[index] = s_dict.line_content[index].replace(line_comment, placeholder)
 
         return
 
     def _extract_includes(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
     ) -> None:
         """Find and extract #include directives from dict.line_content, and replace them with Placeholders.
 
@@ -515,13 +515,13 @@ class CppParser(Parser):
 
         Parameters
         ----------
-        cpp_dict : CppDict
+        s_dict : SDict
             dict to be processed. _extract_includes() works on dict.line_content
         """
-        for index, line in enumerate(cpp_dict.line_content):
+        for index, line in enumerate(s_dict.line_content):
             if re.search(r"^\s*#\s*include", line):
                 ii = self.counter()
-                cpp_dict.line_content[index] = "INCLUDE%06i\n" % ii
+                s_dict.line_content[index] = "INCLUDE%06i\n" % ii
 
                 include_file_name = re.sub(
                     r"(^\s*#\s*include\s*|\s*$)",
@@ -530,44 +530,44 @@ class CppParser(Parser):
                 )
                 include_file_name = self.remove_quotes_from_string(include_file_name)
 
-                include_file_path = Path.joinpath(cpp_dict.path, include_file_name)
+                include_file_path = Path.joinpath(s_dict.path, include_file_name)
 
                 include_directive = line
                 if line[-1] == "\n":
                     include_directive = line[:-1]
 
-                cpp_dict.includes.update({ii: (include_directive, include_file_name, include_file_path)})
+                s_dict.includes.update({ii: (include_directive, include_file_name, include_file_path)})
 
         return
 
     def _convert_line_content_to_block_content(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
     ) -> None:
         """Concatenate all lines from line_content.
 
         Concatenate all lines from line_content to one long string (text block)
         and store the result in block_content.
         """
-        cpp_dict.block_content = "".join(cpp_dict.line_content)
-        cpp_dict.line_content.clear()
+        s_dict.block_content = "".join(s_dict.line_content)
+        s_dict.line_content.clear()
         return
 
     def _remove_line_endings_from_block_content(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
     ) -> None:
         """Remove all line endings in .block_content and substuitute them by single spaces."""
-        cpp_dict.block_content = re.sub(
+        s_dict.block_content = re.sub(
             r"\n",
             " ",
-            cpp_dict.block_content,
+            s_dict.block_content,
         ).strip()
         return
 
     def _extract_block_comments(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
         *,
         comments: bool,
     ) -> None:
@@ -580,31 +580,31 @@ class CppParser(Parser):
 
         Parameters
         ----------
-        cpp_dict : CppDict
+        s_dict : SDict
             dict to be processed. _extract_block_comments() works on dict.block_content
         comments : bool
             If False, block comments will be removed
             (they get replaced by an empty placeholder then, which in effect removes them).
         """
-        block_comments = re.findall(r"/\*[\w\W\d\D\s]*?\*/", cpp_dict.block_content, re.MULTILINE)
-        cpp_dict.block_comments = {i: block_comments[i] for i in range(len(block_comments))}
+        block_comments = re.findall(r"/\*[\w\W\d\D\s]*?\*/", s_dict.block_content, re.MULTILINE)
+        s_dict.block_comments = {i: block_comments[i] for i in range(len(block_comments))}
 
-        for key, block_comment in cpp_dict.block_comments.items():
+        for key, block_comment in s_dict.block_comments.items():
             placeholder = "BLOCKCOMMENT%06i" % key
             if not comments:
                 placeholder = ""
             # Replace block comment with placeholder
-            cpp_dict.block_content = re.sub(
+            s_dict.block_content = re.sub(
                 re.escape(block_comment),
                 placeholder,
-                cpp_dict.block_content,
+                s_dict.block_content,
             )
 
         return
 
     def _extract_string_literals(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
     ) -> None:
         """Find and extract string literals from dict.block_content, and replace them with Placeholders.
 
@@ -616,7 +616,7 @@ class CppParser(Parser):
 
         Parameters
         ----------
-        cpp_dict : CppDict
+        s_dict : SDict
             dict to be processed. _extract_string_literals() works on dict.block_content.
         """
         search_pattern: Pattern[str]
@@ -627,7 +627,7 @@ class CppParser(Parser):
             pattern=r"(?P<sq>((?<!\\)\\{8}')|((?<!\\)\\{6}')|((?<!\\)\\{4}')|((?<!\\)\\{2}')|(?<!\\)').*?(?P=sq)",
             flags=re.MULTILINE,
         )
-        single_quoted_matches: list[Match[str]] = list(re.finditer(search_pattern, cpp_dict.block_content))
+        single_quoted_matches: list[Match[str]] = list(re.finditer(search_pattern, s_dict.block_content))
 
         # Step 2: Find double quoted string literals in .block_content
         # Double quoted strings are identified as string literals only in case they do not contain a $ character.
@@ -636,7 +636,7 @@ class CppParser(Parser):
             pattern=r'(?P<dq>((?<!\\)\\{8}")|((?<!\\)\\{6}")|((?<!\\)\\{4}")|((?<!\\)\\{2}")|(?<!\\)").*?(?P=dq)',
         )
         double_quoted_matches: list[Match[str]] = []
-        for match in re.finditer(search_pattern, cpp_dict.block_content):
+        for match in re.finditer(search_pattern, s_dict.block_content):
             string_literal = match.string[match.start(0) : match.end(0)]
             if "$" not in string_literal:
                 double_quoted_matches.append(match)
@@ -709,20 +709,20 @@ class CppParser(Parser):
             # Replace all occurances of the string literal in .block_content with the placeholder (STRINGLITERAL000000)
             # Note: For re.sub() to work properly we need to escape all special characters
             search_pattern = re.compile(re.escape(string_literal))
-            cpp_dict.block_content = re.sub(
+            s_dict.block_content = re.sub(
                 search_pattern,
                 placeholder,
-                cpp_dict.block_content,
+                s_dict.block_content,
             )
 
             # Register the string literal in .string_literals
-            cpp_dict.string_literals.update({index: Parser.remove_quotes_from_string(string_literal)})
+            s_dict.string_literals.update({index: Parser.remove_quotes_from_string(string_literal)})
 
         return
 
     def _extract_expressions(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
     ) -> None:
         """Find and extract expressions from dict.block_content, and replace them with Placeholders.
 
@@ -736,17 +736,17 @@ class CppParser(Parser):
 
         Parameters
         ----------
-        cpp_dict : CppDict
+        s_dict : SDict
             dict to be processed. _extract_expressions() works on dict.block_content.
         """
-        cpp_dict.expressions = {}
+        s_dict.expressions = {}
 
         # Step 1: Find expressions in .block_content .
         # Expressions are double quoted strings that contain minimum one reference.
         # References are denoted using the '$' syntax familiar from shell programming.
         # Any key'd entries in a dict are considered variables and can be referenced.
         search_pattern: str | Pattern[str] = r'"[^"]*\$.*?"'
-        expressions = re.findall(search_pattern, cpp_dict.block_content, re.MULTILINE)
+        expressions = re.findall(search_pattern, s_dict.block_content, re.MULTILINE)
         for expression in expressions:
             index = self.counter()
             placeholder = "EXPRESSION%06i" % index
@@ -756,10 +756,10 @@ class CppParser(Parser):
             # (covering both '$' as well as any mathematical operators in the expression)
             search_pattern = re.compile(re.escape(expression))
             # replace expression in .block_content with placeholder
-            cpp_dict.block_content = re.sub(
+            s_dict.block_content = re.sub(
                 search_pattern,
                 placeholder,
-                cpp_dict.block_content,
+                s_dict.block_content,
             )
 
             # Register the expression in .expressions
@@ -768,23 +768,23 @@ class CppParser(Parser):
                 "",
                 expression,
             )
-            cpp_dict.expressions |= {index: {"expression": _expression, "name": placeholder}}
+            s_dict.expressions |= {index: {"expression": _expression, "name": placeholder}}
 
         # Step 2: Find references in .block_content (single references to key'd entries that are NOT in double quotes).
         search_pattern = r"\$\w[\w\[\]]*"
-        while match := re.search(search_pattern, cpp_dict.block_content, re.MULTILINE):
+        while match := re.search(search_pattern, s_dict.block_content, re.MULTILINE):
             reference = match[0]
             index = self.counter()
             placeholder = "EXPRESSION%06i" % index
             # Replace the found reference in .block_content with the placeholder (EXPRESSION000000)
-            cpp_dict.block_content = match.re.sub(placeholder, cpp_dict.block_content, count=1)
+            s_dict.block_content = match.re.sub(placeholder, s_dict.block_content, count=1)
             # Register the reference as expression in .expressions
-            cpp_dict.expressions.update({index: {"expression": reference, "name": placeholder}})
+            s_dict.expressions.update({index: {"expression": reference, "name": placeholder}})
         return
 
     def _separate_delimiters(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
         delimiters: list[str] | None = None,
     ) -> None:
         r"""Ensure that delimiters are separated by exactly one space before and after.
@@ -803,52 +803,52 @@ class CppParser(Parser):
         but not any 'waste' tokens with spaces, tabs or line endings will be deleted.
         """
         if delimiters is None:
-            delimiters = cpp_dict.delimiters
+            delimiters = s_dict.delimiters
 
         # Insert at least one \s around every char in list
         for char in delimiters:
-            cpp_dict.block_content = re.sub(
+            s_dict.block_content = re.sub(
                 str(rf"(\{char})"),
                 str(f" {char} "),
-                cpp_dict.block_content,
+                s_dict.block_content,
             )
 
         # Substitute all \s+ to \s
         # This turns multiple spaces into one single space.
         # However, as \s+ matches ANY whitespace character (\s+ is equivalent to [ \t\n\r\f\v]+)
         # this also deletes all line endings (\n). As explained above, this is well intended though.
-        cpp_dict.block_content = re.sub(
+        s_dict.block_content = re.sub(
             r"\s+",
             " ",
-            cpp_dict.block_content,
+            s_dict.block_content,
         )
 
         return
 
     def _convert_block_content_to_tokens(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
     ) -> None:
         """Decomposes .block_content into a list of tokens."""
-        cpp_dict.tokens = [(0, i) for i in re.split(r"\s", cpp_dict.block_content)]
-        cpp_dict.block_content = ""
+        s_dict.tokens = [(0, i) for i in re.split(r"\s", s_dict.block_content)]
+        s_dict.block_content = ""
 
         return
 
     def _determine_token_hierarchy(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
     ) -> None:
         # sourcery skip: use-join
         """Create the hierarchy among the tokens and test their indentation."""
         level = 0
         count_open: list[str] = []
         count_close: list[str] = []
-        for index, item in enumerate(cpp_dict.tokens):
-            if item[1] in cpp_dict.openingBrackets:
+        for index, item in enumerate(s_dict.tokens):
+            if item[1] in s_dict.openingBrackets:
                 push_pop = 1
                 count_open.append(item[1])
-            elif item[1] in cpp_dict.closingBrackets:
+            elif item[1] in s_dict.closingBrackets:
                 push_pop = -1
                 count_close.append(item[1])
             else:
@@ -859,7 +859,7 @@ class CppParser(Parser):
                 push_pop = 0
 
             # if not re.search('COMMENT', self.tokens[index][1]):
-            cpp_dict.tokens[index] = (level, cpp_dict.tokens[index][1])
+            s_dict.tokens[index] = (level, s_dict.tokens[index][1])
 
             if push_pop > 0:
                 level += push_pop
@@ -867,9 +867,7 @@ class CppParser(Parser):
 
         if level != 0:
             counted = ""
-            for opening_bracket, closing_bracket in zip(
-                cpp_dict.openingBrackets, cpp_dict.closingBrackets, strict=False
-            ):
+            for opening_bracket, closing_bracket in zip(s_dict.openingBrackets, s_dict.closingBrackets, strict=False):
                 counted += "".join(
                     [
                         "\t\t\t",
@@ -883,24 +881,24 @@ class CppParser(Parser):
                 )
             logger.error(
                 "_determine_token_hierarchy: opening and closing delimiters in dict "
-                f"{cpp_dict.name} are not balanced:\n{counted}"
+                f"{s_dict.name} are not balanced:\n{counted}"
             )
 
         return
 
     def _convert_tokens_to_dict(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
     ) -> None:
         """Convert the hierarchic tokens into a dict."""
-        cpp_dict.update(self._parse_tokenized_dict(cpp_dict))
-        cpp_dict.tokens.clear()
+        s_dict.update(self._parse_tokenized_dict(s_dict))
+        s_dict.tokens.clear()
 
         return
 
     def _parse_tokenized_dict(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
         tokens: list[tuple[int, str]] | None = None,
         level: int = 0,
     ) -> dict[str, TValue]:
@@ -923,14 +921,14 @@ class CppParser(Parser):
         parsed_dict: dict[str, TValue] = {}
 
         if tokens is None:
-            tokens = cpp_dict.tokens
+            tokens = s_dict.tokens
 
         # Iterate through tokens
         last_index: int | None = None
         token_index: int = 0
         while token_index < len(tokens):
             # Nested data struct (list or dict)   '(' = list    '{' = dict
-            if tokens[token_index][1] in cpp_dict.openingBrackets:
+            if tokens[token_index][1] in s_dict.openingBrackets:
                 # The name (key) of the data struct is by convention directly preceeding the opening bracket.
                 # ..except if there are line comments in between. skip those:
                 offset: int = 1
@@ -942,7 +940,7 @@ class CppParser(Parser):
                 # Closing bracket has by definition same level as opening bracket.
                 # (Note: the tokens BETWEEN the brackets are considered one level 'deeper';
                 #  but that's not the point here)
-                closing_bracket: str = self._find_companion(cpp_dict, tokens[token_index][1])
+                closing_bracket: str = self._find_companion(s_dict, tokens[token_index][1])
                 closing_level: int = tokens[token_index][0]
 
                 # Create a temporary data_struct_tokens list for just the nested data struct, containing
@@ -1004,14 +1002,14 @@ class CppParser(Parser):
                     else:
                         # has content
                         # parse the nested list
-                        nested_list = self._parse_tokenized_list(cpp_dict, data_struct_tokens, level=level + 1)
+                        nested_list = self._parse_tokenized_list(s_dict, data_struct_tokens, level=level + 1)
                         # update parsed_dict with the nested list
                         parsed_dict[name] = nested_list
 
                 #  dict:
                 elif data_struct_tokens[0][1] == "{":
                     # parse the nested dict (recursion)
-                    nested_dict = self._parse_tokenized_dict(cpp_dict, data_struct_tokens[1:-1], level=level + 1)
+                    nested_dict = self._parse_tokenized_dict(s_dict, data_struct_tokens[1:-1], level=level + 1)
                     # update parsed_dict with the nested dict
                     parsed_dict[name] = nested_dict
 
@@ -1106,7 +1104,7 @@ class CppParser(Parser):
 
     def _parse_tokenized_list(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
         tokens: list[tuple[int, str]] | None = None,
         level: int = 0,
     ) -> list[TValue]:
@@ -1128,7 +1126,7 @@ class CppParser(Parser):
         parsed_list: list[TValue] = []
 
         if tokens is None:
-            tokens = cpp_dict.tokens
+            tokens = s_dict.tokens
 
         # Iterate through tokens
         base_level: int = tokens[0][0]
@@ -1136,11 +1134,11 @@ class CppParser(Parser):
         last_index: int | None = None
         while token_index < len(tokens):
             # Nested data struct (list or dict)   '(' = list    '{' = dict
-            if tokens[token_index][1] in cpp_dict.openingBrackets and tokens[token_index][0] > base_level:
+            if tokens[token_index][1] in s_dict.openingBrackets and tokens[token_index][0] > base_level:
                 # Closing bracket has by definition same level as opening bracket.
                 # (Note: the tokens BETWEEN the brackets are considered one level 'deeper';
                 #  but that's not the point here)
-                closing_bracket: str = self._find_companion(cpp_dict, tokens[token_index][1])
+                closing_bracket: str = self._find_companion(s_dict, tokens[token_index][1])
                 closing_level: int = tokens[token_index][0]
 
                 # Create a temporary token list for just the nested data struct, containing
@@ -1198,13 +1196,13 @@ class CppParser(Parser):
                         parsed_list.append([])
                     else:  # has content
                         # parse the nested list
-                        nested_list = self._parse_tokenized_list(cpp_dict, temp_tokens, level=level + 1)  # (recursion)
+                        nested_list = self._parse_tokenized_list(s_dict, temp_tokens, level=level + 1)  # (recursion)
                         # add nested list to parsed_list
                         parsed_list.append(nested_list)
                         #  dict:
                 elif temp_tokens[0][1] == "{":
                     # parse the nested dict
-                    nested_dict = self._parse_tokenized_dict(cpp_dict, temp_tokens[1:-1], level=level + 1)
+                    nested_dict = self._parse_tokenized_dict(s_dict, temp_tokens[1:-1], level=level + 1)
                     # add nested dict to parsed_list
                     parsed_list.append(nested_dict)
 
@@ -1232,7 +1230,7 @@ class CppParser(Parser):
 
     def _find_companion(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
         bracket: str,
     ) -> str:
         """Return the companion bracket character for the passed in bracket character.
@@ -1240,7 +1238,7 @@ class CppParser(Parser):
         Example: If you pass in '{', _find_companion() will return '}'  (and vice versa)
         """
         companion = ""
-        for item in cpp_dict.brackets:
+        for item in s_dict.brackets:
             if bracket == item[0]:
                 companion = item[1]
             elif bracket == item[1]:
@@ -1249,10 +1247,10 @@ class CppParser(Parser):
 
     def _insert_string_literals(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
     ) -> None:
         """Substitutes STRINGLITERAL placeholders in the dict with the corresponding entry from dict.string_literals."""
-        for index, string_literal in cpp_dict.string_literals.items():
+        for index, string_literal in s_dict.string_literals.items():
             # Properties of the expression to be evaluated
             placeholder = "STRINGLITERAL%06i" % index  # STRINGLITERAL000000
             # The entry from dict.string_literals is parsed once again,
@@ -1265,15 +1263,15 @@ class CppParser(Parser):
             # only the first occurance of placeholder it finds,
             # we need to loop until we found and replaced all occurances of placholder in the dict
             # and find_global_key() does not find any more occurances.
-            while global_key := cpp_dict.find_global_key(query=placeholder):
+            while global_key := s_dict.find_global_key(query=placeholder):
                 # Back insert the string literal
-                cpp_dict.set_global_key(global_key, value)
-        cpp_dict.string_literals.clear()
+                s_dict.set_global_key(global_key, value)
+        s_dict.string_literals.clear()
         return
 
     def _clean(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
     ) -> None:
         """Remove CppFormatter / CppParser specific internal keys from dict.
 
@@ -1283,14 +1281,14 @@ class CppParser(Parser):
         _variables
         _includes
         """
-        if "_variables" in cpp_dict.data:
-            del cpp_dict.data["_variables"]
-        if "_includes" in cpp_dict.data:
-            del cpp_dict.data["_includes"]
+        if "_variables" in s_dict:
+            del s_dict["_variables"]
+        if "_includes" in s_dict:
+            del s_dict["_includes"]
 
 
 class FoamParser(CppParser):
-    """Parser to deserialize a string in OpenFOAM dictionary format into a CppDict."""
+    """Parser to deserialize a string in OpenFOAM dictionary format into a SDict."""
 
     def __init__(self) -> None:
         """Implementation specific default configuration of FoamParser."""
@@ -1300,24 +1298,24 @@ class FoamParser(CppParser):
     def parse_string(
         self,
         string: str,
-        target_dict: CppDict,
+        target_dict: SDict[TKey, TValue],
         *,
         comments: bool = True,
-    ) -> CppDict:
-        """Parse a string in OpenFOAM dictionary format and deserialize it into a CppDict.
+    ) -> SDict[TKey, TValue]:
+        """Parse a string in OpenFOAM dictionary format and deserialize it into a SDict.
 
         Parameters
         ----------
         string : str
             the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : CppDict
+        target_dict : SDict
             the target dict the parsed dict file shall be merged into
         comments : bool, optional
             reads comments, by default True
 
         Returns
         -------
-        CppDict
+        SDict
             the parsed dict
         """
         # +++CALL BASE CLASS IMPLEMENTATION+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1329,14 +1327,14 @@ class FoamParser(CppParser):
         )
 
         # +++MERGE PARSED DICTIONARY INTO TARGET DICTIONARY+++++++++++++++++++++++++++++++++++++++++
-        # target_dict.merge(parsed_dict)  # Not necessary. Done in base class CppDictParser already.  # noqa: ERA001
+        # target_dict.merge(parsed_dict)  # Not necessary. Done in base class SDictParser already.  # noqa: ERA001
 
         # +++RETURN PARSED DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         return parsed_dict
 
 
 class JsonParser(Parser):
-    """Parser to deserialize a string in JSON dictionary format into a CppDict."""
+    """Parser to deserialize a string in JSON dictionary format into a SDict."""
 
     def __init__(self) -> None:
         """Implementation specific default configuration of JsonParser."""
@@ -1346,24 +1344,24 @@ class JsonParser(Parser):
     def parse_string(
         self,
         string: str,
-        target_dict: CppDict,
+        target_dict: SDict[TKey, TValue],
         *,
         comments: bool = True,
-    ) -> CppDict:
-        """Parse a string in JSON dictionary format and deserialize it into a CppDict.
+    ) -> SDict[TKey, TValue]:
+        """Parse a string in JSON dictionary format and deserialize it into a SDict.
 
         Parameters
         ----------
         string : str
             the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : CppDict
+        target_dict : SDict
             the target dict the parsed dict file shall be merged into
         comments : bool, optional
             reads comments, by default True
 
         Returns
         -------
-        CppDict
+        SDict
             the parsed dict
         """
         import json
@@ -1376,13 +1374,13 @@ class JsonParser(Parser):
         )
 
         # +++PARSE DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        parsed_dict.data = json.loads(string)
+        parsed_dict.update(json.loads(string))
 
         # Extract include directives
         self._extract_includes(parsed_dict)
 
         # Extract expressions
-        self._extract_expressions(parsed_dict, parsed_dict.data)
+        self._extract_expressions(parsed_dict, parsed_dict)
 
         # +++MERGE PARSED DICTIONARY INTO TARGET DICTIONARY+++++++++++++++++++++++++++++++++++++++++
         target_dict.merge(parsed_dict)
@@ -1392,38 +1390,38 @@ class JsonParser(Parser):
 
     def _extract_includes(
         self,
-        cpp_dict: CppDict,
+        s_dict: SDict[TKey, TValue],
     ) -> None:
         from copy import deepcopy
 
-        keys = list(cpp_dict.data.keys())
+        keys = list(s_dict.keys())
         include_placeholder_keys = {}
         for key in keys:
             if isinstance(key, str) and re.search(r"^\s*#\s*include", key):
-                include_file_name = str(cpp_dict[key])
+                include_file_name = str(s_dict[key])
                 include_file_name = self.remove_quotes_from_string(include_file_name)
 
-                include_file_path = Path.joinpath(cpp_dict.path, include_file_name)
+                include_file_path = Path.joinpath(s_dict.path, include_file_name)
 
                 include_file_name_temp = include_file_name.replace("\\", "\\\\")
                 include_directive = f"#include '{include_file_name_temp}'"
 
                 ii = self.counter()
-                cpp_dict.includes.update({ii: (include_directive, include_file_name, include_file_path)})
+                s_dict.includes.update({ii: (include_directive, include_file_name, include_file_path)})
 
                 include_placeholder_keys[f"INCLUDE{ii:06d}"] = f"INCLUDE{ii:06d}"
-                del cpp_dict[key]
+                del s_dict[key]
 
-        data_temp = deepcopy(cpp_dict.data)
-        cpp_dict.data.clear()
-        cpp_dict.data.update(include_placeholder_keys)
-        cpp_dict.data.update(data_temp)
+        data_temp = deepcopy(s_dict)
+        s_dict.clear()
+        s_dict.update(include_placeholder_keys)
+        s_dict.update(data_temp)
 
         return
 
     def _extract_expression(
         self,
-        parsed_dict: CppDict,
+        parsed_dict: SDict[TKey, TValue],
         string: str,
     ) -> str:
         """Extract a single expression.
@@ -1433,8 +1431,8 @@ class JsonParser(Parser):
 
         Parameters
         ----------
-        parsed_dict : CppDict
-            the CppDict instance the extracted expression shall be saved in
+        parsed_dict : SDict
+            the SDict instance the extracted expression shall be saved in
         string : str
             the string from which expressions shall be extracted and replaced by placeholders
 
@@ -1470,7 +1468,7 @@ class JsonParser(Parser):
 
     def _replace_and_register_expression(
         self,
-        parsed_dict: CppDict,
+        parsed_dict: SDict[TKey, TValue],
         string: str,
         expression: str,
     ) -> str:
@@ -1479,8 +1477,8 @@ class JsonParser(Parser):
 
         Parameters
         ----------
-        parsed_dict : CppDict
-            the CppDict instance the expression will be registered in
+        parsed_dict : SDict
+            the SDict instance the expression will be registered in
         string : str
             the string in which expression shall be found and replaced
         expression : str
@@ -1508,7 +1506,7 @@ class JsonParser(Parser):
 
     def _extract_expressions(
         self,
-        parsed_dict: CppDict,
+        parsed_dict: SDict[TKey, TValue],
         arg: MutableMapping[TKey, TValue] | MutableSequence[TValue],
     ) -> None:
         """Find and extract expressions in a dict or list and replace them with Placeholders.
@@ -1521,8 +1519,8 @@ class JsonParser(Parser):
 
         Parameters
         ----------
-        parsed_dict : CppDict
-            the CppDict instance the extracted expressions shall be saved in
+        parsed_dict : SDict
+            the SDict instance the extracted expressions shall be saved in
         arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
             the dict or list containing values to be parsed for expressions
         """
@@ -1546,7 +1544,7 @@ class JsonParser(Parser):
 
 
 class XmlParser(Parser):
-    """Parser to deserialize a string in XML format into a CppDict."""
+    """Parser to deserialize a string in XML format into a SDict."""
 
     def __init__(
         self,
@@ -1562,24 +1560,24 @@ class XmlParser(Parser):
     def parse_string(
         self,
         string: str,
-        target_dict: CppDict,
+        target_dict: SDict[TKey, TValue],
         *,
         comments: bool = True,
-    ) -> CppDict:
-        """Parse a string in XML format and deserialize it into a CppDict.
+    ) -> SDict[TKey, TValue]:
+        """Parse a string in XML format and deserialize it into a SDict.
 
         Parameters
         ----------
         string : str
             the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : CppDict
+        target_dict : SDict
             the target dict the parsed dict file shall be merged into
         comments : bool, optional
             reads comments, by default True
 
         Returns
         -------
-        CppDict
+        SDict
             the parsed dict
         """
         # +++CALL BASE CLASS IMPLEMENTATION+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1639,11 +1637,11 @@ class XmlParser(Parser):
 
         # Transform XML root node into dict
 
-        parsed_dict.data = self._parse_nodes(root_element, namespaces)
+        parsed_dict.update(self._parse_nodes(root_element, namespaces))
 
         # Document XML options inside the dict
         try:
-            parsed_dict.data["_xmlOpts"] = {
+            parsed_dict["_xmlOpts"] = {
                 "_nameSpaces": namespaces,
                 "_rootTag": root_tag,
                 "_rootAttributes": dict(root_element.attrib.items()),

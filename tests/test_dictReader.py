@@ -11,8 +11,8 @@ from pathlib import Path, PurePath
 import pytest
 from numpy.testing import assert_array_equal
 
-from dictIO import CppDict, CppParser, DictReader, DictWriter
-from dictIO.types import TValue
+from dictIO import CppParser, DictReader, DictWriter, SDict
+from dictIO.types import TKey, TValue
 
 WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(not sys.platform.startswith("win"), reason="windows only test")
 
@@ -28,17 +28,17 @@ def test_file_not_found_exception() -> None:
 def test_merge_includes() -> None:
     # sourcery skip: class-extract-method
     # Prepare dict until and including _parse_tokenized_dict()
-    cpp_dict = CppDict()
-    SetupHelper.prepare_dict_until(cpp_dict, until_step=-1)
-    dict_in = deepcopy(cpp_dict.data)
+    s_dict: SDict[TKey, TValue] = SDict()
+    SetupHelper.prepare_dict_until(s_dict, until_step=-1)
+    dict_in = deepcopy(s_dict)
     # Assert dict_in
     assert dict_in["expressions"]["reference"]["value"][:10] == "EXPRESSION"
     assert dict_in["expressions"]["expression1"]["value"][:10] == "EXPRESSION"
     assert dict_in["expressions"]["expression2"]["value"][:10] == "EXPRESSION"
     assert dict_in["expressions"]["expression3"]["value"][:10] == "EXPRESSION"
     # Execute
-    DictReader._merge_includes(cpp_dict)
-    dict_out = cpp_dict.data
+    DictReader._merge_includes(s_dict)
+    dict_out = s_dict
     # Assert
     assert len(dict_out) == len(dict_in) + 8
     assert dict_out["paramA"] == 3.0
@@ -52,22 +52,22 @@ def test_merge_includes() -> None:
 
 def test_resolve_reference() -> None:
     # Prepare dict until and including ()
-    cpp_dict = CppDict()
-    SetupHelper.prepare_dict_until(cpp_dict, until_step=0)
+    s_dict: SDict[TKey, TValue] = SDict()
+    SetupHelper.prepare_dict_until(s_dict, until_step=0)
     # Assert non-indexed references have been resolved
-    assert DictReader._resolve_reference("$paramA", cpp_dict) == 3.0
-    assert DictReader._resolve_reference("$paramB", cpp_dict) == 4.0
-    assert DictReader._resolve_reference("$paramC", cpp_dict) == 7.0
-    assert DictReader._resolve_reference("$paramD", cpp_dict) == 0.66
-    assert DictReader._resolve_reference("$paramE[0]", cpp_dict.variables) == 0.1
+    assert DictReader._resolve_reference("$paramA", s_dict) == 3.0
+    assert DictReader._resolve_reference("$paramB", s_dict) == 4.0
+    assert DictReader._resolve_reference("$paramC", s_dict) == 7.0
+    assert DictReader._resolve_reference("$paramD", s_dict) == 0.66
+    assert DictReader._resolve_reference("$paramE[0]", s_dict.variables) == 0.1
 
-    paramE = DictReader._resolve_reference("$paramE", cpp_dict)  # noqa: N806
+    paramE = DictReader._resolve_reference("$paramE", s_dict)  # noqa: N806
     assert isinstance(paramE, list)
     assert len(paramE) == 3
     assert paramE[0] == 0.1
     assert paramE[1] == 0.2
     assert paramE[2] == 0.4
-    paramF = DictReader._resolve_reference("$paramF", cpp_dict)  # noqa: N806
+    paramF = DictReader._resolve_reference("$paramF", s_dict)  # noqa: N806
     assert isinstance(paramF, list)
     assert len(paramF) == 2
     assert len(paramF[0]) == 2
@@ -76,7 +76,7 @@ def test_resolve_reference() -> None:
     assert paramF[0][1] == 0.9
     assert paramF[1][0] == 2.7
     assert paramF[1][1] == 8.1
-    paramG = DictReader._resolve_reference("$paramG", cpp_dict)  # noqa: N806
+    paramG = DictReader._resolve_reference("$paramG", s_dict)  # noqa: N806
     assert isinstance(paramG, list)
     assert len(paramG) == 2
     assert len(paramG[0]) == 4
@@ -90,27 +90,27 @@ def test_resolve_reference() -> None:
     assert paramG[1][2] == "come"
 
     # Assert indexed references have been resolved
-    assert DictReader._resolve_reference("$paramE[0]", cpp_dict) == 0.1
-    assert DictReader._resolve_reference("$paramE[1]", cpp_dict) == 0.2
-    assert DictReader._resolve_reference("$paramE[2]", cpp_dict) == 0.4
-    assert DictReader._resolve_reference("$paramF[0][0]", cpp_dict) == 0.3
-    assert DictReader._resolve_reference("$paramF[0][1]", cpp_dict) == 0.9
-    assert DictReader._resolve_reference("$paramF[1][0]", cpp_dict) == 2.7
-    assert DictReader._resolve_reference("$paramF[1][1]", cpp_dict) == 8.1
-    assert DictReader._resolve_reference("$paramG[0][0]", cpp_dict) == 10
-    assert DictReader._resolve_reference("$paramG[0][1]", cpp_dict) == "fancy"
-    assert DictReader._resolve_reference("$paramG[0][2]", cpp_dict) == 3.14
-    assert DictReader._resolve_reference("$paramG[0][3]", cpp_dict) == "s"
-    assert DictReader._resolve_reference("$paramG[1][0]", cpp_dict) == "more"
-    assert DictReader._resolve_reference("$paramG[1][1]", cpp_dict) == 2
-    assert DictReader._resolve_reference("$paramG[1][2]", cpp_dict) == "come"
+    assert DictReader._resolve_reference("$paramE[0]", s_dict) == 0.1
+    assert DictReader._resolve_reference("$paramE[1]", s_dict) == 0.2
+    assert DictReader._resolve_reference("$paramE[2]", s_dict) == 0.4
+    assert DictReader._resolve_reference("$paramF[0][0]", s_dict) == 0.3
+    assert DictReader._resolve_reference("$paramF[0][1]", s_dict) == 0.9
+    assert DictReader._resolve_reference("$paramF[1][0]", s_dict) == 2.7
+    assert DictReader._resolve_reference("$paramF[1][1]", s_dict) == 8.1
+    assert DictReader._resolve_reference("$paramG[0][0]", s_dict) == 10
+    assert DictReader._resolve_reference("$paramG[0][1]", s_dict) == "fancy"
+    assert DictReader._resolve_reference("$paramG[0][2]", s_dict) == 3.14
+    assert DictReader._resolve_reference("$paramG[0][3]", s_dict) == "s"
+    assert DictReader._resolve_reference("$paramG[1][0]", s_dict) == "more"
+    assert DictReader._resolve_reference("$paramG[1][1]", s_dict) == 2
+    assert DictReader._resolve_reference("$paramG[1][2]", s_dict) == "come"
 
 
 def test_eval_expressions() -> None:
     # Prepare dict until and including ()
-    cpp_dict = CppDict()
-    SetupHelper.prepare_dict_until(cpp_dict, until_step=0)
-    dict_in = deepcopy(cpp_dict.data)
+    s_dict: SDict[TKey, TValue] = SDict()
+    SetupHelper.prepare_dict_until(s_dict, until_step=0)
+    dict_in = deepcopy(s_dict)
     # Assert dict_in
     assert dict_in["expressions"]["reference"]["value"][:10] == "EXPRESSION"  # $paramA
     assert dict_in["expressions"]["expression1"]["value"][:10] == "EXPRESSION"  # "$paramB"
@@ -123,8 +123,8 @@ def test_eval_expressions() -> None:
     assert dict_in["expressions"]["expressionG3"]["value"][:10] == "EXPRESSION"  # "$paramG[1][2]"
 
     # Execute
-    DictReader._eval_expressions(cpp_dict)
-    dict_out = cpp_dict.data
+    DictReader._eval_expressions(s_dict)
+    dict_out = s_dict
 
     # Assert references have been resolved
     assert dict_out["expressions"]["reference"]["value"] == 3.0  # 3.0
@@ -153,7 +153,7 @@ def test_eval_expressions_with_included_keys() -> None:
 
     # Execute
     dict_in = DictReader.read(source_file, includes=True)
-    dict_out = dict_in.data
+    dict_out = dict_in
 
     # Assert root keys
     assert dict_out["keyA"] == 3.0  # $paramA
@@ -243,7 +243,7 @@ def test_eval_expressions_with_included_numpy_expressions() -> None:
 
     # Execute
     dict_in = DictReader.read(source_file, includes=True)
-    dict_out = dict_in.data
+    dict_out = dict_in
     assert dict_out["keysContainingNumpyExpressions"]["npKeyA"] == 2
 
     assert_array_equal(
@@ -299,8 +299,8 @@ def test_reread_string_literals() -> None:
     # and reread with surrounding single quotes.
     # This to avoid that a string literal with single quotes that contains a '$' character
     # gets unintentionally evaluated as expression when rereading a parsed dict.
-    assert dict_in.data["differentKeyNames"] == reread_dict.data["differentKeyNames"]
-    assert dict_in.data["sameKeyNames"] == reread_dict.data["sameKeyNames"]
+    assert dict_in["differentKeyNames"] == reread_dict["differentKeyNames"]
+    assert dict_in["sameKeyNames"] == reread_dict["sameKeyNames"]
     # Clean up
     parsed_file.unlink()
 
@@ -400,21 +400,21 @@ def test_compare_expressions_in_dict_format_with_expressions_in_json_format() ->
 
 
 def _get_references_in_expressions(
-    cpp_dict: CppDict,
+    s_dict: SDict[TKey, TValue],
 ) -> list[str]:
     references: list[str] = []
-    for item in cpp_dict.expressions.values():
+    for item in s_dict.expressions.values():
         _refs: list[str] = re.findall(r"\$\w[\w\[\]]*", item["expression"])
         references.extend(_refs)
     return references
 
 
 def _resolve_references(
-    cpp_dict: CppDict,
+    s_dict: SDict[TKey, TValue],
     references: list[str],
 ) -> dict[str, TValue | None]:
     # Resolve references
-    variables: dict[str, TValue] = cpp_dict.variables
+    variables: dict[str, TValue] = s_dict.variables
     references_resolved = {ref: DictReader._resolve_reference(ref, variables) for ref in references}
 
     return {
@@ -613,7 +613,7 @@ def test_single_character_references() -> None:
 class SetupHelper:
     @staticmethod
     def prepare_dict_until(
-        dict_to_prepare: CppDict,
+        dict_to_prepare: SDict[TKey, TValue],
         until_step: int = -1,
         file_to_read: str = "test_dictReader_dict",
     ) -> None:

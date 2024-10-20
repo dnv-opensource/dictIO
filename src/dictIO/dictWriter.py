@@ -4,7 +4,7 @@ import re
 from collections.abc import MutableMapping, MutableSequence
 from pathlib import Path
 
-from dictIO import CppDict, CppParser, Formatter, order_keys
+from dictIO import CppParser, Formatter, SDict, order_keys
 from dictIO.types import TKey, TValue
 
 __ALL__ = ["DictWriter", "create_target_file_name"]
@@ -20,7 +20,7 @@ class DictWriter:
 
     @staticmethod
     def write(
-        source_dict: MutableMapping[str, TValue] | CppDict,
+        source_dict: MutableMapping[str, TValue] | SDict[TKey, TValue],
         target_file: str | os.PathLike[str] | None = None,
         mode: str = "a",
         *,
@@ -29,7 +29,7 @@ class DictWriter:
     ) -> None:
         """Write a dictionary file in dictIO dict file format, as well as JSON, XML and OpenFoam.
 
-        Writes a dictIO dict (parameter source_dict of type CppDict) to target_file.
+        Writes a dictIO dict (parameter source_dict of type SDict) to target_file.
         Following file formats are supported and interpreted through target_file's file ending:
         no file ending   ->   dictIO dict file
         '.cpp'           ->   dictIO dict file
@@ -43,7 +43,7 @@ class DictWriter:
 
         Parameters
         ----------
-        source_dict : Union[MutableMapping[TKey, TValue], CppDict]
+        source_dict : Union[MutableMapping[TKey, TValue], SDict]
             source dict
         target_file : Union[str, os.PathLike[str], None], optional
             target dict file name, by default None
@@ -63,7 +63,7 @@ class DictWriter:
 
         # Determine target file name
         if target_file is None:
-            if isinstance(source_dict, CppDict) and source_dict.source_file:
+            if isinstance(source_dict, SDict) and source_dict.source_file:
                 target_file = create_target_file_name(source_dict.source_file)
             else:
                 logger.error("DictWriter.write(): parameter target_file is missing. No file written.")
@@ -97,7 +97,7 @@ class DictWriter:
 
         # Order the dict
         if order:
-            if isinstance(source_dict, CppDict):
+            if isinstance(source_dict, SDict):
                 source_dict.order_keys()
             else:
                 source_dict = order_keys(source_dict)

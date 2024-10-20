@@ -7,7 +7,8 @@ import contextlib
 import logging
 import os
 import re
-from _collections_abc import Iterable, Iterator, Mapping, MutableMapping, MutableSequence
+import warnings
+from _collections_abc import Iterable, Mapping, MutableMapping, MutableSequence
 from copy import copy
 from pathlib import Path
 from types import NoneType
@@ -22,8 +23,7 @@ from dictIO.utils.counter import BorgCounter
 from dictIO.utils.path import relative_path
 
 __ALL__ = [
-    "ParsableDict",
-    "ComposableDict",
+    "SDict",
     "CppDict",
     "order_keys",
     "find_global_key",
@@ -42,10 +42,10 @@ _VT_local = TypeVar("_VT_local", bound=TValue)
 logger = logging.getLogger(__name__)
 
 
-class ParsableDict(MutableMapping[_KT, _VT]):
+class SDict(dict[_KT, _VT]):
     """Data structure for generic dictionaries.
 
-    ParsableDict inherits from UserDict. It can hence be used transparently also in a context
+    SDict inherits from UserDict. It can hence be used transparently also in a context
     where a dict or any other MutableMapping type is expected.
     """
 
@@ -94,7 +94,13 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         elif isinstance(arg, Iterable):
             base_dict = dict(cast(Iterable[tuple[_KT, _VT]], arg))  # type: ignore[reportUnnecessaryCast]
 
-        self.data: dict[_KT, _VT] = {}
+        if base_dict is None:
+            super().__init__()
+        else:
+            super().__init__(base_dict)
+
+        if kwargs:
+            self.update(**kwargs)
 
         self.counter: BorgCounter = BorgCounter()
         self.source_file: Path | None = None
@@ -114,6 +120,9 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         self.string_literals: dict[int, str] = {}
 
         self.expressions: dict[int, dict[str, str]] = {}
+        self.line_comments: dict[int, str] = {}
+        self.block_comments: dict[int, str] = {}
+        self.includes: dict[int, tuple[str, str, Path]] = {}
 
         self.brackets: list[tuple[str, str]] = [
             ("{", "}"),
@@ -142,44 +151,26 @@ class ParsableDict(MutableMapping[_KT, _VT]):
             ")",
         ]
 
-        if base_dict is not None:
-            self.update(base_dict)
-        if kwargs:
-            self.update(cast(Mapping[_KT, _VT], kwargs))
-
         return
 
-    # Implementations of the abstract methods of collections.abc.MutableMapping
-    def __len__(self) -> int:
-        return len(self.data)
+    @overload
+    def __or__(
+        self,
+        other: dict[_KT, _VT],
+    ) -> SDict[_KT, _VT]:
+        pass
 
-    def __getitem__(self, key: _KT) -> _VT:
-        if key in self.data:
-            return self.data[key]
-        # if hasattr(self.__class__, "__missing__"):
-        #     return self.__class__.__missing__(self, key)
-        raise KeyError(key)
+    @overload
+    def __or__(
+        self,
+        other: dict[_KT_local, _VT_local],
+    ) -> SDict[_KT | _KT_local, _VT | _VT_local]:
+        pass
 
-    def __setitem__(self, key: _KT, item: _VT) -> None:
-        self.data[key] = item
-
-    def __delitem__(self, key: _KT) -> None:
-        del self.data[key]
-
-    def __iter__(self) -> Iterator[_KT]:
-        return iter(self.data)
-
-    # Modify __contains__ and get() to work like dict
-    # does when __missing__ is present.
-    def __contains__(self, key: object) -> bool:
-        return key in self.data
-
-    def get(self, key: _KT, default: _VT | None = None) -> _VT | None:  # type: ignore[override]
-        return self[key] if key in self else default  # noqa: SIM401
-
-    # Implementation of additional methods in ParsableDict
-    # independent of collections.abc.MutableMapping
-    def __or__(self, other: MutableMapping[_KT, _VT]) -> ParsableDict[_KT, _VT]:
+    def __or__(
+        self,
+        other: dict[_KT, _VT] | dict[_KT_local, _VT_local],
+    ) -> SDict[_KT, _VT] | SDict[_KT | _KT_local, _VT | _VT_local]:
         """left `or` operation: `self | other`.
 
         The `__or__()` method is called by the ` | ` operator when it is used with `self` on the left-hand side.
@@ -191,20 +182,37 @@ class ParsableDict(MutableMapping[_KT, _VT]):
 
         Returns
         -------
-        ParsableDict[_KT, _VT]
-            A new ParsableDict instance containing the content of `self` updated with the content of `other`.
+        SDict[_KT, _VT]
+            A new SDict instance containing the content of `self` updated with the content of `other`.
         """
-        new_dict: ParsableDict[_KT, _VT]
-        if isinstance(other, ParsableDict):
-            new_dict = self.__class__(self.data | other.data)  # type(other) is ParsableDict
-        else:
-            new_dict = self.__class__(self.data | dict(other))  # type(other) is MutableMapping
+        new_dict: SDict[_KT | _KT_local, _VT | _VT_local]
+        new_dict = cast(
+            SDict[_KT | _KT_local, _VT | _VT_local],
+            self.__class__(super().__or__(other)),
+        )
         # update attributes
         new_dict._post_update(other)
         new_dict._clean()
         return new_dict
 
-    def __ror__(self, other: MutableMapping[_KT, _VT]) -> ParsableDict[_KT, _VT]:
+    @overload
+    def __ror__(
+        self,
+        other: dict[_KT, _VT],
+    ) -> SDict[_KT, _VT]:
+        pass
+
+    @overload
+    def __ror__(
+        self,
+        other: dict[_KT_local, _VT_local],
+    ) -> SDict[_KT | _KT_local, _VT | _VT_local]:
+        pass
+
+    def __ror__(
+        self,
+        other: dict[_KT, _VT] | dict[_KT_local, _VT_local],
+    ) -> SDict[_KT, _VT] | SDict[_KT | _KT_local, _VT | _VT_local]:
         """right `or` operation: `other | self`.
 
         The `__ror__()` method is called by the ` | ` operator when it is used with `self` on the right-hand side.
@@ -218,24 +226,42 @@ class ParsableDict(MutableMapping[_KT, _VT]):
 
         Returns
         -------
-        ParsableDict[_KT, _VT]
-            A new ParsableDict instance containing the content of `other` updated with the content of `self`.
+        SDict[_KT, _VT]
+            A new SDict instance containing the content of `other` updated with the content of `self`.
         """
-        new_dict: ParsableDict[_KT, _VT]
-        if isinstance(other, ParsableDict):
-            new_dict = self.__class__(other.data | self.data)  # type(other) is ParsableDict
-        else:
-            new_dict = self.__class__(dict(other) | self.data)  # type(other) is MutableMapping
+        new_dict: SDict[_KT | _KT_local, _VT | _VT_local]
+        new_dict = cast(
+            SDict[_KT | _KT_local, _VT | _VT_local],
+            self.__class__(super().__ror__(other)),
+        )
         # update attributes
         new_dict._post_update(self)
         new_dict._clean()
         return new_dict
 
+    @overload  # type: ignore[override]
+    def __ior__(
+        self,
+        other: Mapping[_KT, _VT],
+    ) -> SDict[_KT, _VT]:
+        pass
+
+    @overload
+    def __ior__(
+        self,
+        other: Iterable[tuple[_KT, _VT]],
+    ) -> SDict[_KT, _VT]:
+        pass
+
     # TODO @CLAROS: Change return type to `Self` (from `typing`module)
     #      once we drop support for Python 3.10
     #      (see https://docs.python.org/3/library/typing.html#typing.Self)
     #      CLAROS, 2024-10-15
-    def __ior__(self, other: MutableMapping[_KT, _VT]) -> ParsableDict[_KT, _VT]:  # noqa: PYI034
+    def __ior__(  # noqa: PYI034
+        self,
+        other: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]],
+    ) -> SDict[_KT, _VT]:
+        # def __ior__(self, other: MutableMapping[_KT, _VT]) -> SDict[_KT, _VT]:
         """augmented `or` operation: `self |= other`.
 
         The `__ior__()` method is called by the ` |= ` operator with `self` on the left-hand side.
@@ -248,55 +274,86 @@ class ParsableDict(MutableMapping[_KT, _VT]):
 
         Returns
         -------
-        ParsableDict[_KT, _VT]
+        SDict[_KT, _VT]
             Reference to `self`.
         """
-        if isinstance(other, ParsableDict):
-            self.data |= other.data  # type(other) is ParsableDict
-        else:
-            self.data |= dict(other)  # type(other) is MutableMapping
+        should_be_self = super().__ior__(other)
+        assert should_be_self is self
         # update attributes
         self._post_update(other)
         self._clean()
         return self
 
-    def __copy__(self) -> ParsableDict[_KT, _VT]:
-        inst = self.__class__.__new__(self.__class__)
-        inst.__dict__.update(self.__dict__)
-        # Create a copy and avoid triggering descriptors
-        inst.__dict__["data"] = self.__dict__["data"].copy()
-        return inst
-
-    def copy(self) -> ParsableDict[_KT, _VT]:
-        if self.__class__ is ParsableDict:
-            return ParsableDict(self.data.copy())
-        import copy
-
-        data = self.data
-        copied_dict: ParsableDict[_KT, _VT]
-        try:
-            self.data = {}
-            copied_dict = copy.copy(self)
-        finally:
-            self.data = data
-        copied_dict.update(self)
+    def __copy__(self) -> SDict[_KT, _VT]:
+        copied_dict = self.__class__.__new__(self.__class__)
+        copied_dict.__dict__.update(self.__dict__)
+        copied_dict.update(super().copy())
         return copied_dict
 
+    def copy(self) -> SDict[_KT, _VT]:
+        copied_dict = copy(self)  # calls __copy__()
+        return copied_dict
+
+    @overload
     @classmethod
-    def fromkeys(cls, iterable: Iterable[_KT], value: _VT | None = None) -> ParsableDict[_KT, _VT]:
-        new_dict: ParsableDict[_KT, _VT] = cls()
+    def fromkeys(
+        cls,
+        iterable: Iterable[_KT_local],
+        value: None = None,
+    ) -> SDict[_KT_local, TValue | None]:
+        pass
+
+    @overload
+    @classmethod
+    def fromkeys(
+        cls,
+        iterable: Iterable[_KT_local],
+        value: _VT_local,
+    ) -> SDict[_KT_local, _VT_local]:
+        pass
+
+    @classmethod
+    def fromkeys(
+        cls,
+        iterable: Iterable[_KT_local],
+        value: _VT_local | None = None,
+    ) -> SDict[_KT_local, _VT_local] | SDict[_KT_local, TValue | None]:
+        new_dict: SDict[_KT_local, _VT_local] = cast(SDict[_KT_local, _VT_local], cls())
         for key in iterable:
-            new_dict[key] = cast(_VT, value)  # cast is safe, as `None` is within the type bounds of _VT
+            new_dict[key] = cast(_VT_local, value)  # cast is safe, as `None` is within the type bounds of _VT
         return new_dict
 
-    def update(  # type: ignore[override]
+    @overload  # type: ignore[override]
+    def update(
         self,
-        __m: Mapping[_KT, _VT],
+        m: Mapping[_KT, _VT],
+        **kwargs: _VT,
+    ) -> None:
+        pass
+
+    @overload
+    def update(
+        self,
+        m: Iterable[tuple[_KT, _VT]],
+        **kwargs: _VT,
+    ) -> None:
+        pass
+
+    @overload
+    def update(
+        self,
+        **kwargs: _VT,
+    ) -> None:
+        pass
+
+    def update(
+        self,
+        m: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | None = None,
         **kwargs: _VT,
     ) -> None:
         """Update top-level keys with the keys from the passed in dict.
 
-        Overrides the update() method of UserDict base class in order to include also ParsableDict
+        Overrides the update() method of UserDict base class in order to include also SDict
         class attributes in the update.
 
         If a key already exists, it will be substituted by the key from the passed in dict.
@@ -317,27 +374,30 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         **kwargs: TValue
             optional keyword arguments. These will be passed on to the update() method of the parent class.
         """
-        # sourcery skip: class-extract-method
-        # call base class method. This takes care of updating self.data
-        super().update(__m, **kwargs)
+        if m is None:
+            super().update(**kwargs)
+        else:
+            super().update(m, **kwargs)
         # update attributes
-        self._post_update(__m, **kwargs)
+        self._post_update(m, **kwargs)
         self._clean()
-
         return
 
     def _post_update(
         self,
-        __m: Mapping[_KT, _VT],
+        m: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | None = None,
         **kwargs: _VT,  # noqa: ARG002
     ) -> None:
         # update attributes
-        if isinstance(__m, ParsableDict):
-            self.expressions.update(__m.expressions)
+        if isinstance(m, SDict):
+            self.expressions.update(m.expressions)
+            self.line_comments.update(m.line_comments)
+            self.block_comments.update(m.block_comments)
+            self.includes.update(m.includes)
         return
 
-    def merge(self, other: MutableMapping[_KT, _VT]) -> None:
-        """Merge the passed in dict into the existing ParsableDict instance.
+    def merge(self, other: Mapping[_KT, _VT]) -> None:
+        """Merge the passed in dict into the existing SDict instance.
 
         In contrast to update(), merge() works recursively. That is, it does not simply substitute top-level keys but
         recursively merges (potentially nested) content from the passed in dict into the existing.
@@ -349,15 +409,15 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         other : MutableMapping[TKey, TValue]
             dict to be merged
         """
-        # merge other dict into self (=into self.data)
+        # merge other dict into self (=into self)
 
         self._recursive_merge(self, other)
         # @TODO: An alternative we might test one day is the mergedeep module from the Python standard library:
         #        from mergedeep import merge
-        #        self.data = merge(self.data, dict)
+        #        self = merge(self, dict)
         #        CLAROS (FRALUM), 2022-01-05
 
-        # merge ParsableDict attributes
+        # merge SDict attributes
         self._post_merge(other)
         self._clean()
 
@@ -366,7 +426,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
     def _recursive_merge(
         self,
         target_dict: MutableMapping[_KT_local, _VT_local],
-        dict_to_merge: MutableMapping[_KT_local, _VT_local],
+        dict_to_merge: Mapping[_KT_local, _VT_local],
         *,
         overwrite: bool = False,
     ) -> None:
@@ -381,7 +441,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         ----------
         target_dict : MutableMapping[TKey, TValue]
             target dict
-        dict_to_merge : MutableMapping[TKey, TValue]
+        dict_to_merge : Mapping[TKey, TValue]
             dict to be merged into target dict
         overwrite : bool, optional
             if True, existing keys will be overwritten, by default False
@@ -390,16 +450,16 @@ class ParsableDict(MutableMapping[_KT, _VT]):
             if (
                 key in target_dict
                 and isinstance(target_dict[key], MutableMapping)
-                and isinstance(dict_to_merge[key], MutableMapping)
+                and isinstance(dict_to_merge[key], Mapping)
             ):  # dict
                 self._recursive_merge(  # Recursion
                     target_dict=cast(MutableMapping[TKey, TValue], target_dict[key]),
-                    dict_to_merge=cast(MutableMapping[TKey, TValue], dict_to_merge[key]),
+                    dict_to_merge=cast(Mapping[TKey, TValue], dict_to_merge[key]),
                     overwrite=overwrite,
                 )
             else:
                 value_in_target_dict_contains_circular_reference = False
-                if isinstance(target_dict, ParsableDict) and key in target_dict:
+                if isinstance(target_dict, SDict) and key in target_dict:
                     value = _insert_expression(target_dict[key], target_dict)
                     value_in_target_dict_contains_circular_reference = _value_contains_circular_reference(key, value)
                 if overwrite or key not in target_dict or value_in_target_dict_contains_circular_reference:
@@ -407,14 +467,75 @@ class ParsableDict(MutableMapping[_KT, _VT]):
 
         return
 
-    def _post_merge(self, other: MutableMapping[_KT, _VT]) -> None:
-        # merge ParsableDict attributes
-        if isinstance(other, ParsableDict):
+    def _post_merge(self, other: Mapping[_KT, _VT]) -> None:
+        # merge SDict attributes
+        if isinstance(other, SDict):
             self._recursive_merge(self.expressions, other.expressions)
+            self._recursive_merge(self.line_comments, other.line_comments)
+            self._recursive_merge(self.block_comments, other.block_comments)
+            self._recursive_merge(self.includes, other.includes)
+        return
+
+    def include(self, dict_to_include: SDict[_KT_local, _VT_local]) -> None:
+        """Add an include directive for the passed in dict.
+
+        Parameters
+        ----------
+        dict_to_include : SDict
+            The dict to be included via an include directive
+
+        Raises
+        ------
+        AttributeError
+            If dict_to_include.source_file is None
+        ValueError
+            If no relative path in between the current dict and the included dict can be resolved
+        """
+        if not dict_to_include.source_file:
+            raise AttributeError(
+                f"Cannot include {dict_to_include.name}. Attribute '.source_file' of {dict_to_include.name} is None."
+            )
+        if not self.source_file:
+            raise AttributeError(
+                f"Cannot include {dict_to_include.name}. Attribute '.source_file' of {self.name} is None."
+            )
+
+        include_file_path = dict_to_include.source_file
+        relative_file_path: Path
+        try:
+            relative_file_path = relative_path(
+                from_path=self.source_file.parent,
+                to_path=dict_to_include.source_file,
+            )
+        except ValueError as e:
+            raise ValueError(
+                f"Cannot include {dict_to_include.name}. Relative path to {dict_to_include.name} could not be resolved."
+            ) from e
+
+        from dictIO import CppFormatter
+
+        formatter = CppFormatter()
+        include_file_name = str(relative_file_path)
+        include_file_name = include_file_name.replace("\\", "\\\\")
+        include_file_name = formatter.format_type(include_file_name)
+
+        include_directive = f"#include {include_file_name}"
+
+        ii: int = 0
+        placeholder: str = ""
+        while True:
+            ii = self.counter()
+            placeholder = "INCLUDE%06i" % ii
+            if placeholder in self:
+                continue
+            break
+        # cast is safe, as `str` is within the type bounds of both _KT and _VT
+        self[cast(_KT, placeholder)] = cast(_VT, placeholder)
+        self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
         return
 
     def __str__(self) -> str:
-        """String representation of the ParsableDict instance in dictIO dict file format.
+        """String representation of the SDict instance in dictIO dict file format.
 
         Returns
         -------
@@ -426,18 +547,23 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         )
 
         formatter = CppFormatter()
-        return formatter.to_string(cast(ParsableDict[TKey, TValue], self))
+        return formatter.to_string(cast(SDict[TKey, TValue], self))
 
     def __repr__(self) -> str:
-        return f"ParsableDict({self.source_file!r})"
+        return f"SDict({self.source_file!r})"
 
     def __eq__(self, other: object) -> bool:
-        return str(self) == str(other) if isinstance(other, ParsableDict) else False
+        if isinstance(other, SDict):
+            return str(self) == str(other)
+        return super().__eq__(other)
 
     def order_keys(self) -> None:
         """alpha-numeric sorting of keys, recursively."""
-        self.data = order_keys(self.data)
+        _ = order_keys(self)
         self.expressions = order_keys(self.expressions)
+        self.line_comments = order_keys(self.line_comments)
+        self.block_comments = order_keys(self.block_comments)
+        self.includes = order_keys(self.includes)
         return
 
     def find_global_key(self, query: str = "") -> list[TKey] | None:
@@ -458,7 +584,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         Union[list[TKey], None]
             global key thread to the first key the value of which matches the passed in query, if found. Otherwise None.
         """
-        return find_global_key(self.data, query)
+        return find_global_key(self, query)
 
     def set_global_key(self, global_key: MutableSequence[TKey], value: TValue = None) -> None:
         """Set the value for the passed in global key.
@@ -474,7 +600,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
             value the target key shall be set to, by default None
         """
         set_global_key(
-            arg=cast(MutableMapping[TKey, TValue], self.data),
+            arg=cast(MutableMapping[TKey, TValue], self),
             global_key=global_key,
             value=value,
         )
@@ -498,7 +624,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         probe the existence of (nested) keys in dict
         """
         return global_key_exists(
-            dict_in=cast(MutableMapping[TKey, TValue], self.data),
+            dict_in=cast(MutableMapping[TKey, TValue], self),
             global_key=global_key,
         )
 
@@ -513,9 +639,11 @@ class ParsableDict(MutableMapping[_KT, _VT]):
         if scope:
             _scope: list[str] = [str(key) for key in scope]
             try:
-                self.data = eval("self.data['" + "']['".join(_scope) + "']")  # noqa: S307
+                reduced_dict = eval("self['" + "']['".join(_scope) + "']")  # noqa: S307
+                self.clear()
+                self.update(reduced_dict)
             except KeyError as e:
-                logger.warning(f"ParsableDict.reduce_scope(): no scope '{e.args[0]}' in dictionary {self.source_file}")
+                logger.warning(f"SDict.reduce_scope(): no scope '{e.args[0]}' in dictionary {self.source_file}")
         return
 
     @property
@@ -570,7 +698,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
             return False
 
         extract_variables_from_dict(
-            dict_in=self.data,
+            dict_in=self,
         )
 
         variables = order_keys(variables)
@@ -580,7 +708,7 @@ class ParsableDict(MutableMapping[_KT, _VT]):
     def _clean(self) -> None:
         """Find and remove doublettes of PLACEHOLDER keys.
 
-        Find and remove doublettes of following PLACEHOLDER keys within self.data:
+        Find and remove doublettes of following PLACEHOLDER keys within self:
         - BLOCKCOMMENT
         - INCLUDE
         - LINECOMMENT
@@ -599,149 +727,8 @@ class ParsableDict(MutableMapping[_KT, _VT]):
 
             return
 
-        _recursive_clean(data=self.data)
+        _recursive_clean(data=self)
 
-        return
-
-    def _clean_branch(self, branch: MutableMapping[_KT_local, _VT_local]) -> None:  # noqa: ARG002
-        return
-
-
-class ComposableDict(ParsableDict[_KT, _VT]):
-    """Data structure for composable dictionaries.
-
-    ComposableDict inherits from ParsableDict. It can hence be used transparently also in a context
-    where a dict or any other MutableMapping type is expected.
-    """
-
-    @overload
-    def __init__(
-        self,
-        **kwargs: _VT,
-    ) -> None:
-        pass
-
-    @overload
-    def __init__(
-        self,
-        arg: Mapping[_KT, _VT],
-        **kwargs: _VT,
-    ) -> None:
-        pass
-
-    @overload
-    def __init__(
-        self,
-        arg: Iterable[tuple[_KT, _VT]],
-        **kwargs: _VT,
-    ) -> None:
-        pass
-
-    @overload
-    def __init__(
-        self,
-        arg: str | os.PathLike[str],
-        **kwargs: _VT,
-    ) -> None:
-        pass
-
-    def __init__(
-        self,
-        arg: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | str | os.PathLike[str] | None = None,
-        **kwargs: _VT,
-    ) -> None:
-        super().__init__(arg, **kwargs)  # type: ignore[arg-type, reportArgumentType, reportCallIssue]
-        self.line_comments: dict[int, str] = {}
-        self.block_comments: dict[int, str] = {}
-        self.includes: dict[int, tuple[str, str, Path]] = {}
-        return
-
-    def _post_update(
-        self,
-        __m: Mapping[_KT, _VT],
-        **kwargs: _VT,
-    ) -> None:
-        super()._post_update(__m, **kwargs)
-        # update attributes
-        if isinstance(__m, ComposableDict):
-            self.line_comments.update(__m.line_comments)
-            self.block_comments.update(__m.block_comments)
-            self.includes.update(__m.includes)
-        return
-
-    def _post_merge(self, other: MutableMapping[_KT, _VT]) -> None:
-        super()._post_merge(other)
-        # merge ComposableDict attributes
-        if isinstance(other, ComposableDict):
-            self._recursive_merge(self.line_comments, other.line_comments)
-            self._recursive_merge(self.block_comments, other.block_comments)
-            self._recursive_merge(self.includes, other.includes)
-        return
-
-    def order_keys(self) -> None:
-        """alpha-numeric sorting of keys, recursively."""
-        super().order_keys()
-        self.line_comments = order_keys(self.line_comments)
-        self.block_comments = order_keys(self.block_comments)
-        self.includes = order_keys(self.includes)
-        return
-
-    def include(self, dict_to_include: ParsableDict[_KT_local, _VT_local]) -> None:
-        """Add an include directive for the passed in dict.
-
-        Parameters
-        ----------
-        dict_to_include : ParsableDict
-            The dict to be included via an include directive
-
-        Raises
-        ------
-        AttributeError
-            If dict_to_include.source_file is None
-        ValueError
-            If no relative path in between the current dict and the included dict can be resolved
-        """
-        if not dict_to_include.source_file:
-            raise AttributeError(
-                f"Cannot include {dict_to_include.name}. Attribute '.source_file' of {dict_to_include.name} is None."
-            )
-        if not self.source_file:
-            raise AttributeError(
-                f"Cannot include {dict_to_include.name}. Attribute '.source_file' of {self.name} is None."
-            )
-
-        include_file_path = dict_to_include.source_file
-        relative_file_path: Path
-        try:
-            relative_file_path = relative_path(
-                from_path=self.source_file.parent,
-                to_path=dict_to_include.source_file,
-            )
-        except ValueError as e:
-            raise ValueError(
-                f"Cannot include {dict_to_include.name}. Relative path to {dict_to_include.name} could not be resolved."
-            ) from e
-
-        from dictIO import CppFormatter
-
-        formatter = CppFormatter()
-        include_file_name = str(relative_file_path)
-        include_file_name = include_file_name.replace("\\", "\\\\")
-        include_file_name = formatter.format_type(include_file_name)
-
-        include_directive = f"#include {include_file_name}"
-
-        ii: int = 0
-        placeholder: str = ""
-        while True:
-            ii = self.counter()
-            placeholder = "INCLUDE%06i" % ii
-            if placeholder in self.data:
-                continue
-            break
-        # cast is safe, as `str` is within the type bounds of both _KT and _VT
-        self.data[cast(_KT, placeholder)] = cast(_VT, placeholder)
-        self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
         return
 
     def _clean_branch(self, branch: MutableMapping[_KT_local, _VT_local]) -> None:
@@ -754,7 +741,6 @@ class ComposableDict(ParsableDict[_KT, _VT]):
         By definition, only keys on the same nest level are checked for doublettes.
         Doublettes are identified through equality with their lookup values.
         """
-        super()._clean_branch(branch)
         # IDENTIFY all placeholders on current level
         _keys_on_this_level: list[_KT_local] = list(branch.keys())
         key_type_on_this_level: type[_KT_local | None] = NoneType
@@ -819,14 +805,36 @@ class ComposableDict(ParsableDict[_KT, _VT]):
                     unique_line_comments_on_this_level.append(line_comment)
         return
 
+    # The `data` property is added for backwards compatibility
+    # with CppDict class from dictIO <= v0.3.4
+    # It is marked as deprecated and will be removed in a future release.
+    @property
+    def data(self) -> dict[_KT, _VT]:
+        warnings.warn(
+            f"`{self.__class__.__name__}.data` is deprecated. Use `SDict` directly instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self
 
-class CppDict(ComposableDict[TKey, TValue]):
-    """Data structure for C++ dictionaries.
+    @data.setter
+    def data(self, data: dict[_KT, _VT]) -> None:
+        warnings.warn(
+            f"`{self.__class__.__name__}.data` is deprecated. Use `SDict.update()` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.clear()
+        self.update(data)
+        return
 
-    CppDict inherits from ParsableDict. It can hence be used transparently also in a context
-    where a dict or any other MutableMapping type is expected.
-    """
 
+class CppDict(SDict[TKey, TValue]):
+    #     """Data structure for C++ dictionaries.
+
+    #     CppDict inherits from SDict. It can hence be used transparently also in a context
+    #     where a dict or any other MutableMapping type is expected.
+    #     """
     @overload
     def __init__(
         self,
@@ -837,7 +845,7 @@ class CppDict(ComposableDict[TKey, TValue]):
     @overload
     def __init__(
         self,
-        arg: Mapping[str, TValue],
+        arg: Mapping[TKey, TValue],
         **kwargs: TValue,
     ) -> None:
         pass
@@ -845,7 +853,7 @@ class CppDict(ComposableDict[TKey, TValue]):
     @overload
     def __init__(
         self,
-        arg: Iterable[tuple[str, TValue]],
+        arg: Iterable[tuple[TKey, TValue]],
         **kwargs: TValue,
     ) -> None:
         pass
@@ -860,9 +868,14 @@ class CppDict(ComposableDict[TKey, TValue]):
 
     def __init__(
         self,
-        arg: Mapping[str, TValue] | Iterable[tuple[str, TValue]] | str | os.PathLike[str] | None = None,
+        arg: Mapping[TKey, TValue] | Iterable[tuple[TKey, TValue]] | str | os.PathLike[str] | None = None,
         **kwargs: TValue,
     ) -> None:
+        warnings.warn(
+            "`CppDict` is deprecated. Use `SDict[TKey, TValue]` instead.",
+            DeprecationWarning,
+            stacklevel=1,
+        )
         super().__init__(arg, **kwargs)  # type: ignore[arg-type, reportArgumentType, reportCallIssue]
         return
 
@@ -1008,14 +1021,14 @@ def global_key_exists(
     return True
 
 
-def _insert_expression(value: TValue, cpp_dict: ParsableDict[_KT, _VT]) -> TValue:
+def _insert_expression(value: TValue, s_dict: SDict[_KT, _VT]) -> TValue:
     if not isinstance(value, str):
         return value
     if not re.search(r"EXPRESSION\d{6}", value):
         return value
     if match_index := re.search(r"\d{6}", value):
         index = int(match_index[0])
-        return cpp_dict.expressions[index]["expression"] if index in cpp_dict.expressions else value
+        return s_dict.expressions[index]["expression"] if index in s_dict.expressions else value
     return value
 
 

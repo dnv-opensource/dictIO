@@ -17,7 +17,6 @@ from dictIO import (
     order_keys,
     set_global_key,
 )
-from dictIO.cppDict import ComposableDict, ParsableDict
 from dictIO.types import TKey, TValue
 
 
@@ -28,7 +27,7 @@ def test_dict() -> SDict[TKey, TValue]:
 
 
 def test_init() -> None:
-    test_dict = CppDict()
+    test_dict: SDict[TKey, TValue] = SDict()
     assert test_dict.source_file is None
     assert test_dict.path == Path.cwd()
     assert test_dict.name == ""
@@ -43,7 +42,7 @@ def test_init() -> None:
 
 
 def test_init_with_file() -> None:
-    test_dict = CppDict("someDict")
+    test_dict: SDict[TKey, TValue] = SDict("someDict")
     assert test_dict.source_file == Path.cwd() / "someDict"
     assert test_dict.path == Path.cwd()
     assert test_dict.name == "someDict"
@@ -62,8 +61,8 @@ def test_init_with_base_dict() -> None:
         "key1": "value1",
         "key2": "value2",
     }
-    test_dict = CppDict(base_dict)
-    assert test_dict.data == base_dict
+    test_dict: SDict[TKey, TValue] = SDict(base_dict)
+    assert test_dict == base_dict
     assert test_dict.source_file is None
     assert test_dict.path == Path.cwd()
     assert test_dict.name == ""
@@ -281,8 +280,8 @@ def test_order_keys() -> None:
     keys_expected = [key_1, key_2, key_3, key_4, key_n_1, key_n_2, key_n_3]
     keys_expected_nested = [key_1, key_2, key_3, key_n_1, key_n_2, key_n_3]
 
-    s_dict = CppDict()
-    s_dict.data.update(deepcopy(dict_in))
+    s_dict: SDict[TKey, TValue] = SDict()
+    s_dict.update(deepcopy(dict_in))
 
     # 1. negative test: assert dict_in is not alphanumerically ordered
     for index, key in enumerate(dict_in):
@@ -291,18 +290,18 @@ def test_order_keys() -> None:
         assert key != keys_expected_nested[index]
 
     # 2. negative test: assert dict is not alphanumerically ordered
-    for index, key in enumerate(s_dict.data):
+    for index, key in enumerate(s_dict):
         assert key != keys_expected[index]
-    for index, key in enumerate(s_dict.data[key_4]):
+    for index, key in enumerate(s_dict[key_4]):
         assert key != keys_expected_nested[index]
 
     dict_out = order_keys(dict_in)  # order_keys function defined in dict.py module
-    _s_dict_data_instance = s_dict.data
-    s_dict.order_keys()  # order_keys instance method of CppDict class
+    _s_dict_data_instance = s_dict
+    s_dict.order_keys()  # order_keys instance method of SDict class
 
     # assert that instances dict_in and s_dict have been modified in place
     assert dict_out is dict_in
-    assert s_dict.data is _s_dict_data_instance
+    assert s_dict is _s_dict_data_instance
 
     # 1. positive test for dict_out: assert dict_out is alphanumerically ordered
     for index, key in enumerate(dict_out):
@@ -310,28 +309,28 @@ def test_order_keys() -> None:
     for index, key in enumerate(dict_out[key_4]):
         assert key == keys_expected_nested[index]
 
-    # 2. positive test for dict: assert dict.data is alphanumerically ordered
-    for index, key in enumerate(s_dict.data):
+    # 2. positive test for dict: assert dict is alphanumerically ordered
+    for index, key in enumerate(s_dict):
         assert key == keys_expected[index]
-    for index, key in enumerate(s_dict.data[key_4]):
+    for index, key in enumerate(s_dict[key_4]):
         assert key == keys_expected_nested[index]
 
 
-def test_order_keys_of_test_dict(test_dict: CppDict) -> None:
+def test_order_keys_of_test_dict(test_dict: SDict[TKey, TValue]) -> None:
     # Prepare
     # Execute
     test_dict.order_keys()
     # Assert
-    assert str(test_dict.data["unordered"]) == str(test_dict.data["ordered"])
+    assert str(test_dict["unordered"]) == str(test_dict["ordered"])
 
 
-def test_reduce_scope_of_test_dict(test_dict: CppDict) -> None:
+def test_reduce_scope_of_test_dict(test_dict: SDict[TKey, TValue]) -> None:
     # Prepare
     scope = ["scope", "subscope1"]
     # Execute
     test_dict.reduce_scope(scope)
     # Assert
-    dict_out = test_dict.data
+    dict_out = test_dict
     assert len(dict_out) == 2  # subscope11, subscope12
     assert dict_out["subscope11"]["name"] == "subscope11"
     assert dict_out["subscope12"]["name"] == "subscope12"
@@ -361,7 +360,7 @@ def test_include() -> None:
 
 def test_merge_does_not_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -381,7 +380,7 @@ def test_merge_does_not_overwrite_existing_keys() -> None:
             ],
         }
     )
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 21",
             "B": 21,
@@ -411,7 +410,7 @@ def test_merge_does_not_overwrite_existing_keys() -> None:
 
 def test_merge_does_not_delete_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -431,7 +430,7 @@ def test_merge_does_not_delete_existing_keys() -> None:
             ],
         }
     )
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 21",
             "E": {},
@@ -447,7 +446,7 @@ def test_merge_does_not_delete_existing_keys() -> None:
 
 def test_merge_does_add_new_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -467,7 +466,7 @@ def test_merge_does_add_new_keys() -> None:
             ],
         }
     )
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "E": {
                 "E": "string 24",
@@ -496,7 +495,7 @@ def test_merge_does_add_new_keys() -> None:
 
 def test_merge_does_not_change_existings_lists() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -516,7 +515,7 @@ def test_merge_does_not_change_existings_lists() -> None:
             ],
         }
     )
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "F": [
                 "string 23",
@@ -541,8 +540,8 @@ def test_merge_does_not_change_existings_lists() -> None:
 
 
 def test_merge_does_also_merge_attributes() -> None:
-    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict()
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict()
     dict_1.expressions |= {
         1: {
             "name": "EXPRESSION000011",
@@ -623,7 +622,7 @@ def test_merge_does_also_merge_attributes() -> None:
 
 def test_update_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -643,7 +642,7 @@ def test_update_does_overwrite_existing_keys() -> None:
             ],
         }
     )
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 21",
             "B": 21,
@@ -682,7 +681,7 @@ def test_update_does_overwrite_existing_keys() -> None:
 
 def test_update_does_delete_nested_elements() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -702,7 +701,7 @@ def test_update_does_delete_nested_elements() -> None:
             ],
         }
     )
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 21",
             "E": {},
@@ -723,7 +722,7 @@ def test_update_does_delete_nested_elements() -> None:
 
 def test_update_does_add_new_keys_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -743,7 +742,7 @@ def test_update_does_add_new_keys_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "E": {
                 "E": "string 24",
@@ -776,7 +775,7 @@ def test_update_does_add_new_keys_by_overwrite() -> None:
 
 def test_update_does_change_existings_lists_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -796,7 +795,7 @@ def test_update_does_change_existings_lists_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "F": [
                 "string 23",
@@ -818,8 +817,8 @@ def test_update_does_change_existings_lists_by_overwrite() -> None:
 
 
 def test_update_does_also_update_attributes() -> None:
-    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict()
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict()
     dict_1.expressions |= {
         1: {
             "name": "EXPRESSION000011",
@@ -900,7 +899,7 @@ def test_update_does_also_update_attributes() -> None:
 
 def test_augmented_or_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -920,7 +919,7 @@ def test_augmented_or_does_overwrite_existing_keys() -> None:
             ],
         }
     )
-    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 21",
             "B": 21,
@@ -959,7 +958,7 @@ def test_augmented_or_does_overwrite_existing_keys() -> None:
 
 def test_augmented_or_does_delete_nested_elements() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -979,7 +978,7 @@ def test_augmented_or_does_delete_nested_elements() -> None:
             ],
         }
     )
-    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 21",
             "E": {},
@@ -1000,7 +999,7 @@ def test_augmented_or_does_delete_nested_elements() -> None:
 
 def test_augmented_or_does_add_new_keys_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -1020,7 +1019,7 @@ def test_augmented_or_does_add_new_keys_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "E": {
                 "E": "string 24",
@@ -1053,7 +1052,7 @@ def test_augmented_or_does_add_new_keys_by_overwrite() -> None:
 
 def test_augmented_or_does_change_existings_lists_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -1073,7 +1072,7 @@ def test_augmented_or_does_change_existings_lists_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "F": [
                 "string 23",
@@ -1095,8 +1094,8 @@ def test_augmented_or_does_change_existings_lists_by_overwrite() -> None:
 
 
 def test_augmented_or_does_also_update_attributes() -> None:
-    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict()
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict()
     dict_1.expressions |= {
         1: {
             "name": "EXPRESSION000011",
@@ -1149,7 +1148,7 @@ def test_augmented_or_does_also_update_attributes() -> None:
         3: ("#include dict_23", "dict_23", Path("dict_23")),
     }
     # execute augmented or operation
-    dict_1 |= dict_2  # pyright: ignore[reportAssignmentType]
+    dict_1 |= dict_2
     # assert that existing entries in the attributes of dict_1 HAVE been overwritten
     # and new entries have been added
     assert dict_1.expressions[1] == {
@@ -1177,7 +1176,7 @@ def test_augmented_or_does_also_update_attributes() -> None:
 
 def test_left_or_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -1197,7 +1196,7 @@ def test_left_or_does_overwrite_existing_keys() -> None:
             ],
         }
     )
-    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 21",
             "B": 21,
@@ -1236,7 +1235,7 @@ def test_left_or_does_overwrite_existing_keys() -> None:
 
 def test_left_or_does_delete_nested_elements() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -1256,7 +1255,7 @@ def test_left_or_does_delete_nested_elements() -> None:
             ],
         }
     )
-    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 21",
             "E": {},
@@ -1277,7 +1276,7 @@ def test_left_or_does_delete_nested_elements() -> None:
 
 def test_left_or_does_add_new_keys_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -1297,7 +1296,7 @@ def test_left_or_does_add_new_keys_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "E": {
                 "E": "string 24",
@@ -1330,7 +1329,7 @@ def test_left_or_does_add_new_keys_by_overwrite() -> None:
 
 def test_left_or_does_change_existings_lists_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -1350,7 +1349,7 @@ def test_left_or_does_change_existings_lists_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "F": [
                 "string 23",
@@ -1372,8 +1371,8 @@ def test_left_or_does_change_existings_lists_by_overwrite() -> None:
 
 
 def test_left_or_does_also_update_attributes() -> None:
-    dict_1: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
+    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict()
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict()
     dict_1.expressions |= {
         1: {
             "name": "EXPRESSION000011",
@@ -1426,8 +1425,8 @@ def test_left_or_does_also_update_attributes() -> None:
         3: ("#include dict_23", "dict_23", Path("dict_23")),
     }
     # execute left or operation
-    new_dict: ComposableDict[str, TValue | dict[str | int, TValue]]
-    new_dict = dict_1 | dict_2  # type: ignore[assignment, reportAssignmentType]
+    new_dict: SDict[str, TValue | dict[str | int, TValue]]
+    new_dict = dict_1 | dict_2
     # assert that existing entries in the attributes of dict_1 HAVE been overwritten
     # and new entries have been added
     assert new_dict.expressions[1] == {
@@ -1480,7 +1479,7 @@ def test_right_or_does_overwrite_existing_keys() -> None:
             ],
         }
     )
-    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 21",
             "B": 21,
@@ -1539,7 +1538,7 @@ def test_right_or_does_delete_nested_elements() -> None:
             ],
         }
     )
-    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "A": "string 21",
             "E": {},
@@ -1580,7 +1579,7 @@ def test_right_or_does_add_new_keys_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "E": {
                 "E": "string 24",
@@ -1633,7 +1632,7 @@ def test_right_or_does_change_existings_lists_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: ParsableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
         {
             "F": [
                 "string 23",
@@ -1656,7 +1655,7 @@ def test_right_or_does_change_existings_lists_by_overwrite() -> None:
 
 def test_right_or_does_also_update_attributes() -> None:
     dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr()
-    dict_2: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict()
+    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict()
     dict_2.expressions |= {
         1: {
             "name": "EXPRESSION000021",
@@ -1687,7 +1686,7 @@ def test_right_or_does_also_update_attributes() -> None:
         3: ("#include dict_23", "dict_23", Path("dict_23")),
     }
     # execute right or operation
-    new_dict: ComposableDict[str, TValue | dict[str | int, TValue]]
+    new_dict: SDict[str, TValue | dict[str | int, TValue]]
     new_dict = dict_1 | dict_2  # type: ignore[assignment, reportAssignmentType]
     # assert that existing entries in the attributes of dict_1 HAVE been overwritten
     # and new entries have been added
@@ -1719,8 +1718,8 @@ def test_dict_copy() -> None:
     manual_copy = _construct_test_dict()
     # execute copy operation
     copied_dict = original_dict.copy()
-    # assert that the copied dict is of type ComposableDict
-    assert isinstance(copied_dict, ComposableDict)
+    # assert that the copied dict is of type dict
+    assert isinstance(copied_dict, dict)
     # assert that the copied dict is equal to the manually constructed copy
     assert copied_dict == manual_copy
     # assert that the copied dict is not the same object as the original dict
@@ -1759,19 +1758,113 @@ def test_dict_copy() -> None:
         False,
     ]
     # assert that the attributes are the same objects
-    assert copied_dict.expressions is original_dict.expressions
-    assert copied_dict.line_comments is original_dict.line_comments
-    assert copied_dict.block_comments is original_dict.block_comments
-    assert copied_dict.includes is original_dict.includes
 
 
-def test_copy_copy() -> None:
+def test_dict_copy_copy() -> None:
     original_dict = _construct_test_dict()
     manual_copy = _construct_test_dict()
     # execute copy operation
     copied_dict = copy.copy(original_dict)
-    # assert that the copied dict is of type ComposableDict
-    assert isinstance(copied_dict, ComposableDict)
+    # assert that the copied dict is of type dict
+    assert isinstance(copied_dict, dict)
+    # assert that the copied dict is equal to the manually constructed copy
+    assert copied_dict == manual_copy
+    # assert that the copied dict is not the same object as the original dict
+    assert copied_dict is not original_dict
+    # assert that the first level elements are not the same, but got copied:
+    # Changing the copied dict should not change the original dict
+    copied_dict["A"] = "string 21"
+    assert copied_dict["A"] == "string 21"
+    assert original_dict["A"] == "string 11"
+    # assert that the copy is a shallow copy: the nested dict and list are the same objects
+    assert copied_dict["E"] is original_dict["E"]
+    assert copied_dict["F"] is original_dict["F"]
+    # Changing an element in the nested dict should change the original dict
+    copied_dict["E"]["A"] = "string 22"
+    assert copied_dict["E"]["A"] == "string 22"
+    assert original_dict["E"]["A"] == "string 22"
+    # Changing an element in the nested list should change the original list
+    copied_dict["F"][0] = "string 23"
+    assert copied_dict["F"][0] == "string 23"
+    assert original_dict["F"][0] == "string 23"
+    # However, changing the nested dict or list itself should not change the original dict
+    copied_dict["E"] = {}
+    assert copied_dict["E"] == {}
+    assert original_dict["E"] == {
+        "A": "string 22",  # (had been changed from "string 12" to "string 22" above)
+        "B": 12,
+        "C": 12.0,
+        "D": True,
+    }
+    copied_dict["F"] = []
+    assert copied_dict["F"] == []
+    assert original_dict["F"] == [
+        "string 23",  # (had been changed from "string 13" to "string 23" above)
+        13,
+        13.0,
+        False,
+    ]
+    # assert that the attributes are the same objects
+
+
+def test_dict_copy_deepcopy() -> None:
+    original_dict = _construct_test_dict()
+    manual_copy = _construct_test_dict()
+    # execute deepcopy operation
+    copied_dict = copy.deepcopy(original_dict)
+    # assert that the copied dict is of type dict
+    assert isinstance(copied_dict, dict)
+    # assert that the copied dict is equal to the manually constructed copy
+    assert copied_dict == manual_copy
+    # assert that the copied dict is not the same object as the original dict
+    assert copied_dict is not original_dict
+    # assert that the first level elements are not the same, but got copied:
+    # Changing the copied dict should not change the original dict
+    copied_dict["A"] = "string 21"
+    assert copied_dict["A"] == "string 21"
+    assert original_dict["A"] == "string 11"
+    # assert that the copy is a deep copy: even the nested dict and list are not the same objects
+    assert copied_dict["E"] is not original_dict["E"]
+    assert copied_dict["F"] is not original_dict["F"]
+    # They contain equal elements, though
+    assert copied_dict["E"] == original_dict["E"]
+    assert copied_dict["F"] == original_dict["F"]
+    # Changing an element in the nested dict in the copy does not change the original dict
+    copied_dict["E"]["A"] = "string 22"
+    assert copied_dict["E"]["A"] == "string 22"
+    assert original_dict["E"]["A"] == "string 12"  # (unchanged)
+    # Changing an element in the nested list in the copy does not change the original list
+    copied_dict["F"][0] = "string 23"
+    assert copied_dict["F"][0] == "string 23"
+    assert original_dict["F"][0] == "string 13"  # (unchanged)
+    # Likewise, changing the nested dict or list completely does not change the original dict
+    copied_dict["E"] = {}
+    assert copied_dict["E"] == {}
+    assert original_dict["E"] == {
+        "A": "string 12",
+        "B": 12,
+        "C": 12.0,
+        "D": True,
+    }
+    copied_dict["F"] = []
+    assert copied_dict["F"] == []
+    assert original_dict["F"] == [
+        "string 13",
+        13,
+        13.0,
+        False,
+    ]
+    # assert that the attributes are NOT the same objects
+    # They contain equal elements, though
+
+
+def test_sdict_copy() -> None:
+    original_dict = _construct_test_sdict()
+    manual_copy = _construct_test_sdict()
+    # execute copy operation
+    copied_dict = original_dict.copy()
+    # assert that the copied dict is of type SDict
+    assert isinstance(copied_dict, SDict)
     # assert that the copied dict is equal to the manually constructed copy
     assert copied_dict == manual_copy
     # assert that the copied dict is not the same object as the original dict
@@ -1816,13 +1909,64 @@ def test_copy_copy() -> None:
     assert copied_dict.includes is original_dict.includes
 
 
-def test_copy_deepcopy() -> None:
-    original_dict = _construct_test_dict()
-    manual_copy = _construct_test_dict()
+def test_sdict_copy_copy() -> None:
+    original_dict = _construct_test_sdict()
+    manual_copy = _construct_test_sdict()
+    # execute copy operation
+    copied_dict = copy.copy(original_dict)
+    # assert that the copied dict is of type SDict
+    assert isinstance(copied_dict, SDict)
+    # assert that the copied dict is equal to the manually constructed copy
+    assert copied_dict == manual_copy
+    # assert that the copied dict is not the same object as the original dict
+    assert copied_dict is not original_dict
+    # assert that the first level elements are not the same, but got copied:
+    # Changing the copied dict should not change the original dict
+    copied_dict["A"] = "string 21"
+    assert copied_dict["A"] == "string 21"
+    assert original_dict["A"] == "string 11"
+    # assert that the copy is a shallow copy: the nested dict and list are the same objects
+    assert copied_dict["E"] is original_dict["E"]
+    assert copied_dict["F"] is original_dict["F"]
+    # Changing an element in the nested dict should change the original dict
+    copied_dict["E"]["A"] = "string 22"
+    assert copied_dict["E"]["A"] == "string 22"
+    assert original_dict["E"]["A"] == "string 22"
+    # Changing an element in the nested list should change the original list
+    copied_dict["F"][0] = "string 23"
+    assert copied_dict["F"][0] == "string 23"
+    assert original_dict["F"][0] == "string 23"
+    # However, changing the nested dict or list itself should not change the original dict
+    copied_dict["E"] = {}
+    assert copied_dict["E"] == {}
+    assert original_dict["E"] == {
+        "A": "string 22",  # (had been changed from "string 12" to "string 22" above)
+        "B": 12,
+        "C": 12.0,
+        "D": True,
+    }
+    copied_dict["F"] = []
+    assert copied_dict["F"] == []
+    assert original_dict["F"] == [
+        "string 23",  # (had been changed from "string 13" to "string 23" above)
+        13,
+        13.0,
+        False,
+    ]
+    # assert that the attributes are the same objects
+    assert copied_dict.expressions is original_dict.expressions
+    assert copied_dict.line_comments is original_dict.line_comments
+    assert copied_dict.block_comments is original_dict.block_comments
+    assert copied_dict.includes is original_dict.includes
+
+
+def test_sdict_copy_deepcopy() -> None:
+    original_dict = _construct_test_sdict()
+    manual_copy = _construct_test_sdict()
     # execute deepcopy operation
     copied_dict = copy.deepcopy(original_dict)
-    # assert that the copied dict is of type ComposableDict
-    assert isinstance(copied_dict, ComposableDict)
+    # assert that the copied dict is of type SDict
+    assert isinstance(copied_dict, SDict)
     # assert that the copied dict is equal to the manually constructed copy
     assert copied_dict == manual_copy
     # assert that the copied dict is not the same object as the original dict
@@ -1875,29 +2019,33 @@ def test_copy_deepcopy() -> None:
     assert copied_dict.includes == original_dict.includes
 
 
-def _construct_test_dict() -> ComposableDict[str, TValue | dict[str | int, TValue]]:
+def _construct_test_dict() -> dict[str, TValue | dict[str | int, TValue]]:
     # construct two dicts with single entries, a nested dict and a nested list
-    test_dict: ComposableDict[str, TValue | dict[str | int, TValue]] = ComposableDict(
-        {
-            "A": "string 11",
-            "B": 11,
-            "C": 11.0,
-            "D": False,
-            "E": {
-                "A": "string 12",
-                "B": 12,
-                "C": 12.0,
-                "D": True,
-            },
-            "F": [
-                "string 13",
-                13,
-                13.0,
-                False,
-            ],
-        }
-    )
-    test_dict.expressions |= {
+    test_dict: dict[str, TValue | dict[str | int, TValue]] = {
+        "A": "string 11",
+        "B": 11,
+        "C": 11.0,
+        "D": False,
+        "E": {
+            "A": "string 12",
+            "B": 12,
+            "C": 12.0,
+            "D": True,
+        },
+        "F": [
+            "string 13",
+            13,
+            13.0,
+            False,
+        ],
+    }
+    return test_dict
+
+
+def _construct_test_sdict() -> SDict[str, TValue | dict[str | int, TValue]]:
+    # construct two dicts with single entries, a nested dict and a nested list
+    test_sdict: SDict[str, TValue | dict[str | int, TValue]] = SDict(_construct_test_dict())
+    test_sdict.expressions |= {
         1: {
             "name": "EXPRESSION000011",
             "expression": "$varName11",
@@ -1907,16 +2055,25 @@ def _construct_test_dict() -> ComposableDict[str, TValue | dict[str | int, TValu
             "expression": "$varName12",
         },
     }
-    test_dict.line_comments |= {
+    test_sdict.line_comments |= {
         1: "// line comment 11",
         2: "// line comment 12",
     }
-    test_dict.block_comments |= {
+    test_sdict.block_comments |= {
         1: "/* block comment 11 */",
         2: "/* block comment 12 */",
     }
-    test_dict.includes |= {
+    test_sdict.includes |= {
         1: ("#include dict_11", "dict_11", Path("dict_11")),
         2: ("#include dict_12", "dict_12", Path("dict_12")),
     }
-    return test_dict
+    return test_sdict
+
+
+def test_cpp_dict() -> None:
+    s_dict: SDict[TKey, TValue] = SDict(_construct_test_dict())
+    cpp_dict: CppDict = CppDict(_construct_test_dict())
+    assert isinstance(cpp_dict, dict)
+    assert isinstance(cpp_dict, SDict)
+    assert isinstance(cpp_dict, CppDict)
+    assert cpp_dict == s_dict

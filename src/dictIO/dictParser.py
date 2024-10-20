@@ -3,8 +3,8 @@ import os
 from collections.abc import MutableSequence
 from pathlib import Path
 
-from dictIO import CppDict, DictReader, DictWriter, create_target_file_name
-from dictIO.types import TKey
+from dictIO import DictReader, DictWriter, SDict, create_target_file_name
+from dictIO.types import TKey, TValue
 
 __ALL__ = ["DictParser"]
 
@@ -31,7 +31,7 @@ class DictParser:
         comments: bool = True,
         scope: MutableSequence[TKey] | None = None,
         output: str | None = None,
-    ) -> CppDict | None:
+    ) -> SDict[TKey, TValue] | None:
         """Parse a dictionary file and save it with prefix 'parsed.'.
 
         DictParser.parse() combines the otherwise atomic operations
@@ -66,7 +66,7 @@ class DictParser:
 
         Returns
         -------
-        Union[CppDict, None]
+        Union[SDict, None]
             the parsed dict
 
         Raises

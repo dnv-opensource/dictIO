@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from dictIO import CppDict, DictReader, DictWriter, FoamParser, create_target_file_name
+from dictIO import DictReader, DictWriter, FoamParser, SDict, create_target_file_name
 from dictIO.utils.counter import BorgCounter
 
 if TYPE_CHECKING:
-    from dictIO.types import TValue
+    from dictIO.types import TKey, TValue
 
 
 def test_write_dict() -> None:
@@ -45,19 +45,19 @@ def test_write_dict() -> None:
         r"_names ( param1 param2 param3 ); _values ( -10.0 0.0 0.0 ); "
         r"_commands { ls ( 'echo %PATH%' dir ); } } "
     )
-    test_cpp_dict: CppDict = CppDict()
-    test_cpp_dict.update(test_dict)
+    test_s_dict: SDict[TKey, TValue] = SDict()
+    test_s_dict.update(test_dict)
 
-    # Execute 1.1: Write as CppDict completely new
+    # Execute 1.1: Write as SDict completely new
     target_file.unlink(missing_ok=True)
-    DictWriter.write(test_cpp_dict, target_file, mode="w")
+    DictWriter.write(test_s_dict, target_file, mode="w")
     # Assert 1.1
     assert target_file.exists()
     parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
     assert parsed_str == test_str
 
-    # Execute 1.2: Write as CppDict on top of existing
-    DictWriter.write(test_cpp_dict, target_file, mode="a")
+    # Execute 1.2: Write as SDict on top of existing
+    DictWriter.write(test_s_dict, target_file, mode="a")
     # Assert 1.2
     assert target_file.exists()
     parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))

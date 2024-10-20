@@ -29,7 +29,7 @@ from typing import cast
 
 from numpy import diag, eye, ndarray, ones, zeros  # noqa: F401
 
-from dictIO import CppDict, Parser
+from dictIO import Parser, SDict
 from dictIO.types import TKey, TValue
 from dictIO.utils.counter import DejaVue
 
@@ -53,17 +53,17 @@ class DictReader:
         comments: bool = True,
         scope: MutableSequence[TKey] | None = None,
         parser: Parser | None = None,
-    ) -> CppDict:
+    ) -> SDict[TKey, TValue]:
         """Read a dictionary file in dictIO dict file format, as well as JSON and XML.
 
-        Reads a dict file, parses it and transforms its content into a dictIO dict object (CppDict).
+        Reads a dict file, parses it and transforms its content into a dictIO dict object (SDict).
         Following file formats are supported and interpreted through source_file's file ending:
         no file ending   ->   dictIO dict file
         '.cpp'           ->   dictIO dict file
         '.foam'          ->   Foam dictionary file
         '.json'          ->   Json dictionary file
         '.xml'           ->   XML file
-        Return type is in all cases CppDict
+        Return type is in all cases SDict
 
         Parameters
         ----------
@@ -82,7 +82,7 @@ class DictReader:
 
         Returns
         -------
-        CppDict
+        SDict
             the read dict
 
         Raises
@@ -102,7 +102,7 @@ class DictReader:
         # source_file = Path.joinpath(Path.cwd(), source_file)  # noqa: ERA001
         parser = parser or Parser.get_parser(source_file)
 
-        # Parse the dict file and transform it into a CppDict
+        # Parse the dict file and transform it into a SDict
         parsed_dict = parser.parse_file(source_file, comments=comments)
 
         # Merge dict files included through #include directives, if not actively refrained through opts
@@ -132,13 +132,13 @@ class DictReader:
         # also to consider: is it really neccessary to have the included dict merged in to current dict.data?
         # if we could avoid that we get a more readable structure, even after some farn operations
         if not includes:
-            DictReader._remove_include_keys(parsed_dict.data)
+            DictReader._remove_include_keys(parsed_dict)
 
         return parsed_dict
 
     @staticmethod
     def _merge_includes(
-        parent_dict: CppDict,
+        parent_dict: SDict[TKey, TValue],
         *,
         comments: bool = True,
     ) -> None:
@@ -148,9 +148,9 @@ class DictReader:
         djv.reset()
 
         # Inner function: Merge all includes, recursively
-        def _merge_includes_recursive(parent_dict: CppDict) -> CppDict:
+        def _merge_includes_recursive(parent_dict: SDict[TKey, TValue]) -> SDict[TKey, TValue]:
             # empty dict to merge in temporarily, avoiding dict-has-change-error inside the for loop
-            temp_dict = CppDict()
+            temp_dict: SDict[TKey, TValue] = SDict()
 
             # loop over all possible includes
             for _, _, path in parent_dict.includes.values():
@@ -218,7 +218,7 @@ class DictReader:
         return value
 
     @staticmethod
-    def _eval_expressions(dict_in: CppDict) -> None:
+    def _eval_expressions(dict_in: SDict[TKey, TValue]) -> None:
         # Collect all references contained in expressions
         _references: list[str] = []
         _refs: list[str]

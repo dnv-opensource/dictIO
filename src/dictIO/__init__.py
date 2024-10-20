@@ -1,10 +1,13 @@
-from dictIO.cppDict import (
+# ruff: noqa: ERA001
+from dictIO.collections import (
+    SDict,
     CppDict,
     find_global_key,
     global_key_exists,
     order_keys,
     set_global_key,
 )
+
 from dictIO.formatter import (
     Formatter,
     CppFormatter,

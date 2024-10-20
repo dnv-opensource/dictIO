@@ -9,7 +9,7 @@ class BorgCounter:
     A class that implements a static global counter.
     Instances of this class all share the same global counter.
     This is used in DictReader class to assure that multiple instances
-    of CppDict do not generate conflicting IDs for placeholder strings
+    of SDict do not generate conflicting IDs for placeholder strings
     (as would be the case otherwise when merging included dicts).
     """
 

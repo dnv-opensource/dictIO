@@ -5,16 +5,13 @@ import re
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import pytest
 
-from dictIO import CppDict, CppParser, Parser, XmlParser
+from dictIO import CppParser, Parser, SDict, XmlParser
+from dictIO.types import TKey, TValue
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.strings import string_diff
-
-if TYPE_CHECKING:
-    from dictIO.types import TValue
 
 
 class TestParser:
@@ -335,7 +332,7 @@ class TestParser:
 
     def test_parse_file_into_existing_dict(self) -> None:
         # Prepare
-        target_dict = CppDict()
+        target_dict: SDict[TKey, TValue] = SDict()
         source_file = Path("test_parser_dict")
         parser = Parser()
         # Execute
@@ -350,28 +347,28 @@ class TestCppParser:
     def test_extract_line_comments(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare
-        cpp_dict = CppDict()
+        s_dict: SDict[TKey, TValue] = SDict()
         parser = CppParser()
         line1 = "a line with no line comment\n"
         line2 = "//a line comment\n"
         line3 = "a line with //an inline comment\n"
         line4 = "a line with no line comment\n"
-        cpp_dict.line_content.extend([line1, line2, line3, line4])
-        assert len(cpp_dict.line_content) == 4
+        s_dict.line_content.extend([line1, line2, line3, line4])
+        assert len(s_dict.line_content) == 4
         # Execute
-        parser._extract_line_comments(cpp_dict, comments=True)
+        parser._extract_line_comments(s_dict, comments=True)
         # Assert
-        assert len(cpp_dict.line_content) == 4
-        for line in cpp_dict.line_content:
+        assert len(s_dict.line_content) == 4
+        for line in s_dict.line_content:
             assert re.search(r"//", line) is None
-        assert len(cpp_dict.line_comments) == 2
-        for line in cpp_dict.line_comments.values():
+        assert len(s_dict.line_comments) == 2
+        for line in s_dict.line_comments.values():
             assert re.search("//", str(line)) is not None
 
     def test_extract_includes(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare
-        cpp_dict = CppDict()
+        s_dict: SDict[TKey, TValue] = SDict()
         parser = CppParser()
         line1 = "a line with no include directive\n"
         line2 = "#include testDict\n"
@@ -381,22 +378,22 @@ class TestCppParser:
         line5 = "   #include testDict   \n"
         line6 = "   # include testDict   \n"
         line7 = "a line with no include directive\n"
-        cpp_dict.line_content.extend([line1, line2, line3, line4, line5, line6, line7])
-        assert len(cpp_dict.line_content) == 7
+        s_dict.line_content.extend([line1, line2, line3, line4, line5, line6, line7])
+        assert len(s_dict.line_content) == 7
         file_name_expected = "testDict"
         file_path_expected = Path("testDict").absolute()
         # Execute
-        parser._extract_includes(cpp_dict)
+        parser._extract_includes(s_dict)
         # Assert
-        assert len(cpp_dict.line_content) == 7
-        for line in cpp_dict.line_content:
+        assert len(s_dict.line_content) == 7
+        for line in s_dict.line_content:
             assert "#include" not in line
-        assert len(cpp_dict.includes) == 5
+        assert len(s_dict.includes) == 5
         for (
             include_directive,
             include_file_name,
             include_file_path,
-        ) in cpp_dict.includes.values():
+        ) in s_dict.includes.values():
             assert bool(re.search(r"#\s*include", str(include_directive)))
             assert not bool(re.search(r"\n", str(include_directive)))
             assert include_file_name == file_name_expected
@@ -404,36 +401,36 @@ class TestCppParser:
 
     def test_convert_line_content_to_block_content(self) -> None:
         # Prepare
-        cpp_dict = CppDict()
+        s_dict: SDict[TKey, TValue] = SDict()
         parser = CppParser()
         # Three lines with line endings
         line1 = "line 1\n"
         line2 = "line 2\n"
         line3 = "line 3\n"
-        cpp_dict.line_content.extend([line1, line2, line3])
+        s_dict.line_content.extend([line1, line2, line3])
         # Execute
-        parser._convert_line_content_to_block_content(cpp_dict)
+        parser._convert_line_content_to_block_content(s_dict)
         # Assert
-        assert cpp_dict.block_content == "line 1\nline 2\nline 3\n"
+        assert s_dict.block_content == "line 1\nline 2\nline 3\n"
 
     def test_remove_line_endings_from_block_content(self) -> None:
         # Prepare
-        cpp_dict = CppDict()
+        s_dict: SDict[TKey, TValue] = SDict()
         parser = CppParser()
         # Three lines with line endings
         line1 = "line 1\n"
         line2 = "line 2\n"
         line3 = "line 3\n"
-        cpp_dict.line_content.extend([line1, line2, line3])
-        parser._convert_line_content_to_block_content(cpp_dict)
+        s_dict.line_content.extend([line1, line2, line3])
+        parser._convert_line_content_to_block_content(s_dict)
         # Execute
-        parser._remove_line_endings_from_block_content(cpp_dict)
+        parser._remove_line_endings_from_block_content(s_dict)
         # Assert
-        assert cpp_dict.block_content == "line 1 line 2 line 3"
+        assert s_dict.block_content == "line 1 line 2 line 3"
 
     def test_extract_block_comments(self) -> None:
         # Prepare
-        cpp_dict = CppDict()
+        s_dict: SDict[TKey, TValue] = SDict()
         parser = CppParser()
         text_block_in = (
             "This is a text block\n"
@@ -453,15 +450,15 @@ class TestCppParser:
             "Identified block comments are extracted and replaced by a placeholder\n"
             "in the form B L O C K C O M M E N T 0 0 0 0 0 0 ."
         )
-        cpp_dict.block_content = text_block_in
+        s_dict.block_content = text_block_in
         # Execute
-        parser._extract_block_comments(cpp_dict, comments=True)
+        parser._extract_block_comments(s_dict, comments=True)
         # Assert
-        text_block_out = re.sub(r"[0-9]{6}", "000000", cpp_dict.block_content)
+        text_block_out = re.sub(r"[0-9]{6}", "000000", s_dict.block_content)
         assert text_block_out == text_block_expected
         print(string_diff(text_block_out, text_block_expected))
-        assert len(cpp_dict.block_comments) == 1
-        assert list(cpp_dict.block_comments.values())[0] == (
+        assert len(s_dict.block_comments) == 1
+        assert list(s_dict.block_comments.values())[0] == (
             "/*---------------------------------*- C++ -*----------------------------------*\\\n"
             "This is a block comment; coding utf-8; version 0.1;\n"
             "\\*----------------------------------------------------------------------------*/"
@@ -469,7 +466,7 @@ class TestCppParser:
 
     def test_extract_string_literals(self) -> None:
         # Prepare
-        cpp_dict = CppDict()
+        s_dict: SDict[TKey, TValue] = SDict()
         parser = CppParser()
         text_block_in = (
             "This is a text block\n"
@@ -499,24 +496,24 @@ class TestCppParser:
             'This is a line with an expression, e.g. "$varName2 + 4". Expressions are double quoted strings that contain minimum one $ character (denoting a reference).\n'
             "And here we close our small test with a final line with no string literal at all"
         )
-        cpp_dict.block_content = text_block_in
+        s_dict.block_content = text_block_in
         # Execute
-        parser._extract_string_literals(cpp_dict)
+        parser._extract_string_literals(s_dict)
         # Assert
-        text_block_out = re.sub(r"[0-9]{6}", "000000", cpp_dict.block_content)
+        text_block_out = re.sub(r"[0-9]{6}", "000000", s_dict.block_content)
         print(string_diff(text_block_out, text_block_expected))
         assert text_block_out == text_block_expected
-        assert len(cpp_dict.string_literals) == 6
-        assert list(cpp_dict.string_literals.values())[0] == "a string literal1"
-        assert list(cpp_dict.string_literals.values())[1] == "a string literal2"
-        assert list(cpp_dict.string_literals.values())[2] == " a string literal3 with leading and trailing spaces "
-        assert list(cpp_dict.string_literals.values())[3] == "This line starts with a string literal4"
-        assert list(cpp_dict.string_literals.values())[4] == "This line is nothing else than a string literal5"
-        assert list(cpp_dict.string_literals.values())[5] == "a string literal6 in double quotes"
+        assert len(s_dict.string_literals) == 6
+        assert list(s_dict.string_literals.values())[0] == "a string literal1"
+        assert list(s_dict.string_literals.values())[1] == "a string literal2"
+        assert list(s_dict.string_literals.values())[2] == " a string literal3 with leading and trailing spaces "
+        assert list(s_dict.string_literals.values())[3] == "This line starts with a string literal4"
+        assert list(s_dict.string_literals.values())[4] == "This line is nothing else than a string literal5"
+        assert list(s_dict.string_literals.values())[5] == "a string literal6 in double quotes"
 
     def test_extract_expressions(self) -> None:
         # Prepare
-        cpp_dict = CppDict()
+        s_dict: SDict[TKey, TValue] = SDict()
         parser = CppParser()
         text_block_in = (
             "This is a text block\n"
@@ -562,46 +559,46 @@ class TestCppParser:
             "in the form E X P R E S S I O N 0 0 0 0 0 0."
             "The actual evaluation of an expression is not part of _extract_expressions(). The evaluation is done within ()."
         )
-        cpp_dict.block_content = text_block_in
-        parser._extract_string_literals(cpp_dict)
+        s_dict.block_content = text_block_in
+        parser._extract_string_literals(s_dict)
         # Execute
-        parser._extract_expressions(cpp_dict)
+        parser._extract_expressions(s_dict)
         # Assert
-        text_block_out = re.sub(r"[0-9]{6}", "000000", cpp_dict.block_content)
+        text_block_out = re.sub(r"[0-9]{6}", "000000", s_dict.block_content)
         assert text_block_out == text_block_expected
         print(string_diff(text_block_out, text_block_expected))
-        assert len(cpp_dict.expressions) == 9
+        assert len(s_dict.expressions) == 9
 
-        assert list(cpp_dict.expressions.values())[0]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[0]["expression"] == "$varName1"
+        assert list(s_dict.expressions.values())[0]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[0]["expression"] == "$varName1"
 
-        assert list(cpp_dict.expressions.values())[1]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[1]["expression"] == "$varName2 + 4"
+        assert list(s_dict.expressions.values())[1]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[1]["expression"] == "$varName2 + 4"
 
-        assert list(cpp_dict.expressions.values())[2]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[2]["expression"] == "4 + $varName2"
+        assert list(s_dict.expressions.values())[2]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[2]["expression"] == "4 + $varName2"
 
-        assert list(cpp_dict.expressions.values())[3]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[3]["expression"] == "$varName2 + $varName3"
+        assert list(s_dict.expressions.values())[3]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[3]["expression"] == "$varName2 + $varName3"
 
-        assert list(cpp_dict.expressions.values())[4]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[4]["expression"] == "$varName1 + $varName2 + $varName3"
+        assert list(s_dict.expressions.values())[4]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[4]["expression"] == "$varName1 + $varName2 + $varName3"
 
-        assert list(cpp_dict.expressions.values())[5]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[5]["expression"] == "$varName2 + $varName3 + $varName1"
+        assert list(s_dict.expressions.values())[5]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[5]["expression"] == "$varName2 + $varName3 + $varName1"
 
-        assert list(cpp_dict.expressions.values())[6]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[6]["expression"] == "$varName1"
+        assert list(s_dict.expressions.values())[6]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[6]["expression"] == "$varName1"
 
-        assert list(cpp_dict.expressions.values())[7]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[7]["expression"] == "$varName1[0]"
+        assert list(s_dict.expressions.values())[7]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[7]["expression"] == "$varName1[0]"
 
-        assert list(cpp_dict.expressions.values())[8]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[8]["expression"] == "$varName1[1][2]"
+        assert list(s_dict.expressions.values())[8]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[8]["expression"] == "$varName1[1][2]"
 
     def test_extract_single_character_expressions(self) -> None:
         # Prepare
-        cpp_dict = CppDict()
+        s_dict: SDict[TKey, TValue] = SDict()
         parser = CppParser()
         text_block_in = (
             "This is a text block\n"
@@ -647,47 +644,47 @@ class TestCppParser:
             "in the form E X P R E S S I O N 0 0 0 0 0 0."
             "The actual evaluation of an expression is not part of _extract_expressions(). The evaluation is done within ()."
         )
-        cpp_dict.block_content = text_block_in
-        parser._extract_string_literals(cpp_dict)
+        s_dict.block_content = text_block_in
+        parser._extract_string_literals(s_dict)
         # Execute
-        parser._extract_expressions(cpp_dict)
+        parser._extract_expressions(s_dict)
         # Assert
-        text_block_out = re.sub(r"[0-9]{6}", "000000", cpp_dict.block_content)
+        text_block_out = re.sub(r"[0-9]{6}", "000000", s_dict.block_content)
         assert text_block_out == text_block_expected
         print(string_diff(text_block_out, text_block_expected))
-        assert len(cpp_dict.expressions) == 9
+        assert len(s_dict.expressions) == 9
 
-        assert list(cpp_dict.expressions.values())[0]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[0]["expression"] == "$a"
+        assert list(s_dict.expressions.values())[0]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[0]["expression"] == "$a"
 
-        assert list(cpp_dict.expressions.values())[1]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[1]["expression"] == "$b + 4"
+        assert list(s_dict.expressions.values())[1]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[1]["expression"] == "$b + 4"
 
-        assert list(cpp_dict.expressions.values())[2]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[2]["expression"] == "4 + $b"
+        assert list(s_dict.expressions.values())[2]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[2]["expression"] == "4 + $b"
 
-        assert list(cpp_dict.expressions.values())[3]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[3]["expression"] == "$b + $c"
+        assert list(s_dict.expressions.values())[3]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[3]["expression"] == "$b + $c"
 
-        assert list(cpp_dict.expressions.values())[4]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[4]["expression"] == "$a + $b + $c"
+        assert list(s_dict.expressions.values())[4]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[4]["expression"] == "$a + $b + $c"
 
-        assert list(cpp_dict.expressions.values())[5]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[5]["expression"] == "$b + $c + $a"
+        assert list(s_dict.expressions.values())[5]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[5]["expression"] == "$b + $c + $a"
 
-        assert list(cpp_dict.expressions.values())[6]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[6]["expression"] == "$a"
+        assert list(s_dict.expressions.values())[6]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[6]["expression"] == "$a"
 
-        assert list(cpp_dict.expressions.values())[7]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[7]["expression"] == "$a[0]"
+        assert list(s_dict.expressions.values())[7]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[7]["expression"] == "$a[0]"
 
-        assert list(cpp_dict.expressions.values())[8]["name"][:10] == "EXPRESSION"
-        assert list(cpp_dict.expressions.values())[8]["expression"] == "$a[1][2]"
+        assert list(s_dict.expressions.values())[8]["name"][:10] == "EXPRESSION"
+        assert list(s_dict.expressions.values())[8]["expression"] == "$a[1][2]"
 
     def test_separate_delimiters(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare
-        cpp_dict = CppDict()
+        s_dict: SDict[TKey, TValue] = SDict()
         parser = CppParser()
         text_block_in = (
             "This is a text block\n"
@@ -719,22 +716,22 @@ class TestCppParser:
             "delimiters burried between other text: bla { bla } bla ( bla ) bla < bla > bla ; bla , bla "
             "And here we close our small test with a final line with no delimiter at all"
         )
-        cpp_dict.block_content = text_block_in
+        s_dict.block_content = text_block_in
         # Execute
-        parser._separate_delimiters(cpp_dict, cpp_dict.delimiters)
+        parser._separate_delimiters(s_dict, s_dict.delimiters)
         # Assert
-        assert cpp_dict.block_content == text_block_expected
-        print(string_diff(cpp_dict.block_content, text_block_expected))
+        assert s_dict.block_content == text_block_expected
+        print(string_diff(s_dict.block_content, text_block_expected))
         # In addition, test whether re.split('\s', block_content) results in tokens containing one single word each
         # because this exactly is what _separate_delimiters() is meant to ensure
-        cpp_dict.tokens = [(0, i) for i in re.split(r"\s", cpp_dict.block_content)]
-        assert len(cpp_dict.tokens) == 184
-        for _, token in cpp_dict.tokens:
+        s_dict.tokens = [(0, i) for i in re.split(r"\s", s_dict.block_content)]
+        assert len(s_dict.tokens) == 184
+        for _, token in s_dict.tokens:
             assert len(token) > 0
 
     def test_determine_token_hierarchy(self) -> None:
         # Prepare
-        cpp_dict = CppDict()
+        s_dict: SDict[TKey, TValue] = SDict()
         parser = CppParser()
         text_block = (
             "level0 { level1 { level2 { level3 } level2 } level1 } level0\n"
@@ -745,15 +742,15 @@ class TestCppParser:
         tokens_in: list[tuple[int, str]] = [(0, token) for token in tokens]
         levels_expected = [0, 0, 1, 1, 2, 2, 3, 2, 2, 1, 1, 0, 0] * 3
         tokens_expected = list(zip(levels_expected, tokens, strict=False))
-        cpp_dict.tokens = tokens_in
+        s_dict.tokens = tokens_in
         # Execute
-        parser._determine_token_hierarchy(cpp_dict)
+        parser._determine_token_hierarchy(s_dict)
         # Assert
-        assert cpp_dict.tokens == tokens_expected
+        assert s_dict.tokens == tokens_expected
 
     def test_parse_tokenized_dict(self) -> None:
         # Prepare
-        dict_in = CppDict()
+        dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
@@ -776,7 +773,7 @@ class TestCppParser:
 
     def test_parse_tokenized_dict_booleans(self) -> None:
         # Prepare
-        dict_in = CppDict()
+        dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
@@ -802,7 +799,7 @@ class TestCppParser:
 
     def test_parse_tokenized_dict_numbers(self) -> None:
         # Prepare
-        dict_in = CppDict()
+        dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
@@ -818,7 +815,7 @@ class TestCppParser:
 
     def test_parse_tokenized_dict_nones(self) -> None:
         # Prepare
-        dict_in = CppDict()
+        dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
@@ -832,7 +829,7 @@ class TestCppParser:
 
     def test_parse_tokenized_dict_strings(self) -> None:
         # Prepare
-        dict_in = CppDict()
+        dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
@@ -853,7 +850,7 @@ class TestCppParser:
 
     def test_parse_tokenized_dict_invalid(self, caplog: pytest.LogCaptureFixture) -> None:
         # Prepare
-        dict_in = CppDict()
+        dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         log_level_expected = "WARNING"
@@ -879,7 +876,7 @@ class TestCppParser:
 
     def test_parse_tokenized_dict_nesting(self) -> None:
         # Prepare
-        dict_in = CppDict()
+        dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
@@ -944,7 +941,7 @@ class TestCppParser:
 
     def test_parse_tokenized_dict_expressions(self) -> None:
         # Prepare
-        dict_in = CppDict()
+        dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = CppParser()
         # Execute
@@ -977,7 +974,7 @@ class TestCppParser:
         # sourcery skip: extract-duplicate-method
 
         # Prepare
-        dict_in = CppDict()
+        dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9, comments=False)
         parser = CppParser()
         # Execute
@@ -1013,13 +1010,13 @@ class TestCppParser:
 
     def test_insert_string_literals(self) -> None:
         # Prepare
-        cpp_dict = CppDict()
-        SetupHelper.prepare_dict_until(dict_to_prepare=cpp_dict, until_step=10)
+        s_dict: SDict[TKey, TValue] = SDict()
+        SetupHelper.prepare_dict_until(dict_to_prepare=s_dict, until_step=10)
         parser = CppParser()
         # Execute
-        parser._insert_string_literals(cpp_dict)
+        parser._insert_string_literals(s_dict)
         # Assert
-        dict_out = cpp_dict.data
+        dict_out = s_dict
         assert dict_out["strings"]["listWithStrings"][0] == "string1"
         assert dict_out["strings"]["listWithStrings"][1] == "string2 has spaces"
         assert dict_out["strings"]["listWithStrings"][2] == "string3"
@@ -1043,7 +1040,7 @@ class TestXmlParser:
         str_in = ""
         with Path.open(file_name) as f:
             str_in = f.read()
-        dict_out = CppDict(file_name)
+        dict_out: SDict[TKey, TValue] = SDict(file_name)
         parser = XmlParser(add_node_numbering=False)
         content_TAG00_expected = (  # noqa: N806
             "Extensible Markup Language (XML) is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable.\n"
@@ -1081,7 +1078,7 @@ class TestXmlParser:
         str_in = ""
         with Path.open(file_name) as f:
             str_in = f.read()
-        dict_out = CppDict(file_name)
+        dict_out: SDict[TKey, TValue] = SDict(file_name)
         parser = XmlParser(add_node_numbering=True)
         content_TAG00_expected = (  # noqa: N806
             "Extensible Markup Language (XML) is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable.\n"
@@ -1120,7 +1117,7 @@ class TestXmlParser:
         str_in = ""
         with Path.open(file_name) as f:
             str_in = f.read()
-        dict_out: CppDict = CppDict(file_name)
+        dict_out: SDict[TKey, TValue] = SDict(file_name)
         parser = XmlParser()
         # Execute
         dict_out = parser.parse_string(str_in, dict_out)
@@ -1136,7 +1133,7 @@ class TestXmlParser:
         str_in = ""
         with Path.open(file_name) as f:
             str_in = f.read()
-        dict_out: CppDict = CppDict(file_name)
+        dict_out: SDict[TKey, TValue] = SDict(file_name)
         parser = XmlParser()
         # Execute
         dict_out = parser.parse_string(str_in, dict_out)
@@ -1150,7 +1147,7 @@ class TestXmlParser:
 class SetupHelper:
     @staticmethod
     def prepare_dict_until(
-        dict_to_prepare: CppDict,
+        dict_to_prepare: SDict[TKey, TValue],
         until_step: int = -1,
         file_to_read: str = "test_parser_dict",
         *,
