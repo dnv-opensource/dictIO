@@ -8,7 +8,7 @@ import logging
 import os
 import re
 from _collections_abc import Iterable, Iterator, Mapping, MutableMapping, MutableSequence
-from copy import deepcopy
+from copy import copy
 from pathlib import Path
 from types import NoneType
 from typing import (
@@ -35,6 +35,7 @@ __ALL__ = [
 # Type variables for keys and values
 _KT = TypeVar("_KT", bound=TKey)
 _VT = TypeVar("_VT", bound=TValue)
+_MT = TypeVar("_MT", bound=MutableMapping[TKey, TValue])
 _KT_local = TypeVar("_KT_local", bound=TKey)
 _VT_local = TypeVar("_VT_local", bound=TValue)
 
@@ -866,24 +867,26 @@ class CppDict(ComposableDict[TKey, TValue]):
         return
 
 
-def order_keys(arg: MutableMapping[_KT, _VT]) -> dict[_KT, _VT]:
+def order_keys(arg: _MT) -> _MT:
     """alpha-numeric sorting of keys, recursively.
 
     Parameters
     ----------
-    arg : MutableMapping[_KT, _VT]
-        dict, the keys of which shall be sorted
+    arg : _MT
+        MutableMapping, the keys of which shall be sorted.
 
     Returns
     -------
-    Dict[_KT, _VT]
-        passed in dict with keys sorted
+    _MT
+        the passed in MutableMapping, with keys sorted. The same instance is returned.
     """
-    sorted_dict: dict[_KT, _VT] = dict(sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0])))
-    for key, value in deepcopy(sorted_dict).items():
+    sorted_dict: dict[TKey, TValue] = dict(sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0])))
+    for key, value in copy(sorted_dict).items():
         if isinstance(value, MutableMapping):
             sorted_dict[key] = order_keys(value)  # type: ignore[assignment]  # Recursion
-    return sorted_dict
+    arg.clear()
+    arg.update(sorted_dict)
+    return arg
 
 
 def find_global_key(
