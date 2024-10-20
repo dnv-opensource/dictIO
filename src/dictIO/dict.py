@@ -48,9 +48,9 @@ logger = logging.getLogger(__name__)
 
 
 class SDict(dict[_KT, _VT]):
-    """Data structure for generic dictionaries.
+    """Data structure for generic, serializable dictionaries.
 
-    SDict inherits from UserDict. It can hence be used transparently also in a context
+    SDict inherits from dict. It can hence be used transparently also in a context
     where a dict or any other MutableMapping type is expected.
     """
 
