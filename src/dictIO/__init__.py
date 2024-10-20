@@ -1,4 +1,3 @@
-# ruff: noqa: ERA001
 from dictIO.dict import (
     SDict,
     CppDict,
