@@ -1,5 +1,5 @@
 # ruff: noqa: ERA001
-from dictIO.collections import (
+from dictIO.dict import (
     SDict,
     CppDict,
     find_global_key,
