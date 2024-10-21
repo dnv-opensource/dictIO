@@ -5,6 +5,21 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
+-/-
+
+
+## [0.4.0] - 2024-10-21
+
+### Breaking change
+* class `CppDict` in module `dictIO.cppDict` has been replaced with the class `SDict[_KT, _VT]` in module `dictIO.dict`.
+  In order to maintain backward compatibility, a thin wrapper class named `CppDict` is kept in version ~0.4.0.
+  It is marked as deprecated, though, and will be removed with release 0.5.0.
+* Where `CppDict` inherited from `UserDict`, `SDict` inherits directly from Python's `dict` class,
+  allowing to use it in any context where a `dict` or any other `MutableMapping` is expected.
+* `SDict` is generic. Static type checkers will hence require type arguments when `SDict` is used in type hints.
+  Where you could write `my_dict: CppDict = CppDict()`, you will now need to specify the type arguments, e.g.
+  `my_dict: SDict[str, Any] = SDict()`. With this change, type hinting is in line with how type hinting of Python's builtin `dict` works, and offers more control in static type checking.
+
 ### Changed
 * Changed from `pip`/`tox` to `uv` as package manager
 * README.md : Completely rewrote section "Development Setup", introducing `uv` as package manager.
@@ -14,6 +29,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Replaced black formatter with ruff formatter
 
 ### Added
+* Added instance methods `dump()` and `load()` to `SDict`
 * Added `mypy` as static type checker (in addition to `pyright`)
 
 ### GitHub workflows
@@ -312,7 +328,8 @@ This removes the need to manually add /src to the PythonPath environment variabl
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.3.4...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/dnv-opensource/dictIO/compare/v0.3.4...v0.4.0
 [0.3.4]: https://github.com/dnv-opensource/dictIO/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/dnv-opensource/dictIO/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/dnv-opensource/dictIO/compare/v0.3.1...v0.3.2
