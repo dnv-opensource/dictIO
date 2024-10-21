@@ -20,9 +20,10 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   dictIO.cppDict
+   dictIO.dict
    dictIO.dictParser
    dictIO.dictReader
    dictIO.dictWriter
    dictIO.formatter
    dictIO.parser
+   dictIO.cppDict
