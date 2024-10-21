@@ -1,19 +1,44 @@
 import re
-from copy import deepcopy
+from copy import copy, deepcopy
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
-from dictIO import CppDict, CppFormatter, DictReader, FoamFormatter, XmlFormatter
+from dictIO import CppFormatter, DictReader, FoamFormatter, SDict, XmlFormatter
+from dictIO.formatter import Formatter
+
+if TYPE_CHECKING:
+    from dictIO.types import TKey, TValue
 
 
-# @TODO: To be implemented
-@pytest.mark.skip(reason="To be implemented")
 class TestFormatter:
     # @TODO: To be implemented
     @pytest.mark.skip(reason="To be implemented")
-    def test_returned_formatter_type(self):
+    def test_returned_formatter_type(self) -> None:
         pass
+
+    def test_to_string_does_not_alter_original(self) -> None:
+        # Prepare
+        dict_in = DictReader.read(Path("test_formatter_dict"))
+        formatter = Formatter()
+        dict_in_reference = dict_in
+        dict_in_shallowcopy = copy(dict_in)
+        # Execute
+        str_out: str = formatter.to_string(dict_in)
+        # Assert
+        assert isinstance(str_out, str)
+        # Make sure that the original dictionary is not modified
+        assert dict_in == dict_in_reference
+        assert dict_in is dict_in_reference
+        for key in dict_in:
+            assert dict_in[key] == dict_in_reference[key]
+            assert dict_in[key] is dict_in_reference[key]
+        assert dict_in == dict_in_shallowcopy
+        assert dict_in is not dict_in_shallowcopy
+        for key in dict_in:
+            assert dict_in[key] == dict_in_shallowcopy[key]
+            assert dict_in[key] is dict_in_shallowcopy[key]
 
 
 class TestCppFormatter:
@@ -32,7 +57,7 @@ class TestCppFormatter:
             "$keyword1[1][2]",
         ],
     )
-    def test_format_type_string_no_additional_quotes_expected(self, str_in: str):
+    def test_format_type_string_no_additional_quotes_expected(self, str_in: str) -> None:
         # Prepare
         formatter = CppFormatter()
         str_expected = str_in
@@ -52,7 +77,7 @@ class TestCppFormatter:
             r"contains a \"nested string\" literal with escaped double quotes",
         ],
     )
-    def test_format_type_string_additional_single_quotes_expected(self, str_in: str):
+    def test_format_type_string_additional_single_quotes_expected(self, str_in: str) -> None:
         # Prepare
         formatter = CppFormatter()
         str_expected = f"'{str_in}'"
@@ -71,7 +96,7 @@ class TestCppFormatter:
             r"contains a \'nested string\' literal with escaped single quotes",
         ],
     )
-    def test_format_type_string_additional_double_quotes_expected(self, str_in: str):
+    def test_format_type_string_additional_double_quotes_expected(self, str_in: str) -> None:
         # Prepare
         formatter = CppFormatter()
         str_expected = f'"{str_in}"'
@@ -80,7 +105,7 @@ class TestCppFormatter:
         # Assert
         assert str_out == str_expected
 
-    def test_format_type_float(self):
+    def test_format_type_float(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
         formatter = CppFormatter()
         float_in = 1.23
@@ -96,7 +121,7 @@ class TestCppFormatter:
         assert isinstance(str_out, str)
         assert str_out == "0.0"
 
-    def test_insert_block_comments(self):
+    def test_insert_block_comments(self) -> None:
         # sourcery skip: class-extract-method
         # Prepare
         formatter = CppFormatter()
@@ -123,46 +148,44 @@ class TestCppFormatter:
         formatter: CppFormatter,
         as_is_block_comment: str,
         default_block_comment: str,
-    ):
-        # sourcery skip: avoid-builtin-shadow
-        dict = CppDict()
-        str_in_template = formatter.format_dict(
-            dict.data
-        )  # as we used test_simpleDict, str_in does not have a block comment yet
+    ) -> None:
+        s_dict: SDict[TKey, TValue] = SDict()
+        # as we used test_simpleDict, str_in does not have a block comment yet
+        str_in_template = formatter.format_dict(s_dict)
         placeholder1 = "BLOCKCOMMENT000101            BLOCKCOMMENT000101;"
         placeholder2 = "BLOCKCOMMENT000102            BLOCKCOMMENT000102;"
         placeholder3 = "BLOCKCOMMENT000103            BLOCKCOMMENT000103;"
 
         # STANDARD CASE: The dictionary contains 1 (ONE) BLOCK COMMENT
         # Prepare
-        dict.block_comments = {101: as_is_block_comment}
+        s_dict.block_comments = {101: as_is_block_comment}
         str_in = placeholder1 + "\n" + str_in_template
         str_expected = str_in.replace(placeholder1, as_is_block_comment)
         # Execute
-        str_out = formatter.insert_block_comments(dict, str_in)
+        str_out = formatter.insert_block_comments(s_dict, str_in)
         # Assert
         assert str_out == str_expected
 
         # FALLBACK CASE: The dictionary contains 0 (NO) BLOCK COMMENT
         # Prepare
-        dict.block_comments = {}
+        s_dict.block_comments = {}
         str_in = str_in_template
         str_expected = default_block_comment + "\n" + str_in
         # Execute
-        str_out = formatter.insert_block_comments(dict, str_in)
+        str_out = formatter.insert_block_comments(s_dict, str_in)
         # Assert
         assert str_out == str_expected
         # Execute a second time:
         #   Does it still work when we call insert_block_comments() the second time?
         #   Will the default block comment then still be inserted?
         str_in = str_in_template
-        str_out = formatter.insert_block_comments(dict, str_in)
+        str_out = formatter.insert_block_comments(s_dict, str_in)
         # Assert
         assert str_out == str_expected
 
         # NON-STANDARD CASE 1: The dictionary contains 3 (THREE) BLOCK COMMENTS, ALL IDENTICAL
         # Prepare
-        dict.block_comments = {
+        s_dict.block_comments = {
             101: as_is_block_comment,
             102: as_is_block_comment,
             103: as_is_block_comment,
@@ -172,13 +195,13 @@ class TestCppFormatter:
             str_in.replace(placeholder1, as_is_block_comment).replace(placeholder2, "").replace(placeholder3, "")
         )
         # Execute
-        str_out = formatter.insert_block_comments(dict, str_in)
+        str_out = formatter.insert_block_comments(s_dict, str_in)
         # Assert
         assert str_out == str_expected
 
         # NON-STANDARD CASE 2: The dictionary contains 3 (THREE) BLOCK COMMENTS, NON IDENTICAL
         # Prepare
-        dict.block_comments = {
+        s_dict.block_comments = {
             101: as_is_block_comment,
             102: default_block_comment,
             103: as_is_block_comment,
@@ -190,29 +213,28 @@ class TestCppFormatter:
             .replace(placeholder3, "")
         )
         # Execute
-        str_out = formatter.insert_block_comments(dict, str_in)
+        str_out = formatter.insert_block_comments(s_dict, str_in)
         # Assert
         assert str_out == str_expected
 
         # NON-STANDARD CASE 3: The dictionary contains 1 (ONE) BLOCK COMMENT, BUT IT DOES NOT CONTAIN ' C++ '
         # Prepare
         block_comment_tampered = re.sub(r"\s[Cc]\+{2}\s", " C# ", as_is_block_comment)
-        dict.block_comments = {101: block_comment_tampered}
+        s_dict.block_comments = {101: block_comment_tampered}
         str_in = placeholder1 + "\n" + str_in_template
         str_expected = str_in.replace(placeholder1, default_block_comment + "\n" + block_comment_tampered)
         # Execute
-        str_out = formatter.insert_block_comments(dict, str_in)
+        str_out = formatter.insert_block_comments(s_dict, str_in)
         # Assert
         assert str_out == str_expected
 
-    def test_insert_includes(self):
-        # sourcery skip: avoid-builtin-shadow
+    def test_insert_includes(self) -> None:
         # Prepare
         include_directive_in = '#include "test formatter paramDict"'
         include_file_name_in = "test formatter paramDict"
         include_file_path_in = Path("test formatter paramDict").absolute()
-        dict = CppDict()
-        dict.includes[102] = (
+        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict.includes[102] = (
             include_directive_in,
             include_file_name_in,
             include_file_path_in,
@@ -223,29 +245,28 @@ class TestCppFormatter:
         str_expected = str_in.replace(include_placeholder, include_directive_in.replace('"', "'"))
         formatter = CppFormatter()
         # Execute
-        str_out = formatter.insert_includes(dict, str_in)
+        str_out = formatter.insert_includes(s_dict, str_in)
         # Assert
         assert str_out == str_expected
 
-    def test_insert_line_comments(self):
-        # sourcery skip: avoid-builtin-shadow
+    def test_insert_line_comments(self) -> None:
         # Prepare
-        dict = CppDict()
+        s_dict: SDict[TKey, TValue] = SDict()
         line_comment_in = "// This is a line comment"
         formatter = CppFormatter()
-        str_in_template = formatter.format_dict(dict.data)
-        dict.line_comments = {103: line_comment_in}
+        str_in_template = formatter.format_dict(s_dict)
+        s_dict.line_comments = {103: line_comment_in}
         placeholder1 = "BLOCKCOMMENT000101            BLOCKCOMMENT000101;"
         placeholder2 = "INCLUDE000102            INCLUDE000102;"
         placeholder3 = "LINECOMMENT000103            LINECOMMENT000103;"
         str_in = placeholder1 + "\n" + placeholder2 + "\n" + placeholder3 + "\n" + str_in_template
         str_expected = str_in.replace(placeholder3, line_comment_in)
         # Execute
-        str_out = formatter.insert_line_comments(dict, str_in)
+        str_out = formatter.insert_line_comments(s_dict, str_in)
         # Assert
         assert str_out == str_expected
 
-    def test_remove_trailing_spaces(self):
+    def test_remove_trailing_spaces(self) -> None:
         # sourcery skip: extract-duplicate-method, move-assign-in-block
         # Prepare
         # Construct 7 test strings, each having a different number of leading and trailing spaces
@@ -264,7 +285,7 @@ class TestCppFormatter:
         str_in_7 = "a string with no leading or trailing spaces"
         str_expected_7 = "a string with no leading or trailing spaces"
 
-        multi_line_str_in = str()
+        multi_line_str_in = ""
         multi_line_str_in += str_in_1 + "\n"
         multi_line_str_in += str_in_2 + "\n"
         multi_line_str_in += str_in_3 + "\n"
@@ -273,7 +294,7 @@ class TestCppFormatter:
         multi_line_str_in += str_in_6 + "\n"
         multi_line_str_in += str_in_7
 
-        multi_line_str_expected = str()
+        multi_line_str_expected = ""
         multi_line_str_expected += str_expected_1 + "\n"
         multi_line_str_expected += str_expected_2 + "\n"
         multi_line_str_expected += str_expected_3 + "\n"
@@ -302,13 +323,12 @@ class TestCppFormatter:
         assert str_out == str_expected_1
 
         # Execute 4: Empty string
-        str_in = str()
+        str_in = ""
         str_out = formatter.remove_trailing_spaces(str_in)
         # Assert 4
         assert str_out == ""
 
-    def test_list_with_nested_list(self):
-        # sourcery skip: avoid-builtin-shadow
+    def test_list_with_nested_list(self) -> None:
         # Prepare
         test_obj = {
             "blocks": [
@@ -324,8 +344,8 @@ class TestCppFormatter:
                 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             ]
         }
-        dict = CppDict()
-        dict_in = deepcopy(dict.data)
+        s_dict: SDict[TKey, TValue] = SDict()
+        dict_in = deepcopy(s_dict)
         dict_in.update(test_obj)
         formatter = CppFormatter()
         assert test_obj == dict_in
@@ -335,9 +355,31 @@ class TestCppFormatter:
         # Assert
         assert str_in == str_out
 
+    def test_to_string_does_not_alter_original(self) -> None:
+        # Prepare
+        dict_in = DictReader.read(Path("test_formatter_dict"))
+        formatter = CppFormatter()
+        dict_in_reference = dict_in
+        dict_in_shallowcopy = copy(dict_in)
+        # Execute
+        str_out: str = formatter.to_string(dict_in)
+        # Assert
+        assert isinstance(str_out, str)
+        # Make sure that the original dictionary is not modified
+        assert dict_in == dict_in_reference
+        assert dict_in is dict_in_reference
+        for key in dict_in:
+            assert dict_in[key] == dict_in_reference[key]
+            assert dict_in[key] is dict_in_reference[key]
+        assert dict_in == dict_in_shallowcopy
+        assert dict_in is not dict_in_shallowcopy
+        for key in dict_in:
+            assert dict_in[key] == dict_in_shallowcopy[key]
+            assert dict_in[key] is dict_in_shallowcopy[key]
+
 
 class TestFoamFormatter:
-    def test_insert_block_comments(self):
+    def test_insert_block_comments(self) -> None:
         # sourcery skip: class-extract-method
         # Prepare
         formatter = FoamFormatter()
@@ -383,14 +425,13 @@ class TestFoamFormatter:
             default_block_comment,
         )
 
-    def test_insert_includes(self):
-        # sourcery skip: avoid-builtin-shadow
+    def test_insert_includes(self) -> None:
         # Prepare
         include_directive_in = "#include 'test formatter paramDict'"
         include_file_name_in = "test formatter paramDict"
         include_file_path_in = Path("test formatter paramDict").absolute()
-        dict = CppDict()
-        dict.includes[102] = (
+        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict.includes[102] = (
             include_directive_in,
             include_file_name_in,
             include_file_path_in,
@@ -401,33 +442,53 @@ class TestFoamFormatter:
         str_expected = str_in.replace(include_placeholder, include_directive_in.replace("'", '"'))
         formatter = FoamFormatter()
         # Execute
-        str_out: str = formatter.insert_includes(dict, str_in)
+        str_out: str = formatter.insert_includes(s_dict, str_in)
         # Assert
         assert str_out == str_expected
 
-    def test_ensure_string_does_not_contain_single_quotes(self):
-        # sourcery skip: avoid-builtin-shadow
+    def test_ensure_string_does_not_contain_single_quotes(self) -> None:
         # Prepare dict until and including ()
-        dict = DictReader.read(Path("test_formatter_dict"), comments=True)
+        dict_in = DictReader.read(Path("test_formatter_dict"), comments=True)
         formatter = FoamFormatter()
         # Execute
-        str_out: str = formatter.to_string(dict)
+        str_out: str = formatter.to_string(dict_in)
         # Assert
         assert re.search(r"\'", str_out) is None
 
-    def test_ensure_string_does_not_contain_underscore_variables(self):
-        # sourcery skip: avoid-builtin-shadow
+    def test_ensure_string_does_not_contain_underscore_variables(self) -> None:
         # Prepare dict until and including ()
-        dict = DictReader.read(Path("test_formatter_dict"), comments=False)
+        dict_in = DictReader.read(Path("test_formatter_dict"), comments=False)
         formatter = FoamFormatter()
         # Execute
-        str_out: str = formatter.to_string(dict)
+        str_out: str = formatter.to_string(dict_in)
         # Assert
         assert re.search(r"\s+_", str_out) is None
 
+    def test_to_string_does_not_alter_original(self) -> None:
+        # Prepare
+        dict_in = DictReader.read(Path("test_formatter_dict"))
+        formatter = FoamFormatter()
+        dict_in_reference = dict_in
+        dict_in_shallowcopy = copy(dict_in)
+        # Execute
+        str_out: str = formatter.to_string(dict_in)
+        # Assert
+        assert isinstance(str_out, str)
+        # Make sure that the original dictionary is not modified
+        assert dict_in == dict_in_reference
+        assert dict_in is dict_in_reference
+        for key in dict_in:
+            assert dict_in[key] == dict_in_reference[key]
+            assert dict_in[key] is dict_in_reference[key]
+        assert dict_in == dict_in_shallowcopy
+        assert dict_in is not dict_in_shallowcopy
+        for key in dict_in:
+            assert dict_in[key] == dict_in_shallowcopy[key]
+            assert dict_in[key] is dict_in_shallowcopy[key]
+
 
 class TestXmlFormatter:
-    def test_default_options(self):
+    def test_default_options(self) -> None:
         # Execute
         formatter = XmlFormatter()
         # Assert
@@ -447,42 +508,41 @@ class TestXmlFormatter:
         #     'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd'
         # ) > 0
 
-    def test_to_string(self):
-        # sourcery skip: avoid-builtin-shadow
+    def test_to_string(self) -> None:
         # Prepare
         source_file = Path("test_formatter_dict")
         target_file = Path(f"parsed.{source_file}.xml")
         target_file.unlink(missing_ok=True)
-        dict = DictReader.read(source_file)
+        dict_in = DictReader.read(source_file)
         xml_opts = {
             "_nameSpaces": {"osp": "https://opensimulationplatform.com/xsd/OspModelDescription"},
             "_rootTag": "OspModelDescription",
             "_removeNodeNumbering": True,
         }
-        dict.update({"_xmlOpts": xml_opts})
+        dict_in.update({"_xmlOpts": xml_opts})
         formatter = XmlFormatter()
         # Execute
-        str_out: str = formatter.to_string(dict)
+        str_out: str = formatter.to_string(dict_in)
         # Assert
         # @TODO: Nothing is de facto asserted here. By intention?
         # -> Needs to checked and properly implemented. CLAROS, 2021-12-23
-        with open(target_file, "w") as f:
+        with Path.open(target_file, "w") as f:
             _ = f.write(str_out)
         # Clean up
         target_file.unlink()
 
-    def test_parse_format_reparse(self):
+    def test_parse_format_reparse(self) -> None:
         # Prepare XML string to be parsed
         from dictIO import XmlParser
 
         file_name = Path("test_parser_xml.xml")
         str_in = ""
-        with open(file_name, "r") as f:
+        with Path.open(file_name) as f:
             str_in = f.read()
         parser = XmlParser(add_node_numbering=False)
         formatter = XmlFormatter()
-        dict_parsed = CppDict()
-        dict_reparsed = CppDict()
+        dict_parsed: SDict[TKey, TValue] = SDict()
+        dict_reparsed: SDict[TKey, TValue] = SDict()
         # Execute
         dict_parsed = parser.parse_string(str_in, dict_parsed)
         str_out: str = formatter.to_string(dict_parsed)
@@ -490,48 +550,46 @@ class TestXmlFormatter:
         # Assert
         assert dict_reparsed == dict_parsed
 
-    def test_format_xml_namespace_explicit(self):
-        # sourcery skip: avoid-builtin-shadow, class-extract-method
+    def test_format_xml_namespace_explicit(self) -> None:
+        # sourcery skip: class-extract-method
         # Prepare
         source_file = Path("test_formatter_dict")
-        dict = DictReader.read(source_file)
+        dict_in = DictReader.read(source_file)
         xml_opts = {
             "_nameSpaces": {"osp": "https://opensimulationplatform.com/xsd/OspModelDescription"},
             "_rootTag": "OspModelDescription",
             "_removeNodeNumbering": True,
         }
-        dict.update({"_xmlOpts": xml_opts})
+        dict_in.update({"_xmlOpts": xml_opts})
         formatter = XmlFormatter()
         # Execute
-        str_out: str = formatter.to_string(dict)
+        str_out: str = formatter.to_string(dict_in)
         # Assert
         assert 'xmlns:osp="https://opensimulationplatform.com/xsd/OspModelDescription"' in str_out
         assert 'xmlns="https://opensimulationplatform.com/xsd/OspModelDescription"' not in str_out
 
-    def test_format_xml_namespace_default(self):
-        # sourcery skip: avoid-builtin-shadow
+    def test_format_xml_namespace_default(self) -> None:
         # Prepare
         source_file = Path("test_formatter_dict")
-        dict = DictReader.read(source_file)
+        dict_in = DictReader.read(source_file)
         xml_opts = {
             "_nameSpaces": {"None": "https://opensimulationplatform.com/xsd/OspModelDescription"},
             "_rootTag": "OspModelDescription",
             "_removeNodeNumbering": True,
         }
-        dict.update({"_xmlOpts": xml_opts})
+        dict_in.update({"_xmlOpts": xml_opts})
         formatter = XmlFormatter()
         # Execute
-        str_out: str = formatter.to_string(dict)
+        str_out: str = formatter.to_string(dict_in)
         # Assert
         assert 'xmlns="https://opensimulationplatform.com/xsd/OspModelDescription"' in str_out
         assert 'xmlns:None="https://opensimulationplatform.com/xsd/OspModelDescription"' not in str_out
 
     @pytest.mark.skip(reason="XML pretty printing is not solved yet. The root attribute for encoding still gets lost.")
-    def test_format_xml_root_attributes(self):
-        # sourcery skip: avoid-builtin-shadow
+    def test_format_xml_root_attributes(self) -> None:
         # Prepare
         source_file = Path("test_formatter_dict")
-        dict = DictReader.read(source_file)
+        dict_in = DictReader.read(source_file)
         xml_opts = {
             "_nameSpaces": {"xs": "http://www.w3.org/2001/XMLSchema"},
             "_rootTag": "ROOT",
@@ -541,10 +599,32 @@ class TestXmlFormatter:
             },
             "_removeNodeNumbering": True,
         }
-        dict.update({"_xmlOpts": xml_opts})
+        dict_in.update({"_xmlOpts": xml_opts})
         formatter = XmlFormatter()
         # Execute
-        str_out: str = formatter.to_string(dict)
+        str_out: str = formatter.to_string(dict_in)
         # Assert
         assert '?xml version="1.0" encoding="UTF-8"?' in str_out
         assert '?xml version="1.0"?' not in str_out
+
+    def test_to_string_does_not_alter_original(self) -> None:
+        # Prepare
+        dict_in = DictReader.read(Path("test_formatter_dict"))
+        formatter = XmlFormatter()
+        dict_in_reference = dict_in
+        dict_in_shallowcopy = copy(dict_in)
+        # Execute
+        str_out: str = formatter.to_string(dict_in)
+        # Assert
+        assert isinstance(str_out, str)
+        # Make sure that the original dictionary is not modified
+        assert dict_in == dict_in_reference
+        assert dict_in is dict_in_reference
+        for key in dict_in:
+            assert dict_in[key] == dict_in_reference[key]
+            assert dict_in[key] is dict_in_reference[key]
+        assert dict_in == dict_in_shallowcopy
+        assert dict_in is not dict_in_shallowcopy
+        for key in dict_in:
+            assert dict_in[key] == dict_in_shallowcopy[key]
+            assert dict_in[key] is dict_in_shallowcopy[key]

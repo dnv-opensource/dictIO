@@ -1,0 +1,13 @@
+[paths]
+source =
+    src/dictIO
+    */site-packages/dictIO
+
+[run]
+source = dictIO
+branch = True
+
+[report]
+fail_under = 10.0
+show_missing = True
+skip_covered = True

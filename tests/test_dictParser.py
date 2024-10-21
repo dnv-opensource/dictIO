@@ -3,8 +3,8 @@ from pathlib import Path
 from dictIO import DictParser, DictReader
 
 
-def test_parse_dict():
-    # sourcery skip: avoid-builtin-shadow, class-extract-method
+def test_parse_dict() -> None:
+    # sourcery skip: class-extract-method
     # Prepare
     source_file = Path("test_dictParser_dict")
     parsed_dict = Path(f"parsed.{source_file.name}")
@@ -21,8 +21,8 @@ def test_parse_dict():
     parsed_dict.unlink()
 
 
-def test_reread_parsed_dict():
-    # sourcery skip: avoid-builtin-shadow, class-extract-method
+def test_reread_parsed_dict() -> None:
+    # sourcery skip: class-extract-method
     # Prepare
     source_file = Path("test_dictParser_dict")
     parsed_dict = Path(f"parsed.{source_file.name}")
@@ -31,10 +31,10 @@ def test_reread_parsed_dict():
     parsed_param_dict.unlink(missing_ok=True)
 
     # Execute
-    dict = DictParser.parse(source_file)
+    dict_read = DictParser.parse(source_file)
     dict_reread = DictReader.read(parsed_dict)
     # Assert
-    assert dict == dict_reread
+    assert dict_read == dict_reread
     # Assert the prefix 'parsed.' does not get piped (i.e. 'parsed.parsed.')
     assert not Path("parsed.parsed.test_dictParser_dict").exists()
     assert not Path("parsed.parsed.test_dictParser_paramDict").exists()
@@ -42,7 +42,7 @@ def test_reread_parsed_dict():
     parsed_dict.unlink()
 
 
-def test_parse_dict_foam_format():
+def test_parse_dict_foam_format() -> None:
     # Prepare
     source_file = Path("test_dictParser_dict")
     parsed_file = Path(f"parsed.{source_file.name}")
