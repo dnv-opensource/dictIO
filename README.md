@@ -26,7 +26,35 @@ pip install dictIO
 
 ## Usage Example
 
-dictIO provides a simple, high level API that allows reading and writing Python dicts from/to dict files:
+dictIO's core class is `SDict`, a generic data structure for serializable dictionaries. <br>
+`SDict` inherits from Python's builtin `dict`. It can hence be used transparently in any context where a `dict` or any other `MutableMapping` type is expected.
+
+You can use `SDict` the same way you use `dict`. E.g. you can pass a dict literal to its constructor:
+```py
+from dictIO import SDict
+
+my_dict: SDict[str, int] = SDict(
+    {
+        "foo": 1,
+        "bar": 2,
+    }
+)
+```
+
+The simplest way to to dump and load a dict to / from a file, is to use SDict's `dump()` and `load()` instance methods:
+
+To dump `my_dict` to a file, use `.dump()`:
+```py
+my_dict.dump("myDict")
+```
+
+To load the formerly dumped file into a new dict, use `.load()`:
+```py
+my_dict_loaded: SDict[str, int] = SDict().load("myDict")
+```
+
+In cases where you need more control over how dict files are read and written, <br>
+dictIO's `DictReader` and `DictWriter` classes offer this flexibility, while still maintaining a simple and high level API:
 ```py
 from dictIO import DictReader, DictWriter
 
@@ -39,14 +67,14 @@ and finally saves the read and evaluated dict with prefix 'parsed' as 'parsed.my
 
 This sequence of reading, evaluating and writing a dict is also called 'parsing' in dictIO.
 Because this task is so common, dictIO provides a convenience class for it:
-Using DictParser.parse() the above task can be accomplished in one line of code:
+Using `DictParser.parse()` the above task can be accomplished in one line of code:
 ```py
 from dictIO import DictParser
 
 DictParser.parse('myDict')
 ```
 
-The above task can also be invoked from the command line, using the 'dictParser' command line script installed with dictIO:
+The `parse` operation can also be executed from the command line, using the 'dictParser' command line script installed with dictIO:
 ```sh
 dictParser myDict
 ```
