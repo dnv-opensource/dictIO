@@ -1,10 +1,13 @@
 from dictIO.dict import (
     SDict,
-    CppDict,
     find_global_key,
     global_key_exists,
     order_keys,
     set_global_key,
+)
+
+from dictIO.cppDict import (
+    CppDict,
 )
 
 from dictIO.formatter import (

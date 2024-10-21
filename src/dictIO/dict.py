@@ -834,57 +834,6 @@ class SDict(dict[_KT, _VT]):
         return
 
 
-class CppDict(SDict[TKey, TValue]):
-    #     """Data structure for C++ dictionaries.
-
-    #     CppDict inherits from SDict. It can hence be used transparently also in a context
-    #     where a dict or any other MutableMapping type is expected.
-    #     """
-    @overload
-    def __init__(
-        self,
-        **kwargs: TValue,
-    ) -> None:
-        pass
-
-    @overload
-    def __init__(
-        self,
-        arg: Mapping[TKey, TValue],
-        **kwargs: TValue,
-    ) -> None:
-        pass
-
-    @overload
-    def __init__(
-        self,
-        arg: Iterable[tuple[TKey, TValue]],
-        **kwargs: TValue,
-    ) -> None:
-        pass
-
-    @overload
-    def __init__(
-        self,
-        arg: str | os.PathLike[str],
-        **kwargs: TValue,
-    ) -> None:
-        pass
-
-    def __init__(
-        self,
-        arg: Mapping[TKey, TValue] | Iterable[tuple[TKey, TValue]] | str | os.PathLike[str] | None = None,
-        **kwargs: TValue,
-    ) -> None:
-        warnings.warn(
-            "`CppDict` is deprecated. Use `SDict[TKey, TValue]` instead.",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-        super().__init__(arg, **kwargs)  # type: ignore[arg-type, reportArgumentType, reportCallIssue]
-        return
-
-
 def _insert_expression(value: TValue, s_dict: SDict[_KT, _VT]) -> TValue:
     if not isinstance(value, str):
         return value
