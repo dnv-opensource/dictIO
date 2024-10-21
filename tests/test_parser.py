@@ -339,8 +339,8 @@ class TestParser:
         _ = parser.parse_file(source_file, target_dict)
         # Assert
         assert target_dict.source_file == source_file.absolute()
-        assert target_dict.path == source_file.parent
-        assert target_dict.name == source_file.name
+        assert target_dict.path == source_file.absolute().parent
+        assert target_dict.name == source_file.absolute().name
 
 
 class TestCppParser:
@@ -1156,8 +1156,6 @@ class SetupHelper:
         source_file = Path.cwd() / file_to_read
 
         dict_to_prepare.source_file = source_file.absolute()
-        dict_to_prepare.path = source_file.parent
-        dict_to_prepare.name = source_file.name
 
         with Path.open(source_file) as f:
             file_content = f.read()

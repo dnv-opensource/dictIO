@@ -1,6 +1,5 @@
 # pyright: reportIncompatibleMethodOverride=false
 # pyright: reportUnnecessaryTypeIgnoreComment=false
-# ruff: noqa: ERA001
 from __future__ import annotations
 
 import contextlib
@@ -30,11 +29,6 @@ from dictIO.utils.path import relative_path
 
 __ALL__ = [
     "SDict",
-    "CppDict",
-    "order_keys",
-    "find_global_key",
-    "set_global_key",
-    "global_key_exists",
 ]
 
 
@@ -90,34 +84,32 @@ class SDict(dict[_KT, _VT]):
         arg: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | str | os.PathLike[str] | None = None,
         **kwargs: _VT,
     ) -> None:
-        file: str | os.PathLike[str] | None = None
+        source_file: str | os.PathLike[str] | None = None
         base_dict: MutableMapping[_KT, _VT] | None = None
+
         if isinstance(arg, Mapping):
             base_dict = dict(cast(Mapping[_KT, _VT], arg))
         elif isinstance(arg, str | os.PathLike):
-            file = arg
+            source_file = arg
         elif isinstance(arg, Iterable):
             base_dict = dict(cast(Iterable[tuple[_KT, _VT]], arg))  # type: ignore[reportUnnecessaryCast]
 
-        if base_dict is None:
-            super().__init__()
-        else:
+        if base_dict:
             super().__init__(base_dict)
-
-        if kwargs:
-            self.update(**kwargs)
+        else:
+            super().__init__()
 
         self.counter: BorgCounter = BorgCounter()
-        self.source_file: Path | None = None
-        self.path: Path = Path.cwd()
-        self.name: str = ""
+        self._source_file: Path | None = None
+        self._path: Path = Path.cwd()
+        self._name: str = ""
 
-        if file:
-            # Make sure file argument is of type Path. If not, cast it to Path type.
-            file = file if isinstance(file, Path) else Path(file)
-            self.source_file = file.absolute()
-            self.path = self.source_file.parent
-            self.name = self.source_file.name
+        if source_file:
+            # Make sure source_file is of type Path. If not, cast it to Path type.
+            source_file = source_file if isinstance(source_file, Path) else Path(source_file)
+            self._set_source_file(source_file)
+        else:
+            self._set_source_file(None)
 
         self.line_content: list[str] = []
         self.block_content: str = ""
@@ -156,6 +148,439 @@ class SDict(dict[_KT, _VT]):
             ")",
         ]
 
+        if kwargs:
+            self.update(**kwargs)
+
+        return
+
+    @overload
+    @classmethod
+    def fromkeys(
+        cls,
+        iterable: Iterable[_KT_local],
+        value: None = None,
+    ) -> SDict[_KT_local, TValue | None]:
+        pass
+
+    @overload
+    @classmethod
+    def fromkeys(
+        cls,
+        iterable: Iterable[_KT_local],
+        value: _VT_local,
+    ) -> SDict[_KT_local, _VT_local]:
+        pass
+
+    @classmethod
+    def fromkeys(
+        cls,
+        iterable: Iterable[_KT_local],
+        value: _VT_local | None = None,
+    ) -> SDict[_KT_local, _VT_local] | SDict[_KT_local, TValue | None]:
+        new_dict: SDict[_KT_local, _VT_local] = cast(SDict[_KT_local, _VT_local], cls())
+        for key in iterable:
+            new_dict[key] = cast(_VT_local, value)  # cast is safe, as `None` is within the type bounds of _VT
+        return new_dict
+
+    def load(
+        self,
+        source_file: str | os.PathLike[str],
+    ) -> None:
+        """Load a dict file into this SDict instance.
+
+        Reads a dict file and loads its content into the current SDict instance.
+        The content of the current SDict instance will be overwritten.
+
+        Following file formats are supported and interpreted through source_file's file ending:
+        no file ending   ->   dictIO dict file
+        '.cpp'           ->   dictIO dict file
+        '.foam'          ->   Foam dictionary file
+        '.json'          ->   Json dictionary file
+        '.xml'           ->   XML file
+
+        Parameters
+        ----------
+        source_file : Union[str, os.PathLike[str]]
+            dict file to be loaded
+
+        Raises
+        ------
+        FileNotFoundError
+            if source_file does not exist
+        """
+        # Make sure source_file argument is of type Path. If not, cast it to Path type.
+        source_file = source_file if isinstance(source_file, Path) else Path(source_file)
+        if not source_file.exists():
+            logger.error(f"source_file not found: {source_file}")
+            raise FileNotFoundError(source_file)
+
+        # Log a warning in case the current SDict instance is not empty,
+        # as the load() method will overwrite the current content.
+        if self:
+            logger.warning("SDict instance is not empty. `load()` will overwrite current content will.")
+
+        from dictIO.dictReader import DictReader
+
+        loaded_dict = DictReader.read(
+            source_file=source_file,
+        )
+        self.reset()
+        self.update(loaded_dict)
+        self._set_source_file(source_file)
+
+    def dump(
+        self,
+        target_file: str | os.PathLike[str] | None = None,
+    ) -> None:
+        """Dump the content of the current SDict instance into a dict file.
+
+        Following file formats are supported and interpreted through target_file's file ending:
+        no file ending   ->   dictIO dict file
+        '.cpp'           ->   dictIO dict file
+        '.foam'          ->   Foam dictionary file
+        '.json'          ->   Json dictionary file
+        '.xml'           ->   XML file
+
+        Parameters
+        ----------
+        target_file : Union[str, os.PathLike[str], None], optional
+            target dict file name, by default None
+
+        Raises
+        ------
+        ValueError
+            if target_file was not specified while the current SDict instance has no source file set
+            (and hence the target file cannot be inferred).
+        """
+        if target_file is None and self._source_file is None:
+            raise ValueError("target_file must be specified if the current SDict instance has no source file set.")
+        if target_file is None:
+            target_file = self._source_file
+        assert target_file is not None
+
+        # Make sure target_file argument is of type Path. If not, cast it to Path type.
+        target_file = target_file if isinstance(target_file, Path) else Path(target_file)
+
+        from dictIO.dictWriter import DictWriter
+
+        DictWriter.write(
+            source_dict=self,
+            target_file=target_file,
+        )
+        self._set_source_file(target_file)
+
+    @property
+    def source_file(self) -> Path | None:
+        """Return the source file of the SDict instance.
+
+        Returns
+        -------
+        Path or None
+            source file of the SDict instance
+        """
+        return self._source_file
+
+    @source_file.setter
+    def source_file(self, source_file: Path | None) -> None:
+        """Set the source file of the SDict instance."""
+        self._set_source_file(source_file)
+        return
+
+    def _set_source_file(self, source_file: Path | None) -> None:
+        if source_file is None:
+            self._source_file = None
+            self._path = Path.cwd()
+            self._name = ""
+            return
+        self._source_file = source_file.absolute()
+        self._path = self._source_file.parent
+        self._name = self._source_file.name
+        return
+
+    @property
+    def path(self) -> Path:
+        """Return the path of the source file of the SDict instance.
+
+        Returns
+        -------
+        Path
+            path of the source file of the SDict instance
+        """
+        return self._path
+
+    @property
+    def name(self) -> str:
+        """Return the name of the source file of the SDict instance.
+
+        Returns
+        -------
+        str
+            name of the source file of the SDict instance
+        """
+        return self._name
+
+    @property
+    def variables(self) -> dict[str, TValue]:
+        """Returns a dict with all Variables currently registered.
+
+        Returns
+        -------
+        Dict[str, TValue]
+            dict of all Variables currently registered.
+        """
+        variables: dict[str, TValue] = {}
+
+        def extract_variables_from_dict(dict_in: MutableMapping[_KT_local, _VT]) -> None:
+            for key, value in dict_in.items():
+                if isinstance(value, MutableMapping):
+                    extract_variables_from_dict(value)  # recursion
+                elif isinstance(value, MutableSequence):
+                    if list_contains_dict(value):
+                        extract_variables_from_list(value)  # recursion
+                    else:
+                        # special case: item is a list, but does NOT contain a nested dict (-> e.g. a vector or matrix)
+                        variables[str(key)] = value
+                else:
+                    # base case: item is a single value type
+                    _value = _insert_expression(value, self)
+                    if not _value_contains_circular_reference(key, _value):
+                        variables[str(key)] = _value
+            return
+
+        def extract_variables_from_list(list_in: MutableSequence[TValue]) -> None:
+            # sourcery skip: remove-redundant-pass
+            for value in list_in:
+                if isinstance(value, MutableMapping):
+                    extract_variables_from_dict(value)  # recursion
+                elif isinstance(value, MutableSequence):
+                    extract_variables_from_list(value)  # recursion
+                else:
+                    # By convention, list items are NOT added to the variables lookup table
+                    # as they only have an index but no key
+                    # (which we need, though, to serve as variable name)
+                    pass
+            return
+
+        def list_contains_dict(list_in: MutableSequence[TValue]) -> bool:
+            # sourcery skip: merge-duplicate-blocks, use-any
+            for value in list_in:
+                if isinstance(value, MutableMapping):
+                    return True
+                if isinstance(value, MutableSequence) and list_contains_dict(value):
+                    return True
+            return False
+
+        extract_variables_from_dict(
+            dict_in=self,
+        )
+
+        variables = order_keys(variables)
+
+        return variables
+
+    @overload  # type: ignore[override]
+    def update(
+        self,
+        m: Mapping[_KT, _VT],
+        **kwargs: _VT,
+    ) -> None:
+        pass
+
+    @overload
+    def update(
+        self,
+        m: Iterable[tuple[_KT, _VT]],
+        **kwargs: _VT,
+    ) -> None:
+        pass
+
+    @overload
+    def update(
+        self,
+        **kwargs: _VT,
+    ) -> None:
+        pass
+
+    def update(
+        self,
+        m: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | None = None,
+        **kwargs: _VT,
+    ) -> None:
+        """Update top-level keys with the keys from the passed in dict.
+
+        Overrides the update() method of UserDict base class in order to include also SDict
+        class attributes in the update.
+
+        If a key already exists, it will be substituted by the key from the passed in dict.
+        In order to not substitute top-level keys but recursively merge (potentially nested) content
+        from passed in dict into the existing, use merge() instead.
+
+        Note:
+
+        The behaviour of update() corresponds with default mode '-w' in the dictParser command line interface.
+
+        The behaviour of merge() corresponds with mode '-a' in the dictParser command line interface.
+        See also CLI Documentation.
+
+        Parameters
+        ----------
+        __m : Mapping[TKey, TValue]
+            dict containing the keys to be updated and its new values
+        **kwargs: TValue
+            optional keyword arguments. These will be passed on to the update() method of the parent class.
+        """
+        if m is None:
+            super().update(**kwargs)
+        else:
+            super().update(m, **kwargs)
+        # update attributes
+        self._post_update(m, **kwargs)
+        self._clean()
+        return
+
+    def _post_update(
+        self,
+        m: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | None = None,
+        **kwargs: _VT,  # noqa: ARG002
+    ) -> None:
+        # update attributes
+        if isinstance(m, SDict):
+            self.expressions.update(m.expressions)
+            self.line_comments.update(m.line_comments)
+            self.block_comments.update(m.block_comments)
+            self.includes.update(m.includes)
+        return
+
+    def merge(self, other: Mapping[_KT, _VT]) -> None:
+        """Merge the passed in dict into the existing SDict instance.
+
+        In contrast to update(), merge() works recursively. That is, it does not simply substitute top-level keys but
+        recursively merges (potentially nested) content from the passed in dict into the existing.
+        This prevents nested keys from being deleted.
+        Further, existing keys will NOT be overwritten.
+
+        Parameters
+        ----------
+        other : MutableMapping[TKey, TValue]
+            dict to be merged
+        """
+        # merge other dict into self (=into self)
+        self._recursive_merge(self, other)
+        # merge SDict attributes
+        self._post_merge(other)
+        self._clean()
+
+        return
+
+    def _recursive_merge(
+        self,
+        target_dict: MutableMapping[_KT_local, _VT_local],
+        dict_to_merge: Mapping[_KT_local, _VT_local],
+        *,
+        overwrite: bool = False,
+    ) -> None:
+        """Merge dict_to_merge into target_dict.
+
+        In contrast to dict.update(), _merge_dicts() works recursively.
+        That is, it does not just substitute top-level keys in target_dict
+        but recursively merges (potentially nested) content from dict_to_merge into target_dict.
+        This prevents nested keys from being deleted.
+
+        Parameters
+        ----------
+        target_dict : MutableMapping[TKey, TValue]
+            target dict
+        dict_to_merge : Mapping[TKey, TValue]
+            dict to be merged into target dict
+        overwrite : bool, optional
+            if True, existing keys will be overwritten, by default False
+        """
+        for key in dict_to_merge:
+            if (
+                key in target_dict
+                and isinstance(target_dict[key], MutableMapping)
+                and isinstance(dict_to_merge[key], Mapping)
+            ):  # dict
+                self._recursive_merge(  # Recursion
+                    target_dict=cast(MutableMapping[TKey, TValue], target_dict[key]),
+                    dict_to_merge=cast(Mapping[TKey, TValue], dict_to_merge[key]),
+                    overwrite=overwrite,
+                )
+            else:
+                value_in_target_dict_contains_circular_reference = False
+                if isinstance(target_dict, SDict) and key in target_dict:
+                    value = _insert_expression(target_dict[key], target_dict)
+                    value_in_target_dict_contains_circular_reference = _value_contains_circular_reference(key, value)
+                if overwrite or key not in target_dict or value_in_target_dict_contains_circular_reference:
+                    target_dict[key] = dict_to_merge[key]  # Update
+
+        return
+
+    def _post_merge(self, other: Mapping[_KT, _VT]) -> None:
+        # merge SDict attributes
+        if isinstance(other, SDict):
+            self._recursive_merge(self.expressions, other.expressions)
+            self._recursive_merge(self.line_comments, other.line_comments)
+            self._recursive_merge(self.block_comments, other.block_comments)
+            self._recursive_merge(self.includes, other.includes)
+        return
+
+    def include(self, dict_to_include: SDict[_KT_local, _VT_local]) -> None:
+        """Add an include directive for the passed in dict.
+
+        Parameters
+        ----------
+        dict_to_include : SDict
+            The dict to be included via an include directive
+
+        Raises
+        ------
+        AttributeError
+            If dict_to_include.source_file is None
+        ValueError
+            If no relative path in between the current dict and the included dict can be resolved
+        """
+        if not dict_to_include.source_file:
+            raise AttributeError(
+                f"Cannot include {dict_to_include.name}. Attribute '.source_file' of {dict_to_include.name} is None."
+            )
+        if not self._source_file:
+            raise AttributeError(
+                f"Cannot include {dict_to_include.name}. Attribute '.source_file' of {self._name} is None."
+            )
+
+        include_file_path = dict_to_include.source_file
+        relative_file_path: Path
+        try:
+            relative_file_path = relative_path(
+                from_path=self._source_file.parent,
+                to_path=dict_to_include.source_file,
+            )
+        except ValueError as e:
+            raise ValueError(
+                f"Cannot include {dict_to_include.name}. Relative path to {dict_to_include.name} could not be resolved."
+            ) from e
+
+        from dictIO import CppFormatter
+
+        formatter = CppFormatter()
+        include_file_name = str(relative_file_path)
+        include_file_name = include_file_name.replace("\\", "\\\\")
+        include_file_name = formatter.format_type(include_file_name)
+
+        include_directive = f"#include {include_file_name}"
+
+        ii: int = 0
+        placeholder: str = ""
+        while True:
+            ii = self.counter()
+            placeholder = "INCLUDE%06i" % ii
+            if placeholder in self:
+                continue
+            break
+        # cast is safe, as `str` is within the type bounds of both _KT and _VT
+        self[cast(_KT, placeholder)] = cast(_VT, placeholder)
+        self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
         return
 
     @overload
@@ -299,246 +724,6 @@ class SDict(dict[_KT, _VT]):
         copied_dict = copy(self)  # calls __copy__()
         return copied_dict
 
-    @overload
-    @classmethod
-    def fromkeys(
-        cls,
-        iterable: Iterable[_KT_local],
-        value: None = None,
-    ) -> SDict[_KT_local, TValue | None]:
-        pass
-
-    @overload
-    @classmethod
-    def fromkeys(
-        cls,
-        iterable: Iterable[_KT_local],
-        value: _VT_local,
-    ) -> SDict[_KT_local, _VT_local]:
-        pass
-
-    @classmethod
-    def fromkeys(
-        cls,
-        iterable: Iterable[_KT_local],
-        value: _VT_local | None = None,
-    ) -> SDict[_KT_local, _VT_local] | SDict[_KT_local, TValue | None]:
-        new_dict: SDict[_KT_local, _VT_local] = cast(SDict[_KT_local, _VT_local], cls())
-        for key in iterable:
-            new_dict[key] = cast(_VT_local, value)  # cast is safe, as `None` is within the type bounds of _VT
-        return new_dict
-
-    @overload  # type: ignore[override]
-    def update(
-        self,
-        m: Mapping[_KT, _VT],
-        **kwargs: _VT,
-    ) -> None:
-        pass
-
-    @overload
-    def update(
-        self,
-        m: Iterable[tuple[_KT, _VT]],
-        **kwargs: _VT,
-    ) -> None:
-        pass
-
-    @overload
-    def update(
-        self,
-        **kwargs: _VT,
-    ) -> None:
-        pass
-
-    def update(
-        self,
-        m: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | None = None,
-        **kwargs: _VT,
-    ) -> None:
-        """Update top-level keys with the keys from the passed in dict.
-
-        Overrides the update() method of UserDict base class in order to include also SDict
-        class attributes in the update.
-
-        If a key already exists, it will be substituted by the key from the passed in dict.
-        In order to not substitute top-level keys but recursively merge (potentially nested) content
-        from passed in dict into the existing, use merge() instead.
-
-        Note:
-
-        The behaviour of update() corresponds with default mode '-w' in the dictParser command line interface.
-
-        The behaviour of merge() corresponds with mode '-a' in the dictParser command line interface.
-        See also CLI Documentation.
-
-        Parameters
-        ----------
-        __m : Mapping[TKey, TValue]
-            dict containing the keys to be updated and its new values
-        **kwargs: TValue
-            optional keyword arguments. These will be passed on to the update() method of the parent class.
-        """
-        if m is None:
-            super().update(**kwargs)
-        else:
-            super().update(m, **kwargs)
-        # update attributes
-        self._post_update(m, **kwargs)
-        self._clean()
-        return
-
-    def _post_update(
-        self,
-        m: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | None = None,
-        **kwargs: _VT,  # noqa: ARG002
-    ) -> None:
-        # update attributes
-        if isinstance(m, SDict):
-            self.expressions.update(m.expressions)
-            self.line_comments.update(m.line_comments)
-            self.block_comments.update(m.block_comments)
-            self.includes.update(m.includes)
-        return
-
-    def merge(self, other: Mapping[_KT, _VT]) -> None:
-        """Merge the passed in dict into the existing SDict instance.
-
-        In contrast to update(), merge() works recursively. That is, it does not simply substitute top-level keys but
-        recursively merges (potentially nested) content from the passed in dict into the existing.
-        This prevents nested keys from being deleted.
-        Further, existing keys will NOT be overwritten.
-
-        Parameters
-        ----------
-        other : MutableMapping[TKey, TValue]
-            dict to be merged
-        """
-        # merge other dict into self (=into self)
-
-        self._recursive_merge(self, other)
-        # @TODO: An alternative we might test one day is the mergedeep module from the Python standard library:
-        #        from mergedeep import merge
-        #        self = merge(self, dict)
-        #        CLAROS (FRALUM), 2022-01-05
-
-        # merge SDict attributes
-        self._post_merge(other)
-        self._clean()
-
-        return
-
-    def _recursive_merge(
-        self,
-        target_dict: MutableMapping[_KT_local, _VT_local],
-        dict_to_merge: Mapping[_KT_local, _VT_local],
-        *,
-        overwrite: bool = False,
-    ) -> None:
-        """Merge dict_to_merge into target_dict.
-
-        In contrast to dict.update(), _merge_dicts() works recursively.
-        That is, it does not just substitute top-level keys in target_dict
-        but recursively merges (potentially nested) content from dict_to_merge into target_dict.
-        This prevents nested keys from being deleted.
-
-        Parameters
-        ----------
-        target_dict : MutableMapping[TKey, TValue]
-            target dict
-        dict_to_merge : Mapping[TKey, TValue]
-            dict to be merged into target dict
-        overwrite : bool, optional
-            if True, existing keys will be overwritten, by default False
-        """
-        for key in dict_to_merge:
-            if (
-                key in target_dict
-                and isinstance(target_dict[key], MutableMapping)
-                and isinstance(dict_to_merge[key], Mapping)
-            ):  # dict
-                self._recursive_merge(  # Recursion
-                    target_dict=cast(MutableMapping[TKey, TValue], target_dict[key]),
-                    dict_to_merge=cast(Mapping[TKey, TValue], dict_to_merge[key]),
-                    overwrite=overwrite,
-                )
-            else:
-                value_in_target_dict_contains_circular_reference = False
-                if isinstance(target_dict, SDict) and key in target_dict:
-                    value = _insert_expression(target_dict[key], target_dict)
-                    value_in_target_dict_contains_circular_reference = _value_contains_circular_reference(key, value)
-                if overwrite or key not in target_dict or value_in_target_dict_contains_circular_reference:
-                    target_dict[key] = dict_to_merge[key]  # Update
-
-        return
-
-    def _post_merge(self, other: Mapping[_KT, _VT]) -> None:
-        # merge SDict attributes
-        if isinstance(other, SDict):
-            self._recursive_merge(self.expressions, other.expressions)
-            self._recursive_merge(self.line_comments, other.line_comments)
-            self._recursive_merge(self.block_comments, other.block_comments)
-            self._recursive_merge(self.includes, other.includes)
-        return
-
-    def include(self, dict_to_include: SDict[_KT_local, _VT_local]) -> None:
-        """Add an include directive for the passed in dict.
-
-        Parameters
-        ----------
-        dict_to_include : SDict
-            The dict to be included via an include directive
-
-        Raises
-        ------
-        AttributeError
-            If dict_to_include.source_file is None
-        ValueError
-            If no relative path in between the current dict and the included dict can be resolved
-        """
-        if not dict_to_include.source_file:
-            raise AttributeError(
-                f"Cannot include {dict_to_include.name}. Attribute '.source_file' of {dict_to_include.name} is None."
-            )
-        if not self.source_file:
-            raise AttributeError(
-                f"Cannot include {dict_to_include.name}. Attribute '.source_file' of {self.name} is None."
-            )
-
-        include_file_path = dict_to_include.source_file
-        relative_file_path: Path
-        try:
-            relative_file_path = relative_path(
-                from_path=self.source_file.parent,
-                to_path=dict_to_include.source_file,
-            )
-        except ValueError as e:
-            raise ValueError(
-                f"Cannot include {dict_to_include.name}. Relative path to {dict_to_include.name} could not be resolved."
-            ) from e
-
-        from dictIO import CppFormatter
-
-        formatter = CppFormatter()
-        include_file_name = str(relative_file_path)
-        include_file_name = include_file_name.replace("\\", "\\\\")
-        include_file_name = formatter.format_type(include_file_name)
-
-        include_directive = f"#include {include_file_name}"
-
-        ii: int = 0
-        placeholder: str = ""
-        while True:
-            ii = self.counter()
-            placeholder = "INCLUDE%06i" % ii
-            if placeholder in self:
-                continue
-            break
-        # cast is safe, as `str` is within the type bounds of both _KT and _VT
-        self[cast(_KT, placeholder)] = cast(_VT, placeholder)
-        self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
-        return
-
     def __str__(self) -> str:
         """String representation of the SDict instance in dictIO dict file format.
 
@@ -555,7 +740,7 @@ class SDict(dict[_KT, _VT]):
         return formatter.to_string(cast(SDict[TKey, TValue], self))
 
     def __repr__(self) -> str:
-        return f"SDict({self.source_file!r})"
+        return f"SDict({self._source_file!r})"
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, SDict):
@@ -648,67 +833,28 @@ class SDict(dict[_KT, _VT]):
                 self.clear()
                 self.update(reduced_dict)
             except KeyError as e:
-                logger.warning(f"SDict.reduce_scope(): no scope '{e.args[0]}' in dictionary {self.source_file}")
+                logger.warning(f"SDict.reduce_scope(): no scope '{e.args[0]}' in dictionary {self._source_file}")
         return
 
-    @property
-    def variables(self) -> dict[str, TValue]:
-        """Returns a dict with all Variables currently registered.
+    def reset(self) -> None:
+        """Reset the dict.
 
-        Returns
-        -------
-        Dict[str, TValue]
-            dict of all Variables currently registered.
+        Removes all items from the dict.
         """
-        variables: dict[str, TValue] = {}
-
-        def extract_variables_from_dict(dict_in: MutableMapping[_KT_local, _VT]) -> None:
-            for key, value in dict_in.items():
-                if isinstance(value, MutableMapping):
-                    extract_variables_from_dict(value)  # recursion
-                elif isinstance(value, MutableSequence):
-                    if list_contains_dict(value):
-                        extract_variables_from_list(value)  # recursion
-                    else:
-                        # special case: item is a list, but does NOT contain a nested dict (-> e.g. a vector or matrix)
-                        variables[str(key)] = value
-                else:
-                    # base case: item is a single value type
-                    _value = _insert_expression(value, self)
-                    if not _value_contains_circular_reference(key, _value):
-                        variables[str(key)] = _value
-            return
-
-        def extract_variables_from_list(list_in: MutableSequence[TValue]) -> None:
-            # sourcery skip: remove-redundant-pass
-            for value in list_in:
-                if isinstance(value, MutableMapping):
-                    extract_variables_from_dict(value)  # recursion
-                elif isinstance(value, MutableSequence):
-                    extract_variables_from_list(value)  # recursion
-                else:
-                    # By convention, list items are NOT added to the variables lookup table
-                    # as they only have an index but no key
-                    # (which we need, though, to serve as variable name)
-                    pass
-            return
-
-        def list_contains_dict(list_in: MutableSequence[TValue]) -> bool:
-            # sourcery skip: merge-duplicate-blocks, use-any
-            for value in list_in:
-                if isinstance(value, MutableMapping):
-                    return True
-                if isinstance(value, MutableSequence) and list_contains_dict(value):
-                    return True
-            return False
-
-        extract_variables_from_dict(
-            dict_in=self,
-        )
-
-        variables = order_keys(variables)
-
-        return variables
+        super().clear()
+        self.counter.reset()
+        self._source_file = None
+        self._path = Path.cwd()
+        self._name = ""
+        self.line_content.clear()
+        self.block_content = ""
+        self.tokens.clear()
+        self.string_literals.clear()
+        self.expressions.clear()
+        self.line_comments.clear()
+        self.block_comments.clear()
+        self.includes.clear()
+        return
 
     def _clean(self) -> None:
         """Find and remove doublettes of PLACEHOLDER keys.

@@ -20,6 +20,10 @@ if TYPE_CHECKING:
     import os
     from _collections_abc import Iterable, Mapping
 
+__ALL__ = [
+    "CppDict",
+]
+
 
 class CppDict(SDict[TKey, TValue]):
     #     """Data structure for C++ dictionaries.

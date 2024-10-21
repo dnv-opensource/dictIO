@@ -123,8 +123,6 @@ class Parser:
             target_dict = SDict(source_file)
         else:
             target_dict.source_file = source_file.absolute()
-            target_dict.path = source_file.parent
-            target_dict.name = source_file.name
 
         # one final check that the source file exists
         if not self.source_file.exists():

@@ -1,4 +1,5 @@
 import copy
+import re
 from collections.abc import MutableMapping
 from copy import deepcopy
 from pathlib import Path
@@ -2068,6 +2069,163 @@ def _construct_test_sdict() -> SDict[str, TValue | dict[str | int, TValue]]:
         2: ("#include dict_12", "dict_12", Path("dict_12")),
     }
     return test_sdict
+
+
+def test_load() -> None:
+    # Prepare
+    source_file = Path("test_dictReader_dict")
+    s_dict: SDict[TKey, TValue] = SDict()
+    # Execute
+    s_dict.load(source_file)
+    # Assert included dict has been merged
+    assert s_dict["paramA"] == 3.0
+    assert s_dict["paramB"] == 4.0
+    assert s_dict["paramC"] == 7.0
+    assert s_dict["paramD"] == 0.66
+    assert s_dict["paramE"] == [0.1, 0.2, 0.4]
+    assert s_dict["paramF"] == [[0.3, 0.9], [2.7, 8.1]]
+    assert s_dict["paramG"] == [[10, "fancy", 3.14, "s"], ["more", 2, "come"]]
+    # Assert references and expressions have been resolved
+    assert s_dict["keyA"] == 3.0
+    assert s_dict["keyB"] == 4.0
+    assert s_dict["keyC"] == 7.0
+    assert s_dict["keyD"] == 4.16
+    assert s_dict["keyE"] == 6.67
+    assert s_dict["keyF"] == 8.98
+    assert s_dict["keyG"] == 20.34
+    assert s_dict["keyH"] == 0.2
+    assert s_dict["keyI"] == [0.1, 0.2, 0.4]
+    assert s_dict["keyJ"] == 8.1
+    assert s_dict["keyK"] == [2.7, 8.1]
+    assert s_dict["keyL"] == [[0.3, 0.9], [2.7, 8.1]]
+    assert s_dict["keyM"] == 9.0
+    assert s_dict["keyN"] == 7.0
+
+
+def test_dump() -> None:
+    # Prepare
+    target_file: Path = Path("temp_file_test_write_dict")
+    test_dict: dict[str, TValue] = {
+        "param1": -10.0,
+        "param2": 0.0,
+        "param3": 0.0,
+        "_case": {
+            "_layer": "lhsvar",
+            "_level": 1,
+            "_no_of_samples": 108,
+            "_index": 0,
+            "_path": r"C:\Users\CLAROS\Documents\SystemSimulation\ModelVerification\tools\farn\test\cases\gp_0\lhsvar_000",  # noqa: E501
+            "_key": "lhsvar_000",
+            "_is_leaf": False,
+            "_condition": None,
+            "_names": ["param1", "param2", "param3"],
+            "_values": [-10.0, 0.0, 0.0],
+            "_commands": {"ls": ["echo %PATH%", "dir"]},
+        },
+    }
+    test_str: str = (
+        r"/*---------------------------------*- C++ -*----------------------------------*\ "
+        r"filetype dictionary; coding utf-8; version 0.1; local --; purpose --; "
+        r"\*----------------------------------------------------------------------------*/ "
+        r"param1 -10.0; param2 0.0; param3 0.0; "
+        r"_case { _layer lhsvar; _level 1; _no_of_samples 108; _index 0; "
+        r"_path 'C:\Users\CLAROS\Documents\SystemSimulation\ModelVerification\tools\farn\test\cases\gp_0\lhsvar_000'; "
+        r"_key lhsvar_000; _is_leaf false; _condition NULL; "
+        r"_names ( param1 param2 param3 ); _values ( -10.0 0.0 0.0 ); "
+        r"_commands { ls ( 'echo %PATH%' dir ); } } "
+    )
+    test_s_dict: SDict[TKey, TValue]
+    # Execute 1: Dump with explicit target_file
+    target_file.unlink(missing_ok=True)
+    test_s_dict = SDict()
+    test_s_dict.update(test_dict)
+    test_s_dict.dump(target_file)
+    # Assert 1
+    assert target_file.exists()
+    parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
+    assert parsed_str == test_str
+    assert test_s_dict.source_file is not None
+    assert test_s_dict.source_file.exists()
+    assert test_s_dict.source_file == target_file.absolute()
+    assert test_s_dict.path == target_file.absolute().parent
+    assert test_s_dict.name == target_file.absolute().name
+
+    # Execute 2: Dump with explicit target_file, while source_file is set to same file as target_file
+    target_file.unlink(missing_ok=True)
+    test_s_dict = SDict(target_file)
+    test_s_dict.update(test_dict)
+    test_s_dict.dump(target_file)
+    # Assert 2
+    assert target_file.exists()
+    parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
+    assert parsed_str == test_str
+    assert test_s_dict.source_file is not None
+    assert test_s_dict.source_file.exists()
+    assert test_s_dict.source_file == target_file.absolute()
+    assert test_s_dict.path == target_file.absolute().parent
+    assert test_s_dict.name == target_file.absolute().name
+
+    # Execute 3: Dump with explicit target_file, while source_file is different than target_file
+    target_file.unlink(missing_ok=True)
+    test_s_dict = SDict("some_source_file")
+    test_s_dict.update(test_dict)
+    test_s_dict.dump(target_file)
+    # Assert 3
+    assert target_file.exists()
+    parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
+    assert parsed_str == test_str
+    assert test_s_dict.source_file is not None
+    assert test_s_dict.source_file.exists()
+    assert test_s_dict.source_file == target_file.absolute()
+    assert test_s_dict.path == target_file.absolute().parent
+    assert test_s_dict.name == target_file.absolute().name
+
+    # Execute 4: Dump without passing target_file, while source_file is set to target_file
+    target_file.unlink(missing_ok=True)
+    test_s_dict = SDict(target_file)
+    test_s_dict.update(test_dict)
+    test_s_dict.dump()
+    # Assert 4
+    assert target_file.exists()
+    parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
+    assert parsed_str == test_str
+    assert test_s_dict.source_file is not None
+    assert test_s_dict.source_file.exists()
+    assert test_s_dict.source_file == target_file.absolute()
+    assert test_s_dict.path == target_file.absolute().parent
+    assert test_s_dict.name == target_file.absolute().name
+
+    # Execute 5: Dump without passing target_file, while source_file is set some other source file
+    _source_file_name = "some_source_file"
+    _source_file = Path(_source_file_name)
+    _source_file.unlink(missing_ok=True)
+    target_file.unlink(missing_ok=True)
+    test_s_dict = SDict(_source_file_name)
+    test_s_dict.update(test_dict)
+    test_s_dict.dump()
+    # Assert 5
+    assert _source_file.exists()
+    assert not target_file.exists()
+    parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(_source_file)))
+    assert parsed_str == test_str
+    assert test_s_dict.source_file is not None
+    assert test_s_dict.source_file.exists()
+    assert test_s_dict.source_file == _source_file.absolute()
+    assert test_s_dict.path == _source_file.absolute().parent
+    assert test_s_dict.name == _source_file.absolute().name
+    _source_file.unlink(missing_ok=True)
+
+    # Execute 6: Dump without passing target_file, while source_file is NOT set
+    target_file.unlink(missing_ok=True)
+    test_s_dict = SDict()
+    test_s_dict.update(test_dict)
+    # Assert 6
+    with pytest.raises(ValueError):
+        test_s_dict.dump()
+
+    # Clean up
+    _source_file.unlink(missing_ok=True)
+    target_file.unlink(missing_ok=True)
 
 
 def test_cpp_dict() -> None:
