@@ -2076,7 +2076,7 @@ def test_load() -> None:
     source_file = Path("test_dictReader_dict")
     s_dict: SDict[TKey, TValue] = SDict()
     # Execute
-    s_dict.load(source_file)
+    _ = s_dict.load(source_file)
     # Assert included dict has been merged
     assert s_dict["paramA"] == 3.0
     assert s_dict["paramB"] == 4.0
@@ -2139,7 +2139,7 @@ def test_dump() -> None:
     target_file.unlink(missing_ok=True)
     test_s_dict = SDict()
     test_s_dict.update(test_dict)
-    test_s_dict.dump(target_file)
+    _ = test_s_dict.dump(target_file)
     # Assert 1
     assert target_file.exists()
     parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
@@ -2154,7 +2154,7 @@ def test_dump() -> None:
     target_file.unlink(missing_ok=True)
     test_s_dict = SDict(target_file)
     test_s_dict.update(test_dict)
-    test_s_dict.dump(target_file)
+    _ = test_s_dict.dump(target_file)
     # Assert 2
     assert target_file.exists()
     parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
@@ -2169,7 +2169,7 @@ def test_dump() -> None:
     target_file.unlink(missing_ok=True)
     test_s_dict = SDict("some_source_file")
     test_s_dict.update(test_dict)
-    test_s_dict.dump(target_file)
+    _ = test_s_dict.dump(target_file)
     # Assert 3
     assert target_file.exists()
     parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
@@ -2184,7 +2184,7 @@ def test_dump() -> None:
     target_file.unlink(missing_ok=True)
     test_s_dict = SDict(target_file)
     test_s_dict.update(test_dict)
-    test_s_dict.dump()
+    _ = test_s_dict.dump()
     # Assert 4
     assert target_file.exists()
     parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
@@ -2202,7 +2202,7 @@ def test_dump() -> None:
     target_file.unlink(missing_ok=True)
     test_s_dict = SDict(_source_file_name)
     test_s_dict.update(test_dict)
-    test_s_dict.dump()
+    _ = test_s_dict.dump()
     # Assert 5
     assert _source_file.exists()
     assert not target_file.exists()
@@ -2221,10 +2221,27 @@ def test_dump() -> None:
     test_s_dict.update(test_dict)
     # Assert 6
     with pytest.raises(ValueError):
-        test_s_dict.dump()
+        _ = test_s_dict.dump()
 
     # Clean up
     _source_file.unlink(missing_ok=True)
+    target_file.unlink(missing_ok=True)
+
+
+def test_dump_load_example_used_in_docs() -> None:
+    # Prepare
+    my_dict: SDict[str, int] = SDict(
+        {
+            "foo": 1,
+            "bar": 2,
+        }
+    )
+    # Execute
+    target_file = my_dict.dump("myDict")
+    my_dict_loaded: SDict[str, int] = SDict().load("myDict")
+    # Assert
+    assert my_dict_loaded == my_dict
+    # Clean up
     target_file.unlink(missing_ok=True)
 
 

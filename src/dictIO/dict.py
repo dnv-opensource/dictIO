@@ -42,9 +42,9 @@ logger = logging.getLogger(__name__)
 
 
 class SDict(dict[_KT, _VT]):
-    """Data structure for generic, serializable dictionaries.
+    """Generic data structure for serializable dictionaries. Core class in dictIO.
 
-    SDict inherits from dict. It can hence be used transparently also in a context
+    SDict inherits from dict. It can hence be used transparently in any context
     where a dict or any other MutableMapping type is expected.
     """
 
@@ -182,10 +182,14 @@ class SDict(dict[_KT, _VT]):
             new_dict[key] = cast(_VT_local, value)  # cast is safe, as `None` is within the type bounds of _VT
         return new_dict
 
+    # TODO @CLAROS: Change return type to `Self` (from `typing`module)
+    #      once we drop support for Python 3.10
+    #      (see https://docs.python.org/3/library/typing.html#typing.Self)
+    #      CLAROS, 2024-10-15
     def load(
         self,
         source_file: str | os.PathLike[str],
-    ) -> None:
+    ) -> SDict[_KT, _VT]:
         """Load a dict file into this SDict instance.
 
         Reads a dict file and loads its content into the current SDict instance.
@@ -202,6 +206,11 @@ class SDict(dict[_KT, _VT]):
         ----------
         source_file : Union[str, os.PathLike[str]]
             dict file to be loaded
+
+        Returns
+        -------
+        SDict[_KT, _VT]
+            self
 
         Raises
         ------
@@ -227,11 +236,12 @@ class SDict(dict[_KT, _VT]):
         self.reset()
         self.update(loaded_dict)
         self._set_source_file(source_file)
+        return self
 
     def dump(
         self,
         target_file: str | os.PathLike[str] | None = None,
-    ) -> None:
+    ) -> Path:
         """Dump the content of the current SDict instance into a dict file.
 
         Following file formats are supported and interpreted through target_file's file ending:
@@ -245,6 +255,11 @@ class SDict(dict[_KT, _VT]):
         ----------
         target_file : Union[str, os.PathLike[str], None], optional
             target dict file name, by default None
+
+        Returns
+        -------
+        Path
+            target dict file
 
         Raises
         ------
@@ -268,6 +283,8 @@ class SDict(dict[_KT, _VT]):
             target_file=target_file,
         )
         self._set_source_file(target_file)
+
+        return target_file
 
     @property
     def source_file(self) -> Path | None:
