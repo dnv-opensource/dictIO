@@ -363,7 +363,7 @@ class Parser:
 
 
 class CppParser(Parser):
-    """Parser to deserialize a string in dictIO dict file format into a SDict."""
+    """Parser to deserialize a string in dictIO native file format into a SDict."""
 
     def __init__(self) -> None:
         """Define default configuration for CppParser."""
@@ -377,7 +377,7 @@ class CppParser(Parser):
         *,
         comments: bool = True,
     ) -> SDict[TKey, TValue]:
-        """Parse a string in dictIO dict file format and deserialize it into a SDict.
+        """Parse a string in dictIO native file format and deserialize it into a SDict.
 
         Parameters
         ----------

@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 class DictReader:
-    """Reader for dictionaries in dictIO dict file format, as well as JSON and XML."""
+    """Reader for dictionaries in dictIO native file format, as well as JSON and XML."""
 
     def __init__(self) -> None:
         return
@@ -54,12 +54,12 @@ class DictReader:
         scope: MutableSequence[TKey] | None = None,
         parser: Parser | None = None,
     ) -> SDict[TKey, TValue]:
-        """Read a dictionary file in dictIO dict file format, as well as JSON and XML.
+        """Read a dictionary file in dictIO native file format, as well as JSON and XML.
 
         Reads a dict file, parses it and transforms its content into a dictIO dict object (SDict).
         Following file formats are supported and interpreted through source_file's file ending:
-        no file ending   ->   dictIO dict file
-        '.cpp'           ->   dictIO dict file
+        no file ending   ->   dictIO native dict file
+        '.cpp'           ->   dictIO native dict file
         '.foam'          ->   Foam dictionary file
         '.json'          ->   Json dictionary file
         '.xml'           ->   XML file

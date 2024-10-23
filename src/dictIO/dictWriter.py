@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class DictWriter:
-    """Writer for dictionaries in dictIO dict file format, as well as JSON, XML and OpenFoam."""
+    """Writer for dictionaries in dictIO native file format, as well as JSON, XML and OpenFoam."""
 
     def __init__(self) -> None:
         return
@@ -27,12 +27,12 @@ class DictWriter:
         order: bool = False,
         formatter: Formatter | None = None,
     ) -> None:
-        """Write a dictionary file in dictIO dict file format, as well as JSON, XML and OpenFoam.
+        """Write a dictionary file in dictIO native file format, as well as JSON, XML and OpenFoam.
 
         Writes a dictIO dict (parameter source_dict of type SDict) to target_file.
         Following file formats are supported and interpreted through target_file's file ending:
-        no file ending   ->   dictIO dict file
-        '.cpp'           ->   dictIO dict file
+        no file ending   ->   dictIO native dict file
+        '.cpp'           ->   dictIO native dict file
         '.foam'          ->   Foam dictionary file
         '.json'          ->   Json dictionary file
         '.xml'           ->   XML file

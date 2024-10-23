@@ -375,7 +375,7 @@ class Formatter:
 
 
 class CppFormatter(Formatter):
-    """Formatter to serialize a dict into a string in dictIO dict file format."""
+    """Formatter to serialize a dict into a string in dictIO native file format."""
 
     def __init__(self) -> None:
         """Define default configuration for CppFormatter."""
@@ -386,7 +386,7 @@ class CppFormatter(Formatter):
         self,
         arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
     ) -> str:  # sourcery skip: dict-comprehension
-        """Create a string representation of the passed in dict in dictIO dict file format.
+        """Create a string representation of the passed in dict in dictIO native file format.
 
         Parameters
         ----------
@@ -396,7 +396,7 @@ class CppFormatter(Formatter):
         Returns
         -------
         str
-            string representation of the dict in dictIO dict file format
+            string representation of the dict in dictIO native file format
         """
         s = super().to_string(arg)
 
@@ -732,7 +732,7 @@ class CppFormatter(Formatter):
         return s
 
     def make_default_block_comment(self, block_comment: str = "") -> str:
-        """Create the default block comment (header) for files in dictIO dict file format."""
+        """Create the default block comment (header) for files in dictIO native file format."""
         # If there is no ' C++ ' contained in block_comment,
         # then insert the C++ default block comment in front:
         # sourcery skip: move-assign

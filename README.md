@@ -83,11 +83,11 @@ _For more examples and usage, please refer to dictIO's [documentation][dictIO_do
 
 
 ## File Format
-The default dictionary file format used by dictIO shares, by intention, some commonalities with the [OpenFOAM](https://www.openfoam.com/documentation/guides/latest/doc/openfoam-guide-input-types.html) file format, but is kept simpler and more tolerant to different flavours of string formatting.
+The native file format used by dictIO shares, by intention, some commonalities with the [OpenFOAM](https://www.openfoam.com/documentation/guides/latest/doc/openfoam-guide-input-types.html) file format, but is kept simpler and more tolerant to different flavours of string formatting.
 
 With some limitations, dictIO supports also reading from and writing to [OpenFOAM](https://www.openfoam.com/documentation/guides/latest/doc/openfoam-guide-input-types.html), [Json](https://www.json.org/json-en.html) and [XML](https://www.w3.org/XML/).
 
-_For a detailed documentation of the dict file format used by dictIO, see [File Format](fileFormat.md) in [dictIO's documentation][dictIO_docs] on GitHub Pages._
+_For a detailed documentation of the native file format used by dictIO, see [File Format](fileFormat.md) in [dictIO's documentation][dictIO_docs] on GitHub Pages._
 
 ## Development Setup
 

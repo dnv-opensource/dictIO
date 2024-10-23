@@ -210,8 +210,8 @@ class SDict(dict[_KT, _VT]):
         The content of the current SDict instance will be overwritten.
 
         Following file formats are supported and interpreted through source_file's file ending:
-        no file ending   ->   dictIO dict file
-        '.cpp'           ->   dictIO dict file
+        no file ending   ->   dictIO native dict file
+        '.cpp'           ->   dictIO native dict file
         '.foam'          ->   Foam dictionary file
         '.json'          ->   Json dictionary file
         '.xml'           ->   XML file
@@ -259,8 +259,8 @@ class SDict(dict[_KT, _VT]):
         """Dump the content of the current SDict instance into a dict file.
 
         Following file formats are supported and interpreted through target_file's file ending:
-        no file ending   ->   dictIO dict file
-        '.cpp'           ->   dictIO dict file
+        no file ending   ->   dictIO native dict file
+        '.cpp'           ->   dictIO native dict file
         '.foam'          ->   Foam dictionary file
         '.json'          ->   Json dictionary file
         '.xml'           ->   XML file
@@ -763,7 +763,7 @@ class SDict(dict[_KT, _VT]):
         return copied_dict
 
     def __str__(self) -> str:
-        """Return a string representation of the SDict instance in dictIO dict file format.
+        """Return a string representation of the SDict instance in dictIO native file format.
 
         Returns
         -------
@@ -771,7 +771,7 @@ class SDict(dict[_KT, _VT]):
             the string representation
         """
         from dictIO import (
-            CppFormatter,  # __str__ shall be formatted in default dict file format
+            CppFormatter,  # __str__ shall be formatted in dictIO native file format
         )
 
         formatter = CppFormatter()
