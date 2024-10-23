@@ -7,4 +7,4 @@ With some limitations, dictIO also supports reading and writing to `OpenFOAM <ht
 .. toctree::
    :maxdepth: 2
 
-   fileFormat.cppDict
+   fileFormat.sDict
