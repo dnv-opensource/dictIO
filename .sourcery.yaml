@@ -17,6 +17,7 @@ ignore: # A list of paths or files which Sourcery will ignore.
   - .tox
   - dist
   - __pycache__
+  - docs/build
 
 rule_settings:
   enable:
@@ -49,7 +50,6 @@ rule_settings:
 
 metrics:
   quality_threshold: 20.0
-
 # github:
 #   labels: []
 #   ignore_labels:
