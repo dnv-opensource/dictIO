@@ -378,7 +378,7 @@ class CppFormatter(Formatter):
     """Formatter to serialize a dict into a string in dictIO dict file format."""
 
     def __init__(self) -> None:
-        """Implementation specific default configuration of CppFormatter."""
+        """Define default configuration for CppFormatter."""
         # Invoke base class constructor
         super().__init__()
 
@@ -793,7 +793,7 @@ class FoamFormatter(CppFormatter):
     """Formatter to serialize a dict into a string in OpenFOAM dictionary format."""
 
     def __init__(self) -> None:
-        """Implementation specific default configuration of FoamFormatter."""
+        """Define default configuration for FoamFormatter."""
         # Invoke base class constructor
         super().__init__()
 
@@ -937,7 +937,7 @@ class JsonFormatter(Formatter):
     """Formatter to serialize a dict into a string in JSON dictionary format."""
 
     def __init__(self) -> None:
-        """Implementation specific default configuration of JsonFormatter."""
+        """Define default configuration for JsonFormatter."""
         # Invoke base class constructor
         super().__init__()
 
@@ -1047,7 +1047,7 @@ class XmlFormatter(Formatter):
         integrate_attributes: bool = True,
         remove_node_numbering: bool = True,
     ) -> None:
-        """Implementation specific default configuration of XmlFormatter."""
+        """Define default configuration for XmlFormatter."""
         # Invoke base class constructor
         super().__init__()
         # Save default configuration as attributes

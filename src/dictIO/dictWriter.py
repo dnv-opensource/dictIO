@@ -119,7 +119,10 @@ def create_target_file_name(
     scope: MutableSequence[TKey] | None = None,
     output: str | None = None,
 ) -> Path:
-    """Helper function to create a well defined target file name.
+    """Create a well defined target file name.
+
+    Helper function to create a target file name based on the source file name,
+    a prefix, a scope and an output format.
 
     Parameters
     ----------

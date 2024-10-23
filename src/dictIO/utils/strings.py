@@ -26,10 +26,7 @@ def remove_quotes(string: str) -> str:
 
 
 def string_diff(text_1: str, text_2: str) -> str:
-    """
-    diff line by line
-    printing only diff.
-    """
+    """Return diff line by line."""
     lines_1: list[str] = re.split("[\r\n]+", text_1)
     lines_2: list[str] = re.split("[\r\n]+", text_2)
     diffs: list[str] = []

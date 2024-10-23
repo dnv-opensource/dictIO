@@ -366,7 +366,7 @@ class CppParser(Parser):
     """Parser to deserialize a string in dictIO dict file format into a SDict."""
 
     def __init__(self) -> None:
-        """Implementation specific default configuration of CppParser."""
+        """Define default configuration for CppParser."""
         # Invoke base class constructor
         super().__init__()
 
@@ -1289,7 +1289,7 @@ class FoamParser(CppParser):
     """Parser to deserialize a string in OpenFOAM dictionary format into a SDict."""
 
     def __init__(self) -> None:
-        """Implementation specific default configuration of FoamParser."""
+        """Define default configuration for FoamParser."""
         # Invoke base class constructor
         super().__init__()
 
@@ -1335,7 +1335,7 @@ class JsonParser(Parser):
     """Parser to deserialize a string in JSON dictionary format into a SDict."""
 
     def __init__(self) -> None:
-        """Implementation specific default configuration of JsonParser."""
+        """Define default configuration for JsonParser."""
         # Invoke base class constructor
         super().__init__()
 
@@ -1470,7 +1470,9 @@ class JsonParser(Parser):
         string: str,
         expression: str,
     ) -> str:
-        """Replace all occurances of expression in string with a placeholder (EXPRESSION000000)
+        """Replace all occurances of expression in string with a placeholder.
+
+        Replaces all occurances of expression in string with a placeholder (EXPRESSION000000)
         and register the expression in parsed_dict.
 
         Parameters
@@ -1549,7 +1551,7 @@ class XmlParser(Parser):
         *,
         add_node_numbering: bool = True,
     ) -> None:
-        """Implementation specific default configuration of XmlParser."""
+        """Define default configuration for XmlParser."""
         # Invoke base class constructor
         super().__init__()
         # Save default configuration as attributes

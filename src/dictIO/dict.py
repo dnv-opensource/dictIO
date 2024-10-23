@@ -177,6 +177,20 @@ class SDict(dict[_KT, _VT]):
         iterable: Iterable[_KT_local],
         value: _VT_local | None = None,
     ) -> SDict[_KT_local, _VT_local] | SDict[_KT_local, TValue | None]:
+        """Create a new SDict instance from the keys of an iterable.
+
+        Parameters
+        ----------
+        iterable : Iterable[_KT_local]
+            An iterable with keys
+        value : _VT_local | None, optional
+            The value to be assigned to the passed in keys, by default None
+
+        Returns
+        -------
+        SDict[_KT_local, _VT_local] | SDict[_KT_local, TValue | None]
+            _description_
+        """
         new_dict: SDict[_KT_local, _VT_local] = cast(SDict[_KT_local, _VT_local], cls())
         for key in iterable:
             new_dict[key] = cast(_VT_local, value)  # cast is safe, as `None` is within the type bounds of _VT
@@ -618,7 +632,7 @@ class SDict(dict[_KT, _VT]):
         self,
         other: dict[_KT, _VT] | dict[_KT_local, _VT_local],
     ) -> SDict[_KT, _VT] | SDict[_KT | _KT_local, _VT | _VT_local]:
-        """left `or` operation: `self | other`.
+        """Left `or` operation: `self | other`.
 
         The `__or__()` method is called by the ` | ` operator when it is used with `self` on the left-hand side.
 
@@ -660,7 +674,7 @@ class SDict(dict[_KT, _VT]):
         self,
         other: dict[_KT, _VT] | dict[_KT_local, _VT_local],
     ) -> SDict[_KT, _VT] | SDict[_KT | _KT_local, _VT | _VT_local]:
-        """right `or` operation: `other | self`.
+        """Right `or` operation: `other | self`.
 
         The `__ror__()` method is called by the ` | ` operator when it is used with `self` on the right-hand side.
         This method is only called if `other` and `self` are of different types
@@ -709,7 +723,7 @@ class SDict(dict[_KT, _VT]):
         other: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]],
     ) -> SDict[_KT, _VT]:
         # def __ior__(self, other: MutableMapping[_KT, _VT]) -> SDict[_KT, _VT]:
-        """augmented `or` operation: `self |= other`.
+        """Augmented `or` operation: `self |= other`.
 
         The `__ior__()` method is called by the ` |= ` operator with `self` on the left-hand side.
         The content of `self` gets updated with the content of `other`.
@@ -738,11 +752,18 @@ class SDict(dict[_KT, _VT]):
         return copied_dict
 
     def copy(self) -> SDict[_KT, _VT]:
+        """Return a shallow copy of the SDict instance.
+
+        Returns
+        -------
+        SDict[_KT, _VT]
+            shallow copy of the SDict instance
+        """
         copied_dict = copy(self)  # calls __copy__()
         return copied_dict
 
     def __str__(self) -> str:
-        """String representation of the SDict instance in dictIO dict file format.
+        """Return a string representation of the SDict instance in dictIO dict file format.
 
         Returns
         -------
@@ -978,6 +999,16 @@ class SDict(dict[_KT, _VT]):
     # It is marked as deprecated and will be removed in a future release.
     @property
     def data(self) -> dict[_KT, _VT]:
+        """Mimick the data property of the CppDict class from dictIO <= v0.3.4.
+
+        Mimicks the data property of the deprecated CppDict class to maintain
+        backward compatibility. This property is deprecated and will be removed with v0.5.0.
+
+        Returns
+        -------
+        dict[_KT, _VT]
+            the content of the SDict instance
+        """
         warnings.warn(
             f"`{self.__class__.__name__}.data` is deprecated. Use `SDict` directly instead.",
             DeprecationWarning,

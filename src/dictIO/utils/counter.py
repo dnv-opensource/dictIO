@@ -5,10 +5,10 @@ __all__ = ["BorgCounter", "Indenter", "DejaVue"]
 
 
 class BorgCounter:
-    """
-    A class that implements a static global counter.
+    """A class that implements a static global counter.
+
     Instances of this class all share the same global counter.
-    This is used in DictReader class to assure that multiple instances
+    This is used in DictReader class to ensure that multiple instances
     of SDict do not generate conflicting IDs for placeholder strings
     (as would be the case otherwise when merging included dicts).
     """
@@ -40,10 +40,10 @@ class BorgCounter:
 
 
 class Indenter:
-    """
-    A class that implements a static global indentation.
+    """A class that implements a static global indentation.
+
     Instances of this class all share the same global indentation.
-    This is used in logger class to assure a readable message hirarchy.
+    This is used in logger class to ensure a readable message hirarchy.
     """
 
     Ind: dict[str, Any] = {  # noqa: RUF012

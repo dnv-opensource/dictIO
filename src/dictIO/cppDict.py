@@ -26,11 +26,12 @@ __ALL__ = [
 
 
 class CppDict(SDict[TKey, TValue]):
-    #     """Data structure for C++ dictionaries.
+    """Data structure for C++ dictionaries.
 
-    #     CppDict inherits from SDict. It can hence be used transparently in any context
-    #     where a dict or any other MutableMapping type is expected.
-    #     """
+    This class is deprecated and will be removed in 0.5.0.
+    Use SDict[TKey, TValue] instead.
+    """
+
     @overload
     def __init__(
         self,
