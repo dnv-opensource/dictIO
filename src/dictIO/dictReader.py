@@ -25,7 +25,16 @@ from math import (  # noqa: F401
 from pathlib import Path
 from typing import Any, Dict, List, MutableMapping, MutableSequence, Union
 
-from numpy import diag, eye, ndarray, ones, zeros  # noqa: F401
+from numpy import (  # noqa: F401
+    array,
+    diag, 
+    eye, 
+    mean,
+    ndarray, 
+    ones,
+    std,
+    zeros,
+)    
 
 from dictIO import CppDict, Parser
 from dictIO.utils.counter import DejaVue
