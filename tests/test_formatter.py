@@ -167,9 +167,19 @@ class TestCppFormatter:
             102: as_is_block_comment,
             103: as_is_block_comment,
         }
-        str_in = placeholder1 + "\n" + placeholder2 + "\n" + placeholder3 + "\n" + str_in_template
+        str_in = (
+            placeholder1
+            + "\n"
+            + placeholder2
+            + "\n"
+            + placeholder3
+            + "\n"
+            + str_in_template
+        )
         str_expected = (
-            str_in.replace(placeholder1, as_is_block_comment).replace(placeholder2, "").replace(placeholder3, "")
+            str_in.replace(placeholder1, as_is_block_comment)
+            .replace(placeholder2, "")
+            .replace(placeholder3, "")
         )
         # Execute
         str_out = formatter.insert_block_comments(dict, str_in)
@@ -183,7 +193,15 @@ class TestCppFormatter:
             102: default_block_comment,
             103: as_is_block_comment,
         }
-        str_in = placeholder1 + "\n" + placeholder2 + "\n" + placeholder3 + "\n" + str_in_template
+        str_in = (
+            placeholder1
+            + "\n"
+            + placeholder2
+            + "\n"
+            + placeholder3
+            + "\n"
+            + str_in_template
+        )
         str_expected = (
             str_in.replace(placeholder1, as_is_block_comment)
             .replace(placeholder2, default_block_comment)
@@ -199,7 +217,9 @@ class TestCppFormatter:
         block_comment_tampered = re.sub(r"\s[Cc]\+{2}\s", " C# ", as_is_block_comment)
         dict.block_comments = {101: block_comment_tampered}
         str_in = placeholder1 + "\n" + str_in_template
-        str_expected = str_in.replace(placeholder1, default_block_comment + "\n" + block_comment_tampered)
+        str_expected = str_in.replace(
+            placeholder1, default_block_comment + "\n" + block_comment_tampered
+        )
         # Execute
         str_out = formatter.insert_block_comments(dict, str_in)
         # Assert
@@ -220,7 +240,9 @@ class TestCppFormatter:
         blockcomment_placeholder = "BLOCKCOMMENT000101            BLOCKCOMMENT000101;"
         include_placeholder = "INCLUDE000102            INCLUDE000102;"
         str_in = blockcomment_placeholder + "\n" + include_placeholder + "\n"
-        str_expected = str_in.replace(include_placeholder, include_directive_in.replace('"', "'"))
+        str_expected = str_in.replace(
+            include_placeholder, include_directive_in.replace('"', "'")
+        )
         formatter = CppFormatter()
         # Execute
         str_out = formatter.insert_includes(dict, str_in)
@@ -238,7 +260,15 @@ class TestCppFormatter:
         placeholder1 = "BLOCKCOMMENT000101            BLOCKCOMMENT000101;"
         placeholder2 = "INCLUDE000102            INCLUDE000102;"
         placeholder3 = "LINECOMMENT000103            LINECOMMENT000103;"
-        str_in = placeholder1 + "\n" + placeholder2 + "\n" + placeholder3 + "\n" + str_in_template
+        str_in = (
+            placeholder1
+            + "\n"
+            + placeholder2
+            + "\n"
+            + placeholder3
+            + "\n"
+            + str_in_template
+        )
         str_expected = str_in.replace(placeholder3, line_comment_in)
         # Execute
         str_out = formatter.insert_line_comments(dict, str_in)
@@ -398,7 +428,9 @@ class TestFoamFormatter:
         blockcomment_placeholder = "BLOCKCOMMENT000101            BLOCKCOMMENT000101;"
         include_placeholder = "INCLUDE000102            INCLUDE000102;"
         str_in = blockcomment_placeholder + "\n" + include_placeholder + "\n"
-        str_expected = str_in.replace(include_placeholder, include_directive_in.replace("'", '"'))
+        str_expected = str_in.replace(
+            include_placeholder, include_directive_in.replace("'", '"')
+        )
         formatter = FoamFormatter()
         # Execute
         str_out: str = formatter.insert_includes(dict, str_in)
@@ -455,7 +487,9 @@ class TestXmlFormatter:
         target_file.unlink(missing_ok=True)
         dict = DictReader.read(source_file)
         xml_opts = {
-            "_nameSpaces": {"osp": "https://opensimulationplatform.com/xsd/OspModelDescription"},
+            "_nameSpaces": {
+                "osp": "https://opensimulationplatform.com/xsd/OspModelDescription"
+            },
             "_rootTag": "OspModelDescription",
             "_removeNodeNumbering": True,
         }
@@ -496,7 +530,9 @@ class TestXmlFormatter:
         source_file = Path("test_formatter_dict")
         dict = DictReader.read(source_file)
         xml_opts = {
-            "_nameSpaces": {"osp": "https://opensimulationplatform.com/xsd/OspModelDescription"},
+            "_nameSpaces": {
+                "osp": "https://opensimulationplatform.com/xsd/OspModelDescription"
+            },
             "_rootTag": "OspModelDescription",
             "_removeNodeNumbering": True,
         }
@@ -505,8 +541,14 @@ class TestXmlFormatter:
         # Execute
         str_out: str = formatter.to_string(dict)
         # Assert
-        assert 'xmlns:osp="https://opensimulationplatform.com/xsd/OspModelDescription"' in str_out
-        assert 'xmlns="https://opensimulationplatform.com/xsd/OspModelDescription"' not in str_out
+        assert (
+            'xmlns:osp="https://opensimulationplatform.com/xsd/OspModelDescription"'
+            in str_out
+        )
+        assert (
+            'xmlns="https://opensimulationplatform.com/xsd/OspModelDescription"'
+            not in str_out
+        )
 
     def test_format_xml_namespace_default(self):
         # sourcery skip: avoid-builtin-shadow
@@ -514,7 +556,9 @@ class TestXmlFormatter:
         source_file = Path("test_formatter_dict")
         dict = DictReader.read(source_file)
         xml_opts = {
-            "_nameSpaces": {"None": "https://opensimulationplatform.com/xsd/OspModelDescription"},
+            "_nameSpaces": {
+                "None": "https://opensimulationplatform.com/xsd/OspModelDescription"
+            },
             "_rootTag": "OspModelDescription",
             "_removeNodeNumbering": True,
         }
@@ -523,10 +567,18 @@ class TestXmlFormatter:
         # Execute
         str_out: str = formatter.to_string(dict)
         # Assert
-        assert 'xmlns="https://opensimulationplatform.com/xsd/OspModelDescription"' in str_out
-        assert 'xmlns:None="https://opensimulationplatform.com/xsd/OspModelDescription"' not in str_out
+        assert (
+            'xmlns="https://opensimulationplatform.com/xsd/OspModelDescription"'
+            in str_out
+        )
+        assert (
+            'xmlns:None="https://opensimulationplatform.com/xsd/OspModelDescription"'
+            not in str_out
+        )
 
-    @pytest.mark.skip(reason="XML pretty printing is not solved yet. The root attribute for encoding still gets lost.")
+    @pytest.mark.skip(
+        reason="XML pretty printing is not solved yet. The root attribute for encoding still gets lost."
+    )
     def test_format_xml_root_attributes(self):
         # sourcery skip: avoid-builtin-shadow
         # Prepare

@@ -12,7 +12,9 @@ from pytest import LogCaptureFixture
 
 from dictIO import CppDict, CppParser, DictReader, DictWriter
 
-WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(not sys.platform.startswith("win"), reason="windows only test")
+WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(
+    not sys.platform.startswith("win"), reason="windows only test"
+)
 
 
 def test_file_not_found_exception():
@@ -113,14 +115,30 @@ def test_eval_expressions():
     dict_in = deepcopy(dict.data)
     # Assert dict_in
     assert dict_in["expressions"]["reference"]["value"][:10] == "EXPRESSION"  # $paramA
-    assert dict_in["expressions"]["expression1"]["value"][:10] == "EXPRESSION"  # "$paramB"
-    assert dict_in["expressions"]["expression2"]["value"][:10] == "EXPRESSION"  # "$paramC + 4"
-    assert dict_in["expressions"]["expression3"]["value"][:10] == "EXPRESSION"  # "$paramC + $paramD"
-    assert dict_in["expressions"]["expressionE"]["value"][:10] == "EXPRESSION"  # $paramE[0]
-    assert dict_in["expressions"]["expressionF"]["value"][:10] == "EXPRESSION"  # $paramF[0][0]
-    assert dict_in["expressions"]["expressionG1"]["value"][:10] == "EXPRESSION"  # "$paramG"
-    assert dict_in["expressions"]["expressionG2"]["value"][:10] == "EXPRESSION"  # "$paramG[0]"
-    assert dict_in["expressions"]["expressionG3"]["value"][:10] == "EXPRESSION"  # "$paramG[1][2]"
+    assert (
+        dict_in["expressions"]["expression1"]["value"][:10] == "EXPRESSION"
+    )  # "$paramB"
+    assert (
+        dict_in["expressions"]["expression2"]["value"][:10] == "EXPRESSION"
+    )  # "$paramC + 4"
+    assert (
+        dict_in["expressions"]["expression3"]["value"][:10] == "EXPRESSION"
+    )  # "$paramC + $paramD"
+    assert (
+        dict_in["expressions"]["expressionE"]["value"][:10] == "EXPRESSION"
+    )  # $paramE[0]
+    assert (
+        dict_in["expressions"]["expressionF"]["value"][:10] == "EXPRESSION"
+    )  # $paramF[0][0]
+    assert (
+        dict_in["expressions"]["expressionG1"]["value"][:10] == "EXPRESSION"
+    )  # "$paramG"
+    assert (
+        dict_in["expressions"]["expressionG2"]["value"][:10] == "EXPRESSION"
+    )  # "$paramG[0]"
+    assert (
+        dict_in["expressions"]["expressionG3"]["value"][:10] == "EXPRESSION"
+    )  # "$paramG[1][2]"
 
     # Execute
     DictReader._eval_expressions(dict)
@@ -205,7 +223,9 @@ def test_eval_expressions_with_included_keys():
     assert dict_out["keysWithNestedRefs"]["nestKeyA"] == 3.0  # $paramA;
     assert dict_out["keysWithNestedRefs"]["nestKeyB"] == 4.0  # "$paramB";
     assert dict_out["keysWithNestedRefs"]["nestKeyC"] == 12.0  # "$paramA * $paramB";
-    assert dict_out["keysWithNestedRefs"]["nestKeyD"] == 35.4  # "$paramC / $paramE[1] + $paramE[2]";
+    assert (
+        dict_out["keysWithNestedRefs"]["nestKeyD"] == 35.4
+    )  # "$paramC / $paramE[1] + $paramE[2]";
     assert dict_out["keysWithNestedRefs"]["nestKeyE"] == 0.4  # "$paramE[2]";
     assert dict_out["keysWithNestedRefs"]["nestKeyF"] == [
         [0.3, 0.9],
@@ -226,16 +246,28 @@ def test_eval_expressions_with_included_keys():
         [4.5, 5.6],
         [6.7, 7.8],
     ]  # "$paramJ";
-    assert dict_out["keysWithNestedRefs"]["nestParamK"] == 0.4  # "$nestKeyE" == "$paramE[2]";
-    assert dict_out["keysWithNestedRefs"]["nestParamL"] == 7.0  # "$paramE[2] * 10 + $paramA";
-    assert dict_out["keysWithNestedRefs"]["nestParamM"] == 14.8  # "$nestParamJ[1][1] + $paramC";
+    assert (
+        dict_out["keysWithNestedRefs"]["nestParamK"] == 0.4
+    )  # "$nestKeyE" == "$paramE[2]";
+    assert (
+        dict_out["keysWithNestedRefs"]["nestParamL"] == 7.0
+    )  # "$paramE[2] * 10 + $paramA";
+    assert (
+        dict_out["keysWithNestedRefs"]["nestParamM"] == 14.8
+    )  # "$nestParamJ[1][1] + $paramC";
 
     # Assert keys that do not point to a single expression, but a list of expressions
-    assert dict_out["keysPointingToAListOfExpressions"]["keyToListA"][0] == 3.0  # $paramA;
+    assert (
+        dict_out["keysPointingToAListOfExpressions"]["keyToListA"][0] == 3.0
+    )  # $paramA;
     assert dict_out["keysPointingToAListOfExpressions"]["keyToListA"][1] == 1
     assert dict_out["keysPointingToAListOfExpressions"]["keyToListA"][2] == 2
-    assert dict_out["keysPointingToAListOfExpressions"]["keyToListB"][0] == 4.0  # "$paramB";
-    assert dict_out["keysPointingToAListOfExpressions"]["keyToListL"][0] == 14.8  # "$nestParamJ[1][1] + $paramC";
+    assert (
+        dict_out["keysPointingToAListOfExpressions"]["keyToListB"][0] == 4.0
+    )  # "$paramB";
+    assert (
+        dict_out["keysPointingToAListOfExpressions"]["keyToListL"][0] == 14.8
+    )  # "$nestParamJ[1][1] + $paramC";
 
 
 def test_eval_expressions_with_included_numpy_expressions():
@@ -389,10 +421,14 @@ def _get_references_in_expressions(dict: CppDict) -> List[str]:
     return references
 
 
-def _resolve_references(dict: CppDict, references: List[str]) -> Dict[str, Union[Any, None]]:
+def _resolve_references(
+    dict: CppDict, references: List[str]
+) -> Dict[str, Union[Any, None]]:
     # Resolve references
     variables: Dict[str, Any] = dict.variables
-    references_resolved = {ref: DictReader._resolve_reference(ref, variables) for ref in references}
+    references_resolved = {
+        ref: DictReader._resolve_reference(ref, variables) for ref in references
+    }
 
     return {
         ref: value
@@ -535,9 +571,15 @@ def test_read_strings_dict():
     assert dict["subDict"]["string_02_dq_word"] == "string_02_dq_word"
     assert dict["subDict"]["string_03_sq_word"] == "string_03_sq_word"
     assert dict["subDict"]["string_04_dq_sq_word"] == r"quote('string_04_dq_sq_word')"
-    assert dict["subDict"]["string_05_dq_escsq_word"] == r"quote(\'string_05_dq_escsq_word\')"
+    assert (
+        dict["subDict"]["string_05_dq_escsq_word"]
+        == r"quote(\'string_05_dq_escsq_word\')"
+    )
     assert dict["subDict"]["string_06_sq_dq_word"] == r'quote("string_06_sq_dq_word")'
-    assert dict["subDict"]["string_07_sq_escdq_word"] == r"quote(\"string_07_sq_escdq_word\")"
+    assert (
+        dict["subDict"]["string_07_sq_escdq_word"]
+        == r"quote(\"string_07_sq_escdq_word\")"
+    )
 
 
 def test_reread_strings_dict():
@@ -556,10 +598,22 @@ def test_reread_strings_dict():
     assert reread_dict["subDict"]["string_01_sq_empty"] == ""
     assert reread_dict["subDict"]["string_02_dq_word"] == "string_02_dq_word"
     assert reread_dict["subDict"]["string_03_sq_word"] == "string_03_sq_word"
-    assert reread_dict["subDict"]["string_04_dq_sq_word"] == r"quote('string_04_dq_sq_word')"
-    assert reread_dict["subDict"]["string_05_dq_escsq_word"] == r"quote(\'string_05_dq_escsq_word\')"
-    assert reread_dict["subDict"]["string_06_sq_dq_word"] == r'quote("string_06_sq_dq_word")'
-    assert reread_dict["subDict"]["string_07_sq_escdq_word"] == r"quote(\"string_07_sq_escdq_word\")"
+    assert (
+        reread_dict["subDict"]["string_04_dq_sq_word"]
+        == r"quote('string_04_dq_sq_word')"
+    )
+    assert (
+        reread_dict["subDict"]["string_05_dq_escsq_word"]
+        == r"quote(\'string_05_dq_escsq_word\')"
+    )
+    assert (
+        reread_dict["subDict"]["string_06_sq_dq_word"]
+        == r'quote("string_06_sq_dq_word")'
+    )
+    assert (
+        reread_dict["subDict"]["string_07_sq_escdq_word"]
+        == r"quote(\"string_07_sq_escdq_word\")"
+    )
 
 
 def test_single_character_vars():

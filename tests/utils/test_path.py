@@ -5,7 +5,9 @@ import pytest
 
 from dictIO.utils.path import highest_common_root_folder, relative_path
 
-WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(not sys.platform.startswith("win"), reason="windows only test")
+WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(
+    not sys.platform.startswith("win"), reason="windows only test"
+)
 
 
 def test_highest_common_root_folder():
@@ -36,38 +38,105 @@ def test_highest_common_root_folder():
     folder_12: Path = Path(r"D:/")
     # Execute and Assert
     assert highest_common_root_folder([file_01]) == folder_01.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_01]) == folder_01.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02]) == folder_01.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02, file_03]) == folder_06.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02, file_03, file_04]) == folder_09.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02, file_03, file_04, file_05]) == folder_11.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_06]) == folder_06.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_07]) == folder_09.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_08]) == folder_11.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_09]) == folder_09.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_10]) == folder_11.resolve().absolute()
-    assert highest_common_root_folder([file_04, file_07]) == folder_07.resolve().absolute()
-    assert highest_common_root_folder([file_05, file_08]) == folder_08.resolve().absolute()
-    assert highest_common_root_folder([file_08, file_10]) == folder_10.resolve().absolute()
+    assert (
+        highest_common_root_folder([file_01, file_01]) == folder_01.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_02]) == folder_01.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_02, file_03])
+        == folder_06.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_02, file_03, file_04])
+        == folder_09.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_02, file_03, file_04, file_05])
+        == folder_11.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_06]) == folder_06.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_07]) == folder_09.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_08]) == folder_11.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_09]) == folder_09.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_10]) == folder_11.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_04, file_07]) == folder_07.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_05, file_08]) == folder_08.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_08, file_10]) == folder_10.resolve().absolute()
+    )
     assert highest_common_root_folder([file_11]) == folder_11.resolve().absolute()
     assert highest_common_root_folder([file_12]) == folder_12.resolve().absolute()
     assert highest_common_root_folder([folder_01]) == folder_01.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_01]) == folder_01.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_02]) == folder_01.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_02, folder_03]) == folder_06.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_02, folder_03, folder_04]) == folder_09.resolve().absolute()
     assert (
-        highest_common_root_folder([folder_01, folder_02, folder_03, folder_04, folder_05])
+        highest_common_root_folder([folder_01, folder_01])
+        == folder_01.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_02])
+        == folder_01.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_02, folder_03])
+        == folder_06.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_02, folder_03, folder_04])
+        == folder_09.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder(
+            [folder_01, folder_02, folder_03, folder_04, folder_05]
+        )
         == folder_11.resolve().absolute()
     )
-    assert highest_common_root_folder([folder_01, folder_06]) == folder_06.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_07]) == folder_09.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_08]) == folder_11.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_09]) == folder_09.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_10]) == folder_11.resolve().absolute()
-    assert highest_common_root_folder([folder_04, folder_07]) == folder_07.resolve().absolute()
-    assert highest_common_root_folder([folder_05, folder_08]) == folder_08.resolve().absolute()
-    assert highest_common_root_folder([folder_08, folder_10]) == folder_10.resolve().absolute()
+    assert (
+        highest_common_root_folder([folder_01, folder_06])
+        == folder_06.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_07])
+        == folder_09.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_08])
+        == folder_11.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_09])
+        == folder_09.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_10])
+        == folder_11.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_04, folder_07])
+        == folder_07.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_05, folder_08])
+        == folder_08.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_08, folder_10])
+        == folder_10.resolve().absolute()
+    )
     assert highest_common_root_folder([folder_11]) == folder_11.resolve().absolute()
     assert highest_common_root_folder([folder_12]) == folder_12.resolve().absolute()
 
@@ -107,29 +176,57 @@ def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_1(
     folder_07: Path = Path(r"C:/")
     # Execute and Assert
     assert highest_common_root_folder([file_01]) == folder_01.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02]) == folder_02.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02, file_03]) == folder_03.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02, file_03, file_04]) == folder_04.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02, file_03, file_04, file_05]) == folder_05.resolve().absolute()
     assert (
-        highest_common_root_folder([file_01, file_02, file_03, file_04, file_05, file_06])
+        highest_common_root_folder([file_01, file_02]) == folder_02.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_02, file_03])
+        == folder_03.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_02, file_03, file_04])
+        == folder_04.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_02, file_03, file_04, file_05])
+        == folder_05.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder(
+            [file_01, file_02, file_03, file_04, file_05, file_06]
+        )
         == folder_06.resolve().absolute()
     )
     assert (
-        highest_common_root_folder([file_01, file_02, file_03, file_04, file_05, file_06, file_07])
+        highest_common_root_folder(
+            [file_01, file_02, file_03, file_04, file_05, file_06, file_07]
+        )
         == folder_07.resolve().absolute()
     )
 
     assert highest_common_root_folder([folder_01]) == folder_01.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_02]) == folder_02.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_02, folder_03]) == folder_03.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_02, folder_03, folder_04]) == folder_04.resolve().absolute()
     assert (
-        highest_common_root_folder([folder_01, folder_02, folder_03, folder_04, folder_05])
+        highest_common_root_folder([folder_01, folder_02])
+        == folder_02.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_02, folder_03])
+        == folder_03.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_02, folder_03, folder_04])
+        == folder_04.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder(
+            [folder_01, folder_02, folder_03, folder_04, folder_05]
+        )
         == folder_05.resolve().absolute()
     )
     assert (
-        highest_common_root_folder([folder_01, folder_02, folder_03, folder_04, folder_05, folder_06])
+        highest_common_root_folder(
+            [folder_01, folder_02, folder_03, folder_04, folder_05, folder_06]
+        )
         == folder_06.resolve().absolute()
     )
     assert (
@@ -167,29 +264,57 @@ def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_2(
     folder_07: Path = Path(r"C:/")
     # Execute and Assert
     assert highest_common_root_folder([file_01]) == folder_01.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02]) == folder_02.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02, file_03]) == folder_03.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02, file_03, file_04]) == folder_04.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02, file_03, file_04, file_05]) == folder_05.resolve().absolute()
     assert (
-        highest_common_root_folder([file_01, file_02, file_03, file_04, file_05, file_06])
+        highest_common_root_folder([file_01, file_02]) == folder_02.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_02, file_03])
+        == folder_03.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_02, file_03, file_04])
+        == folder_04.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_02, file_03, file_04, file_05])
+        == folder_05.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder(
+            [file_01, file_02, file_03, file_04, file_05, file_06]
+        )
         == folder_06.resolve().absolute()
     )
     assert (
-        highest_common_root_folder([file_01, file_02, file_03, file_04, file_05, file_06, file_07])
+        highest_common_root_folder(
+            [file_01, file_02, file_03, file_04, file_05, file_06, file_07]
+        )
         == folder_07.resolve().absolute()
     )
 
     assert highest_common_root_folder([folder_01]) == folder_01.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_02]) == folder_02.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_02, folder_03]) == folder_03.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_02, folder_03, folder_04]) == folder_04.resolve().absolute()
     assert (
-        highest_common_root_folder([folder_01, folder_02, folder_03, folder_04, folder_05])
+        highest_common_root_folder([folder_01, folder_02])
+        == folder_02.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_02, folder_03])
+        == folder_03.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_02, folder_03, folder_04])
+        == folder_04.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder(
+            [folder_01, folder_02, folder_03, folder_04, folder_05]
+        )
         == folder_05.resolve().absolute()
     )
     assert (
-        highest_common_root_folder([folder_01, folder_02, folder_03, folder_04, folder_05, folder_06])
+        highest_common_root_folder(
+            [folder_01, folder_02, folder_03, folder_04, folder_05, folder_06]
+        )
         == folder_06.resolve().absolute()
     )
     assert (
@@ -227,22 +352,59 @@ def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_3(
     folder_07: Path = Path(r"C:/")
     # Execute and Assert
     assert highest_common_root_folder([file_01]) == folder_01.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02]) == folder_06.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02, file_03]) == folder_06.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_02, file_03, file_04]) == folder_07.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_05]) == folder_05.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_06]) == folder_06.resolve().absolute()
-    assert highest_common_root_folder([file_01, file_07]) == folder_07.resolve().absolute()
-    assert highest_common_root_folder([file_02, file_03]) == folder_06.resolve().absolute()
+    assert (
+        highest_common_root_folder([file_01, file_02]) == folder_06.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_02, file_03])
+        == folder_06.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_02, file_03, file_04])
+        == folder_07.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_05]) == folder_05.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_06]) == folder_06.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_01, file_07]) == folder_07.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([file_02, file_03]) == folder_06.resolve().absolute()
+    )
 
     assert highest_common_root_folder([folder_01]) == folder_01.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_02]) == folder_06.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_02, folder_03]) == folder_06.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_02, folder_03, folder_04]) == folder_07.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_05]) == folder_05.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_06]) == folder_06.resolve().absolute()
-    assert highest_common_root_folder([folder_01, folder_07]) == folder_07.resolve().absolute()
-    assert highest_common_root_folder([folder_02, folder_03]) == folder_06.resolve().absolute()
+    assert (
+        highest_common_root_folder([folder_01, folder_02])
+        == folder_06.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_02, folder_03])
+        == folder_06.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_02, folder_03, folder_04])
+        == folder_07.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_05])
+        == folder_05.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_06])
+        == folder_06.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_01, folder_07])
+        == folder_07.resolve().absolute()
+    )
+    assert (
+        highest_common_root_folder([folder_02, folder_03])
+        == folder_06.resolve().absolute()
+    )
 
 
 def test_relative_path():

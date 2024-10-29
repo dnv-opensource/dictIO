@@ -40,7 +40,10 @@ def _argparser() -> argparse.ArgumentParser:
         "-I",
         "--ignore-includes",
         action="store_true",
-        help=("ignore include directives (e.g. #include './SUBDICT').\n" "This suppresses merging of sub-dicts. "),
+        help=(
+            "ignore include directives (e.g. #include './SUBDICT').\n"
+            "This suppresses merging of sub-dicts. "
+        ),
         default=False,
         required=False,
     )
@@ -187,7 +190,9 @@ def main():
         logger.error("dictParser.py finished with errors.\n")
 
 
-def _validate_scope(scope: Union[str, MutableSequence[str], Any]) -> Union[MutableSequence[Any], None]:
+def _validate_scope(
+    scope: Union[str, MutableSequence[str], Any]
+) -> Union[MutableSequence[Any], None]:
     # sourcery skip: replace-interpolation-with-fstring
     validated_scope: Union[MutableSequence[Any], None] = None
     if isinstance(scope, MutableSequence):  # List

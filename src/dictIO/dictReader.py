@@ -27,14 +27,14 @@ from typing import Any, Dict, List, MutableMapping, MutableSequence, Union
 
 from numpy import (  # noqa: F401
     array,
-    diag, 
-    eye, 
+    diag,
+    eye,
     mean,
-    ndarray, 
+    ndarray,
     ones,
     std,
     zeros,
-)    
+)
 
 from dictIO import CppDict, Parser
 from dictIO.utils.counter import DejaVue
@@ -97,7 +97,9 @@ class DictReader:
         """
 
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
-        source_file = source_file if isinstance(source_file, Path) else Path(source_file)
+        source_file = (
+            source_file if isinstance(source_file, Path) else Path(source_file)
+        )
         if not source_file.exists():
             logger.error(f"source_file not found: {source_file}")
             raise FileNotFoundError(source_file)
@@ -160,9 +162,13 @@ class DictReader:
 
                 if prove_recursive_include is True:
                     call_chain = "->".join(list(djv.strings))
-                    logger.warning(f"Recursive include detected. Merging of {call_chain} into {dict.name} aborted.")
+                    logger.warning(
+                        f"Recursive include detected. Merging of {call_chain} into {dict.name} aborted."
+                    )
                 elif not path.exists():
-                    logger.warning(f"included dict not found. Merging of {path} aborted.")
+                    logger.warning(
+                        f"included dict not found. Merging of {path} aborted."
+                    )
                 else:
                     parser = Parser.get_parser(path)
                     included_dict = parser.parse_file(path, None, comments=comments)
@@ -187,7 +193,9 @@ class DictReader:
         return
 
     @staticmethod
-    def _resolve_reference(ref: Any, vars: MutableMapping[Any, Any]) -> Union[Any, None]:
+    def _resolve_reference(
+        ref: Any, vars: MutableMapping[Any, Any]
+    ) -> Union[Any, None]:
         # resolves a single reference
         ret: Union[Any, None] = None
         try:
@@ -202,7 +210,9 @@ class DictReader:
             ret = vars[ref]  # singular value or field
 
             ref_changed_through_recursion = False
-            while re.search(r"\$", str(ret)):  # resolve nested references, if existing, through recursion
+            while re.search(
+                r"\$", str(ret)
+            ):  # resolve nested references, if existing, through recursion
                 ref = ret
                 ref_changed_through_recursion = True
                 ret = __class__._resolve_reference(ref, vars)  # recursion
@@ -224,13 +234,17 @@ class DictReader:
             _references.extend(_refs)
         # Resolve references
         variables: Dict[str, Any] = dict.variables
-        references: Dict[str, Any] = {ref: __class__._resolve_reference(ref, variables) for ref in _references}
+        references: Dict[str, Any] = {
+            ref: __class__._resolve_reference(ref, variables) for ref in _references
+        }
         references_resolved: Dict[str, Any] = {
             ref: value
             for ref, value in references.items()
             if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
         }
-        references_not_resolved: List[str] = [ref for ref in references if ref not in references_resolved]
+        references_not_resolved: List[str] = [
+            ref for ref in references if ref not in references_resolved
+        ]
 
         # Iteratively try to evaluate expressions contained in the dict and then re-resolve all references
         # With every iteration, this should reduce the number of remaining, non resolved references
@@ -261,7 +275,9 @@ class DictReader:
                         eval_result = expression
                         eval_successful = True
                     except SyntaxError:
-                        logger.warning(f'DictReader.(): evaluation of "{expression}" not yet possible')
+                        logger.warning(
+                            f'DictReader.(): evaluation of "{expression}" not yet possible'
+                        )
                 if eval_successful:
                     while global_key := dict.find_global_key(query=placeholder):
                         # Substitute the placeholder in the dict with the result of the evaluated expression
@@ -277,13 +293,17 @@ class DictReader:
                 _refs = re.findall(r"\$\w[\w\[\]]*", item["expression"])
                 _references.extend(_refs)
             variables = dict.variables
-            references = {ref: __class__._resolve_reference(ref, variables) for ref in _references}
+            references = {
+                ref: __class__._resolve_reference(ref, variables) for ref in _references
+            }
             references_resolved = {
                 ref: value
                 for ref, value in references.items()
                 if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
             }
-            references_not_resolved = [ref for ref in references if ref not in references_resolved]
+            references_not_resolved = [
+                ref for ref in references if ref not in references_resolved
+            ]
 
             keep_on = len(references_not_resolved) < references_not_resolved_old
 
@@ -309,7 +329,9 @@ class DictReader:
         with contextlib.suppress(Exception):
             for key in temp_dict.keys():
                 if isinstance(data[key], MutableMapping):
-                    data.update({key: __class__._remove_comment_keys(data[key])})  # recursion
+                    data.update(
+                        {key: __class__._remove_comment_keys(data[key])}
+                    )  # recursion
                 elif not re.search(remove, key):
                     data.update({key: temp_dict[key]})
         return

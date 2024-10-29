@@ -508,10 +508,22 @@ class TestCppParser:
         assert len(dict.string_literals) == 6
         assert list(dict.string_literals.values())[0] == "a string literal1"
         assert list(dict.string_literals.values())[1] == "a string literal2"
-        assert list(dict.string_literals.values())[2] == " a string literal3 with leading and trailing spaces "
-        assert list(dict.string_literals.values())[3] == "This line starts with a string literal4"
-        assert list(dict.string_literals.values())[4] == "This line is nothing else than a string literal5"
-        assert list(dict.string_literals.values())[5] == "a string literal6 in double quotes"
+        assert (
+            list(dict.string_literals.values())[2]
+            == " a string literal3 with leading and trailing spaces "
+        )
+        assert (
+            list(dict.string_literals.values())[3]
+            == "This line starts with a string literal4"
+        )
+        assert (
+            list(dict.string_literals.values())[4]
+            == "This line is nothing else than a string literal5"
+        )
+        assert (
+            list(dict.string_literals.values())[5]
+            == "a string literal6 in double quotes"
+        )
 
     def test_extract_expressions(self):
         # sourcery skip: avoid-builtin-shadow
@@ -582,13 +594,21 @@ class TestCppParser:
         assert list(dict.expressions.values())[2]["expression"] == "4 + $varName2"
 
         assert list(dict.expressions.values())[3]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[3]["expression"] == "$varName2 + $varName3"
+        assert (
+            list(dict.expressions.values())[3]["expression"] == "$varName2 + $varName3"
+        )
 
         assert list(dict.expressions.values())[4]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[4]["expression"] == "$varName1 + $varName2 + $varName3"
+        assert (
+            list(dict.expressions.values())[4]["expression"]
+            == "$varName1 + $varName2 + $varName3"
+        )
 
         assert list(dict.expressions.values())[5]["name"][:10] == "EXPRESSION"
-        assert list(dict.expressions.values())[5]["expression"] == "$varName2 + $varName3 + $varName1"
+        assert (
+            list(dict.expressions.values())[5]["expression"]
+            == "$varName2 + $varName3 + $varName1"
+        )
 
         assert list(dict.expressions.values())[6]["name"][:10] == "EXPRESSION"
         assert list(dict.expressions.values())[6]["expression"] == "$varName1"
@@ -845,7 +865,10 @@ class TestCppParser:
         assert dict_out["strings"]["string1"][:13] == "STRINGLITERAL"
         assert dict_out["strings"]["string2"][:13] == "STRINGLITERAL"
         assert dict_out["strings"]["string3"][:13] == "STRINGLITERAL"
-        assert dict_out["strings"]["string4"] == "singleWordsWithoutSpacesCanAlsoBeDeclaredWithoutQuotes"
+        assert (
+            dict_out["strings"]["string4"]
+            == "singleWordsWithoutSpacesCanAlsoBeDeclaredWithoutQuotes"
+        )
         assert dict_out["strings"]["string5"][:13] == "STRINGLITERAL"
         assert dict_out["strings"]["string6"][:13] == "STRINGLITERAL"
         assert dict_out["strings"]["listWithStrings"][0][:13] == "STRINGLITERAL"
@@ -895,21 +918,51 @@ class TestCppParser:
         assert len(dict_out["nesting"]["emptyNestedList"]) == 0
         # Assert nested dict with nested list
         assert len(dict_out["nesting"]["nestedDictWithNestedList"]) == 3
-        assert isinstance(dict_out["nesting"]["nestedDictWithNestedList"]["list1"], list)
-        assert isinstance(dict_out["nesting"]["nestedDictWithNestedList"]["list2"], list)
-        assert isinstance(dict_out["nesting"]["nestedDictWithNestedList"]["list3"], list)
+        assert isinstance(
+            dict_out["nesting"]["nestedDictWithNestedList"]["list1"], list
+        )
+        assert isinstance(
+            dict_out["nesting"]["nestedDictWithNestedList"]["list2"], list
+        )
+        assert isinstance(
+            dict_out["nesting"]["nestedDictWithNestedList"]["list3"], list
+        )
         assert len(dict_out["nesting"]["nestedDictWithNestedList"]["list1"]) == 3
         assert len(dict_out["nesting"]["nestedDictWithNestedList"]["list2"]) == 3
         assert len(dict_out["nesting"]["nestedDictWithNestedList"]["list3"]) == 3
-        assert dict_out["nesting"]["nestedDictWithNestedList"]["list1"][0] == 1.00000000e00
-        assert dict_out["nesting"]["nestedDictWithNestedList"]["list1"][1] == 2.20972831e-17
-        assert dict_out["nesting"]["nestedDictWithNestedList"]["list1"][2] == 3.15717747e-18
-        assert dict_out["nesting"]["nestedDictWithNestedList"]["list2"][0] == 2.20972831e-17
-        assert dict_out["nesting"]["nestedDictWithNestedList"]["list2"][1] == 1.00000000e00
-        assert dict_out["nesting"]["nestedDictWithNestedList"]["list2"][2] == -7.07290050e-18
-        assert dict_out["nesting"]["nestedDictWithNestedList"]["list3"][0] == 3.15717747e-18
-        assert dict_out["nesting"]["nestedDictWithNestedList"]["list3"][1] == -7.07290050e-18
-        assert dict_out["nesting"]["nestedDictWithNestedList"]["list3"][2] == 1.00000000e00
+        assert (
+            dict_out["nesting"]["nestedDictWithNestedList"]["list1"][0] == 1.00000000e00
+        )
+        assert (
+            dict_out["nesting"]["nestedDictWithNestedList"]["list1"][1]
+            == 2.20972831e-17
+        )
+        assert (
+            dict_out["nesting"]["nestedDictWithNestedList"]["list1"][2]
+            == 3.15717747e-18
+        )
+        assert (
+            dict_out["nesting"]["nestedDictWithNestedList"]["list2"][0]
+            == 2.20972831e-17
+        )
+        assert (
+            dict_out["nesting"]["nestedDictWithNestedList"]["list2"][1] == 1.00000000e00
+        )
+        assert (
+            dict_out["nesting"]["nestedDictWithNestedList"]["list2"][2]
+            == -7.07290050e-18
+        )
+        assert (
+            dict_out["nesting"]["nestedDictWithNestedList"]["list3"][0]
+            == 3.15717747e-18
+        )
+        assert (
+            dict_out["nesting"]["nestedDictWithNestedList"]["list3"][1]
+            == -7.07290050e-18
+        )
+        assert (
+            dict_out["nesting"]["nestedDictWithNestedList"]["list3"][2] == 1.00000000e00
+        )
         # Assert nested list with nested list
         assert len(dict_out["nesting"]["nestedListWithNestedList"]) == 3
         assert isinstance(dict_out["nesting"]["nestedListWithNestedList"][0], list)
@@ -954,7 +1007,9 @@ class TestCppParser:
         dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
         assert len(dict_out["expressions"]) == 13  # reference..G3 (level 2)
-        assert len(dict_out["expressions"]["reference"]) == 3  # name,value,COMMENT (level 3)
+        assert (
+            len(dict_out["expressions"]["reference"]) == 3
+        )  # name,value,COMMENT (level 3)
         assert len(dict_out["expressions"]["expression1"]) == 3
         assert len(dict_out["expressions"]["expression2"]) == 3
         assert len(dict_out["expressions"]["expression3"]) == 3
@@ -981,7 +1036,9 @@ class TestCppParser:
 
         # Prepare
         dict_in = CppDict()
-        SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9, comments=False)
+        SetupHelper.prepare_dict_until(
+            dict_to_prepare=dict_in, until_step=9, comments=False
+        )
         parser = CppParser()
         # Execute
         dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
@@ -991,28 +1048,93 @@ class TestCppParser:
         assert (
             len(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"]) == 7
         )  # 'notAKey', {}, 'notAKey', 'notAKey', 'notAKey', 'notAKey', {}
-        assert isinstance(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][0], str)
-        assert isinstance(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][1], dict)
-        assert isinstance(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][2], str)
-        assert isinstance(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][3], str)
-        assert isinstance(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][4], str)
-        assert isinstance(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][5], str)
-        assert isinstance(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6], dict)
-        assert dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][0] == "notAKey"
-        assert len(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][1]) == 2  # key1, key2
-        assert list(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][1].keys())[0] == "key1"
-        assert list(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][1].keys())[1] == "key2"
-        assert dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][1]["key1"] == "value1"
-        assert dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][1]["key2"] == "value2"
-        assert dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][2] == "notAKey"
-        assert dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][3] == "notAKey"
-        assert dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][4] == "notAKey"
-        assert dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][5] == "notAKey"
-        assert len(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6]) == 2  # key1, key2
-        assert list(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6].keys())[0] == "key1"
-        assert list(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6].keys())[1] == "key2"
-        assert dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6]["key1"] == "value1"
-        assert dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6]["key2"] == "value2"
+        assert isinstance(
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][0], str
+        )
+        assert isinstance(
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][1], dict
+        )
+        assert isinstance(
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][2], str
+        )
+        assert isinstance(
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][3], str
+        )
+        assert isinstance(
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][4], str
+        )
+        assert isinstance(
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][5], str
+        )
+        assert isinstance(
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6], dict
+        )
+        assert (
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][0]
+            == "notAKey"
+        )
+        assert (
+            len(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][1]) == 2
+        )  # key1, key2
+        assert (
+            list(
+                dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][1].keys()
+            )[0]
+            == "key1"
+        )
+        assert (
+            list(
+                dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][1].keys()
+            )[1]
+            == "key2"
+        )
+        assert (
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][1]["key1"]
+            == "value1"
+        )
+        assert (
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][1]["key2"]
+            == "value2"
+        )
+        assert (
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][2]
+            == "notAKey"
+        )
+        assert (
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][3]
+            == "notAKey"
+        )
+        assert (
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][4]
+            == "notAKey"
+        )
+        assert (
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][5]
+            == "notAKey"
+        )
+        assert (
+            len(dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6]) == 2
+        )  # key1, key2
+        assert (
+            list(
+                dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6].keys()
+            )[0]
+            == "key1"
+        )
+        assert (
+            list(
+                dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6].keys()
+            )[1]
+            == "key2"
+        )
+        assert (
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6]["key1"]
+            == "value1"
+        )
+        assert (
+            dict_out["theDictInAListPitfall"]["keyToADict"]["keyToAList"][6]["key2"]
+            == "value2"
+        )
 
     def test_insert_string_literals(self):
         # sourcery skip: avoid-builtin-shadow
@@ -1027,7 +1149,10 @@ class TestCppParser:
         assert dict_out["strings"]["listWithStrings"][0] == "string1"
         assert dict_out["strings"]["listWithStrings"][1] == "string2 has spaces"
         assert dict_out["strings"]["listWithStrings"][2] == "string3"
-        assert dict_out["strings"]["listWithStrings"][3] == "string4 is ok but note that string5 is empty"
+        assert (
+            dict_out["strings"]["listWithStrings"][3]
+            == "string4 is ok but note that string5 is empty"
+        )
         assert dict_out["strings"]["listWithStrings"][4] == ""
 
 
