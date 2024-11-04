@@ -6,4 +6,12 @@ API Reference
    :template: custom-module.rst
    :recursive:
 
-   dictIO
+   dictIO.dict
+   dictIO.dictParser
+   dictIO.dictReader
+   dictIO.dictWriter
+   dictIO.formatter
+   dictIO.parser
+   dictIO.types
+   dictIO.utils
+   dictIO.cppDict

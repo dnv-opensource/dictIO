@@ -38,7 +38,7 @@ class DictWriter:
         '.xml'           ->   XML file
         Following modes are supported:
         mode = 'a': append to target file. If the existing file contains a dictionary, write() will append the new dict
-                    to the existing through merging. This is the default behaviour.
+        to the existing through merging. This is the default behaviour.
         mode = 'w': overwrite target file. The existing file will be overwritten.
 
         Parameters

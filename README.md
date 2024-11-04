@@ -87,7 +87,7 @@ The native file format used by dictIO shares, by intention, some commonalities w
 
 With some limitations, dictIO supports also reading from and writing to [OpenFOAM](https://www.openfoam.com/documentation/guides/latest/doc/openfoam-guide-input-types.html), [Json](https://www.json.org/json-en.html) and [XML](https://www.w3.org/XML/).
 
-_For a detailed documentation of the native file format used by dictIO, see [File Format](fileFormat.md) in [dictIO's documentation][dictIO_docs] on GitHub Pages._
+_For a detailed documentation of the native file format used by dictIO, see [File Format](fileFormat.rst) in [dictIO's documentation][dictIO_docs] on GitHub Pages._
 
 ## Development Setup
 
