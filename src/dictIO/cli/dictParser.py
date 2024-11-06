@@ -42,7 +42,10 @@ def _argparser() -> argparse.ArgumentParser:
         "-I",
         "--ignore-includes",
         action="store_true",
-        help=("ignore include directives (e.g. #include './SUBDICT').\n" "This suppresses merging of sub-dicts. "),
+        help=(
+            "ignore include directives (e.g. #include './SUBDICT').\n"
+            "This suppresses merging of sub-dicts. "
+        ),
         default=False,
         required=False,
     )

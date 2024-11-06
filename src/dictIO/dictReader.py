@@ -27,7 +27,16 @@ from math import (  # noqa: F401
 from pathlib import Path
 from typing import cast
 
-from numpy import diag, eye, ndarray, ones, zeros  # noqa: F401
+from numpy import (  # noqa: F401
+    array,
+    diag,
+    eye,
+    mean,
+    ndarray,
+    ones,
+    std,
+    zeros,
+)
 
 from dictIO import Parser, SDict
 from dictIO.types import TKey, TValue
