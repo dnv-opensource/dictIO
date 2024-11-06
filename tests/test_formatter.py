@@ -190,19 +190,9 @@ class TestCppFormatter:
             102: as_is_block_comment,
             103: as_is_block_comment,
         }
-        str_in = (
-            placeholder1
-            + "\n"
-            + placeholder2
-            + "\n"
-            + placeholder3
-            + "\n"
-            + str_in_template
-        )
+        str_in = placeholder1 + "\n" + placeholder2 + "\n" + placeholder3 + "\n" + str_in_template
         str_expected = (
-            str_in.replace(placeholder1, as_is_block_comment)
-            .replace(placeholder2, "")
-            .replace(placeholder3, "")
+            str_in.replace(placeholder1, as_is_block_comment).replace(placeholder2, "").replace(placeholder3, "")
         )
         # Execute
         str_out = formatter.insert_block_comments(s_dict, str_in)
@@ -216,15 +206,7 @@ class TestCppFormatter:
             102: default_block_comment,
             103: as_is_block_comment,
         }
-        str_in = (
-            placeholder1
-            + "\n"
-            + placeholder2
-            + "\n"
-            + placeholder3
-            + "\n"
-            + str_in_template
-        )
+        str_in = placeholder1 + "\n" + placeholder2 + "\n" + placeholder3 + "\n" + str_in_template
         str_expected = (
             str_in.replace(placeholder1, as_is_block_comment)
             .replace(placeholder2, default_block_comment)
@@ -277,15 +259,7 @@ class TestCppFormatter:
         placeholder1 = "BLOCKCOMMENT000101            BLOCKCOMMENT000101;"
         placeholder2 = "INCLUDE000102            INCLUDE000102;"
         placeholder3 = "LINECOMMENT000103            LINECOMMENT000103;"
-        str_in = (
-            placeholder1
-            + "\n"
-            + placeholder2
-            + "\n"
-            + placeholder3
-            + "\n"
-            + str_in_template
-        )
+        str_in = placeholder1 + "\n" + placeholder2 + "\n" + placeholder3 + "\n" + str_in_template
         str_expected = str_in.replace(placeholder3, line_comment_in)
         # Execute
         str_out = formatter.insert_line_comments(s_dict, str_in)

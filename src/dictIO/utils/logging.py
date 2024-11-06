@@ -60,9 +60,7 @@ def configure_logging(
         file_handler = logging.FileHandler(str(log_file.absolute()), "a")
         print(f"Logging to: {log_file.absolute()}")  # noqa: T201
         file_handler.setLevel(log_level_file_numeric)
-        file_formatter = logging.Formatter(
-            "%(asctime)s %(levelname)-8s %(message)s", "%Y-%m-%d %H:%M:%S"
-        )
+        file_formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s", "%Y-%m-%d %H:%M:%S")
         file_handler.setFormatter(file_formatter)
         root_logger.addHandler(file_handler)
 
