@@ -7,5 +7,7 @@ TSingleValue: TypeAlias = str | int | float | bool | None
 # Type aliases for keys and values
 # TKey: TypeAlias = int | str
 # TValue: TypeAlias = int | float | str | bool | MutableMapping[TKey, Any] | MutableSequence[Any] | Any | None
-TKey: TypeAlias = Any
+TKey: TypeAlias = str | int
 TValue: TypeAlias = Any
+
+TGlobalKey: TypeAlias = TKey | int

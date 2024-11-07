@@ -17,7 +17,7 @@ from typing import (
     overload,
 )
 
-from dictIO.types import TKey, TValue
+from dictIO.types import TGlobalKey, TKey, TValue
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.dict import (
     find_global_key,
@@ -37,6 +37,8 @@ _KT = TypeVar("_KT", bound=TKey)
 _VT = TypeVar("_VT", bound=TValue)
 _KT_local = TypeVar("_KT_local", bound=TKey)
 _VT_local = TypeVar("_VT_local", bound=TValue)
+_KT_global = TypeVar("_KT_global", bound=TGlobalKey)
+_VT_global = TypeVar("_VT_global", bound=TValue)
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +155,7 @@ class SDict(dict[_KT, _VT]):
 
         return
 
-    @overload
+    @overload  # type: ignore[override]
     @classmethod
     def fromkeys(
         cls,
@@ -189,7 +191,7 @@ class SDict(dict[_KT, _VT]):
         Returns
         -------
         SDict[_KT_local, _VT_local] | SDict[_KT_local, TValue | None]
-            _description_
+            The created SDict instance.
         """
         new_dict: SDict[_KT_local, _VT_local] = cast(SDict[_KT_local, _VT_local], cls())
         for key in iterable:
@@ -244,11 +246,16 @@ class SDict(dict[_KT, _VT]):
 
         from dictIO.dictReader import DictReader
 
-        loaded_dict = DictReader.read(
+        loaded_dict: SDict[TKey, TValue] = DictReader.read(
             source_file=source_file,
         )
         self.reset()
-        self.update(loaded_dict)
+        # TODO @CLAROS: Improve type hinting for `loaded_dict`. Currently, it is cast to `SDict[_KT, _VT]`,
+        #      which is not correct, as we do not know upfront the type of keys and values in `loaded_dict`.
+        #      Maybe this method needs to be refactored to a factory function, returning a new `SDict` instance
+        #      with the actual types of `loaded_dict`.
+        #      CLAROS, 2024-11-06
+        self.update(cast(SDict[_KT, _VT], loaded_dict))
         self._set_source_file(source_file)
         return self
 
@@ -293,7 +300,7 @@ class SDict(dict[_KT, _VT]):
         from dictIO.dictWriter import DictWriter
 
         DictWriter.write(
-            source_dict=self,
+            source_dict=cast(SDict[TKey, TValue], self),
             target_file=target_file,
         )
         self._set_source_file(target_file)
@@ -351,15 +358,15 @@ class SDict(dict[_KT, _VT]):
         return self._name
 
     @property
-    def variables(self) -> dict[str, TValue]:
+    def variables(self) -> dict[TKey, TValue]:
         """Returns a dict with all Variables currently registered.
 
         Returns
         -------
-        Dict[str, TValue]
+        Dict[TKey, TValue]
             dict of all Variables currently registered.
         """
-        variables: dict[str, TValue] = {}
+        variables: MutableMapping[TKey, TValue] = {}
 
         def extract_variables_from_dict(dict_in: MutableMapping[_KT_local, _VT]) -> None:
             for key, value in dict_in.items():
@@ -407,7 +414,7 @@ class SDict(dict[_KT, _VT]):
 
         variables = order_keys(variables)
 
-        return variables
+        return dict(variables)
 
     @overload  # type: ignore[override]
     def update(
@@ -519,9 +526,9 @@ class SDict(dict[_KT, _VT]):
 
         Parameters
         ----------
-        target_dict : MutableMapping[TKey, TValue]
+        target_dict : MutableMapping[TKey, TValue] | MutableMapping[int, TValue]
             target dict
-        dict_to_merge : Mapping[TKey, TValue]
+        dict_to_merge : Mapping[TKey, TValue] | Mapping[int, TValue]
             dict to be merged into target dict
         overwrite : bool, optional
             if True, existing keys will be overwritten, by default False
@@ -529,8 +536,8 @@ class SDict(dict[_KT, _VT]):
         for key in dict_to_merge:
             if (
                 key in target_dict
-                and isinstance(target_dict[key], MutableMapping)
-                and isinstance(dict_to_merge[key], Mapping)
+                and isinstance(target_dict[key], MutableMapping)  # pyright: ignore[reportArgumentType]
+                and isinstance(dict_to_merge[key], Mapping)  # pyright: ignore[reportArgumentType]
             ):  # dict
                 self._recursive_merge(  # Recursion
                     target_dict=cast(MutableMapping[TKey, TValue], target_dict[key]),
@@ -550,10 +557,10 @@ class SDict(dict[_KT, _VT]):
     def _post_merge(self, other: Mapping[_KT, _VT]) -> None:
         # merge SDict attributes
         if isinstance(other, SDict):
-            self._recursive_merge(self.expressions, other.expressions)
-            self._recursive_merge(self.line_comments, other.line_comments)
-            self._recursive_merge(self.block_comments, other.block_comments)
-            self._recursive_merge(self.includes, other.includes)
+            self._recursive_merge(target_dict=self.expressions, dict_to_merge=other.expressions)
+            self._recursive_merge(target_dict=self.line_comments, dict_to_merge=other.line_comments)
+            self._recursive_merge(target_dict=self.block_comments, dict_to_merge=other.block_comments)
+            self._recursive_merge(target_dict=self.includes, dict_to_merge=other.includes)
         return
 
     def include(self, dict_to_include: SDict[_KT_local, _VT_local]) -> None:
@@ -649,10 +656,20 @@ class SDict(dict[_KT, _VT]):
         new_dict: SDict[_KT | _KT_local, _VT | _VT_local]
         new_dict = cast(
             SDict[_KT | _KT_local, _VT | _VT_local],
-            self.__class__(super().__or__(other)),
+            self.__class__(
+                cast(
+                    Mapping[_KT, _VT],
+                    super().__or__(other),
+                )
+            ),
         )
         # update attributes
-        new_dict._post_update(other)
+        new_dict._post_update(
+            cast(
+                Mapping[_KT | _KT_local, _VT | _VT_local],
+                other,
+            )
+        )
         new_dict._clean()
         return new_dict
 
@@ -660,20 +677,20 @@ class SDict(dict[_KT, _VT]):
     def __ror__(
         self,
         other: dict[_KT, _VT],
-    ) -> SDict[_KT, _VT]:
+    ) -> dict[_KT, _VT]:
         pass
 
     @overload
     def __ror__(
         self,
         other: dict[_KT_local, _VT_local],
-    ) -> SDict[_KT | _KT_local, _VT | _VT_local]:
+    ) -> dict[_KT | _KT_local, _VT | _VT_local]:
         pass
 
     def __ror__(
         self,
         other: dict[_KT, _VT] | dict[_KT_local, _VT_local],
-    ) -> SDict[_KT, _VT] | SDict[_KT | _KT_local, _VT | _VT_local]:
+    ) -> dict[_KT, _VT] | dict[_KT | _KT_local, _VT | _VT_local]:
         """Right `or` operation: `other | self`.
 
         The `__ror__()` method is called by the ` | ` operator when it is used with `self` on the right-hand side.
@@ -682,7 +699,7 @@ class SDict(dict[_KT, _VT]):
 
         Parameters
         ----------
-        other : MutableMapping[_KT, _VT]
+        other : dict[_KT, _VT]
             The other dictionary
 
         Returns

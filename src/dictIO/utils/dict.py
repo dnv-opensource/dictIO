@@ -1,14 +1,16 @@
 import re
 from _collections_abc import MutableMapping, MutableSequence
+from collections.abc import Sequence
 from copy import copy
-from typing import TypeVar
+from typing import Any, TypeVar
 
-from dictIO.types import TKey, TValue
+from dictIO.types import TGlobalKey, TKey, TValue
 
-_MT = TypeVar("_MT", bound=MutableMapping[TKey, TValue])
+_KT = TypeVar("_KT", bound=TKey)
+_VT = TypeVar("_VT", bound=TValue)
 
 
-def order_keys(arg: _MT) -> _MT:
+def order_keys(arg: MutableMapping[_KT, _VT]) -> MutableMapping[_KT, _VT]:
     """alpha-numeric sorting of keys, recursively.
 
     Parameters
@@ -21,7 +23,7 @@ def order_keys(arg: _MT) -> _MT:
     _MT
         the passed in MutableMapping, with keys sorted. The same instance is returned.
     """
-    sorted_dict: dict[TKey, TValue] = dict(sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0])))
+    sorted_dict: dict[_KT, Any] = dict(sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0])))
     for key, value in copy(sorted_dict).items():
         if isinstance(value, MutableMapping):
             sorted_dict[key] = order_keys(value)  # Recursion
@@ -33,7 +35,7 @@ def order_keys(arg: _MT) -> _MT:
 def find_global_key(
     arg: MutableMapping[TKey, TValue] | MutableSequence[TValue],
     query: str = "",
-) -> list[TKey] | None:
+) -> list[TGlobalKey] | None:
     """Return the global key thread to the first key the value of which matches the passed in query.
 
     Parameters
@@ -48,7 +50,7 @@ def find_global_key(
     Union[List, None]
         global key thread to the first key the value of which matches the passed in query, if found. Otherwise None.
     """
-    global_key: list[TKey] = []
+    global_key: list[TGlobalKey] = []
     if isinstance(arg, MutableMapping):  # dict
         for key, value in sorted(arg.items()):
             if isinstance(value, MutableMapping | MutableSequence):
@@ -75,7 +77,7 @@ def find_global_key(
 
 def set_global_key(
     arg: MutableMapping[TKey, TValue],
-    global_key: MutableSequence[TKey],
+    global_key: Sequence[TGlobalKey],
     value: TValue | None = None,
 ) -> None:
     """Set the value for the passed in global key.
@@ -84,7 +86,7 @@ def set_global_key(
     ----------
     arg : MutableMapping[TKey, TValue]
         dict the target key in which shall be set
-    global_key : MutableSequence[TValue], optional
+    global_key : MutableSequence[TGlobalKey]
         list of keys defining the global key thread to the target key (such as returned by method find_global_key())
     value : TValue, optional
         value the target key shall be set to, by default None
@@ -92,20 +94,27 @@ def set_global_key(
     if not global_key:
         return
 
-    last_branch: MutableMapping[TKey, TValue] | MutableSequence[TValue]
-    next_branch: MutableMapping[TKey, TValue] | MutableSequence[TValue] | TValue
-    remaining_keys: MutableSequence[TKey]
+    last_node: MutableMapping[TKey, TValue] | MutableSequence[TValue]
+    next_node: MutableMapping[TKey, TValue] | MutableSequence[TValue] | TValue
+    target_node: MutableMapping[TKey, TValue] | MutableSequence[TValue]
+    remaining_keys: list[TGlobalKey]
+    next_key: TGlobalKey
+    target_key: TGlobalKey
 
-    last_branch = arg
-    next_branch = None
-    remaining_keys = global_key
+    last_node = arg
+    next_node = None
+    remaining_keys = list(global_key)
     ii: int = 0
     while len(remaining_keys) > 1:
-        # as long as we didn't arrive at the last branch (the one that contains the target key)..
-        next_branch = last_branch[remaining_keys[0]]  # ..walk one level further down
-        if not isinstance(next_branch, MutableMapping | MutableSequence):
+        # as long as we didn't arrive at the last node (the one that contains the target key)..
+        next_key = remaining_keys[0]
+        if isinstance(last_node, MutableSequence) and not isinstance(next_key, int):
             raise KeyError(f"KeyError: {global_key} not found in {arg}")
-        last_branch = next_branch
+        # ..walk one level further down
+        next_node = last_node[int(next_key)] if isinstance(last_node, MutableSequence) else last_node[next_key]
+        if not isinstance(next_node, MutableMapping | MutableSequence):
+            raise KeyError(f"KeyError: {global_key} not found in {arg}")
+        last_node = next_node
         remaining_keys = remaining_keys[1:]
         ii += 1
         if ii == 10:  # noqa: PLR2004
@@ -113,7 +122,17 @@ def set_global_key(
                 "RecursionError: Maximum recursion depth exceeded in set_global_key()."
                 "set_global_key() is not designed to handle more than 10 levels of nested keys."
             )
-    last_branch[remaining_keys[0]] = value
+
+    # Only one key left in remaining_keys, which is the key of the target node
+    target_node = last_node
+    target_key = remaining_keys[0]
+    if isinstance(target_node, MutableSequence) and not isinstance(target_key, int):
+        raise KeyError(f"KeyError: {global_key} not found in {arg}")
+    # Set the target key in target node to the passed in value
+    if isinstance(target_node, MutableSequence):
+        target_node[int(target_key)] = value
+    else:
+        target_node[target_key] = value
 
     return
 
