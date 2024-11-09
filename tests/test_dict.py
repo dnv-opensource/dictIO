@@ -2245,6 +2245,43 @@ def test_dump_load_example_used_in_docs() -> None:
     target_file.unlink(missing_ok=True)
 
 
+def test_permissable_key_type_example_used_in_docs() -> None:
+    # Prepare
+    str_dict: SDict[str, Any] = SDict(
+        {
+            "foo": 1,
+            "bar": 2,
+        }
+    )
+    int_dict: SDict[int, Any] = SDict(
+        {
+            1: "foo",
+            2: "bar",
+        }
+    )
+    str_or_int_dict: SDict[str | int, Any] = SDict(
+        {
+            "foo": 1,
+            2: "bar",
+        }
+    )
+    # Execute
+    str_dict_file = str_dict.dump("strDict")
+    int_dict_file = int_dict.dump("intDict")
+    str_or_int_dict_file = str_or_int_dict.dump("strOrIntDict")
+    str_dict_loaded: SDict[str, Any] = SDict().load("strDict")
+    int_dict_loaded: SDict[int, Any] = SDict().load("intDict")
+    str_or_int_dict_loaded: SDict[str | int, Any] = SDict().load("strOrIntDict")
+    # Assert
+    assert str_dict_loaded == str_dict
+    assert int_dict_loaded == int_dict
+    assert str_or_int_dict_loaded == str_or_int_dict
+    # Clean up
+    str_dict_file.unlink(missing_ok=True)
+    int_dict_file.unlink(missing_ok=True)
+    str_or_int_dict_file.unlink(missing_ok=True)
+
+
 def test_cpp_dict() -> None:
     s_dict: SDict[TKey, TValue] = SDict(_construct_test_dict())
     cpp_dict: CppDict = CppDict(_construct_test_dict())

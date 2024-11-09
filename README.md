@@ -40,6 +40,17 @@ my_dict: SDict[str, int] = SDict(
     }
 )
 ```
+> Note: Currently, as per version 0.4.x of dictIO, `SDict` supports keys of type `str` or `int`. <br>
+> I.e. instantiating an SDict with either `str` or `int` as key type is possible:
+> ```
+> str_dict: SDict[str, Any] = SDict()  # key type `str` supported
+> int_dict: SDIct[int, Any] = SDict()  # key type `int` supported
+> str_or_int_dict: SDict[str | int, Any] = SDict()  # key type `str | int` supported
+> ```
+> while using e.g. `Any` as key type is not supported (and is expected to be flagged by static type checkers):
+> ```
+> any_dict: SDict[Any, Any] = SDict()  # key type `Any` not supported
+> ```
 
 The simplest way to to dump and load a dict to / from a file, is to use SDict's `dump()` and `load()` instance methods:
 

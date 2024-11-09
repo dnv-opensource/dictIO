@@ -962,11 +962,11 @@ class SDict(dict[_KT, _VT]):
         includes_on_this_level: list[str] = []
         line_comments_on_this_level: list[str] = []
         for key in keys_on_this_level:
-            if re.search(r"BLOCKCOMMENT\d{6}", key):
+            if re.search(pattern=r"BLOCKCOMMENT\d{6}", string=key):
                 block_comments_on_this_level.append(key)
-            elif re.search(r"INCLUDE\d{6}", key):
+            elif re.search(pattern=r"INCLUDE\d{6}", string=key):
                 includes_on_this_level.append(key)
-            elif re.search(r"LINECOMMENT\d{6}", key):
+            elif re.search(pattern=r"LINECOMMENT\d{6}", string=key):
                 line_comments_on_this_level.append(key)
         _id: int
         unique_block_comments_on_this_level: list[str] = []  # BLOCKCOMMENTs
