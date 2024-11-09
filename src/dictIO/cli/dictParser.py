@@ -211,7 +211,7 @@ def _validate_scope(
                 parser = Parser()
                 _scope: str = scope.strip(" []")
                 validated_scope = [key.strip() for key in _scope.split(",")]
-                parser.parse_types(validated_scope)
+                parser.parse_values(validated_scope)
             except Exception:
                 logger.exception(f"setOptions: misspelled scope: {scope}")
         else:  # string is just a single value.

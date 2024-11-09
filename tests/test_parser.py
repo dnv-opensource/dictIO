@@ -90,7 +90,7 @@ class TestParser:
         }
         l_nested = [str_in_1, str_in_2, str_in_3, not_a_str_1, not_a_str_2, not_a_str_3]
         # construct a dictionary with single entries, a nested dict and a nested list
-        dict_in: dict[str, TValue | dict[str | int, TValue]] = {
+        dict_in: dict[TKey, TValue] = {
             key_1: str_in_1,
             key_2: str_in_2,
             key_3: str_in_3,
@@ -136,14 +136,14 @@ class TestParser:
     def test_parse_type_int(self) -> None:
         parser = Parser()
         int_in = 1
-        int_out = parser.parse_type(int_in)
+        int_out = parser.parse_value(int_in)
         assert isinstance(int_out, int)
         assert int_out == int_in
 
     def test_parse_type_float(self) -> None:
         parser = Parser()
         float_in = 1.0
-        float_out = parser.parse_type(float_in)
+        float_out = parser.parse_value(float_in)
         assert isinstance(float_out, float)
         assert float_out == float_in
 
@@ -152,83 +152,83 @@ class TestParser:
         parser = Parser()
         bool_in: str | bool
         bool_in = True
-        bool_out = parser.parse_type(bool_in)
+        bool_out = parser.parse_value(bool_in)
         assert isinstance(bool_out, bool)
         assert bool_out is True
         bool_in = False
-        bool_out = parser.parse_type(bool_in)
+        bool_out = parser.parse_value(bool_in)
         assert isinstance(bool_out, bool)
         assert bool_out is False
         bool_in = "True"
-        bool_out = parser.parse_type(bool_in)
+        bool_out = parser.parse_value(bool_in)
         assert isinstance(bool_out, bool)
         assert bool_out is True
         bool_in = "False"
-        bool_out = parser.parse_type(bool_in)
+        bool_out = parser.parse_value(bool_in)
         assert isinstance(bool_out, bool)
         assert bool_out is False
         bool_in = "true"
-        bool_out = parser.parse_type(bool_in)
+        bool_out = parser.parse_value(bool_in)
         assert isinstance(bool_out, bool)
         assert bool_out is True
         bool_in = "false"
-        bool_out = parser.parse_type(bool_in)
+        bool_out = parser.parse_value(bool_in)
         assert isinstance(bool_out, bool)
         assert bool_out is False
         bool_in = "  True  "
-        bool_out = parser.parse_type(bool_in)
+        bool_out = parser.parse_value(bool_in)
         assert bool_out is True
         bool_in = "  False  "
-        bool_out = parser.parse_type(bool_in)
+        bool_out = parser.parse_value(bool_in)
         assert bool_out is False
         bool_in = "ON"
-        bool_out = parser.parse_type(bool_in)
+        bool_out = parser.parse_value(bool_in)
         assert isinstance(bool_out, bool)
         assert bool_out is True
         bool_in = "OFF"
-        bool_out = parser.parse_type(bool_in)
+        bool_out = parser.parse_value(bool_in)
         assert isinstance(bool_out, bool)
         assert bool_out is False
         bool_in = "on"
-        bool_out = parser.parse_type(bool_in)
+        bool_out = parser.parse_value(bool_in)
         assert isinstance(bool_out, bool)
         assert bool_out is True
         bool_in = "off"
-        bool_out = parser.parse_type(bool_in)
+        bool_out = parser.parse_value(bool_in)
         assert isinstance(bool_out, bool)
         assert bool_out is False
 
     def test_parse_type_none(self) -> None:
         parser = Parser()
         none_in = None
-        none_out = parser.parse_type(none_in)
+        none_out = parser.parse_value(none_in)
         assert none_out is None
         none_in = "None"
-        none_out = parser.parse_type(none_in)
+        none_out = parser.parse_value(none_in)
         assert not isinstance(none_out, str)
         assert none_out is None
         none_in = "none"
-        none_out = parser.parse_type(none_in)
+        none_out = parser.parse_value(none_in)
         assert not isinstance(none_out, str)
         assert none_out is None
         none_in = "  None  "
-        none_out = parser.parse_type(none_in)
+        none_out = parser.parse_value(none_in)
         assert none_out is None
         none_in = "NULL"
-        none_out = parser.parse_type(none_in)
+        none_out = parser.parse_value(none_in)
         assert not isinstance(none_out, str)
         assert none_out is None
         none_in = "null"
-        none_out = parser.parse_type(none_in)
+        none_out = parser.parse_value(none_in)
         assert not isinstance(none_out, str)
         assert none_out is None
         assert none_out is None
         none_in = "thisisnotnull"
-        none_out = parser.parse_type(none_in)
+        none_out = parser.parse_value(none_in)
         assert isinstance(none_out, str)
         assert none_out == none_in
         none_in = "nullwithsomestuffthereafterisneithernull"
-        none_out = parser.parse_type(none_in)
+        none_out = parser.parse_value(none_in)
         assert isinstance(none_out, str)
         assert none_out == none_in
 
@@ -236,15 +236,15 @@ class TestParser:
         # sourcery skip: extract-duplicate-method, inline-variable
         parser = Parser()
         str_in = "1234"
-        int_out = parser.parse_type(str_in)
+        int_out = parser.parse_value(str_in)
         assert isinstance(int_out, int)
         assert int_out == 1234
         str_in = "1.23"
-        float_out = parser.parse_type(str_in)
+        float_out = parser.parse_value(str_in)
         assert isinstance(float_out, float)
         assert float_out == 1.23
         str_in = "1."
-        float_out = parser.parse_type(str_in)
+        float_out = parser.parse_value(str_in)
         assert isinstance(float_out, float)
         assert float_out == 1.0
 
@@ -264,7 +264,7 @@ class TestParser:
         # Prepare
         parser = Parser()
         # Execute
-        str_out = parser.parse_type(str_in)
+        str_out = parser.parse_value(str_in)
         # Assert
         assert isinstance(str_out, str)
         assert str_out == str_expected
@@ -297,12 +297,12 @@ class TestParser:
             not_a_str_3,
         ]
 
-        string1_expected = parser.parse_type(str_1)
-        string2_expected = parser.parse_type(str_2)
-        string3_expected = parser.parse_type(str_3)
-        not_a_str_1_expected = parser.parse_type(not_a_str_1)
-        not_a_str_2_expected = parser.parse_type(not_a_str_2)
-        not_a_str_3_expected = parser.parse_type(not_a_str_3)
+        string1_expected = parser.parse_value(str_1)
+        string2_expected = parser.parse_value(str_2)
+        string3_expected = parser.parse_value(str_3)
+        not_a_str_1_expected = parser.parse_value(not_a_str_1)
+        not_a_str_2_expected = parser.parse_value(not_a_str_2)
+        not_a_str_3_expected = parser.parse_value(not_a_str_3)
 
         list_expected_nested = [
             string1_expected,
@@ -324,7 +324,7 @@ class TestParser:
 
         # Execute
         list_out = deepcopy(list_in)
-        parser.parse_types(list_out)
+        parser.parse_values(list_out)
         # Assert
         # assert list_out is list_in
         assert list_out == list_expected
@@ -757,19 +757,23 @@ class TestCppParser:
         dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
         assert len(dict_out) == 13
-        assert list(dict_out.keys())[0][:12] == "BLOCKCOMMENT"
-        assert list(dict_out.keys())[1][:7] == "INCLUDE"
-        assert list(dict_out.keys())[2][:11] == "LINECOMMENT"
-        assert list(dict_out.keys())[3] == "emptyDict"
-        assert list(dict_out.keys())[4] == "emptyList"
-        assert list(dict_out.keys())[5] == "booleans"
-        assert list(dict_out.keys())[6] == "numbers"
-        assert list(dict_out.keys())[7] == "nones"
-        assert list(dict_out.keys())[8] == "strings"
-        assert list(dict_out.keys())[9] == "invalid"
-        assert list(dict_out.keys())[10] == "nesting"
-        assert list(dict_out.keys())[11] == "expressions"
-        assert list(dict_out.keys())[12] == "theDictInAListPitfall"
+        keys: list[TKey] = list(dict_out.keys())
+        assert type(keys[0]) is str
+        assert keys[0][:12] == "BLOCKCOMMENT"
+        assert type(keys[1]) is str
+        assert keys[1][:7] == "INCLUDE"
+        assert type(keys[2]) is str
+        assert keys[2][:11] == "LINECOMMENT"
+        assert keys[3] == "emptyDict"
+        assert keys[4] == "emptyList"
+        assert keys[5] == "booleans"
+        assert keys[6] == "numbers"
+        assert keys[7] == "nones"
+        assert keys[8] == "strings"
+        assert keys[9] == "invalid"
+        assert keys[10] == "nesting"
+        assert keys[11] == "expressions"
+        assert keys[12] == "theDictInAListPitfall"
 
     def test_parse_tokenized_dict_booleans(self) -> None:
         # Prepare

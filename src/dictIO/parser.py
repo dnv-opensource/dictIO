@@ -184,13 +184,13 @@ class Parser:
         # +++RETURN PARSED DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         return parsed_dict
 
-    def parse_type(
+    def parse_value(
         self,
         arg: TValue,
     ) -> TSingleValue:
         """Parse a single value.
 
-        Parses a single value and casts it to its native type (str, int, float, bool or None).
+        Parses a single value and casts it to its native type (TSingleValue = str | int | float | bool | None).
 
         Parameters
         ----------
@@ -200,7 +200,7 @@ class Parser:
         Returns
         -------
         TSingleValue
-            the value casted to its native type (str, int, float, bool or None)
+            the value casted to its native type (TSingleValue = str | int | float | bool | None)
         """
         # Numbers (int and float) are returned without conversion
         if isinstance(arg, int) and not isinstance(arg, bool):  # int
@@ -262,7 +262,30 @@ class Parser:
         # Returned 'as is' they are kept unchanged, what is in fact what we want here.
         return self.remove_quotes_from_string(arg)
 
-    def parse_types(self, arg: MutableMapping[TKey, TValue] | MutableSequence[TValue]) -> None:
+    def parse_key(
+        self,
+        arg: str,
+    ) -> TKey:
+        """Parse a single key.
+
+        Parses a single key and casts it to its native type (TKey = str | int).
+
+        Parameters
+        ----------
+        arg : str
+            the value to be parsed
+
+        Returns
+        -------
+        TKey
+            the value casted to its native type (TKey = str | int)
+        """
+        key: TSingleValue = self.parse_value(arg)
+        if not isinstance(key, TKey):
+            raise TypeError(f"Key '{key}' is not of type TKey. Found type: {type(key)}")
+        return key
+
+    def parse_values(self, arg: MutableMapping[TKey, TValue] | MutableSequence[TValue]) -> None:
         """Parse multiple values.
 
         Parses all values inside a dict or list and casts them to its native types (str, int, float, bool or None).
@@ -279,15 +302,15 @@ class Parser:
         if isinstance(arg, MutableMapping):  # Dict
             for key in list(arg.keys()):  # work on a copy of keys
                 if isinstance(arg[key], MutableMapping | MutableSequence):
-                    self.parse_types(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], arg[key]))
+                    self.parse_values(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], arg[key]))
                 else:
-                    arg[key] = self.parse_type(arg[key])
+                    arg[key] = self.parse_value(arg[key])
         else:  # List
             for index in range(len(arg)):
                 if isinstance(arg[index], MutableMapping | MutableSequence):
-                    self.parse_types(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], arg[index]))
+                    self.parse_values(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], arg[index]))
                 else:
-                    arg[index] = self.parse_type(arg[index])
+                    arg[index] = self.parse_value(arg[index])
         return
 
     @staticmethod
@@ -899,7 +922,7 @@ class CppParser(Parser):
         s_dict: SDict[TKey, TValue],
         tokens: list[tuple[int, str]] | None = None,
         level: int = 0,
-    ) -> dict[str, TValue]:
+    ) -> dict[TKey, TValue]:
         """Parse a tokenized dict and return the parsed dict.
 
         Parses all tokens, identifies the element within the tokenized dict each token represents or belongs to,
@@ -916,7 +939,7 @@ class CppParser(Parser):
         """
         # sourcery skip: remove-redundant-pass
 
-        parsed_dict: dict[str, TValue] = {}
+        parsed_dict: dict[TKey, TValue] = {}
 
         if tokens is None:
             tokens = s_dict.tokens
@@ -924,16 +947,17 @@ class CppParser(Parser):
         # Iterate through tokens
         last_index: int | None = None
         token_index: int = 0
+        key: TKey  # key (name) of the data struct
         while token_index < len(tokens):
             # Nested data struct (list or dict)   '(' = list    '{' = dict
             if tokens[token_index][1] in s_dict.openingBrackets:
-                # The name (key) of the data struct is by convention directly preceeding the opening bracket.
+                # The key (name) of the data struct is by convention directly preceeding the opening bracket.
                 # ..except if there are line comments in between. skip those:
                 offset: int = 1
                 while re.match("^.*COMMENT.*$", str(tokens[token_index - offset][1])):
                     offset += 1
-                # name (key) of the data struct:
-                name: str = tokens[token_index - offset][1]
+                # key (name) of the data struct:
+                key = self.parse_key(tokens[token_index - offset][1])
 
                 # Closing bracket has by definition same level as opening bracket.
                 # (Note: the tokens BETWEEN the brackets are considered one level 'deeper';
@@ -967,7 +991,7 @@ class CppParser(Parser):
                     # log error: Missing ';' after list
                     logger.warning(
                         "mis-spelled expression / missing ';' around \""
-                        f"{' '.join([name] + [t[1] for t in data_struct_tokens] + [tokens[token_index + i + 1][1]])}"
+                        f"{' '.join([str(key)] + [t[1] for t in data_struct_tokens] + [tokens[token_index + i + 1][1]])}"  # noqa: E501
                         "\""
                     )
                 # dict:
@@ -983,7 +1007,7 @@ class CppParser(Parser):
                         # log error: Missing ';' after key value pair
                         logger.error(
                             "mis-spelled expression / missing ';' around \""
-                            f"{' '.join([name] + [t[1] for t in data_struct_tokens])}"
+                            f"{' '.join([str(key)] + [t[1] for t in data_struct_tokens])}"
                             "\""
                         )
 
@@ -996,20 +1020,20 @@ class CppParser(Parser):
                     if len(data_struct_tokens) < 3:  # noqa: PLR2004
                         # is empty (contains only opening and closing bracket)
                         # update parsed_dict with just the empty list
-                        parsed_dict[name] = []
+                        parsed_dict[key] = []
                     else:
                         # has content
                         # parse the nested list
                         nested_list = self._parse_tokenized_list(s_dict, data_struct_tokens, level=level + 1)
                         # update parsed_dict with the nested list
-                        parsed_dict[name] = nested_list
+                        parsed_dict[key] = nested_list
 
                 #  dict:
                 elif data_struct_tokens[0][1] == "{":
                     # parse the nested dict (recursion)
                     nested_dict = self._parse_tokenized_dict(s_dict, data_struct_tokens[1:-1], level=level + 1)
                     # update parsed_dict with the nested dict
-                    parsed_dict[name] = nested_dict
+                    parsed_dict[key] = nested_dict
 
                 # All done: Identified data struct is parsed, translated into its corresponding type,
                 # and local parsed_dict is updated.
@@ -1019,7 +1043,7 @@ class CppParser(Parser):
                     token_index = last_index + 1
 
             elif tokens[token_index][1] == ";" and tokens[token_index - 1][1] != ")":
-                # Read the name (key) and the value from the key value pair
+                # Read the key (name) and the value from the key value pair
                 # Parse from right to left, starting at the identified ';'
                 # and then copy the tokens into a temporary key_value_pair_tokens list:
                 key_value_pair_tokens: MutableSequence[tuple[int, str]] = [tokens[token_index]]  # ';'
@@ -1069,10 +1093,10 @@ class CppParser(Parser):
                             "CppParser._parse_tokenized_dict(): "
                             f"more tokens in key-value pair than expected: {key_value_pair_tokens!s}"
                         )
-                    # read the name (key) (first token, by convention)
-                    name = key_value_pair_tokens[0][1]
+                    # read the key (name) (first token, by convention)
+                    key = self.parse_key(key_value_pair_tokens[0][1])
                     # read the value (second token, by convention)
-                    value = self.parse_type(key_value_pair_tokens[1][1])
+                    value = self.parse_value(key_value_pair_tokens[1][1])
                     # update parsed_dict with the parsed key value pair
                     # Note: Following update would be greedy, if parsed_dict would be declared as global variable.
                     # This exactly is why parsed_dict is declared as local variable in _parse_tokenized_dict().
@@ -1082,9 +1106,9 @@ class CppParser(Parser):
                     # data struct, updating a key effects the current (and local) parsed_dict only.
                     # Every key hence is being updated exclusively within its own local context;
                     # ambiguous occurences of keys are avoided.
-                    if isinstance(name, int):
-                        logger.error(f"unexpected type of key 'name': int (value: {name}).")
-                    parsed_dict[name] = value
+                    if isinstance(key, int):
+                        logger.error(f"unexpected type of key 'name': int (value: {key}).")
+                    parsed_dict[key] = value
 
             elif re.match("^.*COMMENT.*$", str(tokens[token_index][1])) or re.match(
                 "^.*INCLUDE.*$", str(tokens[token_index][1])
@@ -1213,7 +1237,7 @@ class CppParser(Parser):
 
             # Single value type
             elif tokens[token_index][1] not in ["(", ")", ";"]:
-                value = self.parse_type(tokens[token_index][1])
+                value = self.parse_value(tokens[token_index][1])
                 parsed_list.append(value)
 
             # -else = ';' or ')'
@@ -1254,7 +1278,7 @@ class CppParser(Parser):
             # The entry from dict.string_literals is parsed once again,
             # so that entries representing single value native types
             # (such as bool ,None, int, float) are transformed to its native type, accordingly.
-            value = self.parse_type(string_literal)
+            value = self.parse_value(string_literal)
 
             # Replace all occurences of placeholder within the dictionary with the original string literal.
             # Note: As find_global_key() is non-greedy and returns the key of
@@ -1392,8 +1416,8 @@ class JsonParser(Parser):
     ) -> None:
         from copy import deepcopy
 
-        keys = list(s_dict.keys())
-        include_placeholder_keys = {}
+        keys: list[TKey] = list(s_dict.keys())
+        include_placeholder_keys: dict[TKey, TValue] = {}
         for key in keys:
             if isinstance(key, str) and re.search(r"^\s*#\s*include", key):
                 include_file_name = str(s_dict[key])
@@ -1529,7 +1553,7 @@ class JsonParser(Parser):
                 if isinstance(arg[key], MutableMapping | MutableSequence):
                     self._extract_expressions(parsed_dict, arg[key])
                 else:
-                    typed_value = self.parse_type(arg[key])
+                    typed_value = self.parse_value(arg[key])
                     if isinstance(typed_value, str):
                         arg[key] = self._extract_expression(parsed_dict, arg[key])
         else:  # List
@@ -1537,7 +1561,7 @@ class JsonParser(Parser):
                 if isinstance(arg[index], MutableMapping | MutableSequence):
                     self._extract_expressions(parsed_dict, arg[index])
                 else:
-                    typed_value = self.parse_type(arg[index])
+                    typed_value = self.parse_value(arg[index])
                     if isinstance(typed_value, str):
                         arg[index] = self._extract_expression(parsed_dict, arg[index])
         return
@@ -1661,11 +1685,19 @@ class XmlParser(Parser):
         self,
         root_element: LxmlElement,
         namespaces: dict[str, str],
-    ) -> dict[str, TValue]:
+    ) -> dict[TKey, TValue]:
         """Recursively parses all nodes and saves the nodes' content in a dict."""
         # Default case: Make all node tags temporarily unique by indexing them using BorgCounter
         node_tags: list[str] = [
-            re.sub(r"^(\{.*\})", "", node.tag) for node in root_element.findall("*", dict(namespaces))
+            re.sub(
+                pattern=r"^(\{.*\})",
+                repl="",
+                string=node.tag,
+            )
+            for node in root_element.findall(
+                path="*",
+                namespaces=dict(namespaces),
+            )
         ]
         indexed_node_tags: list[tuple[str, str]] = []
         node_tag: str
@@ -1673,7 +1705,8 @@ class XmlParser(Parser):
             index = self.counter()
             indexed_node_tags.append(("%06i_%s" % (index, node_tag), node_tag))
 
-        content_dict: dict[str, TValue] = {}
+        key: TKey
+        parsed_dict: dict[TKey, TValue] = {}
 
         # Parse all nodes
         for index, indexed_node_tag in enumerate(indexed_node_tags):
@@ -1684,13 +1717,17 @@ class XmlParser(Parser):
                 # Non-default case: add_node_numbering has been set to False by the caller
                 # -> remove the index again
                 node_tag = re.sub(
-                    r"^\d{6}_",
-                    "",
-                    node_tag,
+                    pattern=r"^\d{6}_",
+                    repl="",
+                    string=node_tag,
                 )
 
             nodes: Sequence[LxmlElement]
-            nodes = root_element.findall("*", dict(namespaces))
+            nodes = root_element.findall(
+                path="*",
+                namespaces=dict(namespaces),
+            )
+            key = self.parse_key(node_tag)
 
             # The recursive part.
             # If there is a nested list, step in and resolve,
@@ -1698,13 +1735,16 @@ class XmlParser(Parser):
 
             if list(nodes[index]):
                 # node contains child nodes
-                content_dict[node_tag] = self._parse_nodes(nodes[index], namespaces)
+                parsed_dict[key] = self._parse_nodes(
+                    root_element=nodes[index],
+                    namespaces=namespaces,
+                )
 
             elif nodes[index].text is None or re.search(r"^[\s\n\r]*$", nodes[index].text or ""):
                 # Node has either no content or contains an empty string <NODE ATTRIB=STRING><\NODE>
                 # However, in order to be able to attach attributes to a node,
                 # we still need to create a dict for the node, even if the node has no content.
-                content_dict[node_tag] = {}
+                parsed_dict[key] = {}
 
             else:
                 # Node has content.
@@ -1719,7 +1759,7 @@ class XmlParser(Parser):
                     text = ("\n".join(stripped_lines)).strip()
                 else:
                     text = ""
-                content_dict[node_tag] = {"_content": text}
+                parsed_dict[key] = {"_content": text}
 
             # If the node contains attributes: Save the attributes
             # and merge with the contents
@@ -1728,12 +1768,12 @@ class XmlParser(Parser):
                 # Might be substtituted by any kind of substitution later if required.
                 attributes_dict = {"_attributes": {k: str(v) for k, v in nodes[index].attrib.items() if str(v) != ""}}
 
-                if content_dict[node_tag] is None:
-                    content_dict[node_tag] = attributes_dict
+                if parsed_dict[key] is None:
+                    parsed_dict[key] = attributes_dict
                 else:
-                    content_dict[node_tag].update(attributes_dict)
+                    parsed_dict[key].update(attributes_dict)
 
         # before returning the new dict, doublecheck that all of its elements are correctly typed.
-        self.parse_types(content_dict)
+        self.parse_values(parsed_dict)
 
-        return content_dict
+        return parsed_dict

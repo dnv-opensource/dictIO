@@ -116,15 +116,15 @@ class DictReader:
 
         # Merge dict files included through #include directives, if not actively refrained through opts
         if includes:
-            DictReader._merge_includes(parsed_dict, comments=comments)
+            DictReader._merge_includes(parent_dict=parsed_dict, comments=comments)
 
         # Evaluate and insert back expressions
-        DictReader._eval_expressions(parsed_dict)
+        DictReader._eval_expressions(dict_in=parsed_dict)
 
         # Reduce scope of the dict if requested through opts
         if scope:
             # We need here safety hook when specified scope is not found: simply stop (not continue with whole content!)
-            if parsed_dict.global_key_exists(scope):
+            if parsed_dict.global_key_exists(global_key=scope):
                 parsed_dict.reduce_scope(scope)
             else:
                 logger.error(f"scope {scope} does not exist in dictionary")
@@ -173,8 +173,8 @@ class DictReader:
                 elif not path.exists():
                     logger.warning(f"included dict not found. Merging of {path} aborted.")
                 else:
-                    parser = Parser.get_parser(path)
-                    included_dict = parser.parse_file(path, None, comments=comments)
+                    parser = Parser.get_parser(source_file=path)
+                    included_dict = parser.parse_file(source_file=path, target_dict=None, comments=comments)
 
                     # recursion in case the i-th include also has includes
                     if len(included_dict.includes) != 0:
@@ -204,22 +204,24 @@ class DictReader:
         value: TValue = None
         try:
             # extract indices, ugly version, nice version is re.sub with a positive lookahead
-            indexing = re.findall(r"\[.+\]$", reference)[0]
+            indexing = re.findall(pattern=r"\[.+\]$", string=reference)[0]
         except Exception:  # noqa: BLE001
             indexing = ""
 
-        reference = re.sub(r"(^\$|\[.+$)", "", reference)  # remove leading $ or trailing [
+        reference = re.sub(pattern=r"(^\$|\[.+$)", repl="", string=reference)  # remove leading $ or trailing [
 
         if reference in variables:
             value = variables[reference]  # singular value or field
 
             ref_changed_through_recursion = False
-            while re.search(r"\$", str(value)):  # resolve nested references, if existing, through recursion
+            while re.search(
+                pattern=r"\$", string=str(value)
+            ):  # resolve nested references, if existing, through recursion
                 reference = str(value)
                 ref_changed_through_recursion = True
-                value = DictReader._resolve_reference(reference, variables)  # recursion
+                value = DictReader._resolve_reference(reference=reference, variables=variables)  # recursion
             if ref_changed_through_recursion:
-                reference = re.sub(r"(^\$|\[.+$)", "", reference)  # remove leading $ or trailing [
+                reference = re.sub(pattern=r"(^\$|\[.+$)", repl="", string=reference)  # remove leading $ or trailing [
             if indexing:
                 with contextlib.suppress(Exception):
                     # return the value of the referenced variable (at the specified index, if given)
@@ -234,15 +236,21 @@ class DictReader:
         placeholder: str
         expression: str
         for item in dict_in.expressions.values():
-            _refs = re.findall(r"\$\w[\w\[\]]*", item["expression"])
+            _refs = re.findall(pattern=r"\$\w[\w\[\]]*", string=item["expression"])
             _references.extend(_refs)
         # Resolve references
         variables: dict[str, TValue] = dict_in.variables
-        references: dict[str, TValue] = {ref: DictReader._resolve_reference(ref, variables) for ref in _references}
+        references: dict[str, TValue] = {
+            ref: DictReader._resolve_reference(
+                reference=ref,
+                variables=variables,
+            )
+            for ref in _references
+        }
         references_resolved: dict[str, TValue] = {
             ref: value
             for ref, value in references.items()
-            if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
+            if (value is not None) and (not re.search(pattern=r"EXPRESSION|\$", string=str(value)))
         }
         references_not_resolved: list[str] = [ref for ref in references if ref not in references_resolved]
 
@@ -256,13 +264,13 @@ class DictReader:
             for key, item in expressions_copy.items():
                 placeholder = item["name"]
                 expression = item["expression"]
-                _refs = re.findall(r"\$\w[\w\[\]]*", expression)
+                _refs = re.findall(pattern=r"\$\w[\w\[\]]*", string=expression)
                 for ref in _refs:
                     if ref in references_resolved:
                         expression = re.sub(
-                            f"{re.escape(ref)}",
-                            str(references_resolved[ref]),
-                            expression,
+                            pattern=f"{re.escape(ref)}",
+                            repl=str(references_resolved[ref]),
+                            string=expression,
                         )
 
                 eval_successful: bool = False
@@ -288,14 +296,26 @@ class DictReader:
             # At the end of each iteration, re-resolve all references based on the now updated variables table of dict
             _references = []
             for item in dict_in.expressions.values():
-                _refs = re.findall(r"\$\w[\w\[\]]*", item["expression"])
+                _refs = re.findall(pattern=r"\$\w[\w\[\]]*", string=item["expression"])
                 _references.extend(_refs)
             variables = dict_in.variables
-            references = {ref: DictReader._resolve_reference(ref, variables) for ref in _references}
+            references = {
+                ref: DictReader._resolve_reference(
+                    reference=ref,
+                    variables=variables,
+                )
+                for ref in _references
+            }
             references_resolved = {
                 ref: value
                 for ref, value in references.items()
-                if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
+                if (value is not None)
+                and (
+                    not re.search(
+                        pattern=r"EXPRESSION|\$",
+                        string=str(value),
+                    )
+                )
             }
             references_not_resolved = [ref for ref in references if ref not in references_resolved]
 
@@ -323,17 +343,17 @@ class DictReader:
                 if isinstance(data[key], MutableMapping):
                     sub_dict = cast(MutableMapping[TKey, TValue], data[key])
                     data.update({key: DictReader._remove_comment_keys(sub_dict)})  # recursion
-                elif re.search(remove, str(key)):
+                elif re.search(pattern=remove, string=str(key)):
                     _ = data.pop(key)
         return data
 
     @staticmethod
-    def _remove_include_keys(data: MutableMapping[str, TValue]) -> None:
+    def _remove_include_keys(data: MutableMapping[TKey, TValue]) -> None:
         """Remove includes from data structure for read function call from other programs."""
         remove = "INCLUDE[0-9;]+"
 
         with contextlib.suppress(Exception):
             for key in list(data.keys()):  # work on a copy of the keys
-                if re.search(remove, key):
+                if type(key) is str and re.search(pattern=remove, string=key):
                     _ = data.pop(key)
         return

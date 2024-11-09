@@ -20,7 +20,7 @@ class DictWriter:
 
     @staticmethod
     def write(
-        source_dict: MutableMapping[str, TValue] | SDict[TKey, TValue],
+        source_dict: MutableMapping[TKey, TValue],
         target_file: str | os.PathLike[str] | None = None,
         mode: str = "a",
         *,
@@ -79,7 +79,7 @@ class DictWriter:
 
         # Before writing the dict, doublecheck once again that all of its elements are correctly typed.
         parser = CppParser()
-        parser.parse_types(source_dict)
+        parser.parse_values(source_dict)
 
         # If mode is set to 'a' (append) and target_file exists:
         # Read the existing file and merge the new dict into the existing.
@@ -165,7 +165,7 @@ def create_target_file_name(
     if prefix:
         prefix = prefix.removesuffix(".")  # remove trailing '.', if existing
         prefix = f"{prefix}."
-        file_name = prefix + re.sub(f"^{prefix}", "", file_name)
+        file_name = prefix + re.sub(pattern=f"^{prefix}", repl="", string=file_name)
 
     # If an output format is specified: Set file ending to match the output format
     if output:

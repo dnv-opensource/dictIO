@@ -3,7 +3,7 @@ from __future__ import annotations
 import io
 import logging
 import re
-from collections.abc import MutableMapping, MutableSequence
+from collections.abc import Mapping, MutableMapping, MutableSequence
 from copy import deepcopy
 from re import Pattern
 from typing import TYPE_CHECKING, cast
@@ -384,7 +384,7 @@ class CppFormatter(Formatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
+        arg: MutableMapping[TKey, TValue],
     ) -> str:  # sourcery skip: dict-comprehension
         """Create a string representation of the passed in dict in dictIO native file format.
 
@@ -398,7 +398,7 @@ class CppFormatter(Formatter):
         str
             string representation of the dict in dictIO native file format
         """
-        s = super().to_string(arg)
+        s: str = super().to_string(arg)
 
         # Create a working copy of the passed in dict, to avoid modifying the original.
         s_dict: SDict[TKey, TValue]
@@ -406,12 +406,12 @@ class CppFormatter(Formatter):
 
         # Sort dict in a way that block comment and include statement come first
         original_data = deepcopy(s_dict)
-        sorted_data = {}
+        sorted_data: dict[TKey, TValue] = {}
         for key, element in original_data.items():
-            if re.search(r"BLOCKCOMMENT\d{6}", key):
+            if type(key) is str and re.search(r"BLOCKCOMMENT\d{6}", key):
                 sorted_data[key] = element  # noqa: PERF403
         for key, element in original_data.items():
-            if re.search(r"INCLUDE\d{6}", key):
+            if type(key) is str and re.search(r"INCLUDE\d{6}", key):
                 sorted_data[key] = element  # noqa: PERF403
         for key in sorted_data:
             del original_data[key]
@@ -581,8 +581,9 @@ class CppFormatter(Formatter):
                 # key value pair
                 else:
                     value = self.format_type(item)
+                    skey: str = str(key)
                     s += self.format_dict(
-                        f"{key}{sep * max(8, (total_indent - len(key) - tab_len * level))}{value};",
+                        f"{skey}{sep * max(8, (total_indent - len(skey) - tab_len * level))}{value};",
                         level=level,
                     )
 
@@ -1164,10 +1165,9 @@ class XmlFormatter(Formatter):
             element.text = " ".join(str(x) for x in arg)
 
         elif isinstance(arg, MutableMapping):
-            child_nodes = list(arg.keys())
-
-            for index, (key, item) in enumerate(arg.items()):
-                if re.match("_content", key):
+            for key, item in arg.items():
+                skey: str = str(key)
+                if re.match(pattern="_content", string=skey):
                     # Write back content (from the key-value pair "_content <content>;") into xml node.text
                     # In case of multiline content, do not write it inline between opening and closing tag,
                     # but add a line ending at the beginning and at the end, so that content gets formatted
@@ -1177,50 +1177,54 @@ class XmlFormatter(Formatter):
                         text = "\n" + text + "\n"
                     element.text = text
 
-                elif self.integrate_attributes and re.match("_attrib", key):
+                elif self.integrate_attributes and re.match(pattern="_attrib", string=skey):
                     # attributes to integrate in node, otherwise leave in content
                     # and remove attribs with empy strings
                     # correct occurence of true false -> de-pythonize for lowercase
                     # if here is more expense needed, we have to revoke the one-liner
-                    element.attrib = {
-                        k: str(v).lower() if re.match("^(true|false)$", str(v), re.IGNORECASE) else str(v)
-                        for k, v in item.items()
-                        if str(v) != ""
-                    }
+                    if isinstance(item, Mapping):
+                        attributes: dict[str, str] = {
+                            k: str(v).lower()
+                            if re.match(pattern="^(true|false)$", string=str(v), flags=re.IGNORECASE)
+                            else str(v)
+                            for k, v in item.items()
+                            if str(v) != ""
+                        }
+                        element.attrib = attributes
 
-                elif re.match("^(_.*[Oo]pts|INCLUDE)", key):
+                elif re.match(pattern="^(_.*[Oo]pts|INCLUDE)", string=skey):
                     # undescore elements _opts _xmlOpts and INCLUDE are considered not being content so far
                     pass
 
-                elif re.match("BLOCKCOMMENT[0-9]+", key):
-                    if re.search(".*0$", key):
+                elif re.match(pattern="BLOCKCOMMENT[0-9]+", string=skey):
+                    if re.search(pattern=".*0$", string=skey):
                         # take all except the first one as this is /* C++ dict */
                         pass
                     else:
                         # @TODO: Implement substitution of BLOCKCOMMENT
-                        # cIndex = int(re.findall('(?<=BLOCKCOMMENT)[0-9]+', key)[0])  # noqa: ERA001
+                        # cIndex = int(re.findall('(?<=BLOCKCOMMENT)[0-9]+', skey)[0])  # noqa: ERA001
                         # element.append(Comment(item))  # noqa: ERA001
                         pass
 
-                elif re.match("LINECOMMENT[0-9]+", key):
+                elif re.match(pattern="LINECOMMENT[0-9]+", string=skey):
                     # @TODO: Implement substitution of LINECOMMENT
-                    # cIndex = int(re.findall('(?<=LINECOMMENT)[0-9;]+', key)[0])  # noqa: ERA001
+                    # cIndex = int(re.findall('(?<=LINECOMMENT)[0-9;]+', skey)[0])  # noqa: ERA001
                     # root_element.append(Comment(re.sub('/', '', self.dict.line_comments[cIndex])))  # noqa: ERA001
                     pass
 
                 else:
                     # nested content
-                    _key = key
+                    _skey = skey
                     _item = item
                     if self.remove_node_numbering:
-                        _key = re.sub(r"(^\d{1,6}_)", "", _key)
+                        _skey = re.sub(pattern=r"(^\d{1,6}_)", repl="", string=_skey)
 
                     # Substitute with empty string to force <NODE/> in favour of <NODE>None</NODE>
                     if _item is None:
                         _item = ""
 
-                    child_nodes[index] = SubElement(element, f"{{{xsd_uri}}}{_key}")
-                    self.populate_into_element(child_nodes[index], _item, xsd_uri)
+                    child_node = SubElement(element, f"{{{xsd_uri}}}{_skey}")
+                    self.populate_into_element(element=child_node, arg=_item, xsd_uri=xsd_uri)
 
         else:
             element.text = str(arg)

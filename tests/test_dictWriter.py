@@ -16,7 +16,7 @@ def test_write_dict() -> None:
     # sourcery skip: extract-duplicate-method
     # Prepare
     target_file: Path = Path("temp_file_test_write_dict")
-    test_dict: dict[str, TValue] = {
+    test_dict: dict[TKey, TValue] = {
         "param1": -10.0,
         "param2": 0.0,
         "param3": 0.0,
@@ -53,14 +53,22 @@ def test_write_dict() -> None:
     DictWriter.write(test_s_dict, target_file, mode="w")
     # Assert 1.1
     assert target_file.exists()
-    parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
+    parsed_str = re.sub(
+        pattern=r"[\r\n\s]+",
+        repl=" ",
+        string=str(DictReader.read(source_file=target_file)),
+    )
     assert parsed_str == test_str
 
     # Execute 1.2: Write as SDict on top of existing
     DictWriter.write(test_s_dict, target_file, mode="a")
     # Assert 1.2
     assert target_file.exists()
-    parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
+    parsed_str = re.sub(
+        pattern=r"[\r\n\s]+",
+        repl=" ",
+        string=str(DictReader.read(source_file=target_file)),
+    )
     assert parsed_str == test_str
 
     # Execute 2.1: Write as dict completely new
@@ -68,14 +76,22 @@ def test_write_dict() -> None:
     DictWriter.write(test_dict, target_file, mode="w")
     # Assert 2.1
     assert target_file.exists()
-    parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
+    parsed_str = re.sub(
+        pattern=r"[\r\n\s]+",
+        repl=" ",
+        string=str(DictReader.read(source_file=target_file)),
+    )
     assert parsed_str == test_str
 
     # Execute 2.2: Write as dict on top of existent
     DictWriter.write(test_dict, target_file, mode="a")
     # Assert 2.2
     assert target_file.exists()
-    parsed_str = re.sub(r"[\r\n\s]+", " ", str(DictReader.read(target_file)))
+    parsed_str = re.sub(
+        pattern=r"[\r\n\s]+",
+        repl=" ",
+        string=str(DictReader.read(source_file=target_file)),
+    )
     assert parsed_str == test_str
 
     # Clean up

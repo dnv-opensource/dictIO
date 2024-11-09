@@ -58,7 +58,7 @@ def test_init_with_file() -> None:
 
 
 def test_init_with_base_dict() -> None:
-    base_dict: dict[str, TValue] = {
+    base_dict: dict[TKey, TValue] = {
         "key1": "value1",
         "key2": "value2",
     }
@@ -121,7 +121,7 @@ def test_find_global_key() -> None:
     ldl_nested = [deepcopy(dl_nested)]
 
     # Construct a dictionary dict_in with single entries, nested dicts and nested lists
-    dict_in: dict[str, TValue] = {
+    dict_in: dict[TKey, TValue] = {
         key_1: str_in_1,
         key_2: str_in_2,
         key_3: str_in_3,
@@ -269,7 +269,7 @@ def test_order_keys() -> None:
         key_n_1: not_a_str_1,
         key_n_2: not_a_str_2,
     }
-    dict_in: dict[str, TValue] = {
+    dict_in: dict[TKey, TValue] = {
         key_3: str_3,
         key_1: str_1,
         key_2: str_2,
@@ -327,7 +327,7 @@ def test_order_keys_of_test_dict(test_dict: SDict[TKey, TValue]) -> None:
 
 def test_reduce_scope_of_test_dict(test_dict: SDict[TKey, TValue]) -> None:
     # Prepare
-    scope = ["scope", "subscope1"]
+    scope: list[TKey] = ["scope", "subscope1"]
     # Execute
     test_dict.reduce_scope(scope)
     # Assert
@@ -2020,9 +2020,9 @@ def test_sdict_copy_deepcopy() -> None:
     assert copied_dict.includes == original_dict.includes
 
 
-def _construct_test_dict() -> dict[str, TValue | dict[str | int, TValue]]:
-    # construct two dicts with single entries, a nested dict and a nested list
-    test_dict: dict[str, TValue | dict[str | int, TValue]] = {
+def _construct_test_dict() -> dict[TKey, TValue]:
+    # construct a test dict with single entries, a nested dict and a nested list
+    test_dict: dict[TKey, TValue] = {
         "A": "string 11",
         "B": 11,
         "C": 11.0,
@@ -2043,9 +2043,9 @@ def _construct_test_dict() -> dict[str, TValue | dict[str | int, TValue]]:
     return test_dict
 
 
-def _construct_test_sdict() -> SDict[str, TValue | dict[str | int, TValue]]:
-    # construct two dicts with single entries, a nested dict and a nested list
-    test_sdict: SDict[str, TValue | dict[str | int, TValue]] = SDict(_construct_test_dict())
+def _construct_test_sdict() -> SDict[TKey, TValue]:
+    # construct a test SDict with single entries, a nested dict and a nested list
+    test_sdict: SDict[TKey, TValue] = SDict(_construct_test_dict())
     test_sdict.expressions |= {
         1: {
             "name": "EXPRESSION000011",
@@ -2105,7 +2105,7 @@ def test_load() -> None:
 def test_dump() -> None:
     # Prepare
     target_file: Path = Path("temp_file_test_write_dict")
-    test_dict: dict[str, TValue] = {
+    test_dict: dict[TKey, TValue] = {
         "param1": -10.0,
         "param2": 0.0,
         "param3": 0.0,

@@ -37,8 +37,6 @@ _KT = TypeVar("_KT", bound=TKey)
 _VT = TypeVar("_VT", bound=TValue)
 _KT_local = TypeVar("_KT_local", bound=TKey)
 _VT_local = TypeVar("_VT_local", bound=TValue)
-_KT_global = TypeVar("_KT_global", bound=TGlobalKey)
-_VT_global = TypeVar("_VT_global", bound=TValue)
 
 logger = logging.getLogger(__name__)
 
@@ -326,9 +324,7 @@ class SDict(dict[_KT, _VT]):
 
     def _set_source_file(self, source_file: Path | None) -> None:
         if source_file is None:
-            self._source_file = None
-            self._path = Path.cwd()
-            self._name = ""
+            self._reset_source_file()
             return
         self._source_file = source_file.absolute()
         self._path = self._source_file.parent
@@ -358,31 +354,36 @@ class SDict(dict[_KT, _VT]):
         return self._name
 
     @property
-    def variables(self) -> dict[TKey, TValue]:
+    def variables(self) -> dict[str, TValue]:
         """Returns a dict with all Variables currently registered.
 
         Returns
         -------
-        Dict[TKey, TValue]
+        Dict[str, TValue]
             dict of all Variables currently registered.
         """
-        variables: MutableMapping[TKey, TValue] = {}
+        variables: MutableMapping[str, TValue] = {}
 
         def extract_variables_from_dict(dict_in: MutableMapping[_KT_local, _VT]) -> None:
             for key, value in dict_in.items():
+                # 1: Check for value types that trigger recursion
+                #    (dict  or  list of dicts)
                 if isinstance(value, MutableMapping):
-                    extract_variables_from_dict(value)  # recursion
-                elif isinstance(value, MutableSequence):
-                    if list_contains_dict(value):
-                        extract_variables_from_list(value)  # recursion
-                    else:
-                        # special case: item is a list, but does NOT contain a nested dict (-> e.g. a vector or matrix)
-                        variables[str(key)] = value
+                    extract_variables_from_dict(dict_in=value)  # recursion
+                elif isinstance(value, MutableSequence) and list_contains_dict(list_in=value):
+                    extract_variables_from_list(list_in=value)  # recursion
+                # 2: All other value types are considered variables, given that their key is of type string
+                #    (by convention, only strings are allowed as variable names)
+                if type(key) is not str:
+                    continue
+                if isinstance(value, MutableSequence):
+                    # special case: item is a list, but does NOT contain a nested dict (-> e.g. a vector or matrix)
+                    variables[key] = value
                 else:
                     # base case: item is a single value type
                     _value = _insert_expression(value, self)
                     if not _value_contains_circular_reference(key, _value):
-                        variables[str(key)] = _value
+                        variables[key] = _value
             return
 
         def extract_variables_from_list(list_in: MutableSequence[TValue]) -> None:
@@ -411,8 +412,6 @@ class SDict(dict[_KT, _VT]):
         extract_variables_from_dict(
             dict_in=self,
         )
-
-        variables = order_keys(variables)
 
         return dict(variables)
 
@@ -621,7 +620,7 @@ class SDict(dict[_KT, _VT]):
         self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
         return
 
-    @overload
+    @overload  # type: ignore[override]
     def __or__(
         self,
         other: dict[_KT, _VT],
@@ -673,7 +672,7 @@ class SDict(dict[_KT, _VT]):
         new_dict._clean()
         return new_dict
 
-    @overload
+    @overload  # type: ignore[override]
     def __ror__(
         self,
         other: dict[_KT, _VT],
@@ -710,10 +709,10 @@ class SDict(dict[_KT, _VT]):
         new_dict: SDict[_KT | _KT_local, _VT | _VT_local]
         new_dict = cast(
             SDict[_KT | _KT_local, _VT | _VT_local],
-            self.__class__(super().__ror__(other)),
+            self.__class__(super().__ror__(cast(dict[_KT, _VT], other))),
         )
         # update attributes
-        new_dict._post_update(self)
+        new_dict._post_update(cast(SDict[_KT | _KT_local, _VT | _VT_local], self))
         new_dict._clean()
         return new_dict
 
@@ -811,7 +810,7 @@ class SDict(dict[_KT, _VT]):
         self.includes = order_keys(self.includes)
         return
 
-    def find_global_key(self, query: str = "") -> list[TKey] | None:
+    def find_global_key(self, query: str = "") -> list[TGlobalKey] | None:
         """Return the global key thread to the first key the value of which matches the passed in query.
 
         Function works recursively on nested dicts and is non-greedy: The key of the first match is returned.
@@ -829,7 +828,7 @@ class SDict(dict[_KT, _VT]):
         Union[list[TKey], None]
             global key thread to the first key the value of which matches the passed in query, if found. Otherwise None.
         """
-        return find_global_key(self, query)
+        return find_global_key(cast(SDict[TKey, TValue], self), query)
 
     def set_global_key(self, global_key: MutableSequence[TKey], value: TValue = None) -> None:
         """Set the value for the passed in global key.
@@ -898,9 +897,7 @@ class SDict(dict[_KT, _VT]):
         """
         super().clear()
         self.counter.reset()
-        self._source_file = None
-        self._path = Path.cwd()
-        self._name = ""
+        self._reset_source_file()
         self.line_content.clear()
         self.block_content = ""
         self.tokens.clear()
@@ -910,6 +907,11 @@ class SDict(dict[_KT, _VT]):
         self.block_comments.clear()
         self.includes.clear()
         return
+
+    def _reset_source_file(self) -> None:
+        self._source_file = None
+        self._path = Path.cwd()
+        self._name = ""
 
     def _clean(self) -> None:
         """Find and remove doublettes of PLACEHOLDER keys.

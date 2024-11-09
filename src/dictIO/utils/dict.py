@@ -8,9 +8,10 @@ from dictIO.types import TGlobalKey, TKey, TValue
 
 _KT = TypeVar("_KT", bound=TKey)
 _VT = TypeVar("_VT", bound=TValue)
+_MT = TypeVar("_MT", bound=MutableMapping[_KT, _VT])  # type: ignore[valid-type, reportGeneralTypeIssues]
 
 
-def order_keys(arg: MutableMapping[_KT, _VT]) -> MutableMapping[_KT, _VT]:
+def order_keys(arg: _MT) -> _MT:
     """alpha-numeric sorting of keys, recursively.
 
     Parameters
@@ -23,7 +24,7 @@ def order_keys(arg: MutableMapping[_KT, _VT]) -> MutableMapping[_KT, _VT]:
     _MT
         the passed in MutableMapping, with keys sorted. The same instance is returned.
     """
-    sorted_dict: dict[_KT, Any] = dict(sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0])))
+    sorted_dict: dict[TKey, Any] = dict(sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0])))
     for key, value in copy(sorted_dict).items():
         if isinstance(value, MutableMapping):
             sorted_dict[key] = order_keys(value)  # Recursion

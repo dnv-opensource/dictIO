@@ -330,7 +330,7 @@ class TestCppFormatter:
 
     def test_list_with_nested_list(self) -> None:
         # Prepare
-        test_obj = {
+        test_obj: dict[TKey, TValue] = {
             "blocks": [
                 "hex",
                 [0, 1, 2, 3, 4, 5, 6, 7],

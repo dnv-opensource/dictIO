@@ -55,19 +55,19 @@ def test_resolve_reference() -> None:
     s_dict: SDict[TKey, TValue] = SDict()
     SetupHelper.prepare_dict_until(s_dict, until_step=0)
     # Assert non-indexed references have been resolved
-    assert DictReader._resolve_reference("$paramA", s_dict) == 3.0
-    assert DictReader._resolve_reference("$paramB", s_dict) == 4.0
-    assert DictReader._resolve_reference("$paramC", s_dict) == 7.0
-    assert DictReader._resolve_reference("$paramD", s_dict) == 0.66
+    assert DictReader._resolve_reference("$paramA", s_dict.variables) == 3.0
+    assert DictReader._resolve_reference("$paramB", s_dict.variables) == 4.0
+    assert DictReader._resolve_reference("$paramC", s_dict.variables) == 7.0
+    assert DictReader._resolve_reference("$paramD", s_dict.variables) == 0.66
     assert DictReader._resolve_reference("$paramE[0]", s_dict.variables) == 0.1
 
-    paramE = DictReader._resolve_reference("$paramE", s_dict)  # noqa: N806
+    paramE = DictReader._resolve_reference("$paramE", s_dict.variables)  # noqa: N806
     assert isinstance(paramE, list)
     assert len(paramE) == 3
     assert paramE[0] == 0.1
     assert paramE[1] == 0.2
     assert paramE[2] == 0.4
-    paramF = DictReader._resolve_reference("$paramF", s_dict)  # noqa: N806
+    paramF = DictReader._resolve_reference("$paramF", s_dict.variables)  # noqa: N806
     assert isinstance(paramF, list)
     assert len(paramF) == 2
     assert len(paramF[0]) == 2
@@ -76,7 +76,7 @@ def test_resolve_reference() -> None:
     assert paramF[0][1] == 0.9
     assert paramF[1][0] == 2.7
     assert paramF[1][1] == 8.1
-    paramG = DictReader._resolve_reference("$paramG", s_dict)  # noqa: N806
+    paramG = DictReader._resolve_reference("$paramG", s_dict.variables)  # noqa: N806
     assert isinstance(paramG, list)
     assert len(paramG) == 2
     assert len(paramG[0]) == 4
@@ -90,20 +90,20 @@ def test_resolve_reference() -> None:
     assert paramG[1][2] == "come"
 
     # Assert indexed references have been resolved
-    assert DictReader._resolve_reference("$paramE[0]", s_dict) == 0.1
-    assert DictReader._resolve_reference("$paramE[1]", s_dict) == 0.2
-    assert DictReader._resolve_reference("$paramE[2]", s_dict) == 0.4
-    assert DictReader._resolve_reference("$paramF[0][0]", s_dict) == 0.3
-    assert DictReader._resolve_reference("$paramF[0][1]", s_dict) == 0.9
-    assert DictReader._resolve_reference("$paramF[1][0]", s_dict) == 2.7
-    assert DictReader._resolve_reference("$paramF[1][1]", s_dict) == 8.1
-    assert DictReader._resolve_reference("$paramG[0][0]", s_dict) == 10
-    assert DictReader._resolve_reference("$paramG[0][1]", s_dict) == "fancy"
-    assert DictReader._resolve_reference("$paramG[0][2]", s_dict) == 3.14
-    assert DictReader._resolve_reference("$paramG[0][3]", s_dict) == "s"
-    assert DictReader._resolve_reference("$paramG[1][0]", s_dict) == "more"
-    assert DictReader._resolve_reference("$paramG[1][1]", s_dict) == 2
-    assert DictReader._resolve_reference("$paramG[1][2]", s_dict) == "come"
+    assert DictReader._resolve_reference("$paramE[0]", s_dict.variables) == 0.1
+    assert DictReader._resolve_reference("$paramE[1]", s_dict.variables) == 0.2
+    assert DictReader._resolve_reference("$paramE[2]", s_dict.variables) == 0.4
+    assert DictReader._resolve_reference("$paramF[0][0]", s_dict.variables) == 0.3
+    assert DictReader._resolve_reference("$paramF[0][1]", s_dict.variables) == 0.9
+    assert DictReader._resolve_reference("$paramF[1][0]", s_dict.variables) == 2.7
+    assert DictReader._resolve_reference("$paramF[1][1]", s_dict.variables) == 8.1
+    assert DictReader._resolve_reference("$paramG[0][0]", s_dict.variables) == 10
+    assert DictReader._resolve_reference("$paramG[0][1]", s_dict.variables) == "fancy"
+    assert DictReader._resolve_reference("$paramG[0][2]", s_dict.variables) == 3.14
+    assert DictReader._resolve_reference("$paramG[0][3]", s_dict.variables) == "s"
+    assert DictReader._resolve_reference("$paramG[1][0]", s_dict.variables) == "more"
+    assert DictReader._resolve_reference("$paramG[1][1]", s_dict.variables) == 2
+    assert DictReader._resolve_reference("$paramG[1][2]", s_dict.variables) == "come"
 
 
 def test_eval_expressions() -> None:
