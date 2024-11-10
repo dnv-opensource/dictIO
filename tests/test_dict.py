@@ -2266,12 +2266,12 @@ def test_permissable_key_type_example_used_in_docs() -> None:
         }
     )
     # Execute
-    str_dict_file = str_dict.dump("strDict")
-    int_dict_file = int_dict.dump("intDict")
-    str_or_int_dict_file = str_or_int_dict.dump("strOrIntDict")
-    str_dict_loaded: SDict[str, Any] = SDict().load("strDict")
-    int_dict_loaded: SDict[int, Any] = SDict().load("intDict")
-    str_or_int_dict_loaded: SDict[str | int, Any] = SDict().load("strOrIntDict")
+    str_dict_file = str_dict.dump("temp_str_dict")
+    int_dict_file = int_dict.dump("temp_int_Dict")
+    str_or_int_dict_file = str_or_int_dict.dump("temp_str_or_int_dict")
+    str_dict_loaded: SDict[str, Any] = SDict().load(str_dict_file)
+    int_dict_loaded: SDict[int, Any] = SDict().load(int_dict_file)
+    str_or_int_dict_loaded: SDict[str | int, Any] = SDict().load(str_or_int_dict_file)
     # Assert
     assert str_dict_loaded == str_dict
     assert int_dict_loaded == int_dict

@@ -10,7 +10,6 @@ import warnings
 from _collections_abc import Iterable, Mapping, MutableMapping, MutableSequence
 from copy import copy
 from pathlib import Path
-from types import NoneType
 from typing import (
     TypeVar,
     cast,
@@ -603,7 +602,7 @@ class SDict(dict[_KT, _VT]):
         formatter = CppFormatter()
         include_file_name = str(relative_file_path)
         include_file_name = include_file_name.replace("\\", "\\\\")
-        include_file_name = formatter.format_type(include_file_name)
+        include_file_name = formatter.format_value(include_file_name)
 
         include_directive = f"#include {include_file_name}"
 
@@ -924,9 +923,9 @@ class SDict(dict[_KT, _VT]):
         Doublettes are identified through equality with their lookup values.
         """
 
-        def _recursive_clean(data: MutableMapping[_KT_local, _VT]) -> None:
-            self._clean_branch(
-                branch=data,
+        def _recursive_clean(data: MutableMapping[TKey, TValue]) -> None:
+            self._clean_data(
+                data=data,
             )
             # Recursion for nested levels
             for value in list(data.values()):
@@ -935,11 +934,11 @@ class SDict(dict[_KT, _VT]):
 
             return
 
-        _recursive_clean(data=self)
+        _recursive_clean(data=cast(MutableMapping[TKey, TValue], self))
 
         return
 
-    def _clean_branch(self, branch: MutableMapping[_KT_local, _VT_local]) -> None:
+    def _clean_data(self, data: MutableMapping[TKey, TValue]) -> None:
         """Find and remove doublettes of PLACEHOLDER keys.
 
         Find and remove doublettes of following PLACEHOLDER keys within data:
@@ -950,18 +949,13 @@ class SDict(dict[_KT, _VT]):
         Doublettes are identified through equality with their lookup values.
         """
         # IDENTIFY all placeholders on current level
-        _keys_on_this_level: list[_KT_local] = list(branch.keys())
-        key_type_on_this_level: type[_KT_local | None] = NoneType
-        if _keys_on_this_level:
-            key_type_on_this_level = type(_keys_on_this_level[0])
-        if key_type_on_this_level is not str:
-            return
-        _branch: MutableMapping[str, _VT_local] = cast(MutableMapping[str, _VT_local], branch)
-        keys_on_this_level: list[str] = list(_branch)
+        keys_on_this_level: list[TKey] = list(data)
         block_comments_on_this_level: list[str] = []
         includes_on_this_level: list[str] = []
         line_comments_on_this_level: list[str] = []
         for key in keys_on_this_level:
+            if type(key) is not str:
+                continue
             if re.search(pattern=r"BLOCKCOMMENT\d{6}", string=key):
                 block_comments_on_this_level.append(key)
             elif re.search(pattern=r"INCLUDE\d{6}", string=key):
@@ -977,7 +971,7 @@ class SDict(dict[_KT, _VT]):
                 if block_comment in unique_block_comments_on_this_level:
                     # Found doublette
                     # Remove from current level in data (the dict)
-                    del _branch[_block_comment]
+                    del data[_block_comment]
                     # ..AND from self.block_comments (the lookup table)
                     del self.block_comments[_id]
                 else:
@@ -991,7 +985,7 @@ class SDict(dict[_KT, _VT]):
                 if include in unique_includes_on_this_level:
                     # Found doublette
                     # Remove from current level in data (the dict)
-                    del _branch[_include]
+                    del data[_include]
                     # ..AND from self.includes (the lookup table)
                     del self.includes[_id]
                 else:
@@ -1005,7 +999,7 @@ class SDict(dict[_KT, _VT]):
                 if line_comment in unique_line_comments_on_this_level:
                     # Found doublette
                     # Remove from current level in data (the dict)
-                    del _branch[_line_comment]
+                    del data[_line_comment]
                     # ..AND from self.line_comments (the lookup table)
                     del self.line_comments[_id]
                 else:

@@ -13,7 +13,7 @@ from xml.etree.ElementTree import Element, SubElement, register_namespace, tostr
 from numpy import ndarray
 
 from dictIO import SDict
-from dictIO.types import TKey, TValue
+from dictIO.types import TKey, TSingleValue, TValue
 from dictIO.utils.counter import BorgCounter
 
 if TYPE_CHECKING:
@@ -112,15 +112,17 @@ class Formatter:
         """
         return ""
 
-    def format_type(
+    def format_value(
         self,
-        arg: TValue,
+        arg: TSingleValue,
     ) -> str:
-        """Format a single value type (str, int, float, bool or None).
+        """Format a single value.
+
+        Formats a single value of type TSingleValue = str | int | float | bool | None
 
         Parameters
         ----------
-        arg : TValue
+        arg : TSingleValue
             the value to be formatted
 
         Returns
@@ -128,10 +130,9 @@ class Formatter:
         str
             the formatted string representation of the passed in value
         """
-        # Non-string types:
-        # Return the string representation of the type without additional quotes.
+        # sourcery skip: assign-if-exp, reintroduce-else
+
         if isinstance(arg, str):
-            # String type:
             return self.format_string(arg)
         if arg is None:
             return self.format_none()
@@ -139,7 +140,31 @@ class Formatter:
             return self.format_bool(arg)
         if isinstance(arg, int):
             return self.format_int(arg)
-        return self.format_float(arg) if isinstance(arg, float) else str(arg)
+        if isinstance(arg, float):  # pyright: ignore[reportUnnecessaryIsInstance]
+            return self.format_float(arg)
+        return str(arg)
+
+    def format_key(
+        self,
+        arg: TKey,
+    ) -> str:
+        """Format a key.
+
+        Formats a key of type TKey = str | int
+
+        Parameters
+        ----------
+        arg : TKey
+            the key to be formatted
+
+        Returns
+        -------
+        str
+            the formatted string representation of the passed in key
+        """
+        skey: str
+        skey = self.format_value(arg) if isinstance(arg, TSingleValue) else str(arg)
+        return skey
 
     def format_bool(self, arg: bool) -> str:  # noqa: FBT001
         """Format a boolean.
@@ -517,7 +542,7 @@ class CppFormatter(Formatter):
 
                 # single value
                 else:
-                    value = self.format_type(item)
+                    value = self.format_value(item)
                     if first_item_on_this_line:
                         # The first item shall be indented by 1 relative to the (absolute) list level
                         item_level = level + 1
@@ -580,8 +605,8 @@ class CppFormatter(Formatter):
 
                 # key value pair
                 else:
-                    value = self.format_type(item)
-                    skey: str = str(key)
+                    value = self.format_value(item)
+                    skey: str = self.format_key(key)
                     s += self.format_dict(
                         f"{skey}{sep * max(8, (total_indent - len(skey) - tab_len * level))}{value};",
                         level=level,
@@ -753,7 +778,7 @@ class CppFormatter(Formatter):
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original include directive.
             _include_file_name = include_file_name.replace("\\", "\\\\")
-            _include_file_name = self.format_type(_include_file_name)
+            _include_file_name = self.format_value(_include_file_name)
             _include_directive = f"#include {_include_file_name}"
             search_pattern = r"INCLUDE%06i\s+INCLUDE%06i;" % (key, key)
             s = re.sub(search_pattern, _include_directive, s)
@@ -824,7 +849,7 @@ class FoamFormatter(CppFormatter):
         ) -> None:
             keys = list(arg.keys())
             for key in keys:
-                if str(key).startswith("_"):
+                if self.format_key(key).startswith("_"):
                     del arg[key]
                 elif isinstance(arg[key], MutableMapping):
                     remove_underscore_keys_recursive(arg[key])  # recursion
@@ -1166,7 +1191,7 @@ class XmlFormatter(Formatter):
 
         elif isinstance(arg, MutableMapping):
             for key, item in arg.items():
-                skey: str = str(key)
+                skey: str = self.format_key(key)
                 if re.match(pattern="_content", string=skey):
                     # Write back content (from the key-value pair "_content <content>;") into xml node.text
                     # In case of multiline content, do not write it inline between opening and closing tag,

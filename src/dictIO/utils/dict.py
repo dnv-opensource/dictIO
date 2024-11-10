@@ -109,10 +109,13 @@ def set_global_key(
     while len(remaining_keys) > 1:
         # as long as we didn't arrive at the last node (the one that contains the target key)..
         next_key = remaining_keys[0]
-        if isinstance(last_node, MutableSequence) and not isinstance(next_key, int):
-            raise KeyError(f"KeyError: {global_key} not found in {arg}")
         # ..walk one level further down
-        next_node = last_node[int(next_key)] if isinstance(last_node, MutableSequence) else last_node[next_key]
+        if isinstance(last_node, MutableSequence):
+            if not isinstance(next_key, int):
+                raise KeyError(f"KeyError: {global_key} not found in {arg}")
+            next_node = last_node[int(next_key)]
+        else:
+            next_node = last_node[next_key]
         if not isinstance(next_node, MutableMapping | MutableSequence):
             raise KeyError(f"KeyError: {global_key} not found in {arg}")
         last_node = next_node
@@ -127,10 +130,10 @@ def set_global_key(
     # Only one key left in remaining_keys, which is the key of the target node
     target_node = last_node
     target_key = remaining_keys[0]
-    if isinstance(target_node, MutableSequence) and not isinstance(target_key, int):
-        raise KeyError(f"KeyError: {global_key} not found in {arg}")
     # Set the target key in target node to the passed in value
     if isinstance(target_node, MutableSequence):
+        if not isinstance(target_key, int):
+            raise KeyError(f"KeyError: {global_key} not found in {arg}")
         target_node[int(target_key)] = value
     else:
         target_node[target_key] = value

@@ -62,7 +62,7 @@ class TestCppFormatter:
         formatter = CppFormatter()
         str_expected = str_in
         # Execute
-        str_out = formatter.format_type(str_in)
+        str_out = formatter.format_value(str_in)
         # Assert
         assert str_out == str_expected
 
@@ -82,7 +82,7 @@ class TestCppFormatter:
         formatter = CppFormatter()
         str_expected = f"'{str_in}'"
         # Execute
-        str_out = formatter.format_type(str_in)
+        str_out = formatter.format_value(str_in)
         # Assert
         assert str_out == str_expected
 
@@ -101,7 +101,7 @@ class TestCppFormatter:
         formatter = CppFormatter()
         str_expected = f'"{str_in}"'
         # Execute
-        str_out = formatter.format_type(str_in)
+        str_out = formatter.format_value(str_in)
         # Assert
         assert str_out == str_expected
 
@@ -109,15 +109,15 @@ class TestCppFormatter:
         # sourcery skip: extract-duplicate-method, inline-variable
         formatter = CppFormatter()
         float_in = 1.23
-        str_out = formatter.format_type(float_in)
+        str_out = formatter.format_value(float_in)
         assert isinstance(str_out, str)
         assert str_out == "1.23"
         float_in = 1.0
-        str_out = formatter.format_type(float_in)
+        str_out = formatter.format_value(float_in)
         assert isinstance(str_out, str)
         assert str_out == "1.0"
         float_in = 0.0
-        str_out = formatter.format_type(float_in)
+        str_out = formatter.format_value(float_in)
         assert isinstance(str_out, str)
         assert str_out == "0.0"
 

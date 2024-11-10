@@ -1629,7 +1629,7 @@ class XmlParser(Parser):
         # xmlns remains as {XMLNSCONTENT}ROOTTAG
         # re.sub to fix that temporarily
         # solution needed
-        _root_tag: str = root_element.tag
+        _root_tag: str = str(root_element.tag)
         root_tag = (
             re.sub(
                 r"\{.*\}",
@@ -1692,7 +1692,7 @@ class XmlParser(Parser):
             re.sub(
                 pattern=r"^(\{.*\})",
                 repl="",
-                string=node.tag,
+                string=str(node.tag),
             )
             for node in root_element.findall(
                 path="*",
