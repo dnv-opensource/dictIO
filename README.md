@@ -174,11 +174,11 @@ uv run pytest
 
 Copyright (c) 2024 [DNV](https://www.dnv.com) SE. All rights reserved.
 
-Frank Lumpitzsch – [@LinkedIn](https://www.linkedin.com/in/frank-lumpitzsch-23013196/) – frank.lumpitzsch@dnv.com
+Frank Lumpitzsch - [@LinkedIn](https://www.linkedin.com/in/frank-lumpitzsch-23013196/) - frank.lumpitzsch@dnv.com
 
-Claas Rostock – [@LinkedIn](https://www.linkedin.com/in/claasrostock/?locale=en_US) – claas.rostock@dnv.com
+Claas Rostock - [@LinkedIn](https://www.linkedin.com/in/claasrostock/?locale=en_US) - claas.rostock@dnv.com
 
-Seunghyeon Yoo – [@LinkedIn](https://www.linkedin.com/in/seunghyeon-yoo-3625173b/) – seunghyeon.yoo@dnv.com
+Seunghyeon Yoo - [@LinkedIn](https://www.linkedin.com/in/seunghyeon-yoo-3625173b/) - seunghyeon.yoo@dnv.com
 
 Distributed under the MIT license. See [LICENSE](LICENSE.md) for more information.
 
