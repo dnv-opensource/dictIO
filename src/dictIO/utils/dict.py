@@ -4,9 +4,9 @@ import re
 from _collections_abc import MutableMapping, MutableSequence
 from collections.abc import Sequence
 from copy import copy
-from typing import Any
+from typing import Any, cast
 
-from dictIO.types import M, TGlobalKey, TKey, TValue
+from dictIO.types import K, M, TKey, TValue, V
 
 
 def order_keys(arg: M) -> M:
@@ -32,24 +32,24 @@ def order_keys(arg: M) -> M:
 
 
 def find_global_key(
-    arg: MutableMapping[TKey, TValue] | MutableSequence[TValue],
+    arg: MutableMapping[K, V] | MutableSequence[V],
     query: str = "",
-) -> list[TGlobalKey] | None:
+) -> list[K | int] | None:
     """Return the global key thread to the first key the value of which matches the passed in query.
 
     Parameters
     ----------
-    arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
+    arg : Union[MutableMapping[K, V], MutableSequence[V]]
         dict to search in for the queried value
     query : str, optional
         query string for the value to search for, by default ''
 
     Returns
     -------
-    Union[List, None]
+    list[K | int] | None
         global key thread to the first key the value of which matches the passed in query, if found. Otherwise None.
     """
-    global_key: list[TGlobalKey] = []
+    global_key: list[K | int] = []
     if isinstance(arg, MutableMapping):  # dict
         for key, value in sorted(arg.items()):
             if isinstance(value, MutableMapping | MutableSequence):
@@ -67,7 +67,7 @@ def find_global_key(
                     global_key.append(index)
                     global_key.extend(next_level_key)
                     break
-            elif re.search(query, str(value)):
+            elif re.search(pattern=query, string=str(value)):
                 global_key.append(index)
                 break
 
@@ -75,30 +75,30 @@ def find_global_key(
 
 
 def set_global_key(
-    arg: MutableMapping[TKey, TValue],
-    global_key: Sequence[TGlobalKey],
-    value: TValue | None = None,
+    arg: MutableMapping[K, V],
+    global_key: Sequence[K | int],
+    value: V | None = None,
 ) -> None:
     """Set the value for the passed in global key.
 
     Parameters
     ----------
-    arg : MutableMapping[TKey, TValue]
+    arg : MutableMapping[K, V]
         dict the target key in which shall be set
-    global_key : MutableSequence[TGlobalKey]
+    global_key : MutableSequence[K | int]
         list of keys defining the global key thread to the target key (such as returned by method find_global_key())
-    value : TValue, optional
+    value : V, optional
         value the target key shall be set to, by default None
     """
     if not global_key:
         return
 
-    last_node: MutableMapping[TKey, TValue] | MutableSequence[TValue]
-    next_node: MutableMapping[TKey, TValue] | MutableSequence[TValue] | TValue
-    target_node: MutableMapping[TKey, TValue] | MutableSequence[TValue]
-    remaining_keys: list[TGlobalKey]
-    next_key: TGlobalKey
-    target_key: TGlobalKey
+    last_node: MutableMapping[K, V] | MutableSequence[V]
+    next_node: MutableMapping[K, V] | MutableSequence[V] | V
+    target_node: MutableMapping[K, V] | MutableSequence[V]
+    remaining_keys: list[K | int]
+    next_key: K | int
+    target_key: K | int
 
     last_node = arg
     next_node = None
@@ -113,7 +113,7 @@ def set_global_key(
                 raise KeyError(f"KeyError: {global_key} not found in {arg}")
             next_node = last_node[int(next_key)]
         else:
-            next_node = last_node[next_key]
+            next_node = last_node[cast(K, next_key)]
         if not isinstance(next_node, MutableMapping | MutableSequence):
             raise KeyError(f"KeyError: {global_key} not found in {arg}")
         last_node = next_node
@@ -134,7 +134,7 @@ def set_global_key(
             raise KeyError(f"KeyError: {global_key} not found in {arg}")
         target_node[int(target_key)] = value
     else:
-        target_node[target_key] = value
+        target_node[cast(K, target_key)] = value
 
     return
 

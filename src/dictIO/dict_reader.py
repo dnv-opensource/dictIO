@@ -27,7 +27,7 @@ from math import (  # noqa: F401
     tan,
 )
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 from numpy import (  # noqa: F401
     array,
@@ -62,7 +62,7 @@ class DictReader:
         includes: bool = True,
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[TKey] | None = None,
+        scope: MutableSequence[Any] | None = None,
         parser: Parser | None = None,
     ) -> SDict[TKey, TValue]:
         """Read a dictionary file in dictIO native file format, as well as JSON and XML.
