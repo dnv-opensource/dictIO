@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 # coding utf-8
+"""dictParser command line interface."""
 
 import argparse
 import logging
 import re
+from collections.abc import MutableSequence
 from pathlib import Path
-from typing import Any, MutableSequence, Union
+from typing import Any
 
 from dictIO import DictParser
+from dictIO.types import TKey
 from dictIO.utils.logging import configure_logging
 
 logger = logging.getLogger(__name__)
@@ -24,7 +27,7 @@ def _argparser() -> argparse.ArgumentParser:
             "Reads a dict file, merges sub-dicts referenced through #include directives,\n"
             "evaluates variables and expressions,\n"
             "and finally saves the parsed dict with prefix 'parsed', i.e. parsed.<DICTNAME>."
-            "The format of the output file will by default be dictIO dict file format, but can optionally be\n"
+            "The format of the output file will by default be dictIO native file format, but can optionally be\n"
             "changed to foam, xml or json format."
         ),
     )
@@ -136,12 +139,11 @@ def _argparser() -> argparse.ArgumentParser:
     return parser
 
 
-def main():
+def main() -> None:
     """Entry point for console script as configured in setup.cfg.
 
     Runs the command line interface and parses arguments and options entered on the console.
     """
-
     parser = _argparser()
     args = parser.parse_args()
 
@@ -152,7 +154,7 @@ def main():
         log_level_console = "ERROR" if args.quiet else log_level_console
         log_level_console = "DEBUG" if args.verbose else log_level_console
     # ..to file
-    log_file: Union[Path, None] = Path(args.log) if args.log else None
+    log_file: Path | None = Path(args.log) if args.log else None
     log_level_file: str = args.log_level
     configure_logging(log_level_console, log_file, log_level_file)
 
@@ -162,8 +164,8 @@ def main():
     order: bool = args.order
     comments: bool = not args.ignore_comments
     # Validate scope: It needs to be a list of strings
-    scope: Union[MutableSequence[str], None] = _validate_scope(args.scope)
-    output: Union[str, None] = args.output
+    scope: MutableSequence[TKey] | None = _validate_scope(args.scope)
+    output: str | None = args.output
 
     # Check whether source file exists
     if not source_file.exists():
@@ -181,17 +183,27 @@ def main():
     )
 
     # Invoke API
-    if DictParser.parse(source_file, includes, mode, order, comments, scope, output):
+    if DictParser.parse(
+        source_file=source_file,
+        includes=includes,
+        mode=mode,
+        order=order,
+        comments=comments,
+        scope=scope,
+        output=output,
+    ):
         logger.info("dictParser.py finished successfully.\n")
     else:
         logger.error("dictParser.py finished with errors.\n")
 
 
-def _validate_scope(scope: Union[str, MutableSequence[str], Any]) -> Union[MutableSequence[Any], None]:
+def _validate_scope(
+    scope: str | MutableSequence[TKey] | Any,  # noqa: ANN401
+) -> list[TKey] | None:
     # sourcery skip: replace-interpolation-with-fstring
-    validated_scope: Union[MutableSequence[Any], None] = None
+    validated_scope: list[TKey] | None = None
     if isinstance(scope, MutableSequence):  # List
-        validated_scope = scope  # no conversion needed
+        validated_scope = list(scope)  # no conversion needed
     elif isinstance(scope, str):  # string
         if re.match(r"^\s*\[", scope):  # ..maybe a string that LOOKS like a list?
             try:  # Then try to convert that string to a list
@@ -200,7 +212,7 @@ def _validate_scope(scope: Union[str, MutableSequence[str], Any]) -> Union[Mutab
                 parser = Parser()
                 _scope: str = scope.strip(" []")
                 validated_scope = [key.strip() for key in _scope.split(",")]
-                parser.parse_types(validated_scope)
+                parser.parse_values(validated_scope)
             except Exception:
                 logger.exception(f"setOptions: misspelled scope: {scope}")
         else:  # string is just a single value.

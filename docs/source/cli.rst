@@ -2,6 +2,6 @@ CLI Documentation
 =================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-   cli.dictParser
+   cli.dict_parser
