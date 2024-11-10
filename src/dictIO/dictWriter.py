@@ -4,7 +4,7 @@ import re
 from collections.abc import MutableMapping, MutableSequence
 from pathlib import Path
 
-from dictIO import CppParser, Formatter, SDict, order_keys
+from dictIO import Formatter, NativeParser, SDict, order_keys
 from dictIO.types import TKey, TValue
 
 __ALL__ = ["DictWriter", "create_target_file_name"]
@@ -78,7 +78,7 @@ class DictWriter:
         formatter = formatter or Formatter.get_formatter(target_file)
 
         # Before writing the dict, doublecheck once again that all of its elements are correctly typed.
-        parser = CppParser()
+        parser = NativeParser()
         parser.parse_values(source_dict)
 
         # If mode is set to 'a' (append) and target_file exists:

@@ -11,7 +11,7 @@ from pathlib import Path, PurePath
 import pytest
 from numpy.testing import assert_array_equal
 
-from dictIO import CppParser, DictReader, DictWriter, SDict
+from dictIO import DictReader, DictWriter, NativeParser, SDict
 from dictIO.types import TKey, TValue
 
 WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(not sys.platform.startswith("win"), reason="windows only test")
@@ -619,7 +619,7 @@ class SetupHelper:
     ) -> None:
         file_name = Path.cwd() / file_to_read
 
-        parser = CppParser()
+        parser = NativeParser()
         _ = parser.parse_file(file_name, dict_to_prepare)
 
         funcs = [

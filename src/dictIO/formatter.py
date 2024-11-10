@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 __ALL__ = [
     "Formatter",
-    "CppFormatter",
+    "NativeFormatter",
     "FoamFormatter",
     "JsonFormatter",
     "XmlFormatter",
@@ -71,8 +71,8 @@ class Formatter:
             ]:  # .xml  or  OSP .ssd -> XmlFormatter
                 return XmlFormatter()
 
-        # 2. If no target file is passed, return CppFormatter as default / fallback
-        return CppFormatter()  # default
+        # 2. If no target file is passed, return NativeFormatter as default / fallback
+        return NativeFormatter()  # default
 
     @abstractmethod
     def to_string(
@@ -447,11 +447,11 @@ class Formatter:
         return f'"{arg}"'
 
 
-class CppFormatter(Formatter):
+class NativeFormatter(Formatter):
     """Formatter to serialize a dict into a string in dictIO native file format."""
 
     def __init__(self) -> None:
-        """Define default configuration for CppFormatter."""
+        """Define default configuration for NativeFormatter."""
         # Invoke base class constructor
         super().__init__()
 
@@ -850,7 +850,7 @@ class CppFormatter(Formatter):
         return ns
 
 
-class FoamFormatter(CppFormatter):
+class FoamFormatter(NativeFormatter):
     """Formatter to serialize a dict into a string in OpenFOAM dictionary format."""
 
     def __init__(self) -> None:
@@ -893,7 +893,7 @@ class FoamFormatter(CppFormatter):
         dict_adapted_for_foam = deepcopy(arg)
         remove_underscore_keys_recursive(dict_adapted_for_foam)
 
-        # Call base class implementation (CppFormatter)
+        # Call base class implementation (NativeFormatter)
         s = super().to_string(dict_adapted_for_foam)
 
         # Substitute all remeining single quotes, if any, by double quotes:

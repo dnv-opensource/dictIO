@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from dictIO import CppFormatter, DictReader, FoamFormatter, SDict, XmlFormatter
+from dictIO import DictReader, FoamFormatter, NativeFormatter, SDict, XmlFormatter
 
 if TYPE_CHECKING:
     from dictIO.types import TKey, TValue
@@ -36,7 +36,7 @@ class TestCppFormatter:
     )
     def test_format_type_string_no_additional_quotes_expected(self, str_in: str) -> None:
         # Prepare
-        formatter = CppFormatter()
+        formatter = NativeFormatter()
         str_expected = str_in
         # Execute
         str_out = formatter.format_value(str_in)
@@ -56,7 +56,7 @@ class TestCppFormatter:
     )
     def test_format_type_string_additional_single_quotes_expected(self, str_in: str) -> None:
         # Prepare
-        formatter = CppFormatter()
+        formatter = NativeFormatter()
         str_expected = f"'{str_in}'"
         # Execute
         str_out = formatter.format_value(str_in)
@@ -75,7 +75,7 @@ class TestCppFormatter:
     )
     def test_format_type_string_additional_double_quotes_expected(self, str_in: str) -> None:
         # Prepare
-        formatter = CppFormatter()
+        formatter = NativeFormatter()
         str_expected = f'"{str_in}"'
         # Execute
         str_out = formatter.format_value(str_in)
@@ -84,7 +84,7 @@ class TestCppFormatter:
 
     def test_format_type_float(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
-        formatter = CppFormatter()
+        formatter = NativeFormatter()
         float_in = 1.23
         str_out = formatter.format_value(float_in)
         assert isinstance(str_out, str)
@@ -101,7 +101,7 @@ class TestCppFormatter:
     def test_insert_block_comments(self) -> None:
         # sourcery skip: class-extract-method
         # Prepare
-        formatter = CppFormatter()
+        formatter = NativeFormatter()
         as_is_block_comment = (
             "/*---------------------------------*- C++ -*----------------------------------*\\\n"
             "This is a block comment; coding utf-8; version 0.1;\n"
@@ -122,7 +122,7 @@ class TestCppFormatter:
 
     @staticmethod
     def run_block_comment_tests(
-        formatter: CppFormatter,
+        formatter: NativeFormatter,
         as_is_block_comment: str,
         default_block_comment: str,
     ) -> None:
@@ -220,7 +220,7 @@ class TestCppFormatter:
         include_placeholder = "INCLUDE000102            INCLUDE000102;"
         str_in = blockcomment_placeholder + "\n" + include_placeholder + "\n"
         str_expected = str_in.replace(include_placeholder, include_directive_in.replace('"', "'"))
-        formatter = CppFormatter()
+        formatter = NativeFormatter()
         # Execute
         str_out = formatter.insert_includes(s_dict, str_in)
         # Assert
@@ -230,7 +230,7 @@ class TestCppFormatter:
         # Prepare
         s_dict: SDict[TKey, TValue] = SDict()
         line_comment_in = "// This is a line comment"
-        formatter = CppFormatter()
+        formatter = NativeFormatter()
         str_in_template = formatter.format_dict(s_dict)
         s_dict.line_comments = {103: line_comment_in}
         placeholder1 = "BLOCKCOMMENT000101            BLOCKCOMMENT000101;"
@@ -280,7 +280,7 @@ class TestCppFormatter:
         multi_line_str_expected += str_expected_6 + "\n"
         multi_line_str_expected += str_expected_7
 
-        formatter = CppFormatter()
+        formatter = NativeFormatter()
 
         # Execute 1
         multi_line_str_out = formatter.remove_trailing_spaces(multi_line_str_in)
@@ -324,7 +324,7 @@ class TestCppFormatter:
         s_dict: SDict[TKey, TValue] = SDict()
         dict_in = deepcopy(s_dict)
         dict_in.update(test_obj)
-        formatter = CppFormatter()
+        formatter = NativeFormatter()
         assert test_obj == dict_in
         # Execute
         str_in: str = formatter.format_dict(test_obj)
@@ -335,7 +335,7 @@ class TestCppFormatter:
     def test_to_string_does_not_alter_original(self) -> None:
         # Prepare
         dict_in = DictReader.read(Path("test_formatter_dict"))
-        formatter = CppFormatter()
+        formatter = NativeFormatter()
         dict_in_reference = dict_in
         dict_in_shallowcopy = copy(dict_in)
         # Execute

@@ -21,7 +21,7 @@ from dictIO.utils.counter import BorgCounter
 if TYPE_CHECKING:
     import os
 
-__ALL__ = ["Parser", "CppParser", "FoamParser", "JsonParser", "XmlParser"]
+__ALL__ = ["Parser", "NativeParser", "FoamParser", "JsonParser", "XmlParser"]
 
 logger = logging.getLogger(__name__)
 
@@ -66,8 +66,8 @@ class Parser:
             ]:  # .xml  or  OSP .ssd -> XmlParser
                 return XmlParser()
 
-        # 2. If no source file is passed, return CppParser as default / fallback
-        return CppParser()  # default
+        # 2. If no source file is passed, return NativeParser as default / fallback
+        return NativeParser()  # default
 
     def parse_file(
         self,
@@ -382,11 +382,11 @@ class Parser:
         return arg
 
 
-class CppParser(Parser):
+class NativeParser(Parser):
     """Parser to deserialize a string in dictIO native file format into a SDict."""
 
     def __init__(self) -> None:
-        """Define default configuration for CppParser."""
+        """Define default configuration for NativeParser."""
         # Invoke base class constructor
         super().__init__()
 
@@ -1082,12 +1082,12 @@ class CppParser(Parser):
                         + "/"
                     )
                     logger.warning(
-                        f"CppParser._parse_tokenized_dict(): tokens skipped: {key_value_pair_tokens} inside {context}"
+                        f"NativeParser._parse_tokenized_dict(): tokens skipped: {key_value_pair_tokens} inside {context}"
                     )
                 else:
                     if len(key_value_pair_tokens) > 3:  # noqa: PLR2004
                         logger.warning(
-                            "CppParser._parse_tokenized_dict(): "
+                            "NativeParser._parse_tokenized_dict(): "
                             f"more tokens in key-value pair than expected: {key_value_pair_tokens!s}"
                         )
                     # read the key (name) (first token, by convention)
@@ -1292,9 +1292,9 @@ class CppParser(Parser):
         self,
         s_dict: SDict[TKey, TValue],
     ) -> None:
-        """Remove CppFormatter / CppParser specific internal keys from dict.
+        """Remove NativeFormatter / NativeParser specific internal keys from dict.
 
-        Removes keys written by CppFormatter for documentation purposes
+        Removes keys written by NativeFormatter for documentation purposes
         but which shall not be created as keys in dict.data.
         In specific, it is the following two keys that get deleted if existing:
         _variables
@@ -1306,7 +1306,7 @@ class CppParser(Parser):
             del s_dict["_includes"]
 
 
-class FoamParser(CppParser):
+class FoamParser(NativeParser):
     """Parser to deserialize a string in OpenFOAM dictionary format into a SDict."""
 
     def __init__(self) -> None:

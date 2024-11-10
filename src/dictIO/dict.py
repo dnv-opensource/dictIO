@@ -597,9 +597,9 @@ class SDict(dict[K, V]):
                 f"Cannot include {dict_to_include.name}. Relative path to {dict_to_include.name} could not be resolved."
             ) from e
 
-        from dictIO import CppFormatter
+        from dictIO import NativeFormatter
 
-        formatter = CppFormatter()
+        formatter = NativeFormatter()
         include_file_name = str(relative_file_path)
         include_file_name = include_file_name.replace("\\", "\\\\")
         include_file_name = formatter.format_value(include_file_name)
@@ -786,10 +786,10 @@ class SDict(dict[K, V]):
             the string representation
         """
         from dictIO import (
-            CppFormatter,  # __str__ shall be formatted in dictIO native file format
+            NativeFormatter,  # __str__ shall be formatted in dictIO native file format
         )
 
-        formatter = CppFormatter()
+        formatter = NativeFormatter()
         return formatter.to_string(cast(SDict[TKey, TValue], self))
 
     def __repr__(self) -> str:

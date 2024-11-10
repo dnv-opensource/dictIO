@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from dictIO import CppParser, Parser, SDict, XmlParser
+from dictIO import NativeParser, Parser, SDict, XmlParser
 from dictIO.types import TKey, TValue
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.strings import string_diff
@@ -348,7 +348,7 @@ class TestCppParser:
         # sourcery skip: no-loop-in-tests
         # Prepare
         s_dict: SDict[TKey, TValue] = SDict()
-        parser = CppParser()
+        parser = NativeParser()
         line1 = "a line with no line comment\n"
         line2 = "//a line comment\n"
         line3 = "a line with //an inline comment\n"
@@ -369,7 +369,7 @@ class TestCppParser:
         # sourcery skip: no-loop-in-tests
         # Prepare
         s_dict: SDict[TKey, TValue] = SDict()
-        parser = CppParser()
+        parser = NativeParser()
         line1 = "a line with no include directive\n"
         line2 = "#include testDict\n"
         line3 = "#include 'testDict'\n"
@@ -402,7 +402,7 @@ class TestCppParser:
     def test_convert_line_content_to_block_content(self) -> None:
         # Prepare
         s_dict: SDict[TKey, TValue] = SDict()
-        parser = CppParser()
+        parser = NativeParser()
         # Three lines with line endings
         line1 = "line 1\n"
         line2 = "line 2\n"
@@ -416,7 +416,7 @@ class TestCppParser:
     def test_remove_line_endings_from_block_content(self) -> None:
         # Prepare
         s_dict: SDict[TKey, TValue] = SDict()
-        parser = CppParser()
+        parser = NativeParser()
         # Three lines with line endings
         line1 = "line 1\n"
         line2 = "line 2\n"
@@ -431,7 +431,7 @@ class TestCppParser:
     def test_extract_block_comments(self) -> None:
         # Prepare
         s_dict: SDict[TKey, TValue] = SDict()
-        parser = CppParser()
+        parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
             "with multiple lines. Within this text block, there are C++ block comments.\n"
@@ -467,7 +467,7 @@ class TestCppParser:
     def test_extract_string_literals(self) -> None:
         # Prepare
         s_dict: SDict[TKey, TValue] = SDict()
-        parser = CppParser()
+        parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
             "with multiple lines. Within this text block, there are inline substrings with single quotes.\n"
@@ -514,7 +514,7 @@ class TestCppParser:
     def test_extract_expressions(self) -> None:
         # Prepare
         s_dict: SDict[TKey, TValue] = SDict()
-        parser = CppParser()
+        parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
             "with multiple lines. Within this text block, there are key value pairs where the value\n"
@@ -599,7 +599,7 @@ class TestCppParser:
     def test_extract_single_character_expressions(self) -> None:
         # Prepare
         s_dict: SDict[TKey, TValue] = SDict()
-        parser = CppParser()
+        parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
             "with multiple lines. Within this text block, there are key value pairs where the value\n"
@@ -685,7 +685,7 @@ class TestCppParser:
         # sourcery skip: no-loop-in-tests
         # Prepare
         s_dict: SDict[TKey, TValue] = SDict()
-        parser = CppParser()
+        parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
             "with multiple lines. Within this text block there are distinct chars that shall be identified as delimiters.\n"
@@ -732,7 +732,7 @@ class TestCppParser:
     def test_determine_token_hierarchy(self) -> None:
         # Prepare
         s_dict: SDict[TKey, TValue] = SDict()
-        parser = CppParser()
+        parser = NativeParser()
         text_block = (
             "level0 { level1 { level2 { level3 } level2 } level1 } level0\n"
             "level0 [ level1 [ level2 [ level3 ] level2 ] level1 ] level0\n"
@@ -752,7 +752,7 @@ class TestCppParser:
         # Prepare
         dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
-        parser = CppParser()
+        parser = NativeParser()
         # Execute
         dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
@@ -779,7 +779,7 @@ class TestCppParser:
         # Prepare
         dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
-        parser = CppParser()
+        parser = NativeParser()
         # Execute
         dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
@@ -805,7 +805,7 @@ class TestCppParser:
         # Prepare
         dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
-        parser = CppParser()
+        parser = NativeParser()
         # Execute
         dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
@@ -821,7 +821,7 @@ class TestCppParser:
         # Prepare
         dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
-        parser = CppParser()
+        parser = NativeParser()
         # Execute
         dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
@@ -835,7 +835,7 @@ class TestCppParser:
         # Prepare
         dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
-        parser = CppParser()
+        parser = NativeParser()
         # Execute
         dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
@@ -856,16 +856,16 @@ class TestCppParser:
         # Prepare
         dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
-        parser = CppParser()
+        parser = NativeParser()
         log_level_expected = "WARNING"
         log_message_0_expected = (
-            "CppParser._parse_tokenized_dict(): tokens skipped: "
+            "NativeParser._parse_tokenized_dict(): tokens skipped: "
             "[(1, 'this'), (1, 'is'), (1, 'not'), (1, 'a'), (1, 'valid'), (1, 'key'), (1, 'value'), (1, 'pair'),"
             " (1, 'because'), (1, 'the'), (1, 'number'), (1, 'of'), (1, 'tokens'), (1, 'is'), (1, 'larger'), (1, 'than'), (1, 'two'), (1, ';')] "
             "inside /this is not a valid key value pair because the number of tokens is larger than two ; thisIsNeitherAValidKeyValuePairBecuaseThisIsOnlyOneToken ;/"
         )
         log_message_1_expected = (
-            "CppParser._parse_tokenized_dict(): tokens skipped: "
+            "NativeParser._parse_tokenized_dict(): tokens skipped: "
             "[(1, 'thisIsNeitherAValidKeyValuePairBecuaseThisIsOnlyOneToken'), (1, ';')] "
             "inside /this is not a valid key value pair because the number of tokens is larger than two ; thisIsNeitherAValidKeyValuePairBecuaseThisIsOnlyOneToken ;/"
         )
@@ -882,7 +882,7 @@ class TestCppParser:
         # Prepare
         dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
-        parser = CppParser()
+        parser = NativeParser()
         # Execute
         dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
@@ -947,7 +947,7 @@ class TestCppParser:
         # Prepare
         dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
-        parser = CppParser()
+        parser = NativeParser()
         # Execute
         dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
@@ -980,7 +980,7 @@ class TestCppParser:
         # Prepare
         dict_in: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9, comments=False)
-        parser = CppParser()
+        parser = NativeParser()
         # Execute
         dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
@@ -1016,7 +1016,7 @@ class TestCppParser:
         # Prepare
         s_dict: SDict[TKey, TValue] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=s_dict, until_step=10)
-        parser = CppParser()
+        parser = NativeParser()
         # Execute
         parser._insert_string_literals(s_dict)
         # Assert
@@ -1165,7 +1165,7 @@ class SetupHelper:
             file_content = f.read()
         dict_to_prepare.line_content = file_content.splitlines(keepends=True)
 
-        parser = CppParser()
+        parser = NativeParser()
 
         funcs = [
             partial(

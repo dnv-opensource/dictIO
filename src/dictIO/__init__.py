@@ -12,14 +12,14 @@ from dictIO.cppDict import (
 
 from dictIO.formatter import (
     Formatter,
-    CppFormatter,
+    NativeFormatter,
     FoamFormatter,
     JsonFormatter,
     XmlFormatter,
 )
 from dictIO.parser import (
     Parser,
-    CppParser,
+    NativeParser,
     FoamParser,
     JsonParser,
     XmlParser,

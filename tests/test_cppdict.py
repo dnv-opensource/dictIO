@@ -8,10 +8,10 @@ import pytest
 
 from dictIO import (
     CppDict,
-    CppParser,
     DictParser,
     DictReader,
     DictWriter,
+    NativeParser,
     SDict,
     find_global_key,
     order_keys,
@@ -22,7 +22,7 @@ from dictIO.types import TKey, TValue
 
 @pytest.fixture
 def test_dict() -> SDict[TKey, TValue]:
-    parser = CppParser()
+    parser = NativeParser()
     return parser.parse_file(Path("test_dict_dict"))
 
 
