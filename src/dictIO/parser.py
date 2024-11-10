@@ -1082,7 +1082,8 @@ class NativeParser(Parser):
                         + "/"
                     )
                     logger.warning(
-                        f"NativeParser._parse_tokenized_dict(): tokens skipped: {key_value_pair_tokens} inside {context}"
+                        "NativeParser._parse_tokenized_dict(): "
+                        f"tokens skipped: {key_value_pair_tokens} inside {context}"
                     )
                 else:
                     if len(key_value_pair_tokens) > 3:  # noqa: PLR2004

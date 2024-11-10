@@ -192,7 +192,7 @@ class SDict(dict[K, V]):
         """
         new_dict: SDict[_K, _V] = cast(SDict[_K, _V], cls())
         for key in iterable:
-            new_dict[key] = cast(_V, value)  # cast is safe, as `None` is within the type bounds of _VT
+            new_dict[key] = cast(_V, value)  # cast is safe, as `None` is within the type bounds of V
         return new_dict
 
     # TODO @CLAROS: Change return type to `Self` (from `typing`module)
@@ -222,7 +222,7 @@ class SDict(dict[K, V]):
 
         Returns
         -------
-        SDict[_KT, _VT]
+        SDict[K, V]
             self
 
         Raises
@@ -247,7 +247,7 @@ class SDict(dict[K, V]):
             source_file=source_file,
         )
         self.reset()
-        # TODO @CLAROS: Improve type hinting for `loaded_dict`. Currently, it is cast to `SDict[_KT, _VT]`,
+        # TODO @CLAROS: Improve type hinting for `loaded_dict`. Currently, it is cast to `SDict[K, V]`,
         #      which is not correct, as we do not know upfront the type of keys and values in `loaded_dict`.
         #      Maybe this method needs to be refactored to a factory function, returning a new `SDict` instance
         #      with the actual types of `loaded_dict`.
@@ -614,7 +614,7 @@ class SDict(dict[K, V]):
             if placeholder in self:
                 continue
             break
-        # cast is safe, as `str` is within the type bounds of both _KT and _VT
+        # cast is safe, as `str` is within the type bounds of both K and V
         self[cast(K, placeholder)] = cast(V, placeholder)
         self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
         return
@@ -643,12 +643,12 @@ class SDict(dict[K, V]):
 
         Parameters
         ----------
-        other : MutableMapping[_KT, _VT]
+        other : MutableMapping[K, V]
             The other dictionary
 
         Returns
         -------
-        SDict[_KT, _VT]
+        SDict[K, V]
             A new SDict instance containing the content of `self` updated with the content of `other`.
         """
         new_dict: SDict[K | _K, V | _V]
@@ -697,12 +697,12 @@ class SDict(dict[K, V]):
 
         Parameters
         ----------
-        other : dict[_KT, _VT]
+        other : dict[K, V]
             The other dictionary
 
         Returns
         -------
-        SDict[_KT, _VT]
+        SDict[K, V]
             A new SDict instance containing the content of `other` updated with the content of `self`.
         """
         new_dict: SDict[K | _K, V | _V]
@@ -737,7 +737,7 @@ class SDict(dict[K, V]):
         self,
         other: Mapping[K, V] | Iterable[tuple[K, V]],
     ) -> SDict[K, V]:
-        # def __ior__(self, other: MutableMapping[_KT, _VT]) -> SDict[_KT, _VT]:
+        # def __ior__(self, other: MutableMapping[K, V]) -> SDict[K, V]:
         """Augmented `or` operation: `self |= other`.
 
         The `__ior__()` method is called by the ` |= ` operator with `self` on the left-hand side.
@@ -745,12 +745,12 @@ class SDict(dict[K, V]):
 
         Parameters
         ----------
-        other : MutableMapping[_KT, _VT]
+        other : MutableMapping[K, V]
             The other dictionary
 
         Returns
         -------
-        SDict[_KT, _VT]
+        SDict[K, V]
             Reference to `self`.
         """
         should_be_self = super().__ior__(other)
@@ -761,6 +761,13 @@ class SDict(dict[K, V]):
         return self
 
     def __copy__(self) -> SDict[K, V]:
+        """Return a shallow copy of the SDict instance.
+
+        Returns
+        -------
+        SDict[K, V]
+            shallow copy of the SDict instance
+        """
         copied_dict = self.__class__.__new__(self.__class__)
         copied_dict.__dict__.update(self.__dict__)
         copied_dict.update(super().copy())
@@ -771,14 +778,14 @@ class SDict(dict[K, V]):
 
         Returns
         -------
-        SDict[_KT, _VT]
+        SDict[K, V]
             shallow copy of the SDict instance
         """
         copied_dict = copy(self)  # calls __copy__()
         return copied_dict
 
     def __str__(self) -> str:
-        """Return a string representation of the SDict instance in dictIO native file format.
+        """Return a string representation of the SDict instance in dictIO native format.
 
         Returns
         -------
@@ -793,12 +800,33 @@ class SDict(dict[K, V]):
         return formatter.to_string(cast(SDict[TKey, TValue], self))
 
     def __repr__(self) -> str:
+        """Return a string representation of the SDict instance.
+
+        Returns
+        -------
+        str
+            string representation of the SDict instance.
+        """
         return f"SDict({self._source_file!r})"
 
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, SDict):
-            return str(self) == str(other)
-        return super().__eq__(other)
+    def __eq__(self, value: object) -> bool:
+        """Return self == value.
+
+        Determines equality of two SDict instances by comparing their string representations.
+
+        Parameters
+        ----------
+        value : object
+            the other SDict instance to determine equality with.
+
+        Returns
+        -------
+        bool
+            True if the two SDict instances are equal, otherwise False.
+        """
+        if isinstance(value, SDict):
+            return str(self) == str(value)
+        return super().__eq__(value)
 
     def order_keys(self) -> None:
         """alpha-numeric sorting of keys, recursively."""
@@ -1019,7 +1047,7 @@ class SDict(dict[K, V]):
 
         Returns
         -------
-        dict[_KT, _VT]
+        dict[K, V]
             the content of the SDict instance
         """
         warnings.warn(
