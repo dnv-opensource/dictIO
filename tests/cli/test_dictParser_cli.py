@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from dictIO.cli.dictParser import _argparser, _validate_scope, main
-from dictIO.dictParser import DictParser
+from dictIO.cli.dict_parser import _argparser, _validate_scope, main
+from dictIO.dict_parser import DictParser
 from dictIO.types import TKey
 
 # *****Test commandline interface (CLI)************************************************************

@@ -343,7 +343,7 @@ class TestParser:
         assert target_dict.name == source_file.absolute().name
 
 
-class TestCppParser:
+class TestNativeParser:
     def test_extract_line_comments(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare

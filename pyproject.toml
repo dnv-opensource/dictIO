@@ -89,7 +89,7 @@ native-tls = true
 
 
 [project.scripts]
-dictParser = "dictIO.cli.dictParser:main"
+dictParser = "dictIO.cli.dict_parser:main"
 
 
 [tool.mypy]

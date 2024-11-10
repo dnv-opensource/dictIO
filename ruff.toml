@@ -21,7 +21,6 @@ select = [
 ]
 ignore = [
     # Ruff lint rules temporarily ignored, but which should be reactivated and resolved in the future.
-    "N999",    # Invalid module name   <- @TODO: reactivate and resolve  @CLAROS, 2024-10-11
     "C901",    # Function is too complex   <- @TODO: reactivate and resolve print statements  @CLAROS, 2024-09-22
     "PLR0911", # Too many return statements   <- @TODO: reactivate and resolve  @CLAROS, 2024-10-11
     "PLR0912", # Too many branches   <- @TODO: reactivate and resolve  @CLAROS, 2024-10-11
@@ -102,6 +101,7 @@ raises-require-match-for = [
 "__init__.py" = [
     "F401", # {name} imported but unused (NOTE: ignored as imports in `__init__.py` files are almost never used inside the module, but are intended for namespaces)
     "I001", # Import block is un-sorted or un-formatted
+    "N999", # Invalid module name (needed as we want to keep 'dictIO' as package name, which does not comply with PEP8 module naming conventions)
 ]
 # `tests` specific ignores
 "tests/**/*" = [

@@ -8,7 +8,7 @@ from dictIO.dict import (
     set_global_key,
 )
 
-from dictIO.cppDict import (
+from dictIO.cpp_dict import (
     CppDict,
 )
 
@@ -27,13 +27,13 @@ from dictIO.parser import (
     XmlParser,
 )
 
-from dictIO.dictReader import (
+from dictIO.dict_reader import (
     DictReader,
 )
-from dictIO.dictWriter import (
+from dictIO.dict_writer import (
     DictWriter,
     create_target_file_name,
 )
-from dictIO.dictParser import (
+from dictIO.dict_parser import (
     DictParser,
 )

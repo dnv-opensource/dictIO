@@ -243,7 +243,7 @@ class SDict(dict[K, V]):
         if self:
             logger.warning("SDict instance is not empty. `load()` will overwrite current content will.")
 
-        from dictIO.dictReader import DictReader
+        from dictIO.dict_reader import DictReader
 
         loaded_dict: SDict[TKey, TValue] = DictReader.read(
             source_file=source_file,
@@ -296,7 +296,7 @@ class SDict(dict[K, V]):
         # Make sure target_file argument is of type Path. If not, cast it to Path type.
         target_file = target_file if isinstance(target_file, Path) else Path(target_file)
 
-        from dictIO.dictWriter import DictWriter
+        from dictIO.dict_writer import DictWriter
 
         DictWriter.write(
             source_dict=cast(SDict[TKey, TValue], self),

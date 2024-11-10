@@ -18,7 +18,7 @@ class TestFormatter:
         pass
 
 
-class TestCppFormatter:
+class TestNativeFormatter:
     @pytest.mark.parametrize(
         "str_in",
         [
@@ -114,7 +114,7 @@ class TestCppFormatter:
         )
         # Execute and Assert
         # (dispatch to run_block_comment_tests())
-        TestCppFormatter.run_block_comment_tests(
+        TestNativeFormatter.run_block_comment_tests(
             formatter,
             as_is_block_comment,
             default_block_comment,
@@ -395,8 +395,8 @@ class TestFoamFormatter:
             "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //"
         )
         # Execute and Assert
-        # (dispatch to TestCppFormatter as, apart from the block comment itself, the tests are identical)
-        TestCppFormatter.run_block_comment_tests(
+        # (dispatch to TestNativeFormatter as, apart from the block comment itself, the tests are identical)
+        TestNativeFormatter.run_block_comment_tests(
             formatter,
             as_is_block_comment,
             default_block_comment,
