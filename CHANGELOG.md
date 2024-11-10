@@ -10,15 +10,23 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [0.4.0] - 2024-10-21
 
-### Breaking change
-* class `CppDict` in module `dictIO.cppDict` has been replaced with the class `SDict[_KT, _VT]` in module `dictIO.dict`.
+### Breaking changes
+* Renamed modules: Following modules have been renamed in order to comply with PEP8 naming conventions: <br>
+  `dictIO.dictReader` **->** `dictIO.dict_reader` <br>
+  `dictIO.dictWriter` **->** `dictIO.dict_writer` <br>
+  `dictIO.dictParser` **->** `dictIO.dict_parser` <br>
+  `dictIO.cppDict` **->** `dictIO.cpp_dict` <br>
+* class `CppDict` in module `dictIO.cppDict` has been replaced with the new class `SDict[K, V]` in module `dictIO.dict`. <br>
   In order to maintain backward compatibility, a thin wrapper class named `CppDict` is kept in version ~0.4.0.
   It is marked as deprecated, though, and will be removed with release 0.5.0.
 * Where `CppDict` inherited from `UserDict`, `SDict` inherits directly from Python's `dict` class,
   allowing to use it in any context where a `dict` or any other `MutableMapping` is expected.
-* `SDict` is generic. Static type checkers will hence require type arguments when `SDict` is used in type hints.
-  Where you could write `my_dict: CppDict = CppDict()`, you will now need to specify the type arguments, e.g.
-  `my_dict: SDict[str, Any] = SDict()`. With this change, type hinting is in line with how type hinting of Python's builtin `dict` works, and offers more control in static type checking.
+* `SDict` is generic: Static type checkers will hence require type arguments when `SDict` is used. <br>
+  Where in dictIO < 0.4.0 you could write  <br>
+  `my_dict: CppDict = CppDict()`,  <br>
+  you will now need to specify the type arguments, e.g.  <br>
+  `my_dict: SDict[str, Any] = SDict()`.  <br>
+  With this change, type hinting is in line with how Python's builtin `dict` class works, and offers more control in static type checking.
 
 ### Changed
 * Changed from `pip`/`tox` to `uv` as package manager
