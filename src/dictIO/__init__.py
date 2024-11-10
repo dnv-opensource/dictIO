@@ -2,6 +2,9 @@
 
 from dictIO.dict import (
     SDict as SDict,
+)
+
+from dictIO.utils.dict import (
     order_keys as order_keys,
     find_global_key as find_global_key,
     set_global_key as set_global_key,
