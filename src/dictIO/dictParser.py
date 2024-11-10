@@ -1,3 +1,5 @@
+"""DictParser class for parsing and translating dictionaries from and to dictIO native file format, as well as JSON and XML."""  # noqa: E501
+
 import logging
 import os
 from collections.abc import MutableSequence

@@ -1,3 +1,5 @@
+"""DictWriter class for writing dictionaries in dictIO native file format, as well as JSON and XML."""
+
 import logging
 import os
 import re

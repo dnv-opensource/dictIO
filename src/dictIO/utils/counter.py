@@ -1,3 +1,5 @@
+"""Singleton classes for global counter, indentation and string registry."""
+
 # pyright: reportUnnecessaryTypeIgnoreComment=false
 from typing import Any, ClassVar
 

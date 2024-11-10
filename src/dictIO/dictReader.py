@@ -1,3 +1,5 @@
+"""DictReader class for reading dictionaries in dictIO native file format, as well as JSON and XML."""
+
 import contextlib
 import logging
 import os

@@ -1,3 +1,5 @@
+"""Type aliases and generic type variables for the dictIO package."""
+
 # ruff: noqa: ERA001
 
 from collections.abc import Hashable, MutableMapping, MutableSequence

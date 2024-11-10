@@ -1,3 +1,5 @@
+"""Utility functions for string manipulation."""
+
 import logging
 import re
 from difflib import ndiff

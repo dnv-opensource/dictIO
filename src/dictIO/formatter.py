@@ -1,3 +1,5 @@
+"""Formatter for different dictionary file formats."""
+
 from __future__ import annotations
 
 import io

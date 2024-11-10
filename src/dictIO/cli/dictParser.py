@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding utf-8
+"""dictParser command line interface."""
 
 import argparse
 import logging

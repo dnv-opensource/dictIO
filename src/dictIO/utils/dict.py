@@ -1,3 +1,5 @@
+"""Utility functions for working with dictionaries."""
+
 import re
 from _collections_abc import MutableMapping, MutableSequence
 from collections.abc import Sequence

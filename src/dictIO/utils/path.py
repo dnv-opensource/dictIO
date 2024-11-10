@@ -1,3 +1,5 @@
+"""Utility functions for working with paths."""
+
 import logging
 import os
 from collections.abc import Sequence

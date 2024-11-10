@@ -1,3 +1,5 @@
+"""SDict class definition."""
+
 # pyright: reportIncompatibleMethodOverride=false
 # pyright: reportUnnecessaryTypeIgnoreComment=false
 from __future__ import annotations

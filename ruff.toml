@@ -21,10 +21,6 @@ select = [
 ]
 ignore = [
     # Ruff lint rules temporarily ignored, but which should be reactivated and resolved in the future.
-    "D100", # Missing docstring in public module   <- @TODO: reactivate and resolve docstring issues  @CLAROS, 2024-10-21
-    # "D104", # Missing docstring in public package   <- @TODO: reactivate and resolve docstring issues  @CLAROS, 2024-10-21
-    # "D105", # Missing docstring in magic method   <- @TODO: reactivate and resolve docstring issues  @CLAROS, 2024-10-21
-    # "D107",    # Missing docstring in __init__   <- @TODO: reactivate and resolve docstring issues  @CLAROS, 2024-10-21
     "N999",    # Invalid module name   <- @TODO: reactivate and resolve  @CLAROS, 2024-10-11
     "C901",    # Function is too complex   <- @TODO: reactivate and resolve print statements  @CLAROS, 2024-09-22
     "PLR0911", # Too many return statements   <- @TODO: reactivate and resolve  @CLAROS, 2024-10-11
