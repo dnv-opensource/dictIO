@@ -8,7 +8,7 @@ from dictIO.utils.path import highest_common_root_folder, relative_path
 WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(not sys.platform.startswith("win"), reason="windows only test")
 
 
-def test_highest_common_root_folder():
+def test_highest_common_root_folder() -> None:
     # Prepare
     file_01: Path = Path(r"C:/A0/A1/A2/file_01.abc")
     file_02: Path = Path(r"C:/A0/A1/A2/file_02.abc")
@@ -73,7 +73,7 @@ def test_highest_common_root_folder():
 
 
 @WindowsOnly
-def test_highest_common_root_folder_raises_value_error():
+def test_highest_common_root_folder_raises_value_error() -> None:
     # Prepare
     file_11: Path = Path(r"C:/file_11.abc")
     file_12: Path = Path(r"D:/file_12.abc")
@@ -88,7 +88,7 @@ def test_highest_common_root_folder_raises_value_error():
         _ = highest_common_root_folder([folder_11, folder_12])
 
 
-def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_1():
+def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_1() -> None:
     # Prepare
     file_01: Path = Path(r"C:/A0/A1/A0/A1/A0/A1/file_01.abc")
     file_02: Path = Path(r"C:/A0/A1/A0/A1/A0/file_02.abc")
@@ -148,7 +148,7 @@ def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_1(
     )
 
 
-def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_2():
+def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_2() -> None:
     # Prepare
     file_01: Path = Path(r"C:/A0/A0/A0/A0/A0/A0/file_01.abc")
     file_02: Path = Path(r"C:/A0/A0/A0/A0/A0/file_02.abc")
@@ -208,7 +208,7 @@ def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_2(
     )
 
 
-def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_3():
+def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_3() -> None:
     # Prepare
     file_01: Path = Path(r"C:/A0/A0/A0/A0/A0/A1/file_01.abc")
     file_02: Path = Path(r"C:/A0/A1/A0/A0/A0/A0/file_02.abc")
@@ -245,7 +245,7 @@ def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_3(
     assert highest_common_root_folder([folder_02, folder_03]) == folder_06.resolve().absolute()
 
 
-def test_relative_path():
+def test_relative_path() -> None:
     # Prepare
     file_01: Path = Path(r"C:/A0/A1/A2/file_01.abc")
     file_06: Path = Path(r"C:/A0/A1/file_06.abc")
@@ -332,7 +332,7 @@ def test_relative_path():
 
 
 @WindowsOnly
-def test_relative_path_raises_value_error():
+def test_relative_path_raises_value_error() -> None:
     # Prepare
     file_11: Path = Path(r"C:/file_11.abc")
     file_12: Path = Path(r"D:/file_12.abc")

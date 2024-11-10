@@ -5,7 +5,64 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
-* -/-
+-/-
+
+
+## [0.4.0] - 2024-10-21
+
+### Breaking changes
+* Renamed modules: Following modules have been renamed in order to comply with PEP8 naming conventions: <br>
+  `dictIO.dictReader` **->** `dictIO.dict_reader` <br>
+  `dictIO.dictWriter` **->** `dictIO.dict_writer` <br>
+  `dictIO.dictParser` **->** `dictIO.dict_parser` <br>
+  `dictIO.cppDict` **->** `dictIO.cpp_dict` <br>
+* class `CppDict` in module `dictIO.cppDict` has been replaced with the new class `SDict[K, V]` in module `dictIO.dict`. <br>
+  In order to maintain backward compatibility, a thin wrapper class named `CppDict` is kept in version ~0.4.0.
+  It is marked as deprecated, though, and will be removed with release 0.5.0.
+* Where `CppDict` inherited from `UserDict`, `SDict` inherits directly from Python's `dict` class,
+  allowing to use it in any context where a `dict` or any other `MutableMapping` is expected.
+* `SDict` is generic: Static type checkers will hence require type arguments when `SDict` is used. <br>
+  Where in dictIO < 0.4.0 you could write  <br>
+  `my_dict: CppDict = CppDict()`,  <br>
+  you will now need to specify the type arguments, e.g.  <br>
+  `my_dict: SDict[str, Any] = SDict()`.  <br>
+  With this change, type hinting is in line with how Python's builtin `dict` class works, and offers more control in static type checking.
+
+### Changed
+* Changed from `pip`/`tox` to `uv` as package manager
+* README.md : Completely rewrote section "Development Setup", introducing `uv` as package manager.
+* Changed publishing workflow to use OpenID Connect (Trusted Publisher Management) when publishing to PyPI
+* Updated copyright statement
+* VS Code settings: Turned off automatic venv activation
+* Replaced black formatter with ruff formatter
+
+### Solved
+* Sphinx documentation: Resolved issue that documentation of class members was generated twice.
+
+### Added
+* Sphinx documentation: Added extension to support Markdown-based diagrams created with Mermaid.
+* Added instance methods `dump()` and `load()` to `SDict`
+* Added `mypy` as static type checker (in addition to `pyright`)
+
+### GitHub workflows
+* (all workflows): Adapted to use `uv` as package manager
+* _test_future.yml : updated Python version to 3.13.0-alpha - 3.13.0
+* _test_future.yml : updated name of test job to 'test313'
+
+### Dependencies
+* Updated to ruff>=0.6.3  (from ruff==0.4.2)
+* Updated to pyright>=1.1.378  (from pyright==1.1.360)
+* Updated to sourcery>=1.22  (from sourcery==1.16)
+* Updated to pytest>=8.3  (from pytest>=8.2)
+* Updated to Sphinx>=8.0  (from Sphinx>=7.3)
+* Updated to sphinx-argparse-cli>=1.17  (from sphinx-argparse-cli>=1.16)
+* Updated to myst-parser>=4.0  (from myst-parser>=3.0)
+* Updated to furo>=2024.8  (from furo>=2024.5)
+* updated to setup-python@v5  (from setup-python@v4)
+* updated to actions-gh-pages@v4  (from actions-gh-pages@v3)
+* updated to upload-artifact@v4  (from upload-artifact@v3)
+* Updated to download-artifact@v4  (from download-artifact@v3)
+* updated to checkout@v4  (from checkout@v3)
 
 
 ## [0.3.4] - 2024-05-22
@@ -283,7 +340,8 @@ This removes the need to manually add /src to the PythonPath environment variabl
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.3.4...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/dnv-opensource/dictIO/compare/v0.3.4...v0.4.0
 [0.3.4]: https://github.com/dnv-opensource/dictIO/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/dnv-opensource/dictIO/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/dnv-opensource/dictIO/compare/v0.3.1...v0.3.2

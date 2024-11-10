@@ -1,21 +1,23 @@
 # pyright: reportPrivateUsage=false
+# pyright: reportUnnecessaryTypeIgnoreComment=false
+
 import os
 import re
 import sys
 from copy import deepcopy
+from functools import partial
 from pathlib import Path, PurePath
-from typing import Any, Dict, List, Union
 
 import pytest
 from numpy.testing import assert_array_equal
-from pytest import LogCaptureFixture
 
-from dictIO import CppDict, CppParser, DictReader, DictWriter
+from dictIO import DictReader, DictWriter, NativeParser, SDict
+from dictIO.types import TKey, TValue
 
 WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(not sys.platform.startswith("win"), reason="windows only test")
 
 
-def test_file_not_found_exception():
+def test_file_not_found_exception() -> None:
     # Prepare
     source_file = Path("this_file_does_not_exist")
     # Execute and Assert
@@ -23,20 +25,20 @@ def test_file_not_found_exception():
         _ = DictReader.read(source_file)
 
 
-def test_merge_includes():
-    # sourcery skip: avoid-builtin-shadow, class-extract-method
+def test_merge_includes() -> None:
+    # sourcery skip: class-extract-method
     # Prepare dict until and including _parse_tokenized_dict()
-    dict = CppDict()
-    SetupHelper.prepare_dict_until(dict, until_step=-1)
-    dict_in = deepcopy(dict.data)
+    s_dict: SDict[TKey, TValue] = SDict()
+    SetupHelper.prepare_dict_until(s_dict, until_step=-1)
+    dict_in = deepcopy(s_dict)
     # Assert dict_in
     assert dict_in["expressions"]["reference"]["value"][:10] == "EXPRESSION"
     assert dict_in["expressions"]["expression1"]["value"][:10] == "EXPRESSION"
     assert dict_in["expressions"]["expression2"]["value"][:10] == "EXPRESSION"
     assert dict_in["expressions"]["expression3"]["value"][:10] == "EXPRESSION"
     # Execute
-    DictReader._merge_includes(dict)
-    dict_out = dict.data
+    DictReader._merge_includes(s_dict)
+    dict_out = s_dict
     # Assert
     assert len(dict_out) == len(dict_in) + 8
     assert dict_out["paramA"] == 3.0
@@ -48,25 +50,24 @@ def test_merge_includes():
     assert dict_out["paramG"] == [[10, "fancy", 3.14, "s"], ["more", 2, "come"]]
 
 
-def test_resolve_reference():
-    # sourcery skip: avoid-builtin-shadow
+def test_resolve_reference() -> None:
     # Prepare dict until and including ()
-    dict = CppDict()
-    SetupHelper.prepare_dict_until(dict, until_step=0)
+    s_dict: SDict[TKey, TValue] = SDict()
+    SetupHelper.prepare_dict_until(s_dict, until_step=0)
     # Assert non-indexed references have been resolved
-    assert DictReader._resolve_reference("$paramA", dict) == 3.0
-    assert DictReader._resolve_reference("$paramB", dict) == 4.0
-    assert DictReader._resolve_reference("$paramC", dict) == 7.0
-    assert DictReader._resolve_reference("$paramD", dict) == 0.66
-    assert DictReader._resolve_reference("$paramE[0]", dict.variables) == 0.1
+    assert DictReader._resolve_reference("$paramA", s_dict.variables) == 3.0
+    assert DictReader._resolve_reference("$paramB", s_dict.variables) == 4.0
+    assert DictReader._resolve_reference("$paramC", s_dict.variables) == 7.0
+    assert DictReader._resolve_reference("$paramD", s_dict.variables) == 0.66
+    assert DictReader._resolve_reference("$paramE[0]", s_dict.variables) == 0.1
 
-    paramE = DictReader._resolve_reference("$paramE", dict)  # noqa: N806
+    paramE = DictReader._resolve_reference("$paramE", s_dict.variables)  # noqa: N806
     assert isinstance(paramE, list)
     assert len(paramE) == 3
     assert paramE[0] == 0.1
     assert paramE[1] == 0.2
     assert paramE[2] == 0.4
-    paramF = DictReader._resolve_reference("$paramF", dict)  # noqa: N806
+    paramF = DictReader._resolve_reference("$paramF", s_dict.variables)  # noqa: N806
     assert isinstance(paramF, list)
     assert len(paramF) == 2
     assert len(paramF[0]) == 2
@@ -75,7 +76,7 @@ def test_resolve_reference():
     assert paramF[0][1] == 0.9
     assert paramF[1][0] == 2.7
     assert paramF[1][1] == 8.1
-    paramG = DictReader._resolve_reference("$paramG", dict)  # noqa: N806
+    paramG = DictReader._resolve_reference("$paramG", s_dict.variables)  # noqa: N806
     assert isinstance(paramG, list)
     assert len(paramG) == 2
     assert len(paramG[0]) == 4
@@ -89,28 +90,27 @@ def test_resolve_reference():
     assert paramG[1][2] == "come"
 
     # Assert indexed references have been resolved
-    assert DictReader._resolve_reference("$paramE[0]", dict) == 0.1
-    assert DictReader._resolve_reference("$paramE[1]", dict) == 0.2
-    assert DictReader._resolve_reference("$paramE[2]", dict) == 0.4
-    assert DictReader._resolve_reference("$paramF[0][0]", dict) == 0.3
-    assert DictReader._resolve_reference("$paramF[0][1]", dict) == 0.9
-    assert DictReader._resolve_reference("$paramF[1][0]", dict) == 2.7
-    assert DictReader._resolve_reference("$paramF[1][1]", dict) == 8.1
-    assert DictReader._resolve_reference("$paramG[0][0]", dict) == 10
-    assert DictReader._resolve_reference("$paramG[0][1]", dict) == "fancy"
-    assert DictReader._resolve_reference("$paramG[0][2]", dict) == 3.14
-    assert DictReader._resolve_reference("$paramG[0][3]", dict) == "s"
-    assert DictReader._resolve_reference("$paramG[1][0]", dict) == "more"
-    assert DictReader._resolve_reference("$paramG[1][1]", dict) == 2
-    assert DictReader._resolve_reference("$paramG[1][2]", dict) == "come"
+    assert DictReader._resolve_reference("$paramE[0]", s_dict.variables) == 0.1
+    assert DictReader._resolve_reference("$paramE[1]", s_dict.variables) == 0.2
+    assert DictReader._resolve_reference("$paramE[2]", s_dict.variables) == 0.4
+    assert DictReader._resolve_reference("$paramF[0][0]", s_dict.variables) == 0.3
+    assert DictReader._resolve_reference("$paramF[0][1]", s_dict.variables) == 0.9
+    assert DictReader._resolve_reference("$paramF[1][0]", s_dict.variables) == 2.7
+    assert DictReader._resolve_reference("$paramF[1][1]", s_dict.variables) == 8.1
+    assert DictReader._resolve_reference("$paramG[0][0]", s_dict.variables) == 10
+    assert DictReader._resolve_reference("$paramG[0][1]", s_dict.variables) == "fancy"
+    assert DictReader._resolve_reference("$paramG[0][2]", s_dict.variables) == 3.14
+    assert DictReader._resolve_reference("$paramG[0][3]", s_dict.variables) == "s"
+    assert DictReader._resolve_reference("$paramG[1][0]", s_dict.variables) == "more"
+    assert DictReader._resolve_reference("$paramG[1][1]", s_dict.variables) == 2
+    assert DictReader._resolve_reference("$paramG[1][2]", s_dict.variables) == "come"
 
 
-def test_eval_expressions():
-    # sourcery skip: avoid-builtin-shadow
+def test_eval_expressions() -> None:
     # Prepare dict until and including ()
-    dict = CppDict()
-    SetupHelper.prepare_dict_until(dict, until_step=0)
-    dict_in = deepcopy(dict.data)
+    s_dict: SDict[TKey, TValue] = SDict()
+    SetupHelper.prepare_dict_until(s_dict, until_step=0)
+    dict_in = deepcopy(s_dict)
     # Assert dict_in
     assert dict_in["expressions"]["reference"]["value"][:10] == "EXPRESSION"  # $paramA
     assert dict_in["expressions"]["expression1"]["value"][:10] == "EXPRESSION"  # "$paramB"
@@ -123,8 +123,8 @@ def test_eval_expressions():
     assert dict_in["expressions"]["expressionG3"]["value"][:10] == "EXPRESSION"  # "$paramG[1][2]"
 
     # Execute
-    DictReader._eval_expressions(dict)
-    dict_out = dict.data
+    DictReader._eval_expressions(s_dict)
+    dict_out = s_dict
 
     # Assert references have been resolved
     assert dict_out["expressions"]["reference"]["value"] == 3.0  # 3.0
@@ -146,15 +146,14 @@ def test_eval_expressions():
     assert dict_out["expressions"]["expressionG3"]["value"] == "come"  # paramG[1][2]
 
 
-def test_eval_expressions_with_included_keys():
-    # sourcery skip: avoid-builtin-shadow
+def test_eval_expressions_with_included_keys() -> None:
     # test keys with the same name as included keys
     # Prepare
     source_file = Path("test_dictReader_dict")
 
     # Execute
-    dict = DictReader.read(source_file, includes=True)
-    dict_out = dict.data
+    dict_in = DictReader.read(source_file, includes=True)
+    dict_out = dict_in
 
     # Assert root keys
     assert dict_out["keyA"] == 3.0  # $paramA
@@ -238,128 +237,147 @@ def test_eval_expressions_with_included_keys():
     assert dict_out["keysPointingToAListOfExpressions"]["keyToListL"][0] == 14.8  # "$nestParamJ[1][1] + $paramC";
 
 
-def test_eval_expressions_with_included_numpy_expressions():
-    # sourcery skip: avoid-builtin-shadow
+def test_eval_expressions_with_included_numpy_expressions() -> None:
     # Prepare
     source_file = Path("test_dictReader_dict")
 
     # Execute
-    dict = DictReader.read(source_file, includes=True)
-    dict_out = dict.data
+    dict_in = DictReader.read(source_file, includes=True)
+    dict_out = dict_in
     assert dict_out["keysContainingNumpyExpressions"]["npKeyA"] == 2
 
-    assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyB"], [[1, 1], [1, 1]])  # type: ignore
+    assert_array_equal(
+        dict_out["keysContainingNumpyExpressions"]["npKeyB"],
+        [
+            [1, 1],
+            [1, 1],
+        ],  # pyright: ignore[reportArgumentType]
+    )
 
-    assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyC"], [2, 2, 2])
+    assert_array_equal(
+        dict_out["keysContainingNumpyExpressions"]["npKeyC"],
+        [2, 2, 2],
+    )
 
     assert_array_equal(
         dict_out["keysContainingNumpyExpressions"]["npKeyD"],
-        [[2, 0, 0], [0, 2, 0], [0, 0, 2]],  # type: ignore
+        [
+            [2, 0, 0],
+            [0, 2, 0],
+            [0, 0, 2],
+        ],  # pyright: ignore[reportArgumentType]
     )
 
     assert_array_equal(
         dict_out["keysContainingNumpyExpressions"]["npKeyE"],
-        [[2, 0, 0], [0, 2, 0], [0, 0, 2]],  # type: ignore
+        [
+            [2, 0, 0],
+            [0, 2, 0],
+            [0, 0, 2],
+        ],  # pyright: ignore[reportArgumentType]
     )
 
-    assert_array_equal(dict_out["keysContainingNumpyExpressions"]["npKeyZ"], [[0, 0, 0, 0]])  # type: ignore
+    assert_array_equal(
+        dict_out["keysContainingNumpyExpressions"]["npKeyZ"],
+        [
+            [0, 0, 0, 0],
+        ],  # pyright: ignore[reportArgumentType]
+    )
 
 
-def test_reread_string_literals():
-    # sourcery skip: avoid-builtin-shadow
+def test_reread_string_literals() -> None:
     # Prepare
     source_file = Path("test_dictReader_dict")
     parsed_file = Path(f"parsed.{source_file.name}")
     parsed_file.unlink(missing_ok=True)
-    dict = DictReader.read(source_file, includes=True)
-    DictWriter.write(dict, parsed_file)
+    dict_in = DictReader.read(source_file, includes=True)
+    DictWriter.write(dict_in, parsed_file)
     assert parsed_file.exists()
     # Execute
     reread_dict = DictReader.read(parsed_file)
-    # Asset that string literals containing the '$' character are written back and reread with surrounding single quotes.
-    # This to avoid that a string literal with single quotes that contains a '$' character gets unintentionally evaluated as expression
-    # when rereading a parsed dict.
-    assert dict.data["differentKeyNames"] == reread_dict.data["differentKeyNames"]
-    assert dict.data["sameKeyNames"] == reread_dict.data["sameKeyNames"]
+    # Asset that string literals containing the '$' character are written back
+    # and reread with surrounding single quotes.
+    # This to avoid that a string literal with single quotes that contains a '$' character
+    # gets unintentionally evaluated as expression when rereading a parsed dict.
+    assert dict_in["differentKeyNames"] == reread_dict["differentKeyNames"]
+    assert dict_in["sameKeyNames"] == reread_dict["sameKeyNames"]
     # Clean up
     parsed_file.unlink()
 
 
 # @TODO: To be implemented
 @pytest.mark.skip(reason="To be implemented")
-def test_remove_comment_keys():
+def test_remove_comment_keys() -> None:
     pass
 
 
 # @TODO: To be implemented
 @pytest.mark.skip(reason="To be implemented")
-def test_remove_include_keys():
+def test_remove_include_keys() -> None:
     pass
 
 
-def test_read_dict():
-    # sourcery skip: avoid-builtin-shadow
+def test_read_dict() -> None:
     # Prepare
     source_file = Path("test_dictReader_dict")
     # Execute
-    dict = DictReader.read(source_file)
+    dict_in = DictReader.read(source_file)
     # Assert included dict has been merged
-    assert dict["paramA"] == 3.0
-    assert dict["paramB"] == 4.0
-    assert dict["paramC"] == 7.0
-    assert dict["paramD"] == 0.66
-    assert dict["paramE"] == [0.1, 0.2, 0.4]
-    assert dict["paramF"] == [[0.3, 0.9], [2.7, 8.1]]
-    assert dict["paramG"] == [[10, "fancy", 3.14, "s"], ["more", 2, "come"]]
+    assert dict_in["paramA"] == 3.0
+    assert dict_in["paramB"] == 4.0
+    assert dict_in["paramC"] == 7.0
+    assert dict_in["paramD"] == 0.66
+    assert dict_in["paramE"] == [0.1, 0.2, 0.4]
+    assert dict_in["paramF"] == [[0.3, 0.9], [2.7, 8.1]]
+    assert dict_in["paramG"] == [[10, "fancy", 3.14, "s"], ["more", 2, "come"]]
     # Assert references and expressions have been resolved
-    assert dict["keyA"] == 3.0
-    assert dict["keyB"] == 4.0
-    assert dict["keyC"] == 7.0
-    assert dict["keyD"] == 4.16
-    assert dict["keyE"] == 6.67
-    assert dict["keyF"] == 8.98
-    assert dict["keyG"] == 20.34
-    assert dict["keyH"] == 0.2
-    assert dict["keyI"] == [0.1, 0.2, 0.4]
-    assert dict["keyJ"] == 8.1
-    assert dict["keyK"] == [2.7, 8.1]
-    assert dict["keyL"] == [[0.3, 0.9], [2.7, 8.1]]
-    assert dict["keyM"] == 9.0
-    assert dict["keyN"] == 7.0
+    assert dict_in["keyA"] == 3.0
+    assert dict_in["keyB"] == 4.0
+    assert dict_in["keyC"] == 7.0
+    assert dict_in["keyD"] == 4.16
+    assert dict_in["keyE"] == 6.67
+    assert dict_in["keyF"] == 8.98
+    assert dict_in["keyG"] == 20.34
+    assert dict_in["keyH"] == 0.2
+    assert dict_in["keyI"] == [0.1, 0.2, 0.4]
+    assert dict_in["keyJ"] == 8.1
+    assert dict_in["keyK"] == [2.7, 8.1]
+    assert dict_in["keyL"] == [[0.3, 0.9], [2.7, 8.1]]
+    assert dict_in["keyM"] == 9.0
+    assert dict_in["keyN"] == 7.0
 
 
-def test_read_json():
-    # sourcery skip: avoid-builtin-shadow
+def test_read_json() -> None:
     # Prepare
     source_file = Path("test_dictReader_json.json")
     # Execute
-    dict = DictReader.read(source_file)
+    dict_in = DictReader.read(source_file)
     # Assert included dict has been merged
-    assert dict["paramA"] == 3.0
-    assert dict["paramB"] == 4.0
-    assert dict["paramC"] == 7.0
-    assert dict["paramD"] == 0.66
-    assert dict["paramE"] == [0.1, 0.2, 0.4]
-    assert dict["paramF"] == [[0.3, 0.9], [2.7, 8.1]]
-    assert dict["paramG"] == [[10, "fancy", 3.14, "s"], ["more", 2, "come"]]
+    assert dict_in["paramA"] == 3.0
+    assert dict_in["paramB"] == 4.0
+    assert dict_in["paramC"] == 7.0
+    assert dict_in["paramD"] == 0.66
+    assert dict_in["paramE"] == [0.1, 0.2, 0.4]
+    assert dict_in["paramF"] == [[0.3, 0.9], [2.7, 8.1]]
+    assert dict_in["paramG"] == [[10, "fancy", 3.14, "s"], ["more", 2, "come"]]
     # Assert references and expressions have been resolved
-    assert dict["keyA"] == 3.0
-    assert dict["keyB"] == 4.0
-    assert dict["keyC"] == 7.0
-    assert dict["keyD"] == 4.16
-    assert dict["keyE"] == 6.67
-    assert dict["keyF"] == 8.98
-    assert dict["keyG"] == 20.34
-    assert dict["keyH"] == 0.2
-    assert dict["keyI"] == [0.1, 0.2, 0.4]
-    assert dict["keyJ"] == 8.1
-    assert dict["keyK"] == [2.7, 8.1]
-    assert dict["keyL"] == [[0.3, 0.9], [2.7, 8.1]]
-    assert dict["keyM"] == 9.0
-    assert dict["keyN"] == 7.0
+    assert dict_in["keyA"] == 3.0
+    assert dict_in["keyB"] == 4.0
+    assert dict_in["keyC"] == 7.0
+    assert dict_in["keyD"] == 4.16
+    assert dict_in["keyE"] == 6.67
+    assert dict_in["keyF"] == 8.98
+    assert dict_in["keyG"] == 20.34
+    assert dict_in["keyH"] == 0.2
+    assert dict_in["keyI"] == [0.1, 0.2, 0.4]
+    assert dict_in["keyJ"] == 8.1
+    assert dict_in["keyK"] == [2.7, 8.1]
+    assert dict_in["keyL"] == [[0.3, 0.9], [2.7, 8.1]]
+    assert dict_in["keyM"] == 9.0
+    assert dict_in["keyN"] == 7.0
 
 
-def test_compare_expressions_in_dict_format_with_expressions_in_json_format():
+def test_compare_expressions_in_dict_format_with_expressions_in_json_format() -> None:
     # sourcery skip: no-loop-in-tests
     # Prepare
     source_file_dict = Path("test_dictReader_dict")
@@ -370,28 +388,33 @@ def test_compare_expressions_in_dict_format_with_expressions_in_json_format():
     # Assert
     assert dict_dict.expressions == dict_json.expressions
     # Collect all references contained in expressions
-    references_dict: List[str] = _get_references_in_expressions(dict_dict)
-    references_json: List[str] = _get_references_in_expressions(dict_json)
+    references_dict: list[str] = _get_references_in_expressions(dict_dict)
+    references_json: list[str] = _get_references_in_expressions(dict_json)
     assert references_dict == references_json
     references_resolved_dict = _resolve_references(dict_dict, references_dict)
     references_resolved_json = _resolve_references(dict_json, references_json)
     assert references_resolved_dict == references_resolved_json
     # assert dict_dict.variables == dict_json.variables
-    for dvs, jvs in zip(dict_dict.variables, dict_json.variables):
+    for dvs, jvs in zip(dict_dict.variables, dict_json.variables, strict=False):
         assert_array_equal(dvs, jvs)
 
 
-def _get_references_in_expressions(dict: CppDict) -> List[str]:
-    references: List[str] = []
-    for item in dict.expressions.values():
-        _refs: List[str] = re.findall(r"\$\w[\w\[\]]*", item["expression"])
+def _get_references_in_expressions(
+    s_dict: SDict[TKey, TValue],
+) -> list[str]:
+    references: list[str] = []
+    for item in s_dict.expressions.values():
+        _refs: list[str] = re.findall(r"\$\w[\w\[\]]*", item["expression"])
         references.extend(_refs)
     return references
 
 
-def _resolve_references(dict: CppDict, references: List[str]) -> Dict[str, Union[Any, None]]:
+def _resolve_references(
+    s_dict: SDict[TKey, TValue],
+    references: list[str],
+) -> dict[str, TValue | None]:
     # Resolve references
-    variables: Dict[str, Any] = dict.variables
+    variables: dict[str, TValue] = s_dict.variables
     references_resolved = {ref: DictReader._resolve_reference(ref, variables) for ref in references}
 
     return {
@@ -401,79 +424,73 @@ def _resolve_references(dict: CppDict, references: List[str]) -> Dict[str, Union
     }
 
 
-def test_read_foam():
-    # sourcery skip: avoid-builtin-shadow
+def test_read_foam() -> None:
     # Prepare
     source_file = Path("test_dictReader_foam")
     # Execute
-    dict = DictReader.read(source_file)
+    dict_in = DictReader.read(source_file)
     # Assert
-    assert dict["Re_profile"] == 1000000.0
-    assert dict["mag_U_infty"] == 1.004
+    assert dict_in["Re_profile"] == 1000000.0
+    assert dict_in["mag_U_infty"] == 1.004
 
 
-def test_read_xml():
-    # sourcery skip: avoid-builtin-shadow
+def test_read_xml() -> None:
     # Prepare
     source_file = Path("test_dictReader_xml.xml")
     # Execute
-    dict = DictReader.read(source_file)
+    dict_in = DictReader.read(source_file)
     # Assert
-    assert "_xmlOpts" in dict
-    assert len(dict["_xmlOpts"]["_nameSpaces"]) == 1
-    assert dict["_xmlOpts"]["_nameSpaces"]["xs"] == "http://www.w3.org/2001/XMLSchema"
-    assert len(dict["_xmlOpts"]["_rootAttributes"]) == 1
-    assert dict["_xmlOpts"]["_rootTag"] == "ROOT"
-    assert dict["_xmlOpts"]["_rootAttributes"]["version"] == "0.1"
-    assert dict["_xmlOpts"]["_addNodeNumbering"] is True
+    assert "_xmlOpts" in dict_in
+    assert len(dict_in["_xmlOpts"]["_nameSpaces"]) == 1
+    assert dict_in["_xmlOpts"]["_nameSpaces"]["xs"] == "http://www.w3.org/2001/XMLSchema"
+    assert len(dict_in["_xmlOpts"]["_rootAttributes"]) == 1
+    assert dict_in["_xmlOpts"]["_rootTag"] == "ROOT"
+    assert dict_in["_xmlOpts"]["_rootAttributes"]["version"] == "0.1"
+    assert dict_in["_xmlOpts"]["_addNodeNumbering"] is True
 
 
 @WindowsOnly
-def test_read_dict_in_subfolder_bsl():
-    # sourcery skip: avoid-builtin-shadow
+def test_read_dict_in_subfolder_bsl() -> None:
     # Prepare
     source_file = Path.cwd() / "subfolder" / "test_subfolder_dict_bsl"
     # Execute
-    dict = DictReader.read(source_file)
+    dict_in = DictReader.read(source_file)
     # Assert
-    assert dict["valueA"] == 1  # paramA is defined in paramDict_bsl
-    assert dict["valueB"] == "$paramB"  # paramB is defined in paramDict_fsl
+    assert dict_in["valueA"] == 1  # paramA is defined in paramDict_bsl
+    assert dict_in["valueB"] == "$paramB"  # paramB is defined in paramDict_fsl
 
 
-def test_read_dict_in_subfolder_fsl():
-    # sourcery skip: avoid-builtin-shadow
+def test_read_dict_in_subfolder_fsl() -> None:
     # Prepare
     source_file = Path.cwd() / "subfolder" / "test_subfolder_dict_fsl"
     # Execute
-    dict = DictReader.read(source_file)
+    dict_in = DictReader.read(source_file)
     # Assert
-    assert dict["valueA"] == "$paramA"  # paramA is defined in paramDict_bsl
-    assert dict["valueB"] == 2  # paramB is defined in paramDict_fsl
+    assert dict_in["valueA"] == "$paramA"  # paramA is defined in paramDict_bsl
+    assert dict_in["valueB"] == 2  # paramB is defined in paramDict_fsl
 
 
-def test_read_dict_in_subfolder_source_file_given_as_str():
-    # sourcery skip: avoid-builtin-shadow
+def test_read_dict_in_subfolder_source_file_given_as_str() -> None:
     # Prepare
     source_file = Path.cwd().absolute() / "subfolder" / "test_subfolder_dict_fsl"
     source_file_as_str = str(source_file)
     # Execute
-    dict = DictReader.read(source_file_as_str)
+    dict_in = DictReader.read(source_file_as_str)
     # Assert
-    assert dict["valueB"] == 2
+    assert dict_in["valueB"] == 2
 
 
-def test_read_dict_in_subfolder_source_file_given_as_purepath():
-    # sourcery skip: avoid-builtin-shadow
+def test_read_dict_in_subfolder_source_file_given_as_purepath() -> None:
     # Prepare
     source_file = Path.cwd().absolute() / "subfolder" / "test_subfolder_dict_fsl"
     source_file_as_purepath = PurePath(str(source_file))
     # Execute
-    dict = DictReader.read(source_file_as_purepath)
+    dict_in = DictReader.read(source_file_as_purepath)
     # Assert
-    assert dict["valueB"] == 2  # paramB is defined in paramDict_fsl
+    assert dict_in["valueB"] == 2  # paramB is defined in paramDict_fsl
 
 
-def test_read_dict_in_subfolder_parsed_via_dictparser_cli():
+def test_read_dict_in_subfolder_parsed_via_dictparser_cli() -> None:
     # Prepare
     source_file = "subfolder/test_subfolder_dict_fsl"
     parsed_file = Path("subfolder/parsed.test_subfolder_dict_fsl")
@@ -481,14 +498,14 @@ def test_read_dict_in_subfolder_parsed_via_dictparser_cli():
     parsed_file.unlink(missing_ok=True)
     parsed_file_foam.unlink(missing_ok=True)
     # Execute
-    _ = os.system(f"dictParser --quiet {source_file}")
+    _ = os.system(f"dictParser --quiet {source_file}")  # noqa: S605
     # Assert
     assert parsed_file.exists()
     assert not parsed_file_foam.exists()
     # Clean up
     parsed_file.unlink()
     # Execute
-    _ = os.system(f"dictParser --quiet --output=foam {source_file}")
+    _ = os.system(f"dictParser --quiet --output=foam {source_file}")  # noqa: S605
     # Assert
     assert not parsed_file.exists()
     assert parsed_file_foam.exists()
@@ -496,25 +513,28 @@ def test_read_dict_in_subfolder_parsed_via_dictparser_cli():
     parsed_file_foam.unlink()
 
 
-def test_read_circular_includes():
-    # sourcery skip: avoid-builtin-shadow
+def test_read_circular_includes() -> None:
     # Prepare
     source_file = Path("circular_include/test_base_dict")
     # Execute
-    dict = DictReader.read(source_file)
+    dict_in = DictReader.read(source_file)
     # Assert
-    assert dict["baseSubDict"]["baseVar1"] == 2
-    assert dict["baseSubDict"]["baseVar2"] == 2
-    assert dict["baseSubDict"]["baseVar3"] == 4
-    assert dict["baseSubDict"]["baseVar4"] == 8
-    assert dict["baseSubDict"]["baseVar5"] == 8
+    assert dict_in["baseSubDict"]["baseVar1"] == 2
+    assert dict_in["baseSubDict"]["baseVar2"] == 2
+    assert dict_in["baseSubDict"]["baseVar3"] == 4
+    assert dict_in["baseSubDict"]["baseVar4"] == 8
+    assert dict_in["baseSubDict"]["baseVar5"] == 8
 
 
-def test_read_circular_includes_log_warning(caplog: LogCaptureFixture):
+def test_read_circular_includes_log_warning(caplog: pytest.LogCaptureFixture) -> None:
     # Prepare
     source_file = Path("circular_include/test_base_dict")
     log_level_expected = "WARNING"
-    log_message_expected = "Recursive include detected. Merging of test_ref1_dict->test_ref2_dict->test_base_dict->test_ref1_dict into test_base_dict aborted."
+    log_message_expected = (
+        "Recursive include detected. "
+        "Merging of test_ref1_dict->test_ref2_dict->test_base_dict->test_ref1_dict "
+        "into test_base_dict aborted."
+    )
     # Execute
     _ = DictReader.read(source_file)
     # Assert
@@ -523,32 +543,30 @@ def test_read_circular_includes_log_warning(caplog: LogCaptureFixture):
     assert caplog.records[0].message == log_message_expected
 
 
-def test_read_strings_dict():
-    # sourcery skip: avoid-builtin-shadow
+def test_read_strings_dict() -> None:
     # Prepare
     source_file = Path("test_strings_dict")
     # Execute
-    dict = DictReader.read(source_file)
+    dict_in = DictReader.read(source_file)
     # Assert strings are parsed correctly
-    assert dict["subDict"]["string_00_dq_empty"] == ""
-    assert dict["subDict"]["string_01_sq_empty"] == ""
-    assert dict["subDict"]["string_02_dq_word"] == "string_02_dq_word"
-    assert dict["subDict"]["string_03_sq_word"] == "string_03_sq_word"
-    assert dict["subDict"]["string_04_dq_sq_word"] == r"quote('string_04_dq_sq_word')"
-    assert dict["subDict"]["string_05_dq_escsq_word"] == r"quote(\'string_05_dq_escsq_word\')"
-    assert dict["subDict"]["string_06_sq_dq_word"] == r'quote("string_06_sq_dq_word")'
-    assert dict["subDict"]["string_07_sq_escdq_word"] == r"quote(\"string_07_sq_escdq_word\")"
+    assert dict_in["subDict"]["string_00_dq_empty"] == ""
+    assert dict_in["subDict"]["string_01_sq_empty"] == ""
+    assert dict_in["subDict"]["string_02_dq_word"] == "string_02_dq_word"
+    assert dict_in["subDict"]["string_03_sq_word"] == "string_03_sq_word"
+    assert dict_in["subDict"]["string_04_dq_sq_word"] == r"quote('string_04_dq_sq_word')"
+    assert dict_in["subDict"]["string_05_dq_escsq_word"] == r"quote(\'string_05_dq_escsq_word\')"
+    assert dict_in["subDict"]["string_06_sq_dq_word"] == r'quote("string_06_sq_dq_word")'
+    assert dict_in["subDict"]["string_07_sq_escdq_word"] == r"quote(\"string_07_sq_escdq_word\")"
 
 
-def test_reread_strings_dict():
-    # sourcery skip: avoid-builtin-shadow
+def test_reread_strings_dict() -> None:
     # Prepare
     source_file = Path("test_strings_dict")
     parsed_file = Path(f"parsed.{source_file.name}")
     parsed_file.unlink(missing_ok=True)
     # Execute
-    dict = DictReader.read(source_file)
-    DictWriter.write(dict, parsed_file)
+    dict_in = DictReader.read(source_file)
+    DictWriter.write(dict_in, parsed_file)
     assert parsed_file.exists()
     # Assert strings are parsed correctly
     reread_dict = DictReader.read(parsed_file)
@@ -562,55 +580,59 @@ def test_reread_strings_dict():
     assert reread_dict["subDict"]["string_07_sq_escdq_word"] == r"quote(\"string_07_sq_escdq_word\")"
 
 
-def test_single_character_vars():
-    # sourcery skip: avoid-builtin-shadow
+def test_single_character_vars() -> None:
     # Prepare
     source_file = Path("test_single_character_vars_dict")
     # Execute
-    dict = DictReader.read(source_file, includes=False)
+    dict_in = DictReader.read(source_file, includes=False)
     # Assert single character variables are properly parsed
-    assert dict["a"] == 1.0
-    assert dict["b"] is True
-    assert dict["c"]["d"] == 4.0
-    assert dict["c"]["e"] is False
+    assert dict_in["a"] == 1.0
+    assert dict_in["b"] is True
+    assert dict_in["c"]["d"] == 4.0
+    assert dict_in["c"]["e"] is False
 
 
-def test_single_character_references():
-    # sourcery skip: avoid-builtin-shadow
+def test_single_character_references() -> None:
     # Prepare
     source_file = Path("test_single_character_vars_dict")
     # Execute
-    dict = DictReader.read(source_file)
+    dict_in = DictReader.read(source_file)
     # Assert included dict has been merged and single character references been resolved
-    assert dict["c"]["f"] == 6.0
-    assert dict["c"]["g"] is True
-    assert dict["c"]["h"] == 8.0
-    assert dict["c"]["i"] is False
-    assert dict["j"] == 10.0
-    assert dict["k"] == 12.0
-    assert dict["u"] == 3
-    assert dict["v"] == "Alice"
-    assert dict["w"] == "paragliding contest"
-    assert dict["ww"] == "AliceandBobfailtheparagliding contest"
+    assert dict_in["c"]["f"] == 6.0
+    assert dict_in["c"]["g"] is True
+    assert dict_in["c"]["h"] == 8.0
+    assert dict_in["c"]["i"] is False
+    assert dict_in["j"] == 10.0
+    assert dict_in["k"] == 12.0
+    assert dict_in["u"] == 3
+    assert dict_in["v"] == "Alice"
+    assert dict_in["w"] == "paragliding contest"
+    assert dict_in["ww"] == "AliceandBobfailtheparagliding contest"
 
 
 class SetupHelper:
     @staticmethod
     def prepare_dict_until(
-        dict_to_prepare: CppDict,
+        dict_to_prepare: SDict[TKey, TValue],
         until_step: int = -1,
         file_to_read: str = "test_dictReader_dict",
-    ):
+    ) -> None:
         file_name = Path.cwd() / file_to_read
 
-        parser = CppParser()
+        parser = NativeParser()
         _ = parser.parse_file(file_name, dict_to_prepare)
 
         funcs = [
-            (DictReader._merge_includes, dict_to_prepare),  # Step 00
-            (DictReader._eval_expressions, dict_to_prepare),  # Step 01
+            partial(
+                DictReader._merge_includes,  # Step 00
+                dict_to_prepare,
+            ),
+            partial(
+                DictReader._eval_expressions,  # Step 01
+                dict_to_prepare,
+            ),
         ]
 
         for i in range(until_step + 1):
-            funcs[i][0](*funcs[i][1:])
+            funcs[i]()
         return

@@ -1,7 +1,9 @@
+"""Utility functions for working with paths."""
+
 import logging
 import os
+from collections.abc import Sequence
 from pathlib import Path
-from typing import List, Sequence, Tuple
 
 __all__ = ["highest_common_root_folder", "relative_path"]
 
@@ -26,11 +28,10 @@ def highest_common_root_folder(paths: Sequence[Path]) -> Path:
     ValueError
         If argument 'paths' is empty or if the passed in paths do not share a common root folder.
     """
-
     if not paths:
         raise ValueError("argument 'paths' is empty.")
 
-    folders: List[Path] = []
+    folders: list[Path] = []
     for path in paths:
         _path: Path = path.resolve()
         _folder: Path = _path.parent if _path.suffix else _path
@@ -40,18 +41,17 @@ def highest_common_root_folder(paths: Sequence[Path]) -> Path:
         return folders[0]
 
     # Find highest common root folder
-    folders_as_parts: List[Tuple[str, ...]] = [folder.parts for folder in folders]
+    folders_as_parts: list[tuple[str, ...]] = [folder.parts for folder in folders]
     folders_as_parts.sort(key=lambda x: len(x), reverse=False)
-    shortest_folder_as_parts: Tuple[str, ...] = folders_as_parts[0]
-    common_parts: List[str] = []
+    shortest_folder_as_parts: tuple[str, ...] = folders_as_parts[0]
+    common_parts: list[str] = []
     for index, part in enumerate(shortest_folder_as_parts):
         if len({folder_as_parts[index] for folder_as_parts in folders_as_parts}) > 1:
             break
         common_parts.append(part)
     if common_parts:
         return Path(*tuple(common_parts))
-    else:
-        raise ValueError("The passed in paths do not share a common root folder.")
+    raise ValueError("The passed in paths do not share a common root folder.")
 
 
 def relative_path(from_path: Path, to_path: Path) -> Path:
