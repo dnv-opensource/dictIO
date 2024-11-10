@@ -7,11 +7,11 @@ API Reference
    :recursive:
 
    dictIO.dict
-   dictIO.dictParser
-   dictIO.dictReader
-   dictIO.dictWriter
+   dictIO.dict_parser
+   dictIO.dict_reader
+   dictIO.dict_writer
    dictIO.formatter
    dictIO.parser
    dictIO.types
    dictIO.utils
-   dictIO.cppDict
+   dictIO.cpp_dict
