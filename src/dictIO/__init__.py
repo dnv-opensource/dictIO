@@ -1,3 +1,5 @@
+"""dictIO package provides classes for reading, writing, and parsing dictionaries."""
+
 from dictIO.dict import (
     SDict,
     find_global_key,
