@@ -3,10 +3,11 @@ from __future__ import annotations
 import io
 import logging
 import re
+from abc import abstractmethod
 from collections.abc import Mapping, MutableMapping, MutableSequence
-from copy import deepcopy
+from copy import copy, deepcopy
 from re import Pattern
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, TypeVar, cast, overload
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, register_namespace, tostring
 
@@ -26,6 +27,12 @@ __ALL__ = [
     "JsonFormatter",
     "XmlFormatter",
 ]
+
+
+_KT = TypeVar("_KT", bound=TKey)
+_VT = TypeVar("_VT", bound=TValue)
+_MT = TypeVar("_MT", bound=MutableMapping[_KT, _VT])  # type: ignore[valid-type, reportGeneralTypeIssues]
+_ST = TypeVar("_ST", bound=MutableSequence[_VT])  # type: ignore[valid-type, reportGeneralTypeIssues]
 
 logger = logging.getLogger(__name__)
 
@@ -72,9 +79,10 @@ class Formatter:
         # 2. If no target file is passed, return CppFormatter as default / fallback
         return CppFormatter()  # default
 
+    @abstractmethod
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],  # noqa: ARG002
+        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
     ) -> str:
         """Create a string representation of the passed in dict.
 
@@ -90,45 +98,26 @@ class Formatter:
         str
             string representation of the dict
         """
-        return ""
-
-    def format_dict(
-        self,
-        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue] | TValue,  # noqa: ARG002
-    ) -> str:
-        """Format a dict or list object.
-
-        Note: Override this method when implementing a specific Formatter.
-
-        Parameters
-        ----------
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue], TValue]
-            the dict or list to be formatted
-
-        Returns
-        -------
-        str
-            the formatted string representation of the passed in dict or list
-        """
-        return ""
+        ...
 
     def format_value(
         self,
-        arg: TSingleValue,
-    ) -> str:
+        arg: TSingleValue | TValue,
+    ) -> str | TValue:
         """Format a single value.
 
         Formats a single value of type TSingleValue = str | int | float | bool | None
 
         Parameters
         ----------
-        arg : TSingleValue
+        arg : TSingleValue | TValue
             the value to be formatted
 
         Returns
         -------
-        str
-            the formatted string representation of the passed in value
+        str | TValue
+            the formatted string representation of the passed in value,
+            if value is of a single value type. Otherwise the value itself.
         """
         # sourcery skip: assign-if-exp, reintroduce-else
 
@@ -140,9 +129,73 @@ class Formatter:
             return self.format_bool(arg)
         if isinstance(arg, int):
             return self.format_int(arg)
-        if isinstance(arg, float):  # pyright: ignore[reportUnnecessaryIsInstance]
+        if isinstance(arg, float):
             return self.format_float(arg)
-        return str(arg)
+
+        # If arg is not of a single value type, return it as is.
+        return arg
+
+    @overload
+    def format_values(
+        self,
+        arg: _MT,
+    ) -> _MT:
+        pass
+
+    @overload
+    def format_values(
+        self,
+        arg: _ST,
+    ) -> _ST:
+        pass
+
+    def format_values(
+        self,
+        arg: _MT | _ST,
+    ) -> _MT | _ST:
+        """Format multiple values.
+
+        Formats all values inside a dict or list.
+        The function traverses the passed in dict or list recursively
+        so that all values in also nested dicts and lists get formatted.
+        A copy of the passed in dict or list is returned with all values formatted.
+        (The original dict or list is not modified.)
+
+        Parameters
+        ----------
+        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
+            the dict or list containing the values to be formatted.
+
+        Returns
+        -------
+        MutableMapping[TKey, str] | MutableSequence[str]
+            a copy of the passed in dict or list, with all values formatted.
+        """
+        item: TValue
+        _arg = copy(arg)  # shallow copy is sufficient because this function is recursive
+        if isinstance(_arg, MutableSequence):  # List
+            for index in range(len(_arg)):
+                item = _arg[index]
+                # ndarray -> list
+                if isinstance(item, ndarray):
+                    item = cast(list[TValue], item.tolist())
+                if isinstance(item, MutableMapping | MutableSequence):
+                    _arg[index] = self.format_values(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], item))
+                else:
+                    _arg[index] = self.format_value(item)
+
+        else:  # Dict
+            for key in list(_arg.keys()):  # work on a copy of keys
+                item = _arg[key]
+                # ndarray -> list
+                if isinstance(item, ndarray):
+                    item = cast(list[TValue], item.tolist())
+                if isinstance(item, MutableMapping | MutableSequence):
+                    _arg[key] = self.format_values(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], item))
+                else:
+                    _arg[key] = self.format_value(item)
+
+        return cast(_MT | _ST, _arg)
 
     def format_key(
         self,
@@ -423,14 +476,11 @@ class CppFormatter(Formatter):
         str
             string representation of the dict in dictIO native file format
         """
-        s: str = super().to_string(arg)
-
         # Create a working copy of the passed in dict, to avoid modifying the original.
-        s_dict: SDict[TKey, TValue]
-        s_dict = deepcopy(arg) if isinstance(arg, SDict) else SDict(deepcopy(arg))
+        _arg = deepcopy(arg)
 
         # Sort dict in a way that block comment and include statement come first
-        original_data = deepcopy(s_dict)
+        original_data = deepcopy(_arg)
         sorted_data: dict[TKey, TValue] = {}
         for key, element in original_data.items():
             if type(key) is str and re.search(r"BLOCKCOMMENT\d{6}", key):
@@ -441,40 +491,28 @@ class CppFormatter(Formatter):
         for key in sorted_data:
             del original_data[key]
         sorted_data |= original_data
-        s_dict.clear()
-        s_dict.update(sorted_data)
+        _arg.clear()
+        _arg.update(sorted_data)
 
-        # Create the string representation of the dictionary in its basic structure.
-        s += self.format_dict(s_dict)
+        # Create the string representation of the dict in its basic structure.
+        s: str = self.format_dict(_arg)
 
-        # The following elements a SDict's .data attribute
-        # are usually still substituted by placeholders:
-        # - Block comments
-        # - Include directives
-        # - Line comments
-        # Next step hence is to resolve and insert these three element types:
-        # 1. Block comments
-        s = self.insert_block_comments(s_dict, s)
-        # 2. Include directives
-        s = self.insert_includes(s_dict, s)
-        # 3. Line comments
-        s = self.insert_line_comments(s_dict, s)
+        if isinstance(_arg, SDict):
+            # The following elements in an SDict
+            # are usually still substituted by placeholders:
+            # - Block comments
+            # - Include directives
+            # - Line comments
+            # Next step hence is to resolve and insert these three element types:
+            # 1. Block comments
+            s = self.insert_block_comments(_arg, s)
+            # 2. Include directives
+            s = self.insert_includes(_arg, s)
+            # 3. Line comments
+            s = self.insert_line_comments(_arg, s)
 
         # Remove trailing spaces (if any)
         s = self.remove_trailing_spaces(s)
-        """
-        # Log variables and includes for debugging purposes
-        # variables
-        variables = dict.variables
-        if variables:
-            log_message = self.format_dict({'_variables': variables})
-            logger.debug(log_message)
-        # includes (the paths of all included files)
-        includes = dict.includes
-        if includes:
-            log_message = self.format_dict({'_includes': [j for i, j in includes.values()]})
-            logger.debug(log_message)
-        """
 
         # Return formatted string
         return s
@@ -543,6 +581,7 @@ class CppFormatter(Formatter):
                 # single value
                 else:
                     value = self.format_value(item)
+                    assert isinstance(value, str)
                     if first_item_on_this_line:
                         # The first item shall be indented by 1 relative to the (absolute) list level
                         item_level = level + 1
@@ -606,6 +645,7 @@ class CppFormatter(Formatter):
                 # key value pair
                 else:
                     value = self.format_value(item)
+                    assert isinstance(value, str)
                     skey: str = self.format_key(key)
                     s += self.format_dict(
                         f"{skey}{sep * max(8, (total_indent - len(skey) - tab_len * level))}{value};",
@@ -985,11 +1025,9 @@ class JsonFormatter(Formatter):
         """
         import json
 
-        # For the json dump, we need to distinguish between whether the passed in dict is of type dict or SDict.
-        d = arg
         # Json dump
         s = json.dumps(
-            d,
+            obj=arg,
             skipkeys=True,
             ensure_ascii=True,
             check_circular=True,

@@ -262,29 +262,6 @@ class Parser:
         # Returned 'as is' they are kept unchanged, what is in fact what we want here.
         return self.remove_quotes_from_string(arg)
 
-    def parse_key(
-        self,
-        arg: str,
-    ) -> TKey:
-        """Parse a single key.
-
-        Parses a single key and casts it to its native type (TKey = str | int).
-
-        Parameters
-        ----------
-        arg : str
-            the value to be parsed
-
-        Returns
-        -------
-        TKey
-            the value casted to its native type (TKey = str | int)
-        """
-        key: TSingleValue = self.parse_value(arg)
-        if not isinstance(key, TKey):
-            raise TypeError(f"Key '{key}' is not of type TKey. Found type: {type(key)}")
-        return key
-
     def parse_values(self, arg: MutableMapping[TKey, TValue] | MutableSequence[TValue]) -> None:
         """Parse multiple values.
 
@@ -312,6 +289,29 @@ class Parser:
                 else:
                     arg[index] = self.parse_value(arg[index])
         return
+
+    def parse_key(
+        self,
+        arg: str,
+    ) -> TKey:
+        """Parse a single key.
+
+        Parses a single key and casts it to its native type (TKey = str | int).
+
+        Parameters
+        ----------
+        arg : str
+            the value to be parsed
+
+        Returns
+        -------
+        TKey
+            the value casted to its native type (TKey = str | int)
+        """
+        key: TSingleValue = self.parse_value(arg)
+        if not isinstance(key, TKey):
+            raise TypeError(f"Key '{key}' is not of type TKey. Found type: {type(key)}")
+        return key
 
     @staticmethod
     def remove_quotes_from_string(

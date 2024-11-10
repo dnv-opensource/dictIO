@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 from dictIO import CppFormatter, DictReader, FoamFormatter, SDict, XmlFormatter
-from dictIO.formatter import Formatter
 
 if TYPE_CHECKING:
     from dictIO.types import TKey, TValue
@@ -17,28 +16,6 @@ class TestFormatter:
     @pytest.mark.skip(reason="To be implemented")
     def test_returned_formatter_type(self) -> None:
         pass
-
-    def test_to_string_does_not_alter_original(self) -> None:
-        # Prepare
-        dict_in = DictReader.read(Path("test_formatter_dict"))
-        formatter = Formatter()
-        dict_in_reference = dict_in
-        dict_in_shallowcopy = copy(dict_in)
-        # Execute
-        str_out: str = formatter.to_string(dict_in)
-        # Assert
-        assert isinstance(str_out, str)
-        # Make sure that the original dictionary is not modified
-        assert dict_in == dict_in_reference
-        assert dict_in is dict_in_reference
-        for key in dict_in:
-            assert dict_in[key] == dict_in_reference[key]
-            assert dict_in[key] is dict_in_reference[key]
-        assert dict_in == dict_in_shallowcopy
-        assert dict_in is not dict_in_shallowcopy
-        for key in dict_in:
-            assert dict_in[key] == dict_in_shallowcopy[key]
-            assert dict_in[key] is dict_in_shallowcopy[key]
 
 
 class TestCppFormatter:
