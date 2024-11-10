@@ -2,16 +2,12 @@ import re
 from _collections_abc import MutableMapping, MutableSequence
 from collections.abc import Sequence
 from copy import copy
-from typing import Any, TypeVar
+from typing import Any
 
-from dictIO.types import TGlobalKey, TKey, TValue
-
-_KT = TypeVar("_KT", bound=TKey)
-_VT = TypeVar("_VT", bound=TValue)
-_MT = TypeVar("_MT", bound=MutableMapping[_KT, _VT])  # type: ignore[valid-type, reportGeneralTypeIssues]
+from dictIO.types import M, TGlobalKey, TKey, TValue
 
 
-def order_keys(arg: _MT) -> _MT:
+def order_keys(arg: M) -> M:
     """alpha-numeric sorting of keys, recursively.
 
     Parameters

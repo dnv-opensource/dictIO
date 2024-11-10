@@ -16,7 +16,7 @@ from typing import (
     overload,
 )
 
-from dictIO.types import TGlobalKey, TKey, TValue
+from dictIO.types import K, TGlobalKey, TKey, TValue, V
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.dict import (
     find_global_key,
@@ -31,16 +31,16 @@ __ALL__ = [
 ]
 
 
-# Type variables for keys and values
-_KT = TypeVar("_KT", bound=TKey)
-_VT = TypeVar("_VT", bound=TValue)
-_KT_local = TypeVar("_KT_local", bound=TKey)
-_VT_local = TypeVar("_VT_local", bound=TValue)
+# Private versions of the generic type variables for keys and values.
+# These are used in local scopes, where there is a need to define new type variables
+# with the same constraints as the global ones, yet without being bound to them.
+_K = TypeVar("_K", bound=TKey)
+_V = TypeVar("_V", bound=TValue)
 
 logger = logging.getLogger(__name__)
 
 
-class SDict(dict[_KT, _VT]):
+class SDict(dict[K, V]):
     """Generic data structure for serializable dictionaries. Core class in dictIO.
 
     SDict inherits from dict. It can hence be used transparently in any context
@@ -50,23 +50,23 @@ class SDict(dict[_KT, _VT]):
     @overload
     def __init__(
         self,
-        **kwargs: _VT,
+        **kwargs: V,
     ) -> None:
         pass
 
     @overload
     def __init__(
         self,
-        arg: Mapping[_KT, _VT],
-        **kwargs: _VT,
+        arg: Mapping[K, V],
+        **kwargs: V,
     ) -> None:
         pass
 
     @overload
     def __init__(
         self,
-        arg: Iterable[tuple[_KT, _VT]],
-        **kwargs: _VT,
+        arg: Iterable[tuple[K, V]],
+        **kwargs: V,
     ) -> None:
         pass
 
@@ -74,24 +74,24 @@ class SDict(dict[_KT, _VT]):
     def __init__(
         self,
         arg: str | os.PathLike[str],
-        **kwargs: _VT,
+        **kwargs: V,
     ) -> None:
         pass
 
     def __init__(
         self,
-        arg: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | str | os.PathLike[str] | None = None,
-        **kwargs: _VT,
+        arg: Mapping[K, V] | Iterable[tuple[K, V]] | str | os.PathLike[str] | None = None,
+        **kwargs: V,
     ) -> None:
         source_file: str | os.PathLike[str] | None = None
-        base_dict: MutableMapping[_KT, _VT] | None = None
+        base_dict: MutableMapping[K, V] | None = None
 
         if isinstance(arg, Mapping):
-            base_dict = dict(cast(Mapping[_KT, _VT], arg))
+            base_dict = dict(cast(Mapping[K, V], arg))
         elif isinstance(arg, str | os.PathLike):
             source_file = arg
         elif isinstance(arg, Iterable):
-            base_dict = dict(cast(Iterable[tuple[_KT, _VT]], arg))  # type: ignore[reportUnnecessaryCast]
+            base_dict = dict(cast(Iterable[tuple[K, V]], arg))  # type: ignore[reportUnnecessaryCast]
 
         if base_dict:
             super().__init__(base_dict)
@@ -156,43 +156,43 @@ class SDict(dict[_KT, _VT]):
     @classmethod
     def fromkeys(
         cls,
-        iterable: Iterable[_KT_local],
+        iterable: Iterable[_K],
         value: None = None,
-    ) -> SDict[_KT_local, TValue | None]:
+    ) -> SDict[_K, TValue | None]:
         pass
 
     @overload
     @classmethod
     def fromkeys(
         cls,
-        iterable: Iterable[_KT_local],
-        value: _VT_local,
-    ) -> SDict[_KT_local, _VT_local]:
+        iterable: Iterable[_K],
+        value: _V,
+    ) -> SDict[_K, _V]:
         pass
 
     @classmethod
     def fromkeys(
         cls,
-        iterable: Iterable[_KT_local],
-        value: _VT_local | None = None,
-    ) -> SDict[_KT_local, _VT_local] | SDict[_KT_local, TValue | None]:
+        iterable: Iterable[_K],
+        value: _V | None = None,
+    ) -> SDict[_K, _V] | SDict[_K, TValue | None]:
         """Create a new SDict instance from the keys of an iterable.
 
         Parameters
         ----------
-        iterable : Iterable[_KT_local]
+        iterable : Iterable[_K]
             An iterable with keys
-        value : _VT_local | None, optional
+        value : _V | None, optional
             The value to be assigned to the passed in keys, by default None
 
         Returns
         -------
-        SDict[_KT_local, _VT_local] | SDict[_KT_local, TValue | None]
+        SDict[_K, _V] | SDict[_K, TValue | None]
             The created SDict instance.
         """
-        new_dict: SDict[_KT_local, _VT_local] = cast(SDict[_KT_local, _VT_local], cls())
+        new_dict: SDict[_K, _V] = cast(SDict[_K, _V], cls())
         for key in iterable:
-            new_dict[key] = cast(_VT_local, value)  # cast is safe, as `None` is within the type bounds of _VT
+            new_dict[key] = cast(_V, value)  # cast is safe, as `None` is within the type bounds of _VT
         return new_dict
 
     # TODO @CLAROS: Change return type to `Self` (from `typing`module)
@@ -202,7 +202,7 @@ class SDict(dict[_KT, _VT]):
     def load(
         self,
         source_file: str | os.PathLike[str],
-    ) -> SDict[_KT, _VT]:
+    ) -> SDict[K, V]:
         """Load a dict file into this SDict instance.
 
         Reads a dict file and loads its content into the current SDict instance.
@@ -252,7 +252,7 @@ class SDict(dict[_KT, _VT]):
         #      Maybe this method needs to be refactored to a factory function, returning a new `SDict` instance
         #      with the actual types of `loaded_dict`.
         #      CLAROS, 2024-11-06
-        self.update(cast(SDict[_KT, _VT], loaded_dict))
+        self.update(cast(SDict[K, V], loaded_dict))
         self._set_source_file(source_file)
         return self
 
@@ -363,7 +363,7 @@ class SDict(dict[_KT, _VT]):
         """
         variables: MutableMapping[str, TValue] = {}
 
-        def extract_variables_from_dict(dict_in: MutableMapping[_KT_local, _VT]) -> None:
+        def extract_variables_from_dict(dict_in: MutableMapping[_K, V]) -> None:
             for key, value in dict_in.items():
                 # 1: Check for value types that trigger recursion
                 #    (dict  or  list of dicts)
@@ -417,30 +417,30 @@ class SDict(dict[_KT, _VT]):
     @overload  # type: ignore[override]
     def update(
         self,
-        m: Mapping[_KT, _VT],
-        **kwargs: _VT,
+        m: Mapping[K, V],
+        **kwargs: V,
     ) -> None:
         pass
 
     @overload
     def update(
         self,
-        m: Iterable[tuple[_KT, _VT]],
-        **kwargs: _VT,
+        m: Iterable[tuple[K, V]],
+        **kwargs: V,
     ) -> None:
         pass
 
     @overload
     def update(
         self,
-        **kwargs: _VT,
+        **kwargs: V,
     ) -> None:
         pass
 
     def update(
         self,
-        m: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | None = None,
-        **kwargs: _VT,
+        m: Mapping[K, V] | Iterable[tuple[K, V]] | None = None,
+        **kwargs: V,
     ) -> None:
         """Update top-level keys with the keys from the passed in dict.
 
@@ -476,8 +476,8 @@ class SDict(dict[_KT, _VT]):
 
     def _post_update(
         self,
-        m: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]] | None = None,
-        **kwargs: _VT,  # noqa: ARG002
+        m: Mapping[K, V] | Iterable[tuple[K, V]] | None = None,
+        **kwargs: V,  # noqa: ARG002
     ) -> None:
         # update attributes
         if isinstance(m, SDict):
@@ -487,7 +487,7 @@ class SDict(dict[_KT, _VT]):
             self.includes.update(m.includes)
         return
 
-    def merge(self, other: Mapping[_KT, _VT]) -> None:
+    def merge(self, other: Mapping[K, V]) -> None:
         """Merge the passed in dict into the existing SDict instance.
 
         In contrast to update(), merge() works recursively. That is, it does not simply substitute top-level keys but
@@ -510,8 +510,8 @@ class SDict(dict[_KT, _VT]):
 
     def _recursive_merge(
         self,
-        target_dict: MutableMapping[_KT_local, _VT_local],
-        dict_to_merge: Mapping[_KT_local, _VT_local],
+        target_dict: MutableMapping[_K, _V],
+        dict_to_merge: Mapping[_K, _V],
         *,
         overwrite: bool = False,
     ) -> None:
@@ -552,7 +552,7 @@ class SDict(dict[_KT, _VT]):
 
         return
 
-    def _post_merge(self, other: Mapping[_KT, _VT]) -> None:
+    def _post_merge(self, other: Mapping[K, V]) -> None:
         # merge SDict attributes
         if isinstance(other, SDict):
             self._recursive_merge(target_dict=self.expressions, dict_to_merge=other.expressions)
@@ -561,7 +561,7 @@ class SDict(dict[_KT, _VT]):
             self._recursive_merge(target_dict=self.includes, dict_to_merge=other.includes)
         return
 
-    def include(self, dict_to_include: SDict[_KT_local, _VT_local]) -> None:
+    def include(self, dict_to_include: SDict[_K, _V]) -> None:
         """Add an include directive for the passed in dict.
 
         Parameters
@@ -615,28 +615,28 @@ class SDict(dict[_KT, _VT]):
                 continue
             break
         # cast is safe, as `str` is within the type bounds of both _KT and _VT
-        self[cast(_KT, placeholder)] = cast(_VT, placeholder)
+        self[cast(K, placeholder)] = cast(V, placeholder)
         self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
         return
 
     @overload  # type: ignore[override]
     def __or__(
         self,
-        other: dict[_KT, _VT],
-    ) -> SDict[_KT, _VT]:
+        other: dict[K, V],
+    ) -> SDict[K, V]:
         pass
 
     @overload
     def __or__(
         self,
-        other: dict[_KT_local, _VT_local],
-    ) -> SDict[_KT | _KT_local, _VT | _VT_local]:
+        other: dict[_K, _V],
+    ) -> SDict[K | _K, V | _V]:
         pass
 
     def __or__(
         self,
-        other: dict[_KT, _VT] | dict[_KT_local, _VT_local],
-    ) -> SDict[_KT, _VT] | SDict[_KT | _KT_local, _VT | _VT_local]:
+        other: dict[K, V] | dict[_K, _V],
+    ) -> SDict[K, V] | SDict[K | _K, V | _V]:
         """Left `or` operation: `self | other`.
 
         The `__or__()` method is called by the ` | ` operator when it is used with `self` on the left-hand side.
@@ -651,12 +651,12 @@ class SDict(dict[_KT, _VT]):
         SDict[_KT, _VT]
             A new SDict instance containing the content of `self` updated with the content of `other`.
         """
-        new_dict: SDict[_KT | _KT_local, _VT | _VT_local]
+        new_dict: SDict[K | _K, V | _V]
         new_dict = cast(
-            SDict[_KT | _KT_local, _VT | _VT_local],
+            SDict[K | _K, V | _V],
             self.__class__(
                 cast(
-                    Mapping[_KT, _VT],
+                    Mapping[K, V],
                     super().__or__(other),
                 )
             ),
@@ -664,7 +664,7 @@ class SDict(dict[_KT, _VT]):
         # update attributes
         new_dict._post_update(
             cast(
-                Mapping[_KT | _KT_local, _VT | _VT_local],
+                Mapping[K | _K, V | _V],
                 other,
             )
         )
@@ -674,21 +674,21 @@ class SDict(dict[_KT, _VT]):
     @overload  # type: ignore[override]
     def __ror__(
         self,
-        other: dict[_KT, _VT],
-    ) -> dict[_KT, _VT]:
+        other: dict[K, V],
+    ) -> dict[K, V]:
         pass
 
     @overload
     def __ror__(
         self,
-        other: dict[_KT_local, _VT_local],
-    ) -> dict[_KT | _KT_local, _VT | _VT_local]:
+        other: dict[_K, _V],
+    ) -> dict[K | _K, V | _V]:
         pass
 
     def __ror__(
         self,
-        other: dict[_KT, _VT] | dict[_KT_local, _VT_local],
-    ) -> dict[_KT, _VT] | dict[_KT | _KT_local, _VT | _VT_local]:
+        other: dict[K, V] | dict[_K, _V],
+    ) -> dict[K, V] | dict[K | _K, V | _V]:
         """Right `or` operation: `other | self`.
 
         The `__ror__()` method is called by the ` | ` operator when it is used with `self` on the right-hand side.
@@ -705,28 +705,28 @@ class SDict(dict[_KT, _VT]):
         SDict[_KT, _VT]
             A new SDict instance containing the content of `other` updated with the content of `self`.
         """
-        new_dict: SDict[_KT | _KT_local, _VT | _VT_local]
+        new_dict: SDict[K | _K, V | _V]
         new_dict = cast(
-            SDict[_KT | _KT_local, _VT | _VT_local],
-            self.__class__(super().__ror__(cast(dict[_KT, _VT], other))),
+            SDict[K | _K, V | _V],
+            self.__class__(super().__ror__(cast(dict[K, V], other))),
         )
         # update attributes
-        new_dict._post_update(cast(SDict[_KT | _KT_local, _VT | _VT_local], self))
+        new_dict._post_update(cast(SDict[K | _K, V | _V], self))
         new_dict._clean()
         return new_dict
 
     @overload  # type: ignore[override]
     def __ior__(
         self,
-        other: Mapping[_KT, _VT],
-    ) -> SDict[_KT, _VT]:
+        other: Mapping[K, V],
+    ) -> SDict[K, V]:
         pass
 
     @overload
     def __ior__(
         self,
-        other: Iterable[tuple[_KT, _VT]],
-    ) -> SDict[_KT, _VT]:
+        other: Iterable[tuple[K, V]],
+    ) -> SDict[K, V]:
         pass
 
     # TODO @CLAROS: Change return type to `Self` (from `typing`module)
@@ -735,8 +735,8 @@ class SDict(dict[_KT, _VT]):
     #      CLAROS, 2024-10-15
     def __ior__(  # noqa: PYI034
         self,
-        other: Mapping[_KT, _VT] | Iterable[tuple[_KT, _VT]],
-    ) -> SDict[_KT, _VT]:
+        other: Mapping[K, V] | Iterable[tuple[K, V]],
+    ) -> SDict[K, V]:
         # def __ior__(self, other: MutableMapping[_KT, _VT]) -> SDict[_KT, _VT]:
         """Augmented `or` operation: `self |= other`.
 
@@ -760,13 +760,13 @@ class SDict(dict[_KT, _VT]):
         self._clean()
         return self
 
-    def __copy__(self) -> SDict[_KT, _VT]:
+    def __copy__(self) -> SDict[K, V]:
         copied_dict = self.__class__.__new__(self.__class__)
         copied_dict.__dict__.update(self.__dict__)
         copied_dict.update(super().copy())
         return copied_dict
 
-    def copy(self) -> SDict[_KT, _VT]:
+    def copy(self) -> SDict[K, V]:
         """Return a shallow copy of the SDict instance.
 
         Returns
@@ -1011,7 +1011,7 @@ class SDict(dict[_KT, _VT]):
     # with CppDict class from dictIO <= v0.3.4
     # It is marked as deprecated and will be removed in a future release.
     @property
-    def data(self) -> dict[_KT, _VT]:
+    def data(self) -> dict[K, V]:
         """Mimick the data property of the CppDict class from dictIO <= v0.3.4.
 
         Mimicks the data property of the deprecated CppDict class to maintain
@@ -1030,7 +1030,7 @@ class SDict(dict[_KT, _VT]):
         return self
 
     @data.setter
-    def data(self, data: dict[_KT, _VT]) -> None:
+    def data(self, data: dict[K, V]) -> None:
         warnings.warn(
             f"`{self.__class__.__name__}.data` is deprecated. Use `SDict.update()` instead.",
             DeprecationWarning,
@@ -1041,7 +1041,7 @@ class SDict(dict[_KT, _VT]):
         return
 
 
-def _insert_expression(value: TValue, s_dict: SDict[_KT, _VT]) -> TValue:
+def _insert_expression(value: TValue, s_dict: SDict[K, V]) -> TValue:
     if not isinstance(value, str):
         return value
     if not re.search(r"EXPRESSION\d{6}", value):

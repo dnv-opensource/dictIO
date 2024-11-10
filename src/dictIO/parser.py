@@ -25,9 +25,6 @@ __ALL__ = ["Parser", "CppParser", "FoamParser", "JsonParser", "XmlParser"]
 
 logger = logging.getLogger(__name__)
 
-# TSDict: TypeAlias = SDict[TKey, TValue]  # noqa: ERA001
-# _TDict_co = TypeVar("_TDict_co", bound=TSDict, covariant=True)  # noqa: ERA001
-
 
 class Parser:
     """Base Class for parsers.

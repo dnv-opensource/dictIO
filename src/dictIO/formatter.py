@@ -7,14 +7,14 @@ from abc import abstractmethod
 from collections.abc import Mapping, MutableMapping, MutableSequence
 from copy import copy, deepcopy
 from re import Pattern
-from typing import TYPE_CHECKING, TypeVar, cast, overload
+from typing import TYPE_CHECKING, cast, overload
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, register_namespace, tostring
 
 from numpy import ndarray
 
 from dictIO import SDict
-from dictIO.types import TKey, TSingleValue, TValue
+from dictIO.types import M, S, TKey, TSingleValue, TValue
 from dictIO.utils.counter import BorgCounter
 
 if TYPE_CHECKING:
@@ -28,11 +28,6 @@ __ALL__ = [
     "XmlFormatter",
 ]
 
-
-_KT = TypeVar("_KT", bound=TKey)
-_VT = TypeVar("_VT", bound=TValue)
-_MT = TypeVar("_MT", bound=MutableMapping[_KT, _VT])  # type: ignore[valid-type, reportGeneralTypeIssues]
-_ST = TypeVar("_ST", bound=MutableSequence[_VT])  # type: ignore[valid-type, reportGeneralTypeIssues]
 
 logger = logging.getLogger(__name__)
 
@@ -138,21 +133,21 @@ class Formatter:
     @overload
     def format_values(
         self,
-        arg: _MT,
-    ) -> _MT:
+        arg: M,
+    ) -> M:
         pass
 
     @overload
     def format_values(
         self,
-        arg: _ST,
-    ) -> _ST:
+        arg: S,
+    ) -> S:
         pass
 
     def format_values(
         self,
-        arg: _MT | _ST,
-    ) -> _MT | _ST:
+        arg: M | S,
+    ) -> M | S:
         """Format multiple values.
 
         Formats all values inside a dict or list.
@@ -195,7 +190,7 @@ class Formatter:
                 else:
                     _arg[key] = self.format_value(item)
 
-        return cast(_MT | _ST, _arg)
+        return cast(M | S, _arg)
 
     def format_key(
         self,

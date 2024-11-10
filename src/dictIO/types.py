@@ -1,15 +1,18 @@
 # ruff: noqa: ERA001
 
-from collections.abc import Hashable
-from typing import Any, TypeAlias
+from collections.abc import Hashable, MutableMapping, MutableSequence
+from typing import Any, TypeAlias, TypeVar
 
+# Type aliases for keys
+TKey: TypeAlias = Hashable
+TGlobalKey: TypeAlias = TKey | int
+
+# Type aliases for values
+TValue: TypeAlias = Any
 TSingleValue: TypeAlias = str | int | float | bool | None
 
-# Type aliases for keys and values
-# TKey: TypeAlias = int | str
-# TValue: TypeAlias = int | float | str | bool | MutableMapping[TKey, Any] | MutableSequence[Any] | Any | None
-# TKey: TypeAlias = str | int
-TKey: TypeAlias = Hashable
-TValue: TypeAlias = Any
-
-TGlobalKey: TypeAlias = TKey | int
+# Generic Type Variables
+K = TypeVar("K", bound=TKey)
+V = TypeVar("V", bound=TValue)
+M = TypeVar("M", bound=MutableMapping[K, V])  # type: ignore[valid-type, reportGeneralTypeIssues]
+S = TypeVar("S", bound=MutableSequence[V])  # type: ignore[valid-type, reportGeneralTypeIssues]
