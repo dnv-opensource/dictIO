@@ -10,6 +10,7 @@ from pathlib import Path
 from re import Match, Pattern
 from typing import (
     TYPE_CHECKING,
+    Any,
     cast,
 )
 
@@ -279,13 +280,13 @@ class Parser:
         if isinstance(arg, MutableMapping):  # Dict
             for key in list(arg.keys()):  # work on a copy of keys
                 if isinstance(arg[key], MutableMapping | MutableSequence):
-                    self.parse_values(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], arg[key]))
+                    self.parse_values(cast(MutableMapping[K, V] | MutableSequence[V], arg[key]))
                 else:
                     arg[key] = cast(V, self.parse_value(arg[key]))
         else:  # List
             for index in range(len(arg)):
                 if isinstance(arg[index], MutableMapping | MutableSequence):
-                    self.parse_values(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], arg[index]))
+                    self.parse_values(cast(MutableMapping[K, V] | MutableSequence[V], arg[index]))
                 else:
                     arg[index] = cast(V, self.parse_value(arg[index]))
         return
@@ -1707,7 +1708,7 @@ class XmlParser(Parser):
         self,
         root_element: LxmlElement,
         namespaces: dict[str, str],
-    ) -> dict[TKey, TValue]:
+    ) -> dict[Any, Any]:
         """Recursively parses all nodes and saves the nodes' content in a dict."""
         # Default case: Make all node tags temporarily unique by indexing them using BorgCounter
         node_tags: list[str] = [

@@ -41,7 +41,7 @@ from numpy import (  # noqa: F401
 )
 
 from dictIO import Parser, SDict
-from dictIO.types import K, M, TKey, TValue, V
+from dictIO.types import K, M, V
 from dictIO.utils.counter import DejaVue
 
 __ALL__ = ["DictReader"]
@@ -93,7 +93,7 @@ class DictReader:
 
         Returns
         -------
-        SDict
+        SDict[Any, Any]
             the read dict
 
         Raises
@@ -114,7 +114,7 @@ class DictReader:
         parser = parser or Parser.get_parser(source_file)
 
         # Parse the dict file and transform it into a SDict
-        parsed_dict: SDict[TKey, TValue] = parser.parse_file(source_file, comments=comments)
+        parsed_dict: SDict[Any, Any] = parser.parse_file(source_file, comments=comments)
 
         # Merge dict files included through #include directives, if not actively refrained through opts
         if includes:

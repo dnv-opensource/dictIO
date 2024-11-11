@@ -4,9 +4,9 @@ import logging
 import os
 from collections.abc import MutableSequence
 from pathlib import Path
+from typing import Any
 
 from dictIO import DictReader, DictWriter, SDict, create_target_file_name
-from dictIO.types import TKey, TValue
 
 __ALL__ = ["DictParser"]
 
@@ -31,9 +31,9 @@ class DictParser:
         mode: str = "w",
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[TKey] | None = None,
+        scope: MutableSequence[Any] | None = None,
         output: str | None = None,
-    ) -> SDict[TKey, TValue] | None:
+    ) -> SDict[Any, Any] | None:
         """Parse a dictionary file and save it with prefix 'parsed.'.
 
         DictParser.parse() combines the otherwise atomic operations

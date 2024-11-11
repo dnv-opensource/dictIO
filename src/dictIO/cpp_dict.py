@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     import os
     from _collections_abc import Iterable, Mapping
 
-    from dictIO.types import TValue
 
 __ALL__ = [
     "CppDict",
@@ -68,7 +67,7 @@ class CppDict(SDict[str, Any]):
     def __init__(
         self,
         arg: Mapping[str, Any] | Iterable[tuple[str, Any]] | str | os.PathLike[str] | None = None,
-        **kwargs: TValue,
+        **kwargs: Any,
     ) -> None:
         warnings.warn(
             "`CppDict` is deprecated. Use `SDict[K, V]` instead.",

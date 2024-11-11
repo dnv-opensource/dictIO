@@ -5,10 +5,10 @@ import os
 import re
 from collections.abc import MutableMapping, MutableSequence
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 from dictIO import Formatter, NativeParser, SDict, order_keys
-from dictIO.types import K, TKey, V
+from dictIO.types import K, V
 
 __ALL__ = ["DictWriter", "create_target_file_name"]
 
@@ -119,7 +119,7 @@ class DictWriter:
 def create_target_file_name(
     source_file: str | os.PathLike[str],
     prefix: str | None = None,
-    scope: MutableSequence[TKey] | None = None,
+    scope: MutableSequence[Any] | None = None,
     output: str | None = None,
 ) -> Path:
     """Create a well defined target file name.
@@ -133,7 +133,7 @@ def create_target_file_name(
         source dict file
     prefix : Union[str, None], optional
         prefix to be used, by default None
-    scope : Union[MutableSequence[str], None], optional
+    scope : MutableSequence[Any] | None, optional
         scope to be reflected in the target file name, by default None
     output : Union[str, None], optional
         format of the target dict file. Choices are 'cpp', 'foam', 'xml' and 'json', by default None

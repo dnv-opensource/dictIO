@@ -6,7 +6,7 @@ from collections.abc import Sequence
 from copy import copy
 from typing import Any, cast
 
-from dictIO.types import K, M, TKey, V
+from dictIO.types import K, M, V
 
 
 def order_keys(arg: M) -> M:
@@ -22,7 +22,7 @@ def order_keys(arg: M) -> M:
     _MT
         the passed in MutableMapping, with keys sorted. The same instance is returned.
     """
-    sorted_dict: dict[TKey, Any] = dict(sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0])))
+    sorted_dict: dict[Any, Any] = dict(sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0])))
     for key, value in copy(sorted_dict).items():
         if isinstance(value, MutableMapping):
             sorted_dict[key] = order_keys(value)  # Recursion
@@ -110,7 +110,7 @@ def set_global_key(
         if isinstance(last_node, MutableSequence):
             if not isinstance(next_key, int):
                 raise KeyError(f"KeyError: {global_key} not found in {arg}")
-            next_node = last_node[int(next_key)]
+            next_node = last_node[cast(int, next_key)]
         else:
             next_node = last_node[cast(K, next_key)]
         if not isinstance(next_node, MutableMapping | MutableSequence):

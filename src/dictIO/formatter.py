@@ -9,7 +9,7 @@ from abc import abstractmethod
 from collections.abc import Mapping, MutableMapping, MutableSequence
 from copy import copy, deepcopy
 from re import Pattern
-from typing import TYPE_CHECKING, cast, overload
+from typing import TYPE_CHECKING, Any, cast, overload
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, register_namespace, tostring
 
@@ -177,7 +177,7 @@ class Formatter:
                 if isinstance(item, ndarray):
                     item = cast(list[TValue], item.tolist())
                 if isinstance(item, MutableMapping | MutableSequence):
-                    _arg[index] = self.format_values(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], item))
+                    _arg[index] = self.format_values(cast(M | S, item))
                 else:
                     _arg[index] = self.format_value(item)
 
@@ -188,7 +188,7 @@ class Formatter:
                 if isinstance(item, ndarray):
                     item = cast(list[TValue], item.tolist())
                 if isinstance(item, MutableMapping | MutableSequence):
-                    _arg[key] = self.format_values(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], item))
+                    _arg[key] = self.format_values(cast(M | S, item))
                 else:
                     _arg[key] = self.format_value(item)
 
@@ -467,7 +467,7 @@ class NativeFormatter(Formatter):
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], SDict]
+        arg : MutableMapping[K, V]
             dict to be formatted
 
         Returns
@@ -476,7 +476,7 @@ class NativeFormatter(Formatter):
             string representation of the dict in dictIO native file format
         """
         # Create a working copy of the passed in dict, to avoid modifying the original.
-        _arg = deepcopy(arg)
+        _arg: MutableMapping[K, V] = deepcopy(arg)
 
         # Sort dict in a way that block comment and include statement come first
         original_data = deepcopy(_arg)
@@ -518,13 +518,13 @@ class NativeFormatter(Formatter):
 
     def format_dict(
         self,
-        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue] | TValue,
+        arg: MutableMapping[Any, Any] | MutableSequence[Any] | Any,  # noqa: ANN401
         tab_len: int = 4,
         level: int = 0,
         sep: str = " ",
         items_per_line: int = 10,
         end: str = "\n",
-        ancestry: type[MutableMapping[TKey, TValue] | MutableSequence[TValue]] = MutableMapping,
+        ancestry: type[MutableMapping[Any, Any] | MutableSequence[Any]] = MutableMapping,
     ) -> str:
         """Format a dict or list object."""
         total_indent = 30
@@ -878,7 +878,7 @@ class FoamFormatter(NativeFormatter):
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], SDict]
+        arg : MutableMapping[K, V]
             dict to be formatted
 
         Returns
@@ -1022,7 +1022,7 @@ class JsonFormatter(Formatter):
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], SDict]
+        arg : MutableMapping[K, V]
             dict to be formatted
 
         Returns
@@ -1138,7 +1138,7 @@ class XmlFormatter(Formatter):
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], SDict]
+        arg : MutableMapping[K, V]
             dict to be formatted
 
         Returns
@@ -1216,7 +1216,7 @@ class XmlFormatter(Formatter):
     def populate_into_element(
         self,
         element: Element,
-        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue] | TValue,
+        arg: MutableMapping[Any, Any] | MutableSequence[Any] | Any,  # noqa: ANN401
         xsd_uri: str | None = None,
     ) -> None:
         """Populate arg into the XML element node.
@@ -1228,7 +1228,7 @@ class XmlFormatter(Formatter):
         ----------
         element : Element
             element which will be populated
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue], TValue]
+        arg : MutableMapping[Any, Any] | MutableSequence[Any] | Any
             value to be populated into the element
         xsd_uri : str, optional
             xsd uri, by default None

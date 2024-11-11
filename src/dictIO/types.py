@@ -1,7 +1,5 @@
 """Type aliases and generic type variables for the dictIO package."""
 
-# ruff: noqa: ERA001
-
 from collections.abc import Hashable, MutableMapping, MutableSequence
 from typing import Any, TypeAlias, TypeVar
 
@@ -11,7 +9,6 @@ TGlobalKey: TypeAlias = TKey | int
 
 # Type aliases for values
 TValue: TypeAlias = Any
-# TValue: TypeAlias = Any | MutableMapping[TKey, Any] | MutableSequence[Any]
 TSingleValue: TypeAlias = str | int | float | bool | None
 
 # Generic Type Variables
