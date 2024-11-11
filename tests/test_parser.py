@@ -10,7 +10,7 @@ from typing import Any
 import pytest
 
 from dictIO import NativeParser, Parser, SDict, XmlParser
-from dictIO.types import K, TKey, TValue, V
+from dictIO.types import K, V
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.strings import string_diff
 
@@ -333,7 +333,7 @@ class TestParser:
 
     def test_parse_file_into_existing_dict(self) -> None:
         # Prepare
-        target_dict: SDict[TKey, TValue] = SDict()
+        target_dict: SDict[str, Any] = SDict()
         source_file = Path("test_parser_dict")
         parser = Parser()
         # Execute
@@ -751,14 +751,14 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
-        dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        dict_out: dict[str, Any] = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
         assert len(dict_out) == 13
-        keys: list[TKey] = list(dict_out.keys())
+        keys: list[str] = list(dict_out.keys())
         assert type(keys[0]) is str
         assert keys[0][:12] == "BLOCKCOMMENT"
         assert type(keys[1]) is str
@@ -778,7 +778,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_booleans(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
@@ -804,7 +804,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_numbers(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
@@ -820,7 +820,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_nones(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
@@ -834,7 +834,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_strings(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
@@ -855,7 +855,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_invalid(self, caplog: pytest.LogCaptureFixture) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         log_level_expected = "WARNING"
@@ -881,7 +881,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_nesting(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
@@ -946,7 +946,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_expressions(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
@@ -979,7 +979,7 @@ class TestNativeParser:
         # sourcery skip: extract-duplicate-method
 
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9, comments=False)
         parser = NativeParser()
         # Execute
@@ -1045,7 +1045,7 @@ class TestXmlParser:
         str_in = ""
         with Path.open(file_name) as f:
             str_in = f.read()
-        dict_out: SDict[TKey, TValue] = SDict(file_name)
+        dict_out: SDict[str, Any] = SDict(file_name)
         parser = XmlParser(add_node_numbering=False)
         content_TAG00_expected = (  # noqa: N806
             "Extensible Markup Language (XML) is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable.\n"
@@ -1083,7 +1083,7 @@ class TestXmlParser:
         str_in = ""
         with Path.open(file_name) as f:
             str_in = f.read()
-        dict_out: SDict[TKey, TValue] = SDict(file_name)
+        dict_out: SDict[str, Any] = SDict(file_name)
         parser = XmlParser(add_node_numbering=True)
         content_TAG00_expected = (  # noqa: N806
             "Extensible Markup Language (XML) is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable.\n"
@@ -1122,7 +1122,7 @@ class TestXmlParser:
         str_in = ""
         with Path.open(file_name) as f:
             str_in = f.read()
-        dict_out: SDict[TKey, TValue] = SDict(file_name)
+        dict_out: SDict[str, Any] = SDict(file_name)
         parser = XmlParser()
         # Execute
         dict_out = parser.parse_string(str_in, dict_out)
@@ -1138,7 +1138,7 @@ class TestXmlParser:
         str_in = ""
         with Path.open(file_name) as f:
             str_in = f.read()
-        dict_out: SDict[TKey, TValue] = SDict(file_name)
+        dict_out: SDict[str, Any] = SDict(file_name)
         parser = XmlParser()
         # Execute
         dict_out = parser.parse_string(str_in, dict_out)

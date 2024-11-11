@@ -143,7 +143,7 @@ class DictReader:
         # also to consider: is it really neccessary to have the included dict merged in to current dict.data?
         # if we could avoid that we get a more readable structure, even after some farn operations
         if not includes:
-            DictReader._remove_include_keys(parsed_dict)
+            _ = DictReader._remove_include_keys(parsed_dict)
 
         return parsed_dict
 
@@ -208,9 +208,9 @@ class DictReader:
     def _resolve_reference(
         reference: str,
         variables: MutableMapping[str, V],
-    ) -> V:
+    ) -> V | None:
         # resolves a single reference
-        value: V = None
+        value: V | None = None
         try:
             # extract indices, ugly version, nice version is re.sub with a positive lookahead
             indexing = re.findall(pattern=r"\[.+\]$", string=reference)[0]
@@ -249,7 +249,7 @@ class DictReader:
             _references.extend(_refs)
         # Resolve references
         variables: dict[str, V] = dict_in.variables
-        references: dict[str, V] = {
+        references: dict[str, V | None] = {
             ref: DictReader._resolve_reference(
                 reference=ref,
                 variables=variables,

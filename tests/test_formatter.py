@@ -1,14 +1,11 @@
 import re
 from copy import copy, deepcopy
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import pytest
 
 from dictIO import DictReader, FoamFormatter, NativeFormatter, SDict, XmlFormatter
-
-if TYPE_CHECKING:
-    from dictIO.types import TKey, TValue
 
 
 class TestFormatter:
@@ -518,8 +515,8 @@ class TestXmlFormatter:
             str_in = f.read()
         parser = XmlParser(add_node_numbering=False)
         formatter = XmlFormatter()
-        dict_parsed: SDict[TKey, TValue] = SDict()
-        dict_reparsed: SDict[TKey, TValue] = SDict()
+        dict_parsed: SDict[str, Any] = SDict()
+        dict_reparsed: SDict[str, Any] = SDict()
         # Execute
         dict_parsed = parser.parse_string(str_in, dict_parsed)
         str_out: str = formatter.to_string(dict_parsed)
