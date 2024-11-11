@@ -10,48 +10,49 @@ from __future__ import annotations
 import warnings
 from typing import (
     TYPE_CHECKING,
+    Any,
     overload,
 )
 
 from dictIO.dict import SDict
-from dictIO.types import TKey, TValue
 
 if TYPE_CHECKING:
     import os
     from _collections_abc import Iterable, Mapping
+
 
 __ALL__ = [
     "CppDict",
 ]
 
 
-class CppDict(SDict[TKey, TValue]):
+class CppDict(SDict[str, Any]):
     """Data structure for C++ dictionaries.
 
     This class is deprecated and will be removed in 0.5.0.
-    Use SDict[TKey, TValue] instead.
+    Use SDict[K, V] instead.
     """
 
     @overload
     def __init__(
         self,
-        **kwargs: TValue,
+        **kwargs: Any,  # noqa: ANN401
     ) -> None:
         pass
 
     @overload
     def __init__(
         self,
-        arg: Mapping[TKey, TValue],
-        **kwargs: TValue,
+        arg: Mapping[str, Any],
+        **kwargs: Any,  # noqa: ANN401
     ) -> None:
         pass
 
     @overload
     def __init__(
         self,
-        arg: Iterable[tuple[TKey, TValue]],
-        **kwargs: TValue,
+        arg: Iterable[tuple[str, Any]],
+        **kwargs: Any,  # noqa: ANN401
     ) -> None:
         pass
 
@@ -59,17 +60,17 @@ class CppDict(SDict[TKey, TValue]):
     def __init__(
         self,
         arg: str | os.PathLike[str],
-        **kwargs: TValue,
+        **kwargs: Any,  # noqa: ANN401
     ) -> None:
         pass
 
     def __init__(
         self,
-        arg: Mapping[TKey, TValue] | Iterable[tuple[TKey, TValue]] | str | os.PathLike[str] | None = None,
-        **kwargs: TValue,
+        arg: Mapping[str, Any] | Iterable[tuple[str, Any]] | str | os.PathLike[str] | None = None,
+        **kwargs: Any,
     ) -> None:
         warnings.warn(
-            "`CppDict` is deprecated. Use `SDict[TKey, TValue]` instead.",
+            "`CppDict` is deprecated. Use `SDict[K, V]` instead.",
             DeprecationWarning,
             stacklevel=1,
         )

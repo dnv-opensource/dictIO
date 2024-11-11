@@ -7,10 +7,10 @@ import logging
 import re
 from collections.abc import MutableSequence
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from dictIO import DictParser
-from dictIO.types import TKey
+from dictIO.types import K
 from dictIO.utils.logging import configure_logging
 
 logger = logging.getLogger(__name__)
@@ -164,7 +164,7 @@ def main() -> None:
     order: bool = args.order
     comments: bool = not args.ignore_comments
     # Validate scope: It needs to be a list of strings
-    scope: MutableSequence[TKey] | None = _validate_scope(args.scope)
+    scope: MutableSequence[Any] | None = _validate_scope(args.scope)
     output: str | None = args.output
 
     # Check whether source file exists
@@ -198,10 +198,10 @@ def main() -> None:
 
 
 def _validate_scope(
-    scope: str | MutableSequence[TKey] | Any,  # noqa: ANN401
-) -> list[TKey] | None:
+    scope: MutableSequence[K] | K | None,
+) -> list[K] | None:
     # sourcery skip: replace-interpolation-with-fstring
-    validated_scope: list[TKey] | None = None
+    validated_scope: list[K] | None = None
     if isinstance(scope, MutableSequence):  # List
         validated_scope = list(scope)  # no conversion needed
     elif isinstance(scope, str):  # string
@@ -211,13 +211,13 @@ def _validate_scope(
 
                 parser = Parser()
                 _scope: str = scope.strip(" []")
-                validated_scope = [key.strip() for key in _scope.split(",")]
+                validated_scope = cast(list[K], [key.strip() for key in _scope.split(",")])
                 parser.parse_values(validated_scope)
             except Exception:
                 logger.exception(f"setOptions: misspelled scope: {scope}")
         else:  # string is just a single value.
             # Store it not as string but as a (one-element) list
-            validated_scope = [scope]
+            validated_scope = [cast(K, scope)]
     else:  # 'scope' is neither a list nor a string -> set validated_scope to None
         validated_scope = None
     return validated_scope

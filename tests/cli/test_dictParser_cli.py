@@ -4,12 +4,12 @@ from argparse import ArgumentError
 from collections.abc import MutableSequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import pytest
 
 from dictIO.cli.dict_parser import _argparser, _validate_scope, main
 from dictIO.dict_parser import DictParser
-from dictIO.types import TKey
 
 # *****Test commandline interface (CLI)************************************************************
 
@@ -114,7 +114,7 @@ class ApiArgs:
     mode: str = "w"
     order: bool = False
     comments: bool = True
-    scope: MutableSequence[TKey] | None = None
+    scope: MutableSequence[Any] | None = None
     output: str | None = "cpp"
 
 
@@ -173,7 +173,7 @@ def test_invoke_api(
         mode: str = "w",
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[TKey] | None = None,
+        scope: MutableSequence[Any] | None = None,
         output: str | None = None,
     ):
         args.source_file = source_file
@@ -184,7 +184,7 @@ def test_invoke_api(
         args.scope = scope
         args.output = output
 
-    monkeypatch.setattr(DictParser, "parse", fake_parse)
+    monkeypatch.setattr(target=DictParser, name="parse", value=fake_parse)
     # Execute
     if isinstance(expected, ApiArgs):
         args_expected: ApiArgs = expected
@@ -209,7 +209,7 @@ def test_validate_scope() -> None:
     scope_in: str | list[str] | int | None
     # None
     scope_in = None
-    scope_out = _validate_scope(scope_in)
+    scope_out: list[str] | list[str | int] | list[int] | None = _validate_scope(scope_in)
     assert scope_out is None
 
     # empty string -> should be returned as a one-element list

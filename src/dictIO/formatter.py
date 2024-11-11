@@ -5,22 +5,19 @@ from __future__ import annotations
 import io
 import logging
 import re
-from abc import abstractmethod
 from collections.abc import Mapping, MutableMapping, MutableSequence
 from copy import copy, deepcopy
+from pathlib import Path
 from re import Pattern
-from typing import TYPE_CHECKING, cast, overload
+from typing import Any, cast, overload
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, register_namespace, tostring
 
 from numpy import ndarray
 
 from dictIO import SDict
-from dictIO.types import M, S, TKey, TSingleValue, TValue
+from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V
 from dictIO.utils.counter import BorgCounter
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 __ALL__ = [
     "Formatter",
@@ -76,10 +73,9 @@ class Formatter:
         # 2. If no target file is passed, return NativeFormatter as default / fallback
         return NativeFormatter()  # default
 
-    @abstractmethod
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
+        arg: MutableMapping[K, V],  # noqa: ARG002
     ) -> str:
         """Create a string representation of the passed in dict.
 
@@ -87,7 +83,7 @@ class Formatter:
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], SDict]
+        arg : Union[MutableMapping[K, V]]
             dict to be formatted
 
         Returns
@@ -95,42 +91,63 @@ class Formatter:
         str
             string representation of the dict
         """
-        ...
+        return ""
+
+    @overload
+    def format_value(
+        self,
+        arg: TSingleValue,
+    ) -> str:
+        pass
+
+    @overload
+    def format_value(
+        self,
+        arg: TValue,
+    ) -> str:
+        pass
 
     def format_value(
         self,
         arg: TSingleValue | TValue,
-    ) -> str | TValue:
+    ) -> str:
         """Format a single value.
 
-        Formats a single value of type TSingleValue = str | int | float | bool | None
+        Formats a single value of type TSingleValue = str | int | float | bool | Path | None
 
         Parameters
         ----------
-        arg : TSingleValue | TValue
+        arg : V
             the value to be formatted
 
         Returns
         -------
-        str | TValue
+        str
             the formatted string representation of the passed in value,
-            if value is of a single value type. Otherwise the value itself.
+            if value is of TSingleValue type = str | int | float | bool | Path | None.
+            For all other types, the method will, as fallback, call and return `str(arg)`.
+            It is hence guaranteed that a string gets returned.
         """
         # sourcery skip: assign-if-exp, reintroduce-else
 
+        # NOTE: The sequence of below `isinstance()` checks is important.
+        #       Especially, `isinstance(arg, bool)` must be checked _before_ `isinstance(arg, int)`,
+        #       as otherwise `isinstance(arg, int)` would catch the bool (bool is a subtype of int) !
         if isinstance(arg, str):
             return self.format_string(arg)
-        if arg is None:
-            return self.format_none()
         if isinstance(arg, bool):
             return self.format_bool(arg)
         if isinstance(arg, int):
             return self.format_int(arg)
         if isinstance(arg, float):
             return self.format_float(arg)
+        if isinstance(arg, Path):
+            return str(arg)
+        if arg is None:
+            return self.format_none()
 
-        # If arg is not of a single value type, return it as is.
-        return arg
+        # For all other types, call and return `str(arg)`
+        return str(arg)
 
     @overload
     def format_values(
@@ -160,12 +177,12 @@ class Formatter:
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
+        arg : MutableMapping[K, V] | MutableSequence[V]
             the dict or list containing the values to be formatted.
 
         Returns
         -------
-        MutableMapping[TKey, str] | MutableSequence[str]
+        MutableMapping[K, V] | MutableSequence[V]
             a copy of the passed in dict or list, with all values formatted.
         """
         item: TValue
@@ -177,7 +194,7 @@ class Formatter:
                 if isinstance(item, ndarray):
                     item = cast(list[TValue], item.tolist())
                 if isinstance(item, MutableMapping | MutableSequence):
-                    _arg[index] = self.format_values(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], item))
+                    _arg[index] = self.format_values(cast(M | S, item))
                 else:
                     _arg[index] = self.format_value(item)
 
@@ -188,7 +205,7 @@ class Formatter:
                 if isinstance(item, ndarray):
                     item = cast(list[TValue], item.tolist())
                 if isinstance(item, MutableMapping | MutableSequence):
-                    _arg[key] = self.format_values(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], item))
+                    _arg[key] = self.format_values(cast(M | S, item))
                 else:
                     _arg[key] = self.format_value(item)
 
@@ -212,9 +229,7 @@ class Formatter:
         str
             the formatted string representation of the passed in key
         """
-        skey: str
-        skey = self.format_value(arg) if isinstance(arg, TSingleValue) else str(arg)
-        return skey
+        return self.format_value(arg)
 
     def format_bool(self, arg: bool) -> str:  # noqa: FBT001
         """Format a boolean.
@@ -459,13 +474,13 @@ class NativeFormatter(Formatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue],
+        arg: MutableMapping[K, V],
     ) -> str:  # sourcery skip: dict-comprehension
         """Create a string representation of the passed in dict in dictIO native file format.
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], SDict]
+        arg : MutableMapping[K, V]
             dict to be formatted
 
         Returns
@@ -474,17 +489,17 @@ class NativeFormatter(Formatter):
             string representation of the dict in dictIO native file format
         """
         # Create a working copy of the passed in dict, to avoid modifying the original.
-        _arg = deepcopy(arg)
+        _arg: MutableMapping[K, V] = deepcopy(arg)
 
         # Sort dict in a way that block comment and include statement come first
         original_data = deepcopy(_arg)
-        sorted_data: dict[TKey, TValue] = {}
+        sorted_data: dict[K, V] = {}
         for key, element in original_data.items():
             if type(key) is str and re.search(r"BLOCKCOMMENT\d{6}", key):
-                sorted_data[key] = element  # noqa: PERF403
+                sorted_data[cast(K, key)] = element
         for key, element in original_data.items():
             if type(key) is str and re.search(r"INCLUDE\d{6}", key):
-                sorted_data[key] = element  # noqa: PERF403
+                sorted_data[cast(K, key)] = element
         for key in sorted_data:
             del original_data[key]
         sorted_data |= original_data
@@ -516,13 +531,13 @@ class NativeFormatter(Formatter):
 
     def format_dict(
         self,
-        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue] | TValue,
+        arg: MutableMapping[Any, Any] | MutableSequence[Any] | Any,  # noqa: ANN401
         tab_len: int = 4,
         level: int = 0,
         sep: str = " ",
         items_per_line: int = 10,
         end: str = "\n",
-        ancestry: type[MutableMapping[TKey, TValue] | MutableSequence[TValue]] = MutableMapping,
+        ancestry: type[MutableMapping[Any, Any] | MutableSequence[Any]] = MutableMapping,
     ) -> str:
         """Format a dict or list object."""
         total_indent = 30
@@ -750,7 +765,7 @@ class NativeFormatter(Formatter):
 
     def insert_block_comments(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
         s: str,
     ) -> str:
         """Insert back all block comments.
@@ -808,7 +823,11 @@ class NativeFormatter(Formatter):
             block_comment = default_block_comment + block_comment
         return block_comment
 
-    def insert_includes(self, s_dict: SDict[TKey, TValue], s: str) -> str:
+    def insert_includes(
+        self,
+        s_dict: SDict[K, V],
+        s: str,
+    ) -> str:
         """Insert back all include directives."""
         search_pattern: str | Pattern[str]
         for key, (_, include_file_name, _) in s_dict.includes.items():
@@ -822,7 +841,11 @@ class NativeFormatter(Formatter):
 
         return s
 
-    def insert_line_comments(self, s_dict: SDict[TKey, TValue], s: str) -> str:
+    def insert_line_comments(
+        self,
+        s_dict: SDict[K, V],
+        s: str,
+    ) -> str:
         """Insert back all line directives."""
         search_pattern: str | Pattern[str]
         for key, line_comment in s_dict.line_comments.items():
@@ -862,13 +885,13 @@ class FoamFormatter(NativeFormatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
+        arg: MutableMapping[K, V],
     ) -> str:
         """Create a string representation of the passed in dict in OpenFOAM dictionary format.
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], SDict]
+        arg : MutableMapping[K, V]
             dict to be formatted
 
         Returns
@@ -882,7 +905,7 @@ class FoamFormatter(NativeFormatter):
 
         # Remove all dict entries starting with underscore
         def remove_underscore_keys_recursive(
-            arg: MutableMapping[TKey, TValue],
+            arg: MutableMapping[K, V],
         ) -> None:
             keys = list(arg.keys())
             for key in keys:
@@ -1006,13 +1029,13 @@ class JsonFormatter(Formatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
+        arg: MutableMapping[K, V],
     ) -> str:
         """Create a string representation of the passed in dict in JSON dictionary format.
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], SDict]
+        arg : MutableMapping[K, V]
             dict to be formatted
 
         Returns
@@ -1038,7 +1061,11 @@ class JsonFormatter(Formatter):
 
         return s
 
-    def insert_includes(self, s_dict: SDict[TKey, TValue], s: str) -> str:
+    def insert_includes(
+        self,
+        s_dict: SDict[K, V],
+        s: str,
+    ) -> str:
         """Insert back all include directives."""
         search_pattern: str | Pattern[str]
         for key, (_, include_file_name, _) in s_dict.includes.items():
@@ -1118,13 +1145,13 @@ class XmlFormatter(Formatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
+        arg: MutableMapping[K, V],
     ) -> str:
         """Create a string representation of the passed in dict in XML format.
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], SDict]
+        arg : MutableMapping[K, V]
             dict to be formatted
 
         Returns
@@ -1141,18 +1168,20 @@ class XmlFormatter(Formatter):
         # Check whether xml opts are contained in dict.
         # If so, read and use them
         if "_xmlOpts" in arg:
-            xml_opts = cast(MutableMapping[TKey, TValue], arg["_xmlOpts"])
+            xml_opts = cast(MutableMapping[K, V], arg[cast(K, "_xmlOpts")])
             namespaces = (
-                cast(MutableMapping[str, str], xml_opts["_nameSpaces"]) if "_nameSpaces" in xml_opts else namespaces
+                cast(MutableMapping[str, str], xml_opts[cast(K, "_nameSpaces")])
+                if "_nameSpaces" in xml_opts
+                else namespaces
             )
-            root_tag = str(xml_opts["_rootTag"]) if "_rootTag" in xml_opts else root_tag
+            root_tag = str(xml_opts[cast(K, "_rootTag")]) if "_rootTag" in xml_opts else root_tag
             root_attributes = (
-                cast(MutableMapping[str, str], xml_opts["_rootAttributes"])
+                cast(MutableMapping[str, str], xml_opts[cast(K, "_rootAttributes")])
                 if "_rootAttributes" in xml_opts
                 else root_attributes
             )
             self.remove_node_numbering = (
-                bool(xml_opts["_removeNodeNumbering"])
+                bool(xml_opts[cast(K, "_removeNodeNumbering")])
                 if "_removeNodeNumbering" in xml_opts
                 else self.remove_node_numbering
             )
@@ -1200,7 +1229,7 @@ class XmlFormatter(Formatter):
     def populate_into_element(
         self,
         element: Element,
-        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue] | TValue,
+        arg: MutableMapping[Any, Any] | MutableSequence[Any] | Any,  # noqa: ANN401
         xsd_uri: str | None = None,
     ) -> None:
         """Populate arg into the XML element node.
@@ -1212,7 +1241,7 @@ class XmlFormatter(Formatter):
         ----------
         element : Element
             element which will be populated
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue], TValue]
+        arg : MutableMapping[Any, Any] | MutableSequence[Any] | Any
             value to be populated into the element
         xsd_uri : str, optional
             xsd uri, by default None

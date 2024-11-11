@@ -10,6 +10,7 @@ from pathlib import Path
 from re import Match, Pattern
 from typing import (
     TYPE_CHECKING,
+    Any,
     cast,
 )
 
@@ -17,7 +18,7 @@ from lxml.etree import ETCompatXMLParser, fromstring
 from lxml.etree import _Element as LxmlElement  # pyright: ignore[reportPrivateUsage]
 
 from dictIO import SDict
-from dictIO.types import TKey, TSingleValue, TValue
+from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V
 from dictIO.utils.counter import BorgCounter
 
 if TYPE_CHECKING:
@@ -74,24 +75,24 @@ class Parser:
     def parse_file(
         self,
         source_file: str | os.PathLike[str],
-        target_dict: SDict[TKey, TValue] | None = None,
+        target_dict: SDict[K, V] | None = None,
         *,
         comments: bool = True,
-    ) -> SDict[TKey, TValue]:
+    ) -> SDict[K, V]:
         """Parse a file and deserialize it into a dict.
 
         Parameters
         ----------
         source_file : Union[str, os.PathLike[str]]
             name of the dict file to be parsed
-        target_dict : SDict[TKey, TValue], optional
+        target_dict : SDict[K, V], optional
             the target dict the parsed dict file shall be merged into, by default None
         comments : bool, optional
             reads comments from source file, by default True
 
         Returns
         -------
-        SDict
+        SDict[K, V]
             the parsed dict
 
         Raises
@@ -139,10 +140,10 @@ class Parser:
     def parse_string(
         self,
         string: str,
-        target_dict: SDict[TKey, TValue],
+        target_dict: SDict[K, V],
         *,
         comments: bool = True,
-    ) -> SDict[TKey, TValue]:  # sourcery skip: lift-return-into-if
+    ) -> SDict[K, V]:
         """Parse a string and deserialize it into a SDict.
 
         Note: Override this method when implementing a specific Parser.
@@ -151,16 +152,17 @@ class Parser:
         ----------
         string : str
             the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : SDict
+        target_dict : SDict[K, V]
             the target dict the parsed dict file shall be merged into
         comments : bool, optional
             reads comments, by default True
 
         Returns
         -------
-        SDict
+        SDict[K, V]
             the parsed dict
         """
+        # sourcery skip: lift-return-into-if
         # +++VERIFY STRING CONTENT++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         # Check that string is not empty.
@@ -261,7 +263,7 @@ class Parser:
         # Returned 'as is' they are kept unchanged, what is in fact what we want here.
         return self.remove_quotes_from_string(arg)
 
-    def parse_values(self, arg: MutableMapping[TKey, TValue] | MutableSequence[TValue]) -> None:
+    def parse_values(self, arg: MutableMapping[K, V] | MutableSequence[V]) -> None:
         """Parse multiple values.
 
         Parses all values inside a dict or list and casts them to its native types (str, int, float, bool or None).
@@ -270,7 +272,7 @@ class Parser:
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
+        arg : Union[MutableMapping[K, V], MutableSequence[V]]
             the dict or list containing the values to be parsed and casted to its native types
             (str, int, float, bool or None)
 
@@ -278,15 +280,15 @@ class Parser:
         if isinstance(arg, MutableMapping):  # Dict
             for key in list(arg.keys()):  # work on a copy of keys
                 if isinstance(arg[key], MutableMapping | MutableSequence):
-                    self.parse_values(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], arg[key]))
+                    self.parse_values(cast(MutableMapping[K, V] | MutableSequence[V], arg[key]))
                 else:
-                    arg[key] = self.parse_value(arg[key])
+                    arg[key] = cast(V, self.parse_value(arg[key]))
         else:  # List
             for index in range(len(arg)):
                 if isinstance(arg[index], MutableMapping | MutableSequence):
-                    self.parse_values(cast(MutableMapping[TKey, TValue] | MutableSequence[TValue], arg[index]))
+                    self.parse_values(cast(MutableMapping[K, V] | MutableSequence[V], arg[index]))
                 else:
-                    arg[index] = self.parse_value(arg[index])
+                    arg[index] = cast(V, self.parse_value(arg[index]))
         return
 
     def parse_key(
@@ -348,8 +350,8 @@ class Parser:
 
     @staticmethod
     def remove_quotes_from_strings(
-        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue],
-    ) -> MutableMapping[TKey, TValue] | MutableSequence[TValue]:
+        arg: M | S,
+    ) -> M | S:
         """Remove quotes from multiple strings.
 
         Removes quotes (single and double quotes) from all string objects inside a dict or list.
@@ -359,22 +361,24 @@ class Parser:
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
+        arg : MutableMapping[K, V] | MutableSequence[V]
             the dict or list containing strings the quotes in which shall be removed
 
         Returns
         -------
-        Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
+        MutableMapping[K, V] | MutableSequence[V]
             the original dict or list, yet with quotes in all strings being removed
 
         """
         if isinstance(arg, MutableMapping):  # Dict
+            arg = cast(M, arg)
             for key in list(arg.keys()):  # work on a copy of keys
                 if isinstance(arg[key], MutableMapping | MutableSequence):  # dict or list
                     arg[key] = Parser.remove_quotes_from_strings(arg[key])  # (recursion)
                 elif isinstance(arg[key], str):  # str
                     arg[key] = Parser.remove_quotes_from_string(arg[key])
         else:  # List
+            arg = cast(S, arg)
             for index in range(len(arg)):
                 if isinstance(arg[index], MutableMapping | MutableSequence):  # dict or list
                     arg[index] = Parser.remove_quotes_from_strings(arg[index])  # (recursion)
@@ -395,10 +399,10 @@ class NativeParser(Parser):
     def parse_string(
         self,
         string: str,
-        target_dict: SDict[TKey, TValue],
+        target_dict: SDict[K, V],
         *,
         comments: bool = True,
-    ) -> SDict[TKey, TValue]:
+    ) -> SDict[K, V]:
         """Parse a string in dictIO native file format and deserialize it into a SDict.
 
         Parameters
@@ -482,7 +486,7 @@ class NativeParser(Parser):
 
     def _extract_line_comments(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
         *,
         comments: bool,
     ) -> None:
@@ -495,7 +499,7 @@ class NativeParser(Parser):
 
         Parameters
         ----------
-        s_dict : SDict
+        s_dict : SDict[K, V]
             dict to be processed. _extract_line_comments() works on dict.line_content
         comments : bool
             If False, line comments will be removed
@@ -520,7 +524,7 @@ class NativeParser(Parser):
 
     def _extract_includes(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
     ) -> None:
         """Find and extract #include directives from dict.line_content, and replace them with Placeholders.
 
@@ -535,7 +539,7 @@ class NativeParser(Parser):
 
         Parameters
         ----------
-        s_dict : SDict
+        s_dict : SDict[K, V]
             dict to be processed. _extract_includes() works on dict.line_content
         """
         for index, line in enumerate(s_dict.line_content):
@@ -562,7 +566,7 @@ class NativeParser(Parser):
 
     def _convert_line_content_to_block_content(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
     ) -> None:
         """Concatenate all lines from line_content.
 
@@ -575,7 +579,7 @@ class NativeParser(Parser):
 
     def _remove_line_endings_from_block_content(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
     ) -> None:
         """Remove all line endings in .block_content and substuitute them by single spaces."""
         s_dict.block_content = re.sub(
@@ -587,7 +591,7 @@ class NativeParser(Parser):
 
     def _extract_block_comments(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
         *,
         comments: bool,
     ) -> None:
@@ -600,7 +604,7 @@ class NativeParser(Parser):
 
         Parameters
         ----------
-        s_dict : SDict
+        s_dict : SDict[K, V]
             dict to be processed. _extract_block_comments() works on dict.block_content
         comments : bool
             If False, block comments will be removed
@@ -624,7 +628,7 @@ class NativeParser(Parser):
 
     def _extract_string_literals(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
     ) -> None:
         """Find and extract string literals from dict.block_content, and replace them with Placeholders.
 
@@ -636,7 +640,7 @@ class NativeParser(Parser):
 
         Parameters
         ----------
-        s_dict : SDict
+        s_dict : SDict[K, V]
             dict to be processed. _extract_string_literals() works on dict.block_content.
         """
         search_pattern: Pattern[str]
@@ -742,7 +746,7 @@ class NativeParser(Parser):
 
     def _extract_expressions(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
     ) -> None:
         """Find and extract expressions from dict.block_content, and replace them with Placeholders.
 
@@ -756,7 +760,7 @@ class NativeParser(Parser):
 
         Parameters
         ----------
-        s_dict : SDict
+        s_dict : SDict[K, V]
             dict to be processed. _extract_expressions() works on dict.block_content.
         """
         s_dict.expressions = {}
@@ -804,7 +808,7 @@ class NativeParser(Parser):
 
     def _separate_delimiters(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
         delimiters: list[str] | None = None,
     ) -> None:
         r"""Ensure that delimiters are separated by exactly one space before and after.
@@ -847,7 +851,7 @@ class NativeParser(Parser):
 
     def _convert_block_content_to_tokens(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
     ) -> None:
         """Decomposes .block_content into a list of tokens."""
         s_dict.tokens = [(0, i) for i in re.split(r"\s", s_dict.block_content)]
@@ -857,7 +861,7 @@ class NativeParser(Parser):
 
     def _determine_token_hierarchy(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
     ) -> None:
         # sourcery skip: use-join
         """Create the hierarchy among the tokens and test their indentation."""
@@ -908,7 +912,7 @@ class NativeParser(Parser):
 
     def _convert_tokens_to_dict(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
     ) -> None:
         """Convert the hierarchic tokens into a dict."""
         s_dict.update(self._parse_tokenized_dict(s_dict))
@@ -918,10 +922,10 @@ class NativeParser(Parser):
 
     def _parse_tokenized_dict(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
         tokens: list[tuple[int, str]] | None = None,
         level: int = 0,
-    ) -> dict[TKey, TValue]:
+    ) -> dict[K, V]:
         """Parse a tokenized dict and return the parsed dict.
 
         Parses all tokens, identifies the element within the tokenized dict each token represents or belongs to,
@@ -938,7 +942,7 @@ class NativeParser(Parser):
         """
         # sourcery skip: remove-redundant-pass
 
-        parsed_dict: dict[TKey, TValue] = {}
+        parsed_dict: dict[K, V] = {}
 
         if tokens is None:
             tokens = s_dict.tokens
@@ -946,7 +950,7 @@ class NativeParser(Parser):
         # Iterate through tokens
         last_index: int | None = None
         token_index: int = 0
-        key: TKey  # key (name) of the data struct
+        key: K  # key (name) of the data struct
         while token_index < len(tokens):
             # Nested data struct (list or dict)   '(' = list    '{' = dict
             if tokens[token_index][1] in s_dict.openingBrackets:
@@ -956,7 +960,7 @@ class NativeParser(Parser):
                 while re.match("^.*COMMENT.*$", str(tokens[token_index - offset][1])):
                     offset += 1
                 # key (name) of the data struct:
-                key = self.parse_key(tokens[token_index - offset][1])
+                key = cast(K, self.parse_key(tokens[token_index - offset][1]))
 
                 # Closing bracket has by definition same level as opening bracket.
                 # (Note: the tokens BETWEEN the brackets are considered one level 'deeper';
@@ -1019,20 +1023,28 @@ class NativeParser(Parser):
                     if len(data_struct_tokens) < 3:  # noqa: PLR2004
                         # is empty (contains only opening and closing bracket)
                         # update parsed_dict with just the empty list
-                        parsed_dict[key] = []
+                        parsed_dict[key] = cast(V, [])
                     else:
                         # has content
                         # parse the nested list
-                        nested_list = self._parse_tokenized_list(s_dict, data_struct_tokens, level=level + 1)
+                        nested_list = self._parse_tokenized_list(
+                            s_dict=s_dict,
+                            tokens=data_struct_tokens,
+                            level=level + 1,
+                        )
                         # update parsed_dict with the nested list
-                        parsed_dict[key] = nested_list
+                        parsed_dict[key] = cast(V, nested_list)
 
                 #  dict:
                 elif data_struct_tokens[0][1] == "{":
                     # parse the nested dict (recursion)
-                    nested_dict = self._parse_tokenized_dict(s_dict, data_struct_tokens[1:-1], level=level + 1)
+                    nested_dict = self._parse_tokenized_dict(
+                        s_dict=s_dict,
+                        tokens=data_struct_tokens[1:-1],
+                        level=level + 1,
+                    )
                     # update parsed_dict with the nested dict
-                    parsed_dict[key] = nested_dict
+                    parsed_dict[key] = cast(V, nested_dict)
 
                 # All done: Identified data struct is parsed, translated into its corresponding type,
                 # and local parsed_dict is updated.
@@ -1094,9 +1106,9 @@ class NativeParser(Parser):
                             f"more tokens in key-value pair than expected: {key_value_pair_tokens!s}"
                         )
                     # read the key (name) (first token, by convention)
-                    key = self.parse_key(key_value_pair_tokens[0][1])
+                    key = cast(K, self.parse_key(key_value_pair_tokens[0][1]))
                     # read the value (second token, by convention)
-                    value = self.parse_value(key_value_pair_tokens[1][1])
+                    value = cast(V, self.parse_value(key_value_pair_tokens[1][1]))
                     # update parsed_dict with the parsed key value pair
                     # Note: Following update would be greedy, if parsed_dict would be declared as global variable.
                     # This exactly is why parsed_dict is declared as local variable in _parse_tokenized_dict().
@@ -1113,7 +1125,7 @@ class NativeParser(Parser):
             elif re.match("^.*COMMENT.*$", str(tokens[token_index][1])) or re.match(
                 "^.*INCLUDE.*$", str(tokens[token_index][1])
             ):
-                parsed_dict[tokens[token_index][1]] = tokens[token_index][1]
+                parsed_dict[cast(K, tokens[token_index][1])] = cast(V, tokens[token_index][1])
 
             else:
                 pass
@@ -1126,10 +1138,10 @@ class NativeParser(Parser):
 
     def _parse_tokenized_list(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
         tokens: list[tuple[int, str]] | None = None,
         level: int = 0,
-    ) -> list[TValue]:
+    ) -> list[V]:
         """Parse a tokenized list and return the parsed list.
 
         Parses all tokens, identifies the element within the tokenized list each token represents or belongs to,
@@ -1145,7 +1157,7 @@ class NativeParser(Parser):
         """
         # sourcery skip: remove-empty-nested-block, remove-redundant-if, remove-redundant-pass
 
-        parsed_list: list[TValue] = []
+        parsed_list: list[V] = []
 
         if tokens is None:
             tokens = s_dict.tokens
@@ -1215,18 +1227,26 @@ class NativeParser(Parser):
                     if len(temp_tokens) < 3:  # noqa: PLR2004
                         # list is empty (contains only the opening and the closing bracket)
                         # -> add an empty list to parsed_list
-                        parsed_list.append([])
+                        parsed_list.append(cast(V, []))
                     else:  # has content
                         # parse the nested list
-                        nested_list = self._parse_tokenized_list(s_dict, temp_tokens, level=level + 1)  # (recursion)
+                        nested_list = self._parse_tokenized_list(  # (recursion)
+                            s_dict=s_dict,
+                            tokens=temp_tokens,
+                            level=level + 1,
+                        )
                         # add nested list to parsed_list
-                        parsed_list.append(nested_list)
+                        parsed_list.append(cast(V, nested_list))
                         #  dict:
                 elif temp_tokens[0][1] == "{":
                     # parse the nested dict
-                    nested_dict = self._parse_tokenized_dict(s_dict, temp_tokens[1:-1], level=level + 1)
+                    nested_dict = self._parse_tokenized_dict(
+                        s_dict=s_dict,
+                        tokens=temp_tokens[1:-1],
+                        level=level + 1,
+                    )
                     # add nested dict to parsed_list
-                    parsed_list.append(nested_dict)
+                    parsed_list.append(cast(V, nested_dict))
 
                 # All done: Identified data struct is parsed, translated into its corresponding type,
                 # and local parsed_list is updated.
@@ -1237,7 +1257,7 @@ class NativeParser(Parser):
 
             # Single value type
             elif tokens[token_index][1] not in ["(", ")", ";"]:
-                value = self.parse_value(tokens[token_index][1])
+                value = cast(V, self.parse_value(tokens[token_index][1]))
                 parsed_list.append(value)
 
             # -else = ';' or ')'
@@ -1252,7 +1272,7 @@ class NativeParser(Parser):
 
     def _find_companion(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
         bracket: str,
     ) -> str:
         """Return the companion bracket character for the passed in bracket character.
@@ -1269,7 +1289,7 @@ class NativeParser(Parser):
 
     def _insert_string_literals(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
     ) -> None:
         """Substitutes STRINGLITERAL placeholders in the dict with the corresponding entry from dict.string_literals."""
         for index, string_literal in s_dict.string_literals.items():
@@ -1278,7 +1298,7 @@ class NativeParser(Parser):
             # The entry from dict.string_literals is parsed once again,
             # so that entries representing single value native types
             # (such as bool ,None, int, float) are transformed to its native type, accordingly.
-            value = self.parse_value(string_literal)
+            value = cast(V, self.parse_value(string_literal))
 
             # Replace all occurences of placeholder within the dictionary with the original string literal.
             # Note: As find_global_key() is non-greedy and returns the key of
@@ -1293,7 +1313,7 @@ class NativeParser(Parser):
 
     def _clean(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
     ) -> None:
         """Remove NativeFormatter / NativeParser specific internal keys from dict.
 
@@ -1304,9 +1324,9 @@ class NativeParser(Parser):
         _includes
         """
         if "_variables" in s_dict:
-            del s_dict["_variables"]
+            del s_dict[cast(K, "_variables")]
         if "_includes" in s_dict:
-            del s_dict["_includes"]
+            del s_dict[cast(K, "_includes")]
 
 
 class FoamParser(NativeParser):
@@ -1320,24 +1340,24 @@ class FoamParser(NativeParser):
     def parse_string(
         self,
         string: str,
-        target_dict: SDict[TKey, TValue],
+        target_dict: SDict[K, V],
         *,
         comments: bool = True,
-    ) -> SDict[TKey, TValue]:
+    ) -> SDict[K, V]:
         """Parse a string in OpenFOAM dictionary format and deserialize it into a SDict.
 
         Parameters
         ----------
         string : str
             the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : SDict
+        target_dict : SDict[K, V]
             the target dict the parsed dict file shall be merged into
         comments : bool, optional
             reads comments, by default True
 
         Returns
         -------
-        SDict
+        SDict[K, V]
             the parsed dict
         """
         # +++CALL BASE CLASS IMPLEMENTATION+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1366,24 +1386,24 @@ class JsonParser(Parser):
     def parse_string(
         self,
         string: str,
-        target_dict: SDict[TKey, TValue],
+        target_dict: SDict[K, V],
         *,
         comments: bool = True,
-    ) -> SDict[TKey, TValue]:
+    ) -> SDict[K, V]:
         """Parse a string in JSON dictionary format and deserialize it into a SDict.
 
         Parameters
         ----------
         string : str
             the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : SDict
+        target_dict : SDict[K, V]
             the target dict the parsed dict file shall be merged into
         comments : bool, optional
             reads comments, by default True
 
         Returns
         -------
-        SDict
+        SDict[K, V]
             the parsed dict
         """
         import json
@@ -1412,15 +1432,15 @@ class JsonParser(Parser):
 
     def _extract_includes(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
     ) -> None:
         from copy import deepcopy
 
-        keys: list[TKey] = list(s_dict.keys())
-        include_placeholder_keys: dict[TKey, TValue] = {}
+        keys: list[K] = list(s_dict.keys())
+        include_placeholder_keys: dict[K, V] = {}
         for key in keys:
             if isinstance(key, str) and re.search(r"^\s*#\s*include", key):
-                include_file_name = str(s_dict[key])
+                include_file_name = str(s_dict[cast(K, key)])
                 include_file_name = self.remove_quotes_from_string(include_file_name)
 
                 include_file_path = Path.joinpath(s_dict.path, include_file_name)
@@ -1431,8 +1451,8 @@ class JsonParser(Parser):
                 ii = self.counter()
                 s_dict.includes.update({ii: (include_directive, include_file_name, include_file_path)})
 
-                include_placeholder_keys[f"INCLUDE{ii:06d}"] = f"INCLUDE{ii:06d}"
-                del s_dict[key]
+                include_placeholder_keys[cast(K, f"INCLUDE{ii:06d}")] = cast(V, f"INCLUDE{ii:06d}")
+                del s_dict[cast(K, key)]
 
         data_temp = deepcopy(s_dict)
         s_dict.clear()
@@ -1443,7 +1463,7 @@ class JsonParser(Parser):
 
     def _extract_expression(
         self,
-        parsed_dict: SDict[TKey, TValue],
+        parsed_dict: SDict[K, V],
         string: str,
     ) -> str:
         """Extract a single expression.
@@ -1490,7 +1510,7 @@ class JsonParser(Parser):
 
     def _replace_and_register_expression(
         self,
-        parsed_dict: SDict[TKey, TValue],
+        parsed_dict: SDict[K, V],
         string: str,
         expression: str,
     ) -> str:
@@ -1530,8 +1550,8 @@ class JsonParser(Parser):
 
     def _extract_expressions(
         self,
-        parsed_dict: SDict[TKey, TValue],
-        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue],
+        parsed_dict: SDict[K, V],
+        arg: MutableMapping[K, V] | MutableSequence[V],
     ) -> None:
         """Find and extract expressions in a dict or list and replace them with Placeholders.
 
@@ -1543,9 +1563,9 @@ class JsonParser(Parser):
 
         Parameters
         ----------
-        parsed_dict : SDict
+        parsed_dict : SDict[K, V]
             the SDict instance the extracted expressions shall be saved in
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
+        arg : Union[MutableMapping[K, V], MutableSequence[V]]
             the dict or list containing values to be parsed for expressions
         """
         if isinstance(arg, MutableMapping):  # Dict
@@ -1555,7 +1575,7 @@ class JsonParser(Parser):
                 else:
                     typed_value = self.parse_value(arg[key])
                     if isinstance(typed_value, str):
-                        arg[key] = self._extract_expression(parsed_dict, arg[key])
+                        arg[key] = cast(V, self._extract_expression(parsed_dict, string=arg[key]))
         else:  # List
             for index, _ in enumerate(arg):
                 if isinstance(arg[index], MutableMapping | MutableSequence):
@@ -1563,7 +1583,7 @@ class JsonParser(Parser):
                 else:
                     typed_value = self.parse_value(arg[index])
                     if isinstance(typed_value, str):
-                        arg[index] = self._extract_expression(parsed_dict, arg[index])
+                        arg[index] = cast(V, self._extract_expression(parsed_dict, string=arg[index]))
         return
 
 
@@ -1584,24 +1604,24 @@ class XmlParser(Parser):
     def parse_string(
         self,
         string: str,
-        target_dict: SDict[TKey, TValue],
+        target_dict: SDict[K, V],
         *,
         comments: bool = True,
-    ) -> SDict[TKey, TValue]:
+    ) -> SDict[K, V]:
         """Parse a string in XML format and deserialize it into a SDict.
 
         Parameters
         ----------
         string : str
             the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : SDict
+        target_dict : SDict[K, V]
             the target dict the parsed dict file shall be merged into
         comments : bool, optional
             reads comments, by default True
 
         Returns
         -------
-        SDict
+        SDict[K, V]
             the parsed dict
         """
         # +++CALL BASE CLASS IMPLEMENTATION+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1660,17 +1680,20 @@ class XmlParser(Parser):
         # +++PARSE DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         # Transform XML root node into dict
-
-        parsed_dict.update(self._parse_nodes(root_element, namespaces))
+        parsed_nodes = cast(dict[K, V], self._parse_nodes(root_element=root_element, namespaces=namespaces))
+        parsed_dict.update(parsed_nodes)
 
         # Document XML options inside the dict
         try:
-            parsed_dict["_xmlOpts"] = {
-                "_nameSpaces": namespaces,
-                "_rootTag": root_tag,
-                "_rootAttributes": dict(root_element.attrib.items()),
-                "_addNodeNumbering": self.add_node_numbering,
-            }
+            parsed_dict[cast(K, "_xmlOpts")] = cast(
+                V,
+                {
+                    "_nameSpaces": namespaces,
+                    "_rootTag": root_tag,
+                    "_rootAttributes": dict(root_element.attrib.items()),
+                    "_addNodeNumbering": self.add_node_numbering,
+                },
+            )
 
         except Exception:
             logger.exception("XmlParser.parseString(): Cannot write _nameSpaces to _xmlOpts")
@@ -1685,7 +1708,7 @@ class XmlParser(Parser):
         self,
         root_element: LxmlElement,
         namespaces: dict[str, str],
-    ) -> dict[TKey, TValue]:
+    ) -> dict[Any, Any]:
         """Recursively parses all nodes and saves the nodes' content in a dict."""
         # Default case: Make all node tags temporarily unique by indexing them using BorgCounter
         node_tags: list[str] = [

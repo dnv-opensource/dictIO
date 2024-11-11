@@ -1,14 +1,11 @@
 import re
 from copy import copy, deepcopy
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import Any
 
 import pytest
 
-from dictIO import DictReader, FoamFormatter, NativeFormatter, SDict, XmlFormatter
-
-if TYPE_CHECKING:
-    from dictIO.types import TKey, TValue
+from dictIO import DictReader, FoamFormatter, Formatter, NativeFormatter, SDict, XmlFormatter
 
 
 class TestFormatter:
@@ -16,6 +13,18 @@ class TestFormatter:
     @pytest.mark.skip(reason="To be implemented")
     def test_returned_formatter_type(self) -> None:
         pass
+
+    def test_format_value_bool(self) -> None:
+        # sourcery skip: extract-duplicate-method, inline-variable
+        formatter = Formatter()
+        bool_in = False
+        str_out = formatter.format_value(bool_in)
+        assert isinstance(str_out, str)
+        assert str_out == "False"
+        bool_in = True
+        str_out = formatter.format_value(bool_in)
+        assert isinstance(str_out, str)
+        assert str_out == "True"
 
 
 class TestNativeFormatter:
@@ -34,7 +43,7 @@ class TestNativeFormatter:
             "$keyword1[1][2]",
         ],
     )
-    def test_format_type_string_no_additional_quotes_expected(self, str_in: str) -> None:
+    def test_format_value_string_no_additional_quotes_expected(self, str_in: str) -> None:
         # Prepare
         formatter = NativeFormatter()
         str_expected = str_in
@@ -54,7 +63,7 @@ class TestNativeFormatter:
             r"contains a \"nested string\" literal with escaped double quotes",
         ],
     )
-    def test_format_type_string_additional_single_quotes_expected(self, str_in: str) -> None:
+    def test_format_value_string_additional_single_quotes_expected(self, str_in: str) -> None:
         # Prepare
         formatter = NativeFormatter()
         str_expected = f"'{str_in}'"
@@ -73,7 +82,7 @@ class TestNativeFormatter:
             r"contains a \'nested string\' literal with escaped single quotes",
         ],
     )
-    def test_format_type_string_additional_double_quotes_expected(self, str_in: str) -> None:
+    def test_format_value_string_additional_double_quotes_expected(self, str_in: str) -> None:
         # Prepare
         formatter = NativeFormatter()
         str_expected = f'"{str_in}"'
@@ -82,7 +91,7 @@ class TestNativeFormatter:
         # Assert
         assert str_out == str_expected
 
-    def test_format_type_float(self) -> None:
+    def test_format_value_float(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
         formatter = NativeFormatter()
         float_in = 1.23
@@ -97,6 +106,54 @@ class TestNativeFormatter:
         str_out = formatter.format_value(float_in)
         assert isinstance(str_out, str)
         assert str_out == "0.0"
+
+    def test_format_value_int(self) -> None:
+        # sourcery skip: extract-duplicate-method, inline-variable
+        formatter = NativeFormatter()
+        int_in = 1234
+        str_out = formatter.format_value(int_in)
+        assert isinstance(str_out, str)
+        assert str_out == "1234"
+        int_in = -1234
+        str_out = formatter.format_value(int_in)
+        assert isinstance(str_out, str)
+        assert str_out == "-1234"
+        int_in = 0
+        str_out = formatter.format_value(int_in)
+        assert isinstance(str_out, str)
+        assert str_out == "0"
+        int_in = 1
+        str_out = formatter.format_value(int_in)
+        assert isinstance(str_out, str)
+        assert str_out == "1"
+
+    def test_format_value_bool(self) -> None:
+        # sourcery skip: extract-duplicate-method, inline-variable
+        formatter = NativeFormatter()
+        bool_in = False
+        str_out = formatter.format_value(bool_in)
+        assert isinstance(str_out, str)
+        assert str_out == "false"
+        bool_in = True
+        str_out = formatter.format_value(bool_in)
+        assert isinstance(str_out, str)
+        assert str_out == "true"
+
+    def test_format_value_Path(self) -> None:
+        # sourcery skip: extract-duplicate-method, inline-variable
+        formatter = NativeFormatter()
+        path_in = Path("folder1/folder2/file.txt")
+        str_out = formatter.format_value(path_in)
+        assert isinstance(str_out, str)
+        assert str_out == str(path_in)
+
+    def test_format_value_None(self) -> None:
+        # sourcery skip: extract-duplicate-method, inline-variable
+        formatter = NativeFormatter()
+        none_in = None
+        str_out = formatter.format_value(none_in)
+        assert isinstance(str_out, str)
+        assert str_out == "NULL"
 
     def test_insert_block_comments(self) -> None:
         # sourcery skip: class-extract-method
@@ -126,7 +183,7 @@ class TestNativeFormatter:
         as_is_block_comment: str,
         default_block_comment: str,
     ) -> None:
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         # as we used test_simpleDict, str_in does not have a block comment yet
         str_in_template = formatter.format_dict(s_dict)
         placeholder1 = "BLOCKCOMMENT000101            BLOCKCOMMENT000101;"
@@ -210,7 +267,7 @@ class TestNativeFormatter:
         include_directive_in = '#include "test formatter paramDict"'
         include_file_name_in = "test formatter paramDict"
         include_file_path_in = Path("test formatter paramDict").absolute()
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         s_dict.includes[102] = (
             include_directive_in,
             include_file_name_in,
@@ -228,7 +285,7 @@ class TestNativeFormatter:
 
     def test_insert_line_comments(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         line_comment_in = "// This is a line comment"
         formatter = NativeFormatter()
         str_in_template = formatter.format_dict(s_dict)
@@ -307,7 +364,7 @@ class TestNativeFormatter:
 
     def test_list_with_nested_list(self) -> None:
         # Prepare
-        test_obj: dict[TKey, TValue] = {
+        test_obj: dict[str, Any] = {
             "blocks": [
                 "hex",
                 [0, 1, 2, 3, 4, 5, 6, 7],
@@ -321,7 +378,7 @@ class TestNativeFormatter:
                 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             ]
         }
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         dict_in = deepcopy(s_dict)
         dict_in.update(test_obj)
         formatter = NativeFormatter()
@@ -407,7 +464,7 @@ class TestFoamFormatter:
         include_directive_in = "#include 'test formatter paramDict'"
         include_file_name_in = "test formatter paramDict"
         include_file_path_in = Path("test formatter paramDict").absolute()
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         s_dict.includes[102] = (
             include_directive_in,
             include_file_name_in,
@@ -518,8 +575,8 @@ class TestXmlFormatter:
             str_in = f.read()
         parser = XmlParser(add_node_numbering=False)
         formatter = XmlFormatter()
-        dict_parsed: SDict[TKey, TValue] = SDict()
-        dict_reparsed: SDict[TKey, TValue] = SDict()
+        dict_parsed: SDict[str, Any] = SDict()
+        dict_reparsed: SDict[str, Any] = SDict()
         # Execute
         dict_parsed = parser.parse_string(str_in, dict_parsed)
         str_out: str = formatter.to_string(dict_parsed)

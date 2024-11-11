@@ -7,12 +7,13 @@ import sys
 from copy import deepcopy
 from functools import partial
 from pathlib import Path, PurePath
+from typing import Any
 
 import pytest
 from numpy.testing import assert_array_equal
 
 from dictIO import DictReader, DictWriter, NativeParser, SDict
-from dictIO.types import TKey, TValue
+from dictIO.types import K, V
 
 WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(not sys.platform.startswith("win"), reason="windows only test")
 
@@ -28,7 +29,7 @@ def test_file_not_found_exception() -> None:
 def test_merge_includes() -> None:
     # sourcery skip: class-extract-method
     # Prepare dict until and including _parse_tokenized_dict()
-    s_dict: SDict[TKey, TValue] = SDict()
+    s_dict: SDict[str, Any] = SDict()
     SetupHelper.prepare_dict_until(s_dict, until_step=-1)
     dict_in = deepcopy(s_dict)
     # Assert dict_in
@@ -52,7 +53,7 @@ def test_merge_includes() -> None:
 
 def test_resolve_reference() -> None:
     # Prepare dict until and including ()
-    s_dict: SDict[TKey, TValue] = SDict()
+    s_dict: SDict[str, Any] = SDict()
     SetupHelper.prepare_dict_until(s_dict, until_step=0)
     # Assert non-indexed references have been resolved
     assert DictReader._resolve_reference("$paramA", s_dict.variables) == 3.0
@@ -108,7 +109,7 @@ def test_resolve_reference() -> None:
 
 def test_eval_expressions() -> None:
     # Prepare dict until and including ()
-    s_dict: SDict[TKey, TValue] = SDict()
+    s_dict: SDict[str, Any] = SDict()
     SetupHelper.prepare_dict_until(s_dict, until_step=0)
     dict_in = deepcopy(s_dict)
     # Assert dict_in
@@ -400,27 +401,33 @@ def test_compare_expressions_in_dict_format_with_expressions_in_json_format() ->
 
 
 def _get_references_in_expressions(
-    s_dict: SDict[TKey, TValue],
+    s_dict: SDict[K, V],
 ) -> list[str]:
     references: list[str] = []
     for item in s_dict.expressions.values():
-        _refs: list[str] = re.findall(r"\$\w[\w\[\]]*", item["expression"])
+        _refs: list[str] = re.findall(pattern=r"\$\w[\w\[\]]*", string=item["expression"])
         references.extend(_refs)
     return references
 
 
 def _resolve_references(
-    s_dict: SDict[TKey, TValue],
+    s_dict: SDict[K, V],
     references: list[str],
-) -> dict[str, TValue | None]:
+) -> dict[str, V | None]:
     # Resolve references
-    variables: dict[str, TValue] = s_dict.variables
-    references_resolved = {ref: DictReader._resolve_reference(ref, variables) for ref in references}
+    variables: dict[str, V] = s_dict.variables
+    references_resolved = {
+        ref: DictReader._resolve_reference(
+            reference=ref,
+            variables=variables,
+        )
+        for ref in references
+    }
 
     return {
         ref: value
         for ref, value in references_resolved.items()
-        if (value is not None) and (not re.search(r"EXPRESSION|\$", str(value)))
+        if (value is not None) and (not re.search(pattern=r"EXPRESSION|\$", string=str(value)))
     }
 
 
@@ -613,14 +620,14 @@ def test_single_character_references() -> None:
 class SetupHelper:
     @staticmethod
     def prepare_dict_until(
-        dict_to_prepare: SDict[TKey, TValue],
+        dict_to_prepare: SDict[K, V],
         until_step: int = -1,
         file_to_read: str = "test_dictReader_dict",
     ) -> None:
         file_name = Path.cwd() / file_to_read
 
         parser = NativeParser()
-        _ = parser.parse_file(file_name, dict_to_prepare)
+        _ = parser.parse_file(source_file=file_name, target_dict=dict_to_prepare)
 
         funcs = [
             partial(
