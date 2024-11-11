@@ -5,11 +5,12 @@ import re
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
+from typing import Any
 
 import pytest
 
 from dictIO import NativeParser, Parser, SDict, XmlParser
-from dictIO.types import TKey, TValue
+from dictIO.types import K, V
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.strings import string_diff
 
@@ -90,7 +91,7 @@ class TestParser:
         }
         l_nested = [str_in_1, str_in_2, str_in_3, not_a_str_1, not_a_str_2, not_a_str_3]
         # construct a dictionary with single entries, a nested dict and a nested list
-        dict_in: dict[TKey, TValue] = {
+        dict_in: dict[str, Any] = {
             key_1: str_in_1,
             key_2: str_in_2,
             key_3: str_in_3,
@@ -133,21 +134,21 @@ class TestParser:
         with pytest.raises(TypeError):
             _ = Parser.remove_quotes_from_strings(not_a_str_1)  # type: ignore[arg-type, reportArgumentType]
 
-    def test_parse_type_int(self) -> None:
+    def test_parse_value_int(self) -> None:
         parser = Parser()
         int_in = 1
         int_out = parser.parse_value(int_in)
         assert isinstance(int_out, int)
         assert int_out == int_in
 
-    def test_parse_type_float(self) -> None:
+    def test_parse_value_float(self) -> None:
         parser = Parser()
         float_in = 1.0
         float_out = parser.parse_value(float_in)
         assert isinstance(float_out, float)
         assert float_out == float_in
 
-    def test_parse_type_bool(self) -> None:
+    def test_parse_value_bool(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
         parser = Parser()
         bool_in: str | bool
@@ -198,7 +199,7 @@ class TestParser:
         assert isinstance(bool_out, bool)
         assert bool_out is False
 
-    def test_parse_type_none(self) -> None:
+    def test_parse_value_none(self) -> None:
         parser = Parser()
         none_in = None
         none_out = parser.parse_value(none_in)
@@ -232,7 +233,7 @@ class TestParser:
         assert isinstance(none_out, str)
         assert none_out == none_in
 
-    def test_parse_type_string_numbers(self) -> None:
+    def test_parse_value_string_numbers(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
         parser = Parser()
         str_in = "1234"
@@ -259,7 +260,7 @@ class TestParser:
             ('""', ""),
         ],
     )
-    def test_parse_type_str(self, str_in: str, str_expected: str) -> None:
+    def test_parse_value_str(self, str_in: str, str_expected: str) -> None:
         """Make sure additional surrounding quotes of strings, if existing, get removed by parsing"""
         # Prepare
         parser = Parser()
@@ -332,7 +333,7 @@ class TestParser:
 
     def test_parse_file_into_existing_dict(self) -> None:
         # Prepare
-        target_dict: SDict[TKey, TValue] = SDict()
+        target_dict: SDict[str, Any] = SDict()
         source_file = Path("test_parser_dict")
         parser = Parser()
         # Execute
@@ -347,7 +348,7 @@ class TestNativeParser:
     def test_extract_line_comments(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         line1 = "a line with no line comment\n"
         line2 = "//a line comment\n"
@@ -368,7 +369,7 @@ class TestNativeParser:
     def test_extract_includes(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         line1 = "a line with no include directive\n"
         line2 = "#include testDict\n"
@@ -401,7 +402,7 @@ class TestNativeParser:
 
     def test_convert_line_content_to_block_content(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         # Three lines with line endings
         line1 = "line 1\n"
@@ -415,7 +416,7 @@ class TestNativeParser:
 
     def test_remove_line_endings_from_block_content(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         # Three lines with line endings
         line1 = "line 1\n"
@@ -430,7 +431,7 @@ class TestNativeParser:
 
     def test_extract_block_comments(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
@@ -466,7 +467,7 @@ class TestNativeParser:
 
     def test_extract_string_literals(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
@@ -513,7 +514,7 @@ class TestNativeParser:
 
     def test_extract_expressions(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
@@ -598,7 +599,7 @@ class TestNativeParser:
 
     def test_extract_single_character_expressions(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
@@ -684,7 +685,7 @@ class TestNativeParser:
     def test_separate_delimiters(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
@@ -731,7 +732,7 @@ class TestNativeParser:
 
     def test_determine_token_hierarchy(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block = (
             "level0 { level1 { level2 { level3 } level2 } level1 } level0\n"
@@ -750,14 +751,14 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
-        dict_out = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
+        dict_out: dict[str, Any] = parser._parse_tokenized_dict(dict_in, dict_in.tokens, level=0)
         # Assert
         assert len(dict_out) == 13
-        keys: list[TKey] = list(dict_out.keys())
+        keys: list[str] = list(dict_out.keys())
         assert type(keys[0]) is str
         assert keys[0][:12] == "BLOCKCOMMENT"
         assert type(keys[1]) is str
@@ -777,7 +778,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_booleans(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
@@ -803,7 +804,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_numbers(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
@@ -819,7 +820,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_nones(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
@@ -833,7 +834,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_strings(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
@@ -854,7 +855,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_invalid(self, caplog: pytest.LogCaptureFixture) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         log_level_expected = "WARNING"
@@ -880,7 +881,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_nesting(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
@@ -945,7 +946,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_expressions(self) -> None:
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
         # Execute
@@ -978,7 +979,7 @@ class TestNativeParser:
         # sourcery skip: extract-duplicate-method
 
         # Prepare
-        dict_in: SDict[TKey, TValue] = SDict()
+        dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9, comments=False)
         parser = NativeParser()
         # Execute
@@ -1014,7 +1015,7 @@ class TestNativeParser:
 
     def test_insert_string_literals(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=s_dict, until_step=10)
         parser = NativeParser()
         # Execute
@@ -1044,7 +1045,7 @@ class TestXmlParser:
         str_in = ""
         with Path.open(file_name) as f:
             str_in = f.read()
-        dict_out: SDict[TKey, TValue] = SDict(file_name)
+        dict_out: SDict[str, Any] = SDict(file_name)
         parser = XmlParser(add_node_numbering=False)
         content_TAG00_expected = (  # noqa: N806
             "Extensible Markup Language (XML) is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable.\n"
@@ -1082,7 +1083,7 @@ class TestXmlParser:
         str_in = ""
         with Path.open(file_name) as f:
             str_in = f.read()
-        dict_out: SDict[TKey, TValue] = SDict(file_name)
+        dict_out: SDict[str, Any] = SDict(file_name)
         parser = XmlParser(add_node_numbering=True)
         content_TAG00_expected = (  # noqa: N806
             "Extensible Markup Language (XML) is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable.\n"
@@ -1121,7 +1122,7 @@ class TestXmlParser:
         str_in = ""
         with Path.open(file_name) as f:
             str_in = f.read()
-        dict_out: SDict[TKey, TValue] = SDict(file_name)
+        dict_out: SDict[str, Any] = SDict(file_name)
         parser = XmlParser()
         # Execute
         dict_out = parser.parse_string(str_in, dict_out)
@@ -1137,7 +1138,7 @@ class TestXmlParser:
         str_in = ""
         with Path.open(file_name) as f:
             str_in = f.read()
-        dict_out: SDict[TKey, TValue] = SDict(file_name)
+        dict_out: SDict[str, Any] = SDict(file_name)
         parser = XmlParser()
         # Execute
         dict_out = parser.parse_string(str_in, dict_out)
@@ -1151,7 +1152,7 @@ class TestXmlParser:
 class SetupHelper:
     @staticmethod
     def prepare_dict_until(
-        dict_to_prepare: SDict[TKey, TValue],
+        dict_to_prepare: SDict[K, V],
         until_step: int = -1,
         file_to_read: str = "test_parser_dict",
         *,

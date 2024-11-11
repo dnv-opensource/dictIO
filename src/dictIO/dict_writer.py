@@ -5,9 +5,10 @@ import os
 import re
 from collections.abc import MutableMapping, MutableSequence
 from pathlib import Path
+from typing import Any, cast
 
 from dictIO import Formatter, NativeParser, SDict, order_keys
-from dictIO.types import TKey, TValue
+from dictIO.types import K, V
 
 __ALL__ = ["DictWriter", "create_target_file_name"]
 
@@ -22,7 +23,7 @@ class DictWriter:
 
     @staticmethod
     def write(
-        source_dict: MutableMapping[TKey, TValue],
+        source_dict: MutableMapping[K, V],
         target_file: str | os.PathLike[str] | None = None,
         mode: str = "a",
         *,
@@ -45,15 +46,15 @@ class DictWriter:
 
         Parameters
         ----------
-        source_dict : Union[MutableMapping[TKey, TValue], SDict]
+        source_dict : MutableMapping[K, V]
             source dict
-        target_file : Union[str, os.PathLike[str], None], optional
+        target_file : str | os.PathLike[str] | None, optional
             target dict file name, by default None
         mode : str, optional
             append to target file ('a') or overwrite target file ('w'), by default 'a'
         order : bool, optional
             if True, the dict will be sorted before writing, by default False
-        formatter : Union[Formatter, None], optional
+        formatter : Formatter | None, optional
             formatter to be used, by default None
         """
         # Check arguments
@@ -93,7 +94,7 @@ class DictWriter:
             )
             from dictIO import DictReader
 
-            existing_dict = DictReader.read(target_file, order=order)
+            existing_dict = cast(SDict[K, V], DictReader.read(source_file=target_file, order=order))
             existing_dict.merge(source_dict)
             source_dict = existing_dict
 
@@ -118,7 +119,7 @@ class DictWriter:
 def create_target_file_name(
     source_file: str | os.PathLike[str],
     prefix: str | None = None,
-    scope: MutableSequence[TKey] | None = None,
+    scope: MutableSequence[Any] | None = None,
     output: str | None = None,
 ) -> Path:
     """Create a well defined target file name.
@@ -132,7 +133,7 @@ def create_target_file_name(
         source dict file
     prefix : Union[str, None], optional
         prefix to be used, by default None
-    scope : Union[MutableSequence[str], None], optional
+    scope : MutableSequence[Any] | None, optional
         scope to be reflected in the target file name, by default None
     output : Union[str, None], optional
         format of the target dict file. Choices are 'cpp', 'foam', 'xml' and 'json', by default None

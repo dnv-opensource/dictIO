@@ -27,7 +27,7 @@ from math import (  # noqa: F401
     tan,
 )
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 from numpy import (  # noqa: F401
     array,
@@ -41,7 +41,7 @@ from numpy import (  # noqa: F401
 )
 
 from dictIO import Parser, SDict
-from dictIO.types import TKey, TValue
+from dictIO.types import K, M, V
 from dictIO.utils.counter import DejaVue
 
 __ALL__ = ["DictReader"]
@@ -62,9 +62,9 @@ class DictReader:
         includes: bool = True,
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[TKey] | None = None,
+        scope: MutableSequence[Any] | None = None,
         parser: Parser | None = None,
-    ) -> SDict[TKey, TValue]:
+    ) -> SDict[Any, Any]:
         """Read a dictionary file in dictIO native file format, as well as JSON and XML.
 
         Reads a dict file, parses it and transforms its content into a dictIO dict object (SDict).
@@ -93,7 +93,7 @@ class DictReader:
 
         Returns
         -------
-        SDict
+        SDict[Any, Any]
             the read dict
 
         Raises
@@ -114,7 +114,7 @@ class DictReader:
         parser = parser or Parser.get_parser(source_file)
 
         # Parse the dict file and transform it into a SDict
-        parsed_dict = parser.parse_file(source_file, comments=comments)
+        parsed_dict: SDict[Any, Any] = parser.parse_file(source_file, comments=comments)
 
         # Merge dict files included through #include directives, if not actively refrained through opts
         if includes:
@@ -143,13 +143,13 @@ class DictReader:
         # also to consider: is it really neccessary to have the included dict merged in to current dict.data?
         # if we could avoid that we get a more readable structure, even after some farn operations
         if not includes:
-            DictReader._remove_include_keys(parsed_dict)
+            _ = DictReader._remove_include_keys(parsed_dict)
 
         return parsed_dict
 
     @staticmethod
     def _merge_includes(
-        parent_dict: SDict[TKey, TValue],
+        parent_dict: SDict[K, V],
         *,
         comments: bool = True,
     ) -> None:
@@ -159,9 +159,9 @@ class DictReader:
         djv.reset()
 
         # Inner function: Merge all includes, recursively
-        def _merge_includes_recursive(parent_dict: SDict[TKey, TValue]) -> SDict[TKey, TValue]:
+        def _merge_includes_recursive(parent_dict: SDict[K, V]) -> SDict[K, V]:
             # empty dict to merge in temporarily, avoiding dict-has-change-error inside the for loop
-            temp_dict: SDict[TKey, TValue] = SDict()
+            temp_dict: SDict[K, V] = SDict()
 
             # loop over all possible includes
             for _, _, path in parent_dict.includes.values():
@@ -176,11 +176,18 @@ class DictReader:
                     logger.warning(f"included dict not found. Merging of {path} aborted.")
                 else:
                     parser = Parser.get_parser(source_file=path)
-                    included_dict = parser.parse_file(source_file=path, target_dict=None, comments=comments)
+                    included_dict = cast(
+                        SDict[K, V],
+                        parser.parse_file(
+                            source_file=path,
+                            target_dict=None,
+                            comments=comments,
+                        ),
+                    )
 
                     # recursion in case the i-th include also has includes
                     if len(included_dict.includes) != 0:
-                        nested_included_dict = _merge_includes_recursive(included_dict)
+                        nested_included_dict = _merge_includes_recursive(parent_dict=included_dict)
                         # merge second level
                         temp_dict.merge(nested_included_dict)
 
@@ -193,17 +200,17 @@ class DictReader:
             return parent_dict
 
         # Call inner funtion to merge all includes, recursively
-        parent_dict.merge(_merge_includes_recursive(parent_dict))
+        parent_dict.merge(_merge_includes_recursive(parent_dict=parent_dict))
 
         return
 
     @staticmethod
     def _resolve_reference(
         reference: str,
-        variables: MutableMapping[str, TValue],
-    ) -> TValue:
+        variables: MutableMapping[str, V],
+    ) -> V | None:
         # resolves a single reference
-        value: TValue = None
+        value: V | None = None
         try:
             # extract indices, ugly version, nice version is re.sub with a positive lookahead
             indexing = re.findall(pattern=r"\[.+\]$", string=reference)[0]
@@ -231,7 +238,7 @@ class DictReader:
         return value
 
     @staticmethod
-    def _eval_expressions(dict_in: SDict[TKey, TValue]) -> None:
+    def _eval_expressions(dict_in: SDict[K, V]) -> None:
         # Collect all references contained in expressions
         _references: list[str] = []
         _refs: list[str]
@@ -241,15 +248,15 @@ class DictReader:
             _refs = re.findall(pattern=r"\$\w[\w\[\]]*", string=item["expression"])
             _references.extend(_refs)
         # Resolve references
-        variables: dict[str, TValue] = dict_in.variables
-        references: dict[str, TValue] = {
+        variables: dict[str, V] = dict_in.variables
+        references: dict[str, V | None] = {
             ref: DictReader._resolve_reference(
                 reference=ref,
                 variables=variables,
             )
             for ref in _references
         }
-        references_resolved: dict[str, TValue] = {
+        references_resolved: dict[str, V] = {
             ref: value
             for ref, value in references.items()
             if (value is not None) and (not re.search(pattern=r"EXPRESSION|\$", string=str(value)))
@@ -270,23 +277,24 @@ class DictReader:
                 for ref in _refs:
                     if ref in references_resolved:
                         expression = re.sub(
-                            pattern=f"{re.escape(ref)}",
+                            pattern=f"{re.escape(pattern=ref)}",
                             repl=str(references_resolved[ref]),
                             string=expression,
                         )
 
                 eval_successful: bool = False
-                eval_result: TValue | None = None
+                eval_result: V | None = None
                 if "$" not in expression:
                     try:
-                        eval_result = eval(expression)  # noqa: S307
+                        eval_result = cast(V, eval(expression))  # noqa: S307
                         eval_successful = True
                     except NameError:
-                        eval_result = expression
+                        eval_result = cast(V, expression)
                         eval_successful = True
                     except SyntaxError:
                         logger.warning(f'DictReader.(): evaluation of "{expression}" not yet possible')
                 if eval_successful:
+                    assert eval_result is not None
                     while global_key := dict_in.find_global_key(query=placeholder):
                         # Substitute the placeholder in the dict with the result of the evaluated expression
                         dict_in.set_global_key(global_key, value=eval_result)
@@ -330,27 +338,27 @@ class DictReader:
             expression = item["expression"]
             while global_key := dict_in.find_global_key(query=placeholder):
                 # Substitute the placeholder with the original (or at least partly resolved) expression
-                dict_in.set_global_key(global_key, value=expression)
+                dict_in.set_global_key(global_key, value=cast(V, expression))
         dict_in.expressions.clear()
 
         return
 
     @staticmethod
-    def _remove_comment_keys(data: MutableMapping[TKey, TValue]) -> MutableMapping[TKey, TValue]:
+    def _remove_comment_keys(data: M) -> M:
         """Remove comments from data structure for read function call from other programs."""
         remove = "[A-Z]+COMMENT[0-9;]+"
 
         with contextlib.suppress(Exception):
             for key in list(data.keys()):  # work on a copy of the keys
                 if isinstance(data[key], MutableMapping):
-                    sub_dict = cast(MutableMapping[TKey, TValue], data[key])
+                    sub_dict = cast(M, data[key])
                     data.update({key: DictReader._remove_comment_keys(sub_dict)})  # recursion
                 elif re.search(pattern=remove, string=str(key)):
                     _ = data.pop(key)
         return data
 
     @staticmethod
-    def _remove_include_keys(data: MutableMapping[TKey, TValue]) -> None:
+    def _remove_include_keys(data: M) -> M:
         """Remove includes from data structure for read function call from other programs."""
         remove = "INCLUDE[0-9;]+"
 
@@ -358,4 +366,4 @@ class DictReader:
             for key in list(data.keys()):  # work on a copy of the keys
                 if type(key) is str and re.search(pattern=remove, string=key):
                     _ = data.pop(key)
-        return
+        return data

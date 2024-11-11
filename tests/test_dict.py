@@ -3,7 +3,7 @@ import re
 from collections.abc import MutableMapping
 from copy import deepcopy
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
@@ -18,17 +18,17 @@ from dictIO import (
     order_keys,
     set_global_key,
 )
-from dictIO.types import TKey, TValue
+from dictIO.types import K, V
 
 
 @pytest.fixture
-def test_dict() -> SDict[TKey, TValue]:
+def test_dict() -> SDict[str, Any]:
     parser = NativeParser()
     return parser.parse_file(Path("test_dict_dict"))
 
 
 def test_init() -> None:
-    test_dict: SDict[TKey, TValue] = SDict()
+    test_dict: SDict[str, Any] = SDict()
     assert test_dict.source_file is None
     assert test_dict.path == Path.cwd()
     assert test_dict.name == ""
@@ -43,7 +43,7 @@ def test_init() -> None:
 
 
 def test_init_with_file() -> None:
-    test_dict: SDict[TKey, TValue] = SDict("someDict")
+    test_dict: SDict[str, Any] = SDict("someDict")
     assert test_dict.source_file == Path.cwd() / "someDict"
     assert test_dict.path == Path.cwd()
     assert test_dict.name == "someDict"
@@ -58,11 +58,11 @@ def test_init_with_file() -> None:
 
 
 def test_init_with_base_dict() -> None:
-    base_dict: dict[TKey, TValue] = {
+    base_dict: dict[str, Any] = {
         "key1": "value1",
         "key2": "value2",
     }
-    test_dict: SDict[TKey, TValue] = SDict(base_dict)
+    test_dict: SDict[str, Any] = SDict(base_dict)
     assert test_dict == base_dict
     assert test_dict.source_file is None
     assert test_dict.path == Path.cwd()
@@ -121,7 +121,7 @@ def test_find_global_key() -> None:
     ldl_nested = [deepcopy(dl_nested)]
 
     # Construct a dictionary dict_in with single entries, nested dicts and nested lists
-    dict_in: dict[TKey, TValue] = {
+    dict_in: dict[str, Any] = {
         key_1: str_in_1,
         key_2: str_in_2,
         key_3: str_in_3,
@@ -138,6 +138,7 @@ def test_find_global_key() -> None:
 
     # Assert structure of dict_in
     assert len(dict_in) == 12
+    assert isinstance(dict_in[keyd], dict)
     assert len(dict_in[keyd]) == 6
     assert len(dict_in[keyl]) == 6
     assert len(dict_in[keydl]) == 1
@@ -269,7 +270,7 @@ def test_order_keys() -> None:
         key_n_1: not_a_str_1,
         key_n_2: not_a_str_2,
     }
-    dict_in: dict[TKey, TValue] = {
+    dict_in: dict[str, Any] = {
         key_3: str_3,
         key_1: str_1,
         key_2: str_2,
@@ -281,7 +282,7 @@ def test_order_keys() -> None:
     keys_expected = [key_1, key_2, key_3, key_4, key_n_1, key_n_2, key_n_3]
     keys_expected_nested = [key_1, key_2, key_3, key_n_1, key_n_2, key_n_3]
 
-    s_dict: SDict[TKey, TValue] = SDict()
+    s_dict: SDict[str, Any] = SDict()
     s_dict.update(deepcopy(dict_in))
 
     # 1. negative test: assert dict_in is not alphanumerically ordered
@@ -317,24 +318,26 @@ def test_order_keys() -> None:
         assert key == keys_expected_nested[index]
 
 
-def test_order_keys_of_test_dict(test_dict: SDict[TKey, TValue]) -> None:
+def test_order_keys_of_test_dict(test_dict: SDict[K, V]) -> None:
     # Prepare
     # Execute
     test_dict.order_keys()
     # Assert
-    assert str(test_dict["unordered"]) == str(test_dict["ordered"])
+    assert str(test_dict[cast(K, "unordered")]) == str(test_dict[cast(K, "ordered")])
 
 
-def test_reduce_scope_of_test_dict(test_dict: SDict[TKey, TValue]) -> None:
+def test_reduce_scope_of_test_dict(test_dict: SDict[K, V]) -> None:
     # Prepare
-    scope: list[TKey] = ["scope", "subscope1"]
+    scope: list[K] = [cast(K, "scope"), cast(K, "subscope1")]
     # Execute
     test_dict.reduce_scope(scope)
     # Assert
     dict_out = test_dict
     assert len(dict_out) == 2  # subscope11, subscope12
-    assert dict_out["subscope11"]["name"] == "subscope11"
-    assert dict_out["subscope12"]["name"] == "subscope12"
+    # assert dict_out["subscope11"] is not None
+    assert dict_out[cast(K, "subscope11")]["name"] == "subscope11"
+    assert dict_out[cast(K, "subscope12")] is not None
+    assert dict_out[cast(K, "subscope12")]["name"] == "subscope12"
 
 
 def test_include() -> None:
@@ -361,7 +364,7 @@ def test_include() -> None:
 
 def test_merge_does_not_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -381,7 +384,7 @@ def test_merge_does_not_overwrite_existing_keys() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 21",
             "B": 21,
@@ -411,7 +414,7 @@ def test_merge_does_not_overwrite_existing_keys() -> None:
 
 def test_merge_does_not_delete_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -431,7 +434,7 @@ def test_merge_does_not_delete_existing_keys() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 21",
             "E": {},
@@ -447,7 +450,7 @@ def test_merge_does_not_delete_existing_keys() -> None:
 
 def test_merge_does_add_new_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -467,7 +470,7 @@ def test_merge_does_add_new_keys() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "E": {
                 "E": "string 24",
@@ -496,7 +499,7 @@ def test_merge_does_add_new_keys() -> None:
 
 def test_merge_does_not_change_existings_lists() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -516,7 +519,7 @@ def test_merge_does_not_change_existings_lists() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "F": [
                 "string 23",
@@ -541,8 +544,8 @@ def test_merge_does_not_change_existings_lists() -> None:
 
 
 def test_merge_does_also_merge_attributes() -> None:
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict()
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict()
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict()
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_1.expressions |= {
         1: {
             "name": "EXPRESSION000011",
@@ -623,7 +626,7 @@ def test_merge_does_also_merge_attributes() -> None:
 
 def test_update_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -643,7 +646,7 @@ def test_update_does_overwrite_existing_keys() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 21",
             "B": 21,
@@ -682,7 +685,7 @@ def test_update_does_overwrite_existing_keys() -> None:
 
 def test_update_does_delete_nested_elements() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -702,7 +705,7 @@ def test_update_does_delete_nested_elements() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 21",
             "E": {},
@@ -723,7 +726,7 @@ def test_update_does_delete_nested_elements() -> None:
 
 def test_update_does_add_new_keys_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -743,7 +746,7 @@ def test_update_does_add_new_keys_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "E": {
                 "E": "string 24",
@@ -776,7 +779,7 @@ def test_update_does_add_new_keys_by_overwrite() -> None:
 
 def test_update_does_change_existings_lists_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -796,7 +799,7 @@ def test_update_does_change_existings_lists_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "F": [
                 "string 23",
@@ -818,8 +821,8 @@ def test_update_does_change_existings_lists_by_overwrite() -> None:
 
 
 def test_update_does_also_update_attributes() -> None:
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict()
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict()
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict()
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_1.expressions |= {
         1: {
             "name": "EXPRESSION000011",
@@ -900,7 +903,7 @@ def test_update_does_also_update_attributes() -> None:
 
 def test_augmented_or_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -920,7 +923,7 @@ def test_augmented_or_does_overwrite_existing_keys() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 21",
             "B": 21,
@@ -959,7 +962,7 @@ def test_augmented_or_does_overwrite_existing_keys() -> None:
 
 def test_augmented_or_does_delete_nested_elements() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -979,7 +982,7 @@ def test_augmented_or_does_delete_nested_elements() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 21",
             "E": {},
@@ -1000,7 +1003,7 @@ def test_augmented_or_does_delete_nested_elements() -> None:
 
 def test_augmented_or_does_add_new_keys_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -1020,7 +1023,7 @@ def test_augmented_or_does_add_new_keys_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "E": {
                 "E": "string 24",
@@ -1053,7 +1056,7 @@ def test_augmented_or_does_add_new_keys_by_overwrite() -> None:
 
 def test_augmented_or_does_change_existings_lists_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -1073,7 +1076,7 @@ def test_augmented_or_does_change_existings_lists_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "F": [
                 "string 23",
@@ -1095,8 +1098,8 @@ def test_augmented_or_does_change_existings_lists_by_overwrite() -> None:
 
 
 def test_augmented_or_does_also_update_attributes() -> None:
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict()
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict()
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict()
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_1.expressions |= {
         1: {
             "name": "EXPRESSION000011",
@@ -1177,7 +1180,7 @@ def test_augmented_or_does_also_update_attributes() -> None:
 
 def test_left_or_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -1197,7 +1200,7 @@ def test_left_or_does_overwrite_existing_keys() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 21",
             "B": 21,
@@ -1236,7 +1239,7 @@ def test_left_or_does_overwrite_existing_keys() -> None:
 
 def test_left_or_does_delete_nested_elements() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -1256,7 +1259,7 @@ def test_left_or_does_delete_nested_elements() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 21",
             "E": {},
@@ -1277,7 +1280,7 @@ def test_left_or_does_delete_nested_elements() -> None:
 
 def test_left_or_does_add_new_keys_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -1297,7 +1300,7 @@ def test_left_or_does_add_new_keys_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "E": {
                 "E": "string 24",
@@ -1330,7 +1333,7 @@ def test_left_or_does_add_new_keys_by_overwrite() -> None:
 
 def test_left_or_does_change_existings_lists_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
             "B": 11,
@@ -1350,7 +1353,7 @@ def test_left_or_does_change_existings_lists_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "F": [
                 "string 23",
@@ -1372,8 +1375,8 @@ def test_left_or_does_change_existings_lists_by_overwrite() -> None:
 
 
 def test_left_or_does_also_update_attributes() -> None:
-    dict_1: SDict[str, TValue | dict[str | int, TValue]] = SDict()
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict()
+    dict_1: SDict[str, Any | dict[str | int, Any]] = SDict()
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_1.expressions |= {
         1: {
             "name": "EXPRESSION000011",
@@ -1426,7 +1429,7 @@ def test_left_or_does_also_update_attributes() -> None:
         3: ("#include dict_23", "dict_23", Path("dict_23")),
     }
     # execute left or operation
-    new_dict: SDict[str, TValue | dict[str | int, TValue]]
+    new_dict: SDict[str, Any | dict[str | int, Any]]
     new_dict = dict_1 | dict_2
     # assert that existing entries in the attributes of dict_1 HAVE been overwritten
     # and new entries have been added
@@ -1460,7 +1463,7 @@ class DictWithoutOr(dict[Any, Any]):
 
 def test_right_or_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr(
+    dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr(
         {
             "A": "string 11",
             "B": 11,
@@ -1480,7 +1483,7 @@ def test_right_or_does_overwrite_existing_keys() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 21",
             "B": 21,
@@ -1519,7 +1522,7 @@ def test_right_or_does_overwrite_existing_keys() -> None:
 
 def test_right_or_does_delete_nested_elements() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr(
+    dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr(
         {
             "A": "string 11",
             "B": 11,
@@ -1539,7 +1542,7 @@ def test_right_or_does_delete_nested_elements() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 21",
             "E": {},
@@ -1560,7 +1563,7 @@ def test_right_or_does_delete_nested_elements() -> None:
 
 def test_right_or_does_add_new_keys_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr(
+    dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr(
         {
             "A": "string 11",
             "B": 11,
@@ -1580,7 +1583,7 @@ def test_right_or_does_add_new_keys_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "E": {
                 "E": "string 24",
@@ -1613,7 +1616,7 @@ def test_right_or_does_add_new_keys_by_overwrite() -> None:
 
 def test_right_or_does_change_existings_lists_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr(
+    dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr(
         {
             "A": "string 11",
             "B": 11,
@@ -1633,7 +1636,7 @@ def test_right_or_does_change_existings_lists_by_overwrite() -> None:
             ],
         }
     )
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict(
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "F": [
                 "string 23",
@@ -1655,8 +1658,8 @@ def test_right_or_does_change_existings_lists_by_overwrite() -> None:
 
 
 def test_right_or_does_also_update_attributes() -> None:
-    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr()
-    dict_2: SDict[str, TValue | dict[str | int, TValue]] = SDict()
+    dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr()
+    dict_2: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_2.expressions |= {
         1: {
             "name": "EXPRESSION000021",
@@ -1687,7 +1690,7 @@ def test_right_or_does_also_update_attributes() -> None:
         3: ("#include dict_23", "dict_23", Path("dict_23")),
     }
     # execute right or operation
-    new_dict: SDict[str, TValue | dict[str | int, TValue]]
+    new_dict: SDict[str, Any | dict[str | int, Any]]
     new_dict = dict_1 | dict_2  # type: ignore[assignment, reportAssignmentType]
     # assert that existing entries in the attributes of dict_1 HAVE been overwritten
     # and new entries have been added
@@ -2020,9 +2023,9 @@ def test_sdict_copy_deepcopy() -> None:
     assert copied_dict.includes == original_dict.includes
 
 
-def _construct_test_dict() -> dict[TKey, TValue]:
+def _construct_test_dict() -> dict[str, Any]:
     # construct a test dict with single entries, a nested dict and a nested list
-    test_dict: dict[TKey, TValue] = {
+    test_dict: dict[str, Any] = {
         "A": "string 11",
         "B": 11,
         "C": 11.0,
@@ -2043,9 +2046,9 @@ def _construct_test_dict() -> dict[TKey, TValue]:
     return test_dict
 
 
-def _construct_test_sdict() -> SDict[TKey, TValue]:
+def _construct_test_sdict() -> SDict[str, Any]:
     # construct a test SDict with single entries, a nested dict and a nested list
-    test_sdict: SDict[TKey, TValue] = SDict(_construct_test_dict())
+    test_sdict: SDict[str, Any] = SDict(_construct_test_dict())
     test_sdict.expressions |= {
         1: {
             "name": "EXPRESSION000011",
@@ -2074,7 +2077,7 @@ def _construct_test_sdict() -> SDict[TKey, TValue]:
 def test_load() -> None:
     # Prepare
     source_file = Path("test_dictReader_dict")
-    s_dict: SDict[TKey, TValue] = SDict()
+    s_dict: SDict[str, Any] = SDict()
     # Execute
     _ = s_dict.load(source_file)
     # Assert included dict has been merged
@@ -2105,7 +2108,7 @@ def test_load() -> None:
 def test_dump() -> None:
     # Prepare
     target_file: Path = Path("temp_file_test_write_dict")
-    test_dict: dict[TKey, TValue] = {
+    test_dict: dict[str, Any] = {
         "param1": -10.0,
         "param2": 0.0,
         "param3": 0.0,
@@ -2134,7 +2137,7 @@ def test_dump() -> None:
         r"_names ( param1 param2 param3 ); _values ( -10.0 0.0 0.0 ); "
         r"_commands { ls ( 'echo %PATH%' dir ); } } "
     )
-    test_s_dict: SDict[TKey, TValue]
+    test_s_dict: SDict[str, Any]
     # Execute 1: Dump with explicit target_file
     target_file.unlink(missing_ok=True)
     test_s_dict = SDict()
@@ -2283,7 +2286,7 @@ def test_permissable_key_type_example_used_in_docs() -> None:
 
 
 def test_cpp_dict() -> None:
-    s_dict: SDict[TKey, TValue] = SDict(_construct_test_dict())
+    s_dict: SDict[str, Any] = SDict(_construct_test_dict())
     cpp_dict: CppDict = CppDict(_construct_test_dict())
     assert isinstance(cpp_dict, dict)
     assert isinstance(cpp_dict, SDict)

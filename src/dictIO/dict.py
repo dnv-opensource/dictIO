@@ -13,12 +13,13 @@ from _collections_abc import Iterable, Mapping, MutableMapping, MutableSequence
 from copy import copy
 from pathlib import Path
 from typing import (
+    Any,
     TypeVar,
     cast,
     overload,
 )
 
-from dictIO.types import K, TGlobalKey, TKey, TValue, V
+from dictIO.types import K, TKey, TValue, V
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.dict import (
     find_global_key,
@@ -160,7 +161,7 @@ class SDict(dict[K, V]):
         cls,
         iterable: Iterable[_K],
         value: None = None,
-    ) -> SDict[_K, TValue | None]:
+    ) -> SDict[_K, Any | None]:
         pass
 
     @overload
@@ -177,7 +178,7 @@ class SDict(dict[K, V]):
         cls,
         iterable: Iterable[_K],
         value: _V | None = None,
-    ) -> SDict[_K, _V] | SDict[_K, TValue | None]:
+    ) -> SDict[_K, _V] | SDict[_K, Any | None]:
         """Create a new SDict instance from the keys of an iterable.
 
         Parameters
@@ -189,7 +190,7 @@ class SDict(dict[K, V]):
 
         Returns
         -------
-        SDict[_K, _V] | SDict[_K, TValue | None]
+        SDict[_K, _V] | SDict[_K, Any | None]
             The created SDict instance.
         """
         new_dict: SDict[_K, _V] = cast(SDict[_K, _V], cls())
@@ -245,7 +246,7 @@ class SDict(dict[K, V]):
 
         from dictIO.dict_reader import DictReader
 
-        loaded_dict: SDict[TKey, TValue] = DictReader.read(
+        loaded_dict: SDict[K, V] = DictReader.read(
             source_file=source_file,
         )
         self.reset()
@@ -254,7 +255,7 @@ class SDict(dict[K, V]):
         #      Maybe this method needs to be refactored to a factory function, returning a new `SDict` instance
         #      with the actual types of `loaded_dict`.
         #      CLAROS, 2024-11-06
-        self.update(cast(SDict[K, V], loaded_dict))
+        self.update(loaded_dict)
         self._set_source_file(source_file)
         return self
 
@@ -299,10 +300,10 @@ class SDict(dict[K, V]):
         from dictIO.dict_writer import DictWriter
 
         DictWriter.write(
-            source_dict=cast(SDict[TKey, TValue], self),
+            source_dict=self,
             target_file=target_file,
         )
-        self._set_source_file(target_file)
+        self._set_source_file(source_file=target_file)
 
         return target_file
 
@@ -355,15 +356,15 @@ class SDict(dict[K, V]):
         return self._name
 
     @property
-    def variables(self) -> dict[str, TValue]:
+    def variables(self) -> dict[str, V]:
         """Returns a dict with all Variables currently registered.
 
         Returns
         -------
-        Dict[str, TValue]
+        Dict[str, V]
             dict of all Variables currently registered.
         """
-        variables: MutableMapping[str, TValue] = {}
+        variables: MutableMapping[str, V] = {}
 
         def extract_variables_from_dict(dict_in: MutableMapping[_K, V]) -> None:
             for key, value in dict_in.items():
@@ -379,15 +380,16 @@ class SDict(dict[K, V]):
                     continue
                 if isinstance(value, MutableSequence):
                     # special case: item is a list, but does NOT contain a nested dict (-> e.g. a vector or matrix)
-                    variables[key] = value
+                    variables[key] = cast(V, value)
                 else:
                     # base case: item is a single value type
-                    _value = _insert_expression(value, self)
+                    value = cast(V, value)
+                    _value = _insert_expression(value=value, s_dict=self)
                     if not _value_contains_circular_reference(key, _value):
                         variables[key] = _value
             return
 
-        def extract_variables_from_list(list_in: MutableSequence[TValue]) -> None:
+        def extract_variables_from_list(list_in: MutableSequence[V]) -> None:
             # sourcery skip: remove-redundant-pass
             for value in list_in:
                 if isinstance(value, MutableMapping):
@@ -401,7 +403,7 @@ class SDict(dict[K, V]):
                     pass
             return
 
-        def list_contains_dict(list_in: MutableSequence[TValue]) -> bool:
+        def list_contains_dict(list_in: MutableSequence[V]) -> bool:
             # sourcery skip: merge-duplicate-blocks, use-any
             for value in list_in:
                 if isinstance(value, MutableMapping):
@@ -462,9 +464,9 @@ class SDict(dict[K, V]):
 
         Parameters
         ----------
-        __m : Mapping[TKey, TValue]
+        m : Mapping[K, V] | Iterable[tuple[K, V]] | None
             dict containing the keys to be updated and its new values
-        **kwargs: TValue
+        **kwargs: V
             optional keyword arguments. These will be passed on to the update() method of the parent class.
         """
         if m is None:
@@ -499,11 +501,11 @@ class SDict(dict[K, V]):
 
         Parameters
         ----------
-        other : MutableMapping[TKey, TValue]
+        other : Mapping[K, V]
             dict to be merged
         """
         # merge other dict into self (=into self)
-        self._recursive_merge(self, other)
+        self._recursive_merge(target_dict=self, dict_to_merge=other)
         # merge SDict attributes
         self._post_merge(other)
         self._clean()
@@ -526,9 +528,9 @@ class SDict(dict[K, V]):
 
         Parameters
         ----------
-        target_dict : MutableMapping[TKey, TValue] | MutableMapping[int, TValue]
+        target_dict : MutableMapping[_K, _V]
             target dict
-        dict_to_merge : Mapping[TKey, TValue] | Mapping[int, TValue]
+        dict_to_merge : Mapping[_K, _V]
             dict to be merged into target dict
         overwrite : bool, optional
             if True, existing keys will be overwritten, by default False
@@ -536,18 +538,18 @@ class SDict(dict[K, V]):
         for key in dict_to_merge:
             if (
                 key in target_dict
-                and isinstance(target_dict[key], MutableMapping)  # pyright: ignore[reportArgumentType]
-                and isinstance(dict_to_merge[key], Mapping)  # pyright: ignore[reportArgumentType]
+                and isinstance(target_dict[key], MutableMapping)
+                and isinstance(dict_to_merge[key], Mapping)
             ):  # dict
                 self._recursive_merge(  # Recursion
-                    target_dict=cast(MutableMapping[TKey, TValue], target_dict[key]),
-                    dict_to_merge=cast(Mapping[TKey, TValue], dict_to_merge[key]),
+                    target_dict=cast(MutableMapping[K, V], target_dict[key]),
+                    dict_to_merge=cast(Mapping[K, V], dict_to_merge[key]),
                     overwrite=overwrite,
                 )
             else:
                 value_in_target_dict_contains_circular_reference = False
                 if isinstance(target_dict, SDict) and key in target_dict:
-                    value = _insert_expression(target_dict[key], target_dict)
+                    value = _insert_expression(value=target_dict[key], s_dict=target_dict)
                     value_in_target_dict_contains_circular_reference = _value_contains_circular_reference(key, value)
                 if overwrite or key not in target_dict or value_in_target_dict_contains_circular_reference:
                     target_dict[key] = dict_to_merge[key]  # Update
@@ -794,12 +796,11 @@ class SDict(dict[K, V]):
         str
             the string representation
         """
-        from dictIO import (
-            NativeFormatter,  # __str__ shall be formatted in dictIO native file format
-        )
+        # __str__ shall be formatted in dictIO native file format
+        from dictIO import NativeFormatter
 
         formatter = NativeFormatter()
-        return formatter.to_string(cast(SDict[TKey, TValue], self))
+        return formatter.to_string(self)
 
     def __repr__(self) -> str:
         """Return a string representation of the SDict instance.
@@ -839,7 +840,7 @@ class SDict(dict[K, V]):
         self.includes = order_keys(self.includes)
         return
 
-    def find_global_key(self, query: str = "") -> list[TGlobalKey] | None:
+    def find_global_key(self, query: str = "") -> list[K | int] | None:
         """Return the global key thread to the first key the value of which matches the passed in query.
 
         Function works recursively on nested dicts and is non-greedy: The key of the first match is returned.
@@ -854,12 +855,12 @@ class SDict(dict[K, V]):
 
         Returns
         -------
-        Union[list[TKey], None]
+        list[K | int] | None
             global key thread to the first key the value of which matches the passed in query, if found. Otherwise None.
         """
-        return find_global_key(cast(SDict[TKey, TValue], self), query)
+        return find_global_key(self, query)
 
-    def set_global_key(self, global_key: MutableSequence[TKey], value: TValue = None) -> None:
+    def set_global_key(self, global_key: MutableSequence[K | int], value: V) -> None:
         """Set the value for the passed in global key.
 
         The global key thread is traversed downwards until arrival at the target key,
@@ -867,25 +868,25 @@ class SDict(dict[K, V]):
 
         Parameters
         ----------
-        global_key : MutableSequence[TValue]
+        global_key : MutableSequence[K | int]
             list of keys defining the global key thread to the target key (such as returned by method find_global_key())
-        value : TValue, optional
-            value the target key shall be set to, by default None
+        value : V
+            value the target key shall be set to
         """
         set_global_key(
-            arg=cast(MutableMapping[TKey, TValue], self),
+            arg=self,
             global_key=global_key,
             value=value,
         )
 
         return
 
-    def global_key_exists(self, global_key: MutableSequence[TKey]) -> bool:
+    def global_key_exists(self, global_key: MutableSequence[K | int]) -> bool:
         """Check whether the specified global key exists.
 
         Parameters
         ----------
-        global_key : MutableSequence[TValue]
+        global_key : MutableSequence[K | int]
             global key the existence of which is checked
 
         Returns
@@ -897,16 +898,16 @@ class SDict(dict[K, V]):
         probe the existence of (nested) keys in dict
         """
         return global_key_exists(
-            dict_in=cast(MutableMapping[TKey, TValue], self),
+            dict_in=self,
             global_key=global_key,
         )
 
-    def reduce_scope(self, scope: MutableSequence[TKey]) -> None:
+    def reduce_scope(self, scope: MutableSequence[K]) -> None:
         """Reduces the dict to the keys defined in scope.
 
         Parameters
         ----------
-        scope : MutableSequence[str]
+        scope : MutableSequence[K]
             scope the dict shall be reduced to
         """
         if scope:
@@ -953,7 +954,7 @@ class SDict(dict[K, V]):
         Doublettes are identified through equality with their lookup values.
         """
 
-        def _recursive_clean(data: MutableMapping[TKey, TValue]) -> None:
+        def _recursive_clean(data: MutableMapping[K, V]) -> None:
             self._clean_data(
                 data=data,
             )
@@ -964,11 +965,11 @@ class SDict(dict[K, V]):
 
             return
 
-        _recursive_clean(data=cast(MutableMapping[TKey, TValue], self))
+        _recursive_clean(data=self)
 
         return
 
-    def _clean_data(self, data: MutableMapping[TKey, TValue]) -> None:
+    def _clean_data(self, data: MutableMapping[K, V]) -> None:
         """Find and remove doublettes of PLACEHOLDER keys.
 
         Find and remove doublettes of following PLACEHOLDER keys within data:
@@ -979,7 +980,7 @@ class SDict(dict[K, V]):
         Doublettes are identified through equality with their lookup values.
         """
         # IDENTIFY all placeholders on current level
-        keys_on_this_level: list[TKey] = list(data)
+        keys_on_this_level: list[K] = list(data)
         block_comments_on_this_level: list[str] = []
         includes_on_this_level: list[str] = []
         line_comments_on_this_level: list[str] = []
@@ -1001,7 +1002,7 @@ class SDict(dict[K, V]):
                 if block_comment in unique_block_comments_on_this_level:
                     # Found doublette
                     # Remove from current level in data (the dict)
-                    del data[_block_comment]
+                    del data[cast(K, _block_comment)]
                     # ..AND from self.block_comments (the lookup table)
                     del self.block_comments[_id]
                 else:
@@ -1015,7 +1016,7 @@ class SDict(dict[K, V]):
                 if include in unique_includes_on_this_level:
                     # Found doublette
                     # Remove from current level in data (the dict)
-                    del data[_include]
+                    del data[cast(K, _include)]
                     # ..AND from self.includes (the lookup table)
                     del self.includes[_id]
                 else:
@@ -1029,7 +1030,7 @@ class SDict(dict[K, V]):
                 if line_comment in unique_line_comments_on_this_level:
                     # Found doublette
                     # Remove from current level in data (the dict)
-                    del data[_line_comment]
+                    del data[cast(K, _line_comment)]
                     # ..AND from self.line_comments (the lookup table)
                     del self.line_comments[_id]
                 else:
@@ -1071,15 +1072,16 @@ class SDict(dict[K, V]):
         return
 
 
-def _insert_expression(value: TValue, s_dict: SDict[K, V]) -> TValue:
+def _insert_expression(value: V, s_dict: SDict[K, V]) -> V:
     if not isinstance(value, str):
         return value
     if not re.search(r"EXPRESSION\d{6}", value):
-        return value
+        return cast(V, value)
     if match_index := re.search(r"\d{6}", value):
         index = int(match_index[0])
-        return s_dict.expressions[index]["expression"] if index in s_dict.expressions else value
-    return value
+        _value = s_dict.expressions[index]["expression"] if index in s_dict.expressions else value
+        return cast(V, _value)
+    return cast(V, value)
 
 
 def _value_contains_circular_reference(key: TKey, value: TValue) -> bool:
