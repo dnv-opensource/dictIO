@@ -130,14 +130,17 @@ class Formatter:
         """
         # sourcery skip: assign-if-exp, reintroduce-else
 
+        # NOTE: The sequence of below `isinstance()` checks is important.
+        #       Especially, `isinstance(arg, bool)` must be checked _before_ `isinstance(arg, int)`,
+        #       as otherwise `isinstance(arg, int)` would catch the bool (bool is a subtype of int) !
         if isinstance(arg, str):
             return self.format_string(arg)
+        if isinstance(arg, bool):
+            return self.format_bool(arg)
         if isinstance(arg, int):
             return self.format_int(arg)
         if isinstance(arg, float):
             return self.format_float(arg)
-        if isinstance(arg, bool):
-            return self.format_bool(arg)
         if isinstance(arg, Path):
             return str(arg)
         if arg is None:

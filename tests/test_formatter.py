@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 
-from dictIO import DictReader, FoamFormatter, NativeFormatter, SDict, XmlFormatter
+from dictIO import DictReader, FoamFormatter, Formatter, NativeFormatter, SDict, XmlFormatter
 
 
 class TestFormatter:
@@ -13,6 +13,18 @@ class TestFormatter:
     @pytest.mark.skip(reason="To be implemented")
     def test_returned_formatter_type(self) -> None:
         pass
+
+    def test_format_value_bool(self) -> None:
+        # sourcery skip: extract-duplicate-method, inline-variable
+        formatter = Formatter()
+        bool_in = False
+        str_out = formatter.format_value(bool_in)
+        assert isinstance(str_out, str)
+        assert str_out == "False"
+        bool_in = True
+        str_out = formatter.format_value(bool_in)
+        assert isinstance(str_out, str)
+        assert str_out == "True"
 
 
 class TestNativeFormatter:
@@ -121,11 +133,11 @@ class TestNativeFormatter:
         bool_in = False
         str_out = formatter.format_value(bool_in)
         assert isinstance(str_out, str)
-        assert str_out == "False"
+        assert str_out == "false"
         bool_in = True
         str_out = formatter.format_value(bool_in)
         assert isinstance(str_out, str)
-        assert str_out == "True"
+        assert str_out == "true"
 
     def test_format_value_Path(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
