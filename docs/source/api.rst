@@ -1,17 +1,7 @@
 API Reference
 =============
 
-.. autosummary::
-   :toctree: _autosummary
-   :template: custom-module.rst
-   :recursive:
+.. toctree::
+   :maxdepth: 4
 
-   dictIO.dict
-   dictIO.dict_parser
-   dictIO.dict_reader
-   dictIO.dict_writer
-   dictIO.formatter
-   dictIO.parser
-   dictIO.types
-   dictIO.utils
-   dictIO.cpp_dict
+   dictIO
