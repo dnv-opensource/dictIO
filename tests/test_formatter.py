@@ -31,7 +31,7 @@ class TestNativeFormatter:
             "$keyword1[1][2]",
         ],
     )
-    def test_format_type_string_no_additional_quotes_expected(self, str_in: str) -> None:
+    def test_format_value_string_no_additional_quotes_expected(self, str_in: str) -> None:
         # Prepare
         formatter = NativeFormatter()
         str_expected = str_in
@@ -51,7 +51,7 @@ class TestNativeFormatter:
             r"contains a \"nested string\" literal with escaped double quotes",
         ],
     )
-    def test_format_type_string_additional_single_quotes_expected(self, str_in: str) -> None:
+    def test_format_value_string_additional_single_quotes_expected(self, str_in: str) -> None:
         # Prepare
         formatter = NativeFormatter()
         str_expected = f"'{str_in}'"
@@ -70,7 +70,7 @@ class TestNativeFormatter:
             r"contains a \'nested string\' literal with escaped single quotes",
         ],
     )
-    def test_format_type_string_additional_double_quotes_expected(self, str_in: str) -> None:
+    def test_format_value_string_additional_double_quotes_expected(self, str_in: str) -> None:
         # Prepare
         formatter = NativeFormatter()
         str_expected = f'"{str_in}"'
@@ -79,7 +79,7 @@ class TestNativeFormatter:
         # Assert
         assert str_out == str_expected
 
-    def test_format_type_float(self) -> None:
+    def test_format_value_float(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
         formatter = NativeFormatter()
         float_in = 1.23
@@ -94,6 +94,54 @@ class TestNativeFormatter:
         str_out = formatter.format_value(float_in)
         assert isinstance(str_out, str)
         assert str_out == "0.0"
+
+    def test_format_value_int(self) -> None:
+        # sourcery skip: extract-duplicate-method, inline-variable
+        formatter = NativeFormatter()
+        int_in = 1234
+        str_out = formatter.format_value(int_in)
+        assert isinstance(str_out, str)
+        assert str_out == "1234"
+        int_in = -1234
+        str_out = formatter.format_value(int_in)
+        assert isinstance(str_out, str)
+        assert str_out == "-1234"
+        int_in = 0
+        str_out = formatter.format_value(int_in)
+        assert isinstance(str_out, str)
+        assert str_out == "0"
+        int_in = 1
+        str_out = formatter.format_value(int_in)
+        assert isinstance(str_out, str)
+        assert str_out == "1"
+
+    def test_format_value_bool(self) -> None:
+        # sourcery skip: extract-duplicate-method, inline-variable
+        formatter = NativeFormatter()
+        bool_in = False
+        str_out = formatter.format_value(bool_in)
+        assert isinstance(str_out, str)
+        assert str_out == "False"
+        bool_in = True
+        str_out = formatter.format_value(bool_in)
+        assert isinstance(str_out, str)
+        assert str_out == "True"
+
+    def test_format_value_Path(self) -> None:
+        # sourcery skip: extract-duplicate-method, inline-variable
+        formatter = NativeFormatter()
+        path_in = Path("folder1/folder2/file.txt")
+        str_out = formatter.format_value(path_in)
+        assert isinstance(str_out, str)
+        assert str_out == str(path_in)
+
+    def test_format_value_None(self) -> None:
+        # sourcery skip: extract-duplicate-method, inline-variable
+        formatter = NativeFormatter()
+        none_in = None
+        str_out = formatter.format_value(none_in)
+        assert isinstance(str_out, str)
+        assert str_out == "NULL"
 
     def test_insert_block_comments(self) -> None:
         # sourcery skip: class-extract-method

@@ -5,22 +5,19 @@ from __future__ import annotations
 import io
 import logging
 import re
-from abc import abstractmethod
 from collections.abc import Mapping, MutableMapping, MutableSequence
 from copy import copy, deepcopy
+from pathlib import Path
 from re import Pattern
-from typing import TYPE_CHECKING, Any, cast, overload
+from typing import Any, cast, overload
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, register_namespace, tostring
 
 from numpy import ndarray
 
 from dictIO import SDict
-from dictIO.types import K, M, S, TKey, TValue, V
+from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V
 from dictIO.utils.counter import BorgCounter
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 __ALL__ = [
     "Formatter",
@@ -76,10 +73,9 @@ class Formatter:
         # 2. If no target file is passed, return NativeFormatter as default / fallback
         return NativeFormatter()  # default
 
-    @abstractmethod
     def to_string(
         self,
-        arg: MutableMapping[K, V],
+        arg: MutableMapping[K, V],  # noqa: ARG002
     ) -> str:
         """Create a string representation of the passed in dict.
 
@@ -95,15 +91,29 @@ class Formatter:
         str
             string representation of the dict
         """
-        ...
+        return ""
+
+    @overload
+    def format_value(
+        self,
+        arg: TSingleValue,
+    ) -> str:
+        pass
+
+    @overload
+    def format_value(
+        self,
+        arg: TValue,
+    ) -> str:
+        pass
 
     def format_value(
         self,
-        arg: V,
-    ) -> str | V:
+        arg: TSingleValue | TValue,
+    ) -> str:
         """Format a single value.
 
-        Formats a single value of type TSingleValue = str | int | float | bool | None
+        Formats a single value of type TSingleValue = str | int | float | bool | Path | None
 
         Parameters
         ----------
@@ -112,25 +122,29 @@ class Formatter:
 
         Returns
         -------
-        str | V
+        str
             the formatted string representation of the passed in value,
-            if value is of a single value type. Otherwise the value itself.
+            if value is of TSingleValue type = str | int | float | bool | Path | None.
+            For all other types, the method will, as fallback, call and return `str(arg)`.
+            It is hence guaranteed that a string gets returned.
         """
         # sourcery skip: assign-if-exp, reintroduce-else
 
         if isinstance(arg, str):
             return self.format_string(arg)
-        if arg is None:
-            return self.format_none()
-        if isinstance(arg, bool):
-            return self.format_bool(arg)
         if isinstance(arg, int):
             return self.format_int(arg)
         if isinstance(arg, float):
             return self.format_float(arg)
+        if isinstance(arg, bool):
+            return self.format_bool(arg)
+        if isinstance(arg, Path):
+            return str(arg)
+        if arg is None:
+            return self.format_none()
 
-        # If arg is not of a single value type, return it as is.
-        return cast(V, arg)
+        # For all other types, call and return `str(arg)`
+        return str(arg)
 
     @overload
     def format_values(
@@ -212,11 +226,7 @@ class Formatter:
         str
             the formatted string representation of the passed in key
         """
-        skey: str
-        key = self.format_value(arg)
-
-        skey = key if isinstance(key, str) else str(key)
-        return skey
+        return self.format_value(arg)
 
     def format_bool(self, arg: bool) -> str:  # noqa: FBT001
         """Format a boolean.

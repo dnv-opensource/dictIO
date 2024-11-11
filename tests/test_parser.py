@@ -134,21 +134,21 @@ class TestParser:
         with pytest.raises(TypeError):
             _ = Parser.remove_quotes_from_strings(not_a_str_1)  # type: ignore[arg-type, reportArgumentType]
 
-    def test_parse_type_int(self) -> None:
+    def test_parse_value_int(self) -> None:
         parser = Parser()
         int_in = 1
         int_out = parser.parse_value(int_in)
         assert isinstance(int_out, int)
         assert int_out == int_in
 
-    def test_parse_type_float(self) -> None:
+    def test_parse_value_float(self) -> None:
         parser = Parser()
         float_in = 1.0
         float_out = parser.parse_value(float_in)
         assert isinstance(float_out, float)
         assert float_out == float_in
 
-    def test_parse_type_bool(self) -> None:
+    def test_parse_value_bool(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
         parser = Parser()
         bool_in: str | bool
@@ -199,7 +199,7 @@ class TestParser:
         assert isinstance(bool_out, bool)
         assert bool_out is False
 
-    def test_parse_type_none(self) -> None:
+    def test_parse_value_none(self) -> None:
         parser = Parser()
         none_in = None
         none_out = parser.parse_value(none_in)
@@ -233,7 +233,7 @@ class TestParser:
         assert isinstance(none_out, str)
         assert none_out == none_in
 
-    def test_parse_type_string_numbers(self) -> None:
+    def test_parse_value_string_numbers(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
         parser = Parser()
         str_in = "1234"
@@ -260,7 +260,7 @@ class TestParser:
             ('""', ""),
         ],
     )
-    def test_parse_type_str(self, str_in: str, str_expected: str) -> None:
+    def test_parse_value_str(self, str_in: str, str_expected: str) -> None:
         """Make sure additional surrounding quotes of strings, if existing, get removed by parsing"""
         # Prepare
         parser = Parser()
