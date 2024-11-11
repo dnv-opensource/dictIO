@@ -307,7 +307,7 @@ class TestNativeFormatter:
 
     def test_list_with_nested_list(self) -> None:
         # Prepare
-        test_obj: dict[TKey, TValue] = {
+        test_obj: dict[str, Any] = {
             "blocks": [
                 "hex",
                 [0, 1, 2, 3, 4, 5, 6, 7],

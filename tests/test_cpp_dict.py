@@ -2,7 +2,7 @@ import copy
 from collections.abc import MutableMapping
 from copy import deepcopy
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -17,11 +17,13 @@ from dictIO import (
     order_keys,
     set_global_key,
 )
-from dictIO.types import TKey, TValue
+
+if TYPE_CHECKING:
+    from dictIO.types import TValue
 
 
 @pytest.fixture
-def test_dict() -> SDict[TKey, TValue]:
+def test_dict() -> SDict[str, Any]:
     parser = NativeParser()
     return parser.parse_file(Path("test_dict_dict"))
 
@@ -326,7 +328,7 @@ def test_order_keys_of_test_dict(test_dict: CppDict) -> None:
 
 def test_reduce_scope_of_test_dict(test_dict: CppDict) -> None:
     # Prepare
-    scope: list[TKey] = ["scope", "subscope1"]
+    scope: list[str] = ["scope", "subscope1"]
     # Execute
     test_dict.reduce_scope(scope)
     # Assert

@@ -10,7 +10,7 @@ from typing import Any
 import pytest
 
 from dictIO import NativeParser, Parser, SDict, XmlParser
-from dictIO.types import TKey, TValue
+from dictIO.types import K, TKey, TValue, V
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.strings import string_diff
 
@@ -1152,7 +1152,7 @@ class TestXmlParser:
 class SetupHelper:
     @staticmethod
     def prepare_dict_until(
-        dict_to_prepare: SDict[TKey, TValue],
+        dict_to_prepare: SDict[K, V],
         until_step: int = -1,
         file_to_read: str = "test_parser_dict",
         *,

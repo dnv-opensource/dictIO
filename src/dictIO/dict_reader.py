@@ -41,7 +41,7 @@ from numpy import (  # noqa: F401
 )
 
 from dictIO import Parser, SDict
-from dictIO.types import K, TKey, TValue, V
+from dictIO.types import K, M, TKey, TValue, V
 from dictIO.utils.counter import DejaVue
 
 __ALL__ = ["DictReader"]
@@ -64,7 +64,7 @@ class DictReader:
         comments: bool = True,
         scope: MutableSequence[Any] | None = None,
         parser: Parser | None = None,
-    ) -> SDict[TKey, TValue]:
+    ) -> SDict[Any, Any]:
         """Read a dictionary file in dictIO native file format, as well as JSON and XML.
 
         Reads a dict file, parses it and transforms its content into a dictIO dict object (SDict).
@@ -207,10 +207,10 @@ class DictReader:
     @staticmethod
     def _resolve_reference(
         reference: str,
-        variables: MutableMapping[str, TValue],
-    ) -> TValue:
+        variables: MutableMapping[str, V],
+    ) -> V:
         # resolves a single reference
-        value: TValue = None
+        value: V = None
         try:
             # extract indices, ugly version, nice version is re.sub with a positive lookahead
             indexing = re.findall(pattern=r"\[.+\]$", string=reference)[0]
@@ -286,7 +286,7 @@ class DictReader:
                 eval_result: V | None = None
                 if "$" not in expression:
                     try:
-                        eval_result = eval(expression)  # noqa: S307
+                        eval_result = cast(V, eval(expression))  # noqa: S307
                         eval_successful = True
                     except NameError:
                         eval_result = cast(V, expression)
@@ -294,6 +294,7 @@ class DictReader:
                     except SyntaxError:
                         logger.warning(f'DictReader.(): evaluation of "{expression}" not yet possible')
                 if eval_successful:
+                    assert eval_result is not None
                     while global_key := dict_in.find_global_key(query=placeholder):
                         # Substitute the placeholder in the dict with the result of the evaluated expression
                         dict_in.set_global_key(global_key, value=eval_result)
@@ -337,27 +338,27 @@ class DictReader:
             expression = item["expression"]
             while global_key := dict_in.find_global_key(query=placeholder):
                 # Substitute the placeholder with the original (or at least partly resolved) expression
-                dict_in.set_global_key(global_key, value=expression)
+                dict_in.set_global_key(global_key, value=cast(V, expression))
         dict_in.expressions.clear()
 
         return
 
     @staticmethod
-    def _remove_comment_keys(data: MutableMapping[TKey, TValue]) -> MutableMapping[TKey, TValue]:
+    def _remove_comment_keys(data: M) -> M:
         """Remove comments from data structure for read function call from other programs."""
         remove = "[A-Z]+COMMENT[0-9;]+"
 
         with contextlib.suppress(Exception):
             for key in list(data.keys()):  # work on a copy of the keys
                 if isinstance(data[key], MutableMapping):
-                    sub_dict = cast(MutableMapping[TKey, TValue], data[key])
+                    sub_dict = cast(M, data[key])
                     data.update({key: DictReader._remove_comment_keys(sub_dict)})  # recursion
                 elif re.search(pattern=remove, string=str(key)):
                     _ = data.pop(key)
         return data
 
     @staticmethod
-    def _remove_include_keys(data: MutableMapping[TKey, TValue]) -> None:
+    def _remove_include_keys(data: M) -> M:
         """Remove includes from data structure for read function call from other programs."""
         remove = "INCLUDE[0-9;]+"
 
@@ -365,4 +366,4 @@ class DictReader:
             for key in list(data.keys()):  # work on a copy of the keys
                 if type(key) is str and re.search(pattern=remove, string=key):
                     _ = data.pop(key)
-        return
+        return data

@@ -461,7 +461,7 @@ class NativeFormatter(Formatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue],
+        arg: MutableMapping[K, V],
     ) -> str:  # sourcery skip: dict-comprehension
         """Create a string representation of the passed in dict in dictIO native file format.
 
@@ -480,13 +480,13 @@ class NativeFormatter(Formatter):
 
         # Sort dict in a way that block comment and include statement come first
         original_data = deepcopy(_arg)
-        sorted_data: dict[TKey, TValue] = {}
+        sorted_data: dict[K, V] = {}
         for key, element in original_data.items():
             if type(key) is str and re.search(r"BLOCKCOMMENT\d{6}", key):
-                sorted_data[key] = element  # noqa: PERF403
+                sorted_data[cast(K, key)] = element
         for key, element in original_data.items():
             if type(key) is str and re.search(r"INCLUDE\d{6}", key):
-                sorted_data[key] = element  # noqa: PERF403
+                sorted_data[cast(K, key)] = element
         for key in sorted_data:
             del original_data[key]
         sorted_data |= original_data
@@ -752,7 +752,7 @@ class NativeFormatter(Formatter):
 
     def insert_block_comments(
         self,
-        s_dict: SDict[TKey, TValue],
+        s_dict: SDict[K, V],
         s: str,
     ) -> str:
         """Insert back all block comments.
@@ -810,7 +810,11 @@ class NativeFormatter(Formatter):
             block_comment = default_block_comment + block_comment
         return block_comment
 
-    def insert_includes(self, s_dict: SDict[TKey, TValue], s: str) -> str:
+    def insert_includes(
+        self,
+        s_dict: SDict[K, V],
+        s: str,
+    ) -> str:
         """Insert back all include directives."""
         search_pattern: str | Pattern[str]
         for key, (_, include_file_name, _) in s_dict.includes.items():
@@ -824,7 +828,11 @@ class NativeFormatter(Formatter):
 
         return s
 
-    def insert_line_comments(self, s_dict: SDict[TKey, TValue], s: str) -> str:
+    def insert_line_comments(
+        self,
+        s_dict: SDict[K, V],
+        s: str,
+    ) -> str:
         """Insert back all line directives."""
         search_pattern: str | Pattern[str]
         for key, line_comment in s_dict.line_comments.items():
@@ -864,7 +872,7 @@ class FoamFormatter(NativeFormatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
+        arg: MutableMapping[K, V],
     ) -> str:
         """Create a string representation of the passed in dict in OpenFOAM dictionary format.
 
@@ -884,7 +892,7 @@ class FoamFormatter(NativeFormatter):
 
         # Remove all dict entries starting with underscore
         def remove_underscore_keys_recursive(
-            arg: MutableMapping[TKey, TValue],
+            arg: MutableMapping[K, V],
         ) -> None:
             keys = list(arg.keys())
             for key in keys:
@@ -1008,7 +1016,7 @@ class JsonFormatter(Formatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
+        arg: MutableMapping[K, V],
     ) -> str:
         """Create a string representation of the passed in dict in JSON dictionary format.
 
@@ -1040,7 +1048,11 @@ class JsonFormatter(Formatter):
 
         return s
 
-    def insert_includes(self, s_dict: SDict[TKey, TValue], s: str) -> str:
+    def insert_includes(
+        self,
+        s_dict: SDict[K, V],
+        s: str,
+    ) -> str:
         """Insert back all include directives."""
         search_pattern: str | Pattern[str]
         for key, (_, include_file_name, _) in s_dict.includes.items():
@@ -1120,7 +1132,7 @@ class XmlFormatter(Formatter):
 
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
+        arg: MutableMapping[K, V],
     ) -> str:
         """Create a string representation of the passed in dict in XML format.
 
@@ -1143,18 +1155,20 @@ class XmlFormatter(Formatter):
         # Check whether xml opts are contained in dict.
         # If so, read and use them
         if "_xmlOpts" in arg:
-            xml_opts = cast(MutableMapping[TKey, TValue], arg["_xmlOpts"])
+            xml_opts = cast(MutableMapping[K, V], arg[cast(K, "_xmlOpts")])
             namespaces = (
-                cast(MutableMapping[str, str], xml_opts["_nameSpaces"]) if "_nameSpaces" in xml_opts else namespaces
+                cast(MutableMapping[str, str], xml_opts[cast(K, "_nameSpaces")])
+                if "_nameSpaces" in xml_opts
+                else namespaces
             )
-            root_tag = str(xml_opts["_rootTag"]) if "_rootTag" in xml_opts else root_tag
+            root_tag = str(xml_opts[cast(K, "_rootTag")]) if "_rootTag" in xml_opts else root_tag
             root_attributes = (
-                cast(MutableMapping[str, str], xml_opts["_rootAttributes"])
+                cast(MutableMapping[str, str], xml_opts[cast(K, "_rootAttributes")])
                 if "_rootAttributes" in xml_opts
                 else root_attributes
             )
             self.remove_node_numbering = (
-                bool(xml_opts["_removeNodeNumbering"])
+                bool(xml_opts[cast(K, "_removeNodeNumbering")])
                 if "_removeNodeNumbering" in xml_opts
                 else self.remove_node_numbering
             )

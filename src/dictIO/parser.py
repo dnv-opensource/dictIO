@@ -17,7 +17,7 @@ from lxml.etree import ETCompatXMLParser, fromstring
 from lxml.etree import _Element as LxmlElement  # pyright: ignore[reportPrivateUsage]
 
 from dictIO import SDict
-from dictIO.types import K, TKey, TSingleValue, TValue, V
+from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V
 from dictIO.utils.counter import BorgCounter
 
 if TYPE_CHECKING:
@@ -349,8 +349,8 @@ class Parser:
 
     @staticmethod
     def remove_quotes_from_strings(
-        arg: MutableMapping[TKey, TValue] | MutableSequence[TValue],
-    ) -> MutableMapping[TKey, TValue] | MutableSequence[TValue]:
+        arg: M | S,
+    ) -> M | S:
         """Remove quotes from multiple strings.
 
         Removes quotes (single and double quotes) from all string objects inside a dict or list.
@@ -360,22 +360,24 @@ class Parser:
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
+        arg : MutableMapping[K, V] | MutableSequence[V]
             the dict or list containing strings the quotes in which shall be removed
 
         Returns
         -------
-        Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
+        MutableMapping[K, V] | MutableSequence[V]
             the original dict or list, yet with quotes in all strings being removed
 
         """
         if isinstance(arg, MutableMapping):  # Dict
+            arg = cast(M, arg)
             for key in list(arg.keys()):  # work on a copy of keys
                 if isinstance(arg[key], MutableMapping | MutableSequence):  # dict or list
                     arg[key] = Parser.remove_quotes_from_strings(arg[key])  # (recursion)
                 elif isinstance(arg[key], str):  # str
                     arg[key] = Parser.remove_quotes_from_string(arg[key])
         else:  # List
+            arg = cast(S, arg)
             for index in range(len(arg)):
                 if isinstance(arg[index], MutableMapping | MutableSequence):  # dict or list
                     arg[index] = Parser.remove_quotes_from_strings(arg[index])  # (recursion)
@@ -1295,7 +1297,7 @@ class NativeParser(Parser):
             # The entry from dict.string_literals is parsed once again,
             # so that entries representing single value native types
             # (such as bool ,None, int, float) are transformed to its native type, accordingly.
-            value = self.parse_value(string_literal)
+            value = cast(V, self.parse_value(string_literal))
 
             # Replace all occurences of placeholder within the dictionary with the original string literal.
             # Note: As find_global_key() is non-greedy and returns the key of

@@ -6,7 +6,7 @@ from collections.abc import Sequence
 from copy import copy
 from typing import Any, cast
 
-from dictIO.types import K, M, TKey, TValue, V
+from dictIO.types import K, M, TKey, V
 
 
 def order_keys(arg: M) -> M:
@@ -139,16 +139,16 @@ def set_global_key(
 
 
 def global_key_exists(
-    dict_in: MutableMapping[TKey, TValue],
-    global_key: MutableSequence[TKey],
+    dict_in: MutableMapping[K, V],
+    global_key: MutableSequence[K | int],
 ) -> bool:
     """Check whether the specified global key exists in the passed in dict.
 
     Parameters
     ----------
-    dict_in : MutableMapping[TKey, TValue]
+    dict_in : MutableMapping[K, V]
         dict to check for existence of the specified global key
-    global_key : MutableSequence[TKey]
+    global_key : MutableSequence[K | int]
         global key the existence of which is checked in the passed in dict
 
     Returns
@@ -156,11 +156,11 @@ def global_key_exists(
     bool
         True if the specified global key exists, otherwise False
     """
-    _last_branch: MutableMapping[TKey, TValue] = dict_in
-    _next_branch: MutableMapping[TKey, TValue] | TValue
+    _last_branch: MutableMapping[K, V] = dict_in
+    _next_branch: MutableMapping[K, V] | V
     try:
         for key in global_key:
-            _next_branch = _last_branch[key]
+            _next_branch = _last_branch[key]  # type: ignore[index, reportArgumentType]
             if not isinstance(_next_branch, MutableMapping):
                 return False
             _last_branch = _next_branch

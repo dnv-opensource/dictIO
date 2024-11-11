@@ -3,7 +3,7 @@ import re
 from collections.abc import MutableMapping
 from copy import deepcopy
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
@@ -18,17 +18,17 @@ from dictIO import (
     order_keys,
     set_global_key,
 )
-from dictIO.types import TKey, TValue
+from dictIO.types import K, TValue, V
 
 
 @pytest.fixture
-def test_dict() -> SDict[TKey, TValue]:
+def test_dict() -> SDict[str, Any]:
     parser = NativeParser()
     return parser.parse_file(Path("test_dict_dict"))
 
 
 def test_init() -> None:
-    test_dict: SDict[TKey, TValue] = SDict()
+    test_dict: SDict[str, Any] = SDict()
     assert test_dict.source_file is None
     assert test_dict.path == Path.cwd()
     assert test_dict.name == ""
@@ -43,7 +43,7 @@ def test_init() -> None:
 
 
 def test_init_with_file() -> None:
-    test_dict: SDict[TKey, TValue] = SDict("someDict")
+    test_dict: SDict[str, Any] = SDict("someDict")
     assert test_dict.source_file == Path.cwd() / "someDict"
     assert test_dict.path == Path.cwd()
     assert test_dict.name == "someDict"
@@ -58,11 +58,11 @@ def test_init_with_file() -> None:
 
 
 def test_init_with_base_dict() -> None:
-    base_dict: dict[TKey, TValue] = {
+    base_dict: dict[str, Any] = {
         "key1": "value1",
         "key2": "value2",
     }
-    test_dict: SDict[TKey, TValue] = SDict(base_dict)
+    test_dict: SDict[str, Any] = SDict(base_dict)
     assert test_dict == base_dict
     assert test_dict.source_file is None
     assert test_dict.path == Path.cwd()
@@ -318,26 +318,26 @@ def test_order_keys() -> None:
         assert key == keys_expected_nested[index]
 
 
-def test_order_keys_of_test_dict(test_dict: SDict[TKey, TValue]) -> None:
+def test_order_keys_of_test_dict(test_dict: SDict[K, V]) -> None:
     # Prepare
     # Execute
     test_dict.order_keys()
     # Assert
-    assert str(test_dict["unordered"]) == str(test_dict["ordered"])
+    assert str(test_dict[cast(K, "unordered")]) == str(test_dict[cast(K, "ordered")])
 
 
-def test_reduce_scope_of_test_dict(test_dict: SDict[TKey, TValue]) -> None:
+def test_reduce_scope_of_test_dict(test_dict: SDict[K, V]) -> None:
     # Prepare
-    scope: list[TKey] = ["scope", "subscope1"]
+    scope: list[K] = [cast(K, "scope"), cast(K, "subscope1")]
     # Execute
     test_dict.reduce_scope(scope)
     # Assert
     dict_out = test_dict
     assert len(dict_out) == 2  # subscope11, subscope12
     # assert dict_out["subscope11"] is not None
-    assert dict_out["subscope11"]["name"] == "subscope11"
-    assert dict_out["subscope12"] is not None
-    assert dict_out["subscope12"]["name"] == "subscope12"
+    assert dict_out[cast(K, "subscope11")]["name"] == "subscope11"
+    assert dict_out[cast(K, "subscope12")] is not None
+    assert dict_out[cast(K, "subscope12")]["name"] == "subscope12"
 
 
 def test_include() -> None:
@@ -2023,9 +2023,9 @@ def test_sdict_copy_deepcopy() -> None:
     assert copied_dict.includes == original_dict.includes
 
 
-def _construct_test_dict() -> dict[TKey, TValue]:
+def _construct_test_dict() -> dict[str, Any]:
     # construct a test dict with single entries, a nested dict and a nested list
-    test_dict: dict[TKey, TValue] = {
+    test_dict: dict[str, Any] = {
         "A": "string 11",
         "B": 11,
         "C": 11.0,
@@ -2046,9 +2046,9 @@ def _construct_test_dict() -> dict[TKey, TValue]:
     return test_dict
 
 
-def _construct_test_sdict() -> SDict[TKey, TValue]:
+def _construct_test_sdict() -> SDict[str, Any]:
     # construct a test SDict with single entries, a nested dict and a nested list
-    test_sdict: SDict[TKey, TValue] = SDict(_construct_test_dict())
+    test_sdict: SDict[str, Any] = SDict(_construct_test_dict())
     test_sdict.expressions |= {
         1: {
             "name": "EXPRESSION000011",
@@ -2108,7 +2108,7 @@ def test_load() -> None:
 def test_dump() -> None:
     # Prepare
     target_file: Path = Path("temp_file_test_write_dict")
-    test_dict: dict[TKey, TValue] = {
+    test_dict: dict[str, Any] = {
         "param1": -10.0,
         "param2": 0.0,
         "param3": 0.0,
