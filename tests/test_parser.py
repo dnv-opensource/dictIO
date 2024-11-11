@@ -5,6 +5,7 @@ import re
 from copy import deepcopy
 from functools import partial
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -90,7 +91,7 @@ class TestParser:
         }
         l_nested = [str_in_1, str_in_2, str_in_3, not_a_str_1, not_a_str_2, not_a_str_3]
         # construct a dictionary with single entries, a nested dict and a nested list
-        dict_in: dict[TKey, TValue] = {
+        dict_in: dict[str, Any] = {
             key_1: str_in_1,
             key_2: str_in_2,
             key_3: str_in_3,
@@ -347,7 +348,7 @@ class TestNativeParser:
     def test_extract_line_comments(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         line1 = "a line with no line comment\n"
         line2 = "//a line comment\n"
@@ -368,7 +369,7 @@ class TestNativeParser:
     def test_extract_includes(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         line1 = "a line with no include directive\n"
         line2 = "#include testDict\n"
@@ -401,7 +402,7 @@ class TestNativeParser:
 
     def test_convert_line_content_to_block_content(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         # Three lines with line endings
         line1 = "line 1\n"
@@ -415,7 +416,7 @@ class TestNativeParser:
 
     def test_remove_line_endings_from_block_content(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         # Three lines with line endings
         line1 = "line 1\n"
@@ -430,7 +431,7 @@ class TestNativeParser:
 
     def test_extract_block_comments(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
@@ -466,7 +467,7 @@ class TestNativeParser:
 
     def test_extract_string_literals(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
@@ -513,7 +514,7 @@ class TestNativeParser:
 
     def test_extract_expressions(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
@@ -598,7 +599,7 @@ class TestNativeParser:
 
     def test_extract_single_character_expressions(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
@@ -684,7 +685,7 @@ class TestNativeParser:
     def test_separate_delimiters(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
             "This is a text block\n"
@@ -731,7 +732,7 @@ class TestNativeParser:
 
     def test_determine_token_hierarchy(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block = (
             "level0 { level1 { level2 { level3 } level2 } level1 } level0\n"
@@ -1014,7 +1015,7 @@ class TestNativeParser:
 
     def test_insert_string_literals(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=s_dict, until_step=10)
         parser = NativeParser()
         # Execute

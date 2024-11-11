@@ -121,7 +121,7 @@ def test_find_global_key() -> None:
     ldl_nested = [deepcopy(dl_nested)]
 
     # Construct a dictionary dict_in with single entries, nested dicts and nested lists
-    dict_in: dict[TKey, TValue] = {
+    dict_in: dict[str, Any] = {
         key_1: str_in_1,
         key_2: str_in_2,
         key_3: str_in_3,
@@ -138,6 +138,7 @@ def test_find_global_key() -> None:
 
     # Assert structure of dict_in
     assert len(dict_in) == 12
+    assert isinstance(dict_in[keyd], dict)
     assert len(dict_in[keyd]) == 6
     assert len(dict_in[keyl]) == 6
     assert len(dict_in[keydl]) == 1
@@ -269,7 +270,7 @@ def test_order_keys() -> None:
         key_n_1: not_a_str_1,
         key_n_2: not_a_str_2,
     }
-    dict_in: dict[TKey, TValue] = {
+    dict_in: dict[str, Any] = {
         key_3: str_3,
         key_1: str_1,
         key_2: str_2,
@@ -281,7 +282,7 @@ def test_order_keys() -> None:
     keys_expected = [key_1, key_2, key_3, key_4, key_n_1, key_n_2, key_n_3]
     keys_expected_nested = [key_1, key_2, key_3, key_n_1, key_n_2, key_n_3]
 
-    s_dict: SDict[TKey, TValue] = SDict()
+    s_dict: SDict[str, Any] = SDict()
     s_dict.update(deepcopy(dict_in))
 
     # 1. negative test: assert dict_in is not alphanumerically ordered
@@ -333,7 +334,9 @@ def test_reduce_scope_of_test_dict(test_dict: SDict[TKey, TValue]) -> None:
     # Assert
     dict_out = test_dict
     assert len(dict_out) == 2  # subscope11, subscope12
+    # assert dict_out["subscope11"] is not None
     assert dict_out["subscope11"]["name"] == "subscope11"
+    assert dict_out["subscope12"] is not None
     assert dict_out["subscope12"]["name"] == "subscope12"
 
 
@@ -2074,7 +2077,7 @@ def _construct_test_sdict() -> SDict[TKey, TValue]:
 def test_load() -> None:
     # Prepare
     source_file = Path("test_dictReader_dict")
-    s_dict: SDict[TKey, TValue] = SDict()
+    s_dict: SDict[str, Any] = SDict()
     # Execute
     _ = s_dict.load(source_file)
     # Assert included dict has been merged
@@ -2134,7 +2137,7 @@ def test_dump() -> None:
         r"_names ( param1 param2 param3 ); _values ( -10.0 0.0 0.0 ); "
         r"_commands { ls ( 'echo %PATH%' dir ); } } "
     )
-    test_s_dict: SDict[TKey, TValue]
+    test_s_dict: SDict[str, Any]
     # Execute 1: Dump with explicit target_file
     target_file.unlink(missing_ok=True)
     test_s_dict = SDict()
@@ -2283,7 +2286,7 @@ def test_permissable_key_type_example_used_in_docs() -> None:
 
 
 def test_cpp_dict() -> None:
-    s_dict: SDict[TKey, TValue] = SDict(_construct_test_dict())
+    s_dict: SDict[str, Any] = SDict(_construct_test_dict())
     cpp_dict: CppDict = CppDict(_construct_test_dict())
     assert isinstance(cpp_dict, dict)
     assert isinstance(cpp_dict, SDict)

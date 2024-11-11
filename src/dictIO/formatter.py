@@ -16,7 +16,7 @@ from xml.etree.ElementTree import Element, SubElement, register_namespace, tostr
 from numpy import ndarray
 
 from dictIO import SDict
-from dictIO.types import M, S, TKey, TSingleValue, TValue
+from dictIO.types import K, M, S, TKey, TValue, V
 from dictIO.utils.counter import BorgCounter
 
 if TYPE_CHECKING:
@@ -79,7 +79,7 @@ class Formatter:
     @abstractmethod
     def to_string(
         self,
-        arg: MutableMapping[TKey, TValue] | SDict[TKey, TValue],
+        arg: MutableMapping[K, V],
     ) -> str:
         """Create a string representation of the passed in dict.
 
@@ -87,7 +87,7 @@ class Formatter:
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], SDict]
+        arg : Union[MutableMapping[K, V]]
             dict to be formatted
 
         Returns
@@ -99,20 +99,20 @@ class Formatter:
 
     def format_value(
         self,
-        arg: TSingleValue | TValue,
-    ) -> str | TValue:
+        arg: V,
+    ) -> str | V:
         """Format a single value.
 
         Formats a single value of type TSingleValue = str | int | float | bool | None
 
         Parameters
         ----------
-        arg : TSingleValue | TValue
+        arg : V
             the value to be formatted
 
         Returns
         -------
-        str | TValue
+        str | V
             the formatted string representation of the passed in value,
             if value is of a single value type. Otherwise the value itself.
         """
@@ -130,7 +130,7 @@ class Formatter:
             return self.format_float(arg)
 
         # If arg is not of a single value type, return it as is.
-        return arg
+        return cast(V, arg)
 
     @overload
     def format_values(
@@ -160,12 +160,12 @@ class Formatter:
 
         Parameters
         ----------
-        arg : Union[MutableMapping[TKey, TValue], MutableSequence[TValue]]
+        arg : MutableMapping[K, V] | MutableSequence[V]
             the dict or list containing the values to be formatted.
 
         Returns
         -------
-        MutableMapping[TKey, str] | MutableSequence[str]
+        MutableMapping[K, V] | MutableSequence[V]
             a copy of the passed in dict or list, with all values formatted.
         """
         item: TValue
@@ -213,7 +213,9 @@ class Formatter:
             the formatted string representation of the passed in key
         """
         skey: str
-        skey = self.format_value(arg) if isinstance(arg, TSingleValue) else str(arg)
+        key = self.format_value(arg)
+
+        skey = key if isinstance(key, str) else str(key)
         return skey
 
     def format_bool(self, arg: bool) -> str:  # noqa: FBT001

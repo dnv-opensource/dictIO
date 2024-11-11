@@ -77,7 +77,7 @@ def find_global_key(
 def set_global_key(
     arg: MutableMapping[K, V],
     global_key: Sequence[K | int],
-    value: V | None = None,
+    value: V,
 ) -> None:
     """Set the value for the passed in global key.
 
@@ -87,8 +87,8 @@ def set_global_key(
         dict the target key in which shall be set
     global_key : MutableSequence[K | int]
         list of keys defining the global key thread to the target key (such as returned by method find_global_key())
-    value : V, optional
-        value the target key shall be set to, by default None
+    value : V
+        value the target key shall be set to
     """
     if not global_key:
         return
@@ -101,7 +101,6 @@ def set_global_key(
     target_key: K | int
 
     last_node = arg
-    next_node = None
     remaining_keys = list(global_key)
     ii: int = 0
     while len(remaining_keys) > 1:

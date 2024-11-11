@@ -499,11 +499,11 @@ class SDict(dict[K, V]):
 
         Parameters
         ----------
-        other : MutableMapping[TKey, TValue]
+        other : Mapping[K, V]
             dict to be merged
         """
         # merge other dict into self (=into self)
-        self._recursive_merge(self, other)
+        self._recursive_merge(target_dict=self, dict_to_merge=other)
         # merge SDict attributes
         self._post_merge(other)
         self._clean()
@@ -859,7 +859,7 @@ class SDict(dict[K, V]):
         """
         return find_global_key(cast(SDict[TKey, TValue], self), query)
 
-    def set_global_key(self, global_key: MutableSequence[TKey], value: TValue = None) -> None:
+    def set_global_key(self, global_key: MutableSequence[TKey], value: TValue) -> None:
         """Set the value for the passed in global key.
 
         The global key thread is traversed downwards until arrival at the target key,
@@ -869,8 +869,8 @@ class SDict(dict[K, V]):
         ----------
         global_key : MutableSequence[TValue]
             list of keys defining the global key thread to the target key (such as returned by method find_global_key())
-        value : TValue, optional
-            value the target key shall be set to, by default None
+        value : TValue
+            value the target key shall be set to
         """
         set_global_key(
             arg=cast(MutableMapping[TKey, TValue], self),

@@ -41,7 +41,7 @@ from numpy import (  # noqa: F401
 )
 
 from dictIO import Parser, SDict
-from dictIO.types import TKey, TValue
+from dictIO.types import K, TKey, TValue, V
 from dictIO.utils.counter import DejaVue
 
 __ALL__ = ["DictReader"]
@@ -114,7 +114,7 @@ class DictReader:
         parser = parser or Parser.get_parser(source_file)
 
         # Parse the dict file and transform it into a SDict
-        parsed_dict = parser.parse_file(source_file, comments=comments)
+        parsed_dict: SDict[TKey, TValue] = parser.parse_file(source_file, comments=comments)
 
         # Merge dict files included through #include directives, if not actively refrained through opts
         if includes:
@@ -149,7 +149,7 @@ class DictReader:
 
     @staticmethod
     def _merge_includes(
-        parent_dict: SDict[TKey, TValue],
+        parent_dict: SDict[K, V],
         *,
         comments: bool = True,
     ) -> None:
@@ -159,9 +159,9 @@ class DictReader:
         djv.reset()
 
         # Inner function: Merge all includes, recursively
-        def _merge_includes_recursive(parent_dict: SDict[TKey, TValue]) -> SDict[TKey, TValue]:
+        def _merge_includes_recursive(parent_dict: SDict[K, V]) -> SDict[K, V]:
             # empty dict to merge in temporarily, avoiding dict-has-change-error inside the for loop
-            temp_dict: SDict[TKey, TValue] = SDict()
+            temp_dict: SDict[K, V] = SDict()
 
             # loop over all possible includes
             for _, _, path in parent_dict.includes.values():
@@ -176,11 +176,18 @@ class DictReader:
                     logger.warning(f"included dict not found. Merging of {path} aborted.")
                 else:
                     parser = Parser.get_parser(source_file=path)
-                    included_dict = parser.parse_file(source_file=path, target_dict=None, comments=comments)
+                    included_dict = cast(
+                        SDict[K, V],
+                        parser.parse_file(
+                            source_file=path,
+                            target_dict=None,
+                            comments=comments,
+                        ),
+                    )
 
                     # recursion in case the i-th include also has includes
                     if len(included_dict.includes) != 0:
-                        nested_included_dict = _merge_includes_recursive(included_dict)
+                        nested_included_dict = _merge_includes_recursive(parent_dict=included_dict)
                         # merge second level
                         temp_dict.merge(nested_included_dict)
 
@@ -193,7 +200,7 @@ class DictReader:
             return parent_dict
 
         # Call inner funtion to merge all includes, recursively
-        parent_dict.merge(_merge_includes_recursive(parent_dict))
+        parent_dict.merge(_merge_includes_recursive(parent_dict=parent_dict))
 
         return
 
@@ -231,7 +238,7 @@ class DictReader:
         return value
 
     @staticmethod
-    def _eval_expressions(dict_in: SDict[TKey, TValue]) -> None:
+    def _eval_expressions(dict_in: SDict[K, V]) -> None:
         # Collect all references contained in expressions
         _references: list[str] = []
         _refs: list[str]
@@ -241,15 +248,15 @@ class DictReader:
             _refs = re.findall(pattern=r"\$\w[\w\[\]]*", string=item["expression"])
             _references.extend(_refs)
         # Resolve references
-        variables: dict[str, TValue] = dict_in.variables
-        references: dict[str, TValue] = {
+        variables: dict[str, V] = dict_in.variables
+        references: dict[str, V] = {
             ref: DictReader._resolve_reference(
                 reference=ref,
                 variables=variables,
             )
             for ref in _references
         }
-        references_resolved: dict[str, TValue] = {
+        references_resolved: dict[str, V] = {
             ref: value
             for ref, value in references.items()
             if (value is not None) and (not re.search(pattern=r"EXPRESSION|\$", string=str(value)))
@@ -270,19 +277,19 @@ class DictReader:
                 for ref in _refs:
                     if ref in references_resolved:
                         expression = re.sub(
-                            pattern=f"{re.escape(ref)}",
+                            pattern=f"{re.escape(pattern=ref)}",
                             repl=str(references_resolved[ref]),
                             string=expression,
                         )
 
                 eval_successful: bool = False
-                eval_result: TValue | None = None
+                eval_result: V | None = None
                 if "$" not in expression:
                     try:
                         eval_result = eval(expression)  # noqa: S307
                         eval_successful = True
                     except NameError:
-                        eval_result = expression
+                        eval_result = cast(V, expression)
                         eval_successful = True
                     except SyntaxError:
                         logger.warning(f'DictReader.(): evaluation of "{expression}" not yet possible')

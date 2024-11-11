@@ -10,7 +10,8 @@ TKey: TypeAlias = Hashable
 TGlobalKey: TypeAlias = TKey | int
 
 # Type aliases for values
-TValue: TypeAlias = Any | None
+TValue: TypeAlias = Any
+# TValue: TypeAlias = Any | MutableMapping[TKey, Any] | MutableSequence[Any]
 TSingleValue: TypeAlias = str | int | float | bool | None
 
 # Generic Type Variables

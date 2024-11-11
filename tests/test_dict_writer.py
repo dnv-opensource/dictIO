@@ -1,22 +1,19 @@
 import re
 from copy import deepcopy
 from pathlib import Path, PurePath
-from typing import TYPE_CHECKING
+from typing import Any
 
 import pytest
 
 from dictIO import DictReader, DictWriter, FoamParser, SDict, create_target_file_name
 from dictIO.utils.counter import BorgCounter
 
-if TYPE_CHECKING:
-    from dictIO.types import TKey, TValue
-
 
 def test_write_dict() -> None:
     # sourcery skip: extract-duplicate-method
     # Prepare
     target_file: Path = Path("temp_file_test_write_dict")
-    test_dict: dict[TKey, TValue] = {
+    test_dict: dict[str, Any] = {
         "param1": -10.0,
         "param2": 0.0,
         "param3": 0.0,
@@ -45,12 +42,12 @@ def test_write_dict() -> None:
         r"_names ( param1 param2 param3 ); _values ( -10.0 0.0 0.0 ); "
         r"_commands { ls ( 'echo %PATH%' dir ); } } "
     )
-    test_s_dict: SDict[TKey, TValue] = SDict()
+    test_s_dict: SDict[str, Any] = SDict()
     test_s_dict.update(test_dict)
 
     # Execute 1.1: Write as SDict completely new
     target_file.unlink(missing_ok=True)
-    DictWriter.write(test_s_dict, target_file, mode="w")
+    DictWriter.write(source_dict=test_s_dict, target_file=target_file, mode="w")
     # Assert 1.1
     assert target_file.exists()
     parsed_str = re.sub(

@@ -1,7 +1,7 @@
 import re
 from copy import copy, deepcopy
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -126,7 +126,7 @@ class TestNativeFormatter:
         as_is_block_comment: str,
         default_block_comment: str,
     ) -> None:
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         # as we used test_simpleDict, str_in does not have a block comment yet
         str_in_template = formatter.format_dict(s_dict)
         placeholder1 = "BLOCKCOMMENT000101            BLOCKCOMMENT000101;"
@@ -210,7 +210,7 @@ class TestNativeFormatter:
         include_directive_in = '#include "test formatter paramDict"'
         include_file_name_in = "test formatter paramDict"
         include_file_path_in = Path("test formatter paramDict").absolute()
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         s_dict.includes[102] = (
             include_directive_in,
             include_file_name_in,
@@ -228,7 +228,7 @@ class TestNativeFormatter:
 
     def test_insert_line_comments(self) -> None:
         # Prepare
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         line_comment_in = "// This is a line comment"
         formatter = NativeFormatter()
         str_in_template = formatter.format_dict(s_dict)
@@ -321,7 +321,7 @@ class TestNativeFormatter:
                 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             ]
         }
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         dict_in = deepcopy(s_dict)
         dict_in.update(test_obj)
         formatter = NativeFormatter()
@@ -407,7 +407,7 @@ class TestFoamFormatter:
         include_directive_in = "#include 'test formatter paramDict'"
         include_file_name_in = "test formatter paramDict"
         include_file_path_in = Path("test formatter paramDict").absolute()
-        s_dict: SDict[TKey, TValue] = SDict()
+        s_dict: SDict[str, Any] = SDict()
         s_dict.includes[102] = (
             include_directive_in,
             include_file_name_in,
