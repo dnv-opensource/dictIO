@@ -15,11 +15,12 @@ from typing import (
 )
 
 from dictIO.dict import SDict
-from dictIO.types import TValue
 
 if TYPE_CHECKING:
     import os
     from _collections_abc import Iterable, Mapping
+
+    from dictIO.types import TValue
 
 __ALL__ = [
     "CppDict",

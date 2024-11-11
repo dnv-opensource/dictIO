@@ -2,7 +2,7 @@ import copy
 from collections.abc import MutableMapping
 from copy import deepcopy
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import pytest
 
@@ -17,9 +17,6 @@ from dictIO import (
     order_keys,
     set_global_key,
 )
-
-if TYPE_CHECKING:
-    from dictIO.types import TValue
 
 
 @pytest.fixture
@@ -1461,7 +1458,7 @@ class DictWithoutOr(dict[Any, Any]):
 
 def test_right_or_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr(
+    dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr(
         {
             "A": "string 11",
             "B": 11,
@@ -1520,7 +1517,7 @@ def test_right_or_does_overwrite_existing_keys() -> None:
 
 def test_right_or_does_delete_nested_elements() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr(
+    dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr(
         {
             "A": "string 11",
             "B": 11,
@@ -1561,7 +1558,7 @@ def test_right_or_does_delete_nested_elements() -> None:
 
 def test_right_or_does_add_new_keys_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr(
+    dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr(
         {
             "A": "string 11",
             "B": 11,
@@ -1614,7 +1611,7 @@ def test_right_or_does_add_new_keys_by_overwrite() -> None:
 
 def test_right_or_does_change_existings_lists_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
-    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr(
+    dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr(
         {
             "A": "string 11",
             "B": 11,
@@ -1656,7 +1653,7 @@ def test_right_or_does_change_existings_lists_by_overwrite() -> None:
 
 
 def test_right_or_does_also_update_attributes() -> None:
-    dict_1: dict[str, TValue | dict[str | int, TValue]] = DictWithoutOr()
+    dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr()
     dict_2: SDict[str, Any] = CppDict()
     dict_2.expressions |= {
         1: {
