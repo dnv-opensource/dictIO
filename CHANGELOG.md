@@ -8,7 +8,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 -/-
 
 
-## [0.4.0] - 2024-10-21
+## [0.4.0] - 2024-11-11
 
 ### Breaking changes
 * Renamed modules: Following modules have been renamed in order to comply with PEP8 naming conventions: <br>
@@ -16,6 +16,11 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
   `dictIO.dictWriter` **->** `dictIO.dict_writer` <br>
   `dictIO.dictParser` **->** `dictIO.dict_parser` <br>
   `dictIO.cppDict` **->** `dictIO.cpp_dict` <br>
+* Module `formatter.py` : <br>
+  Renamed `Formatter.format_type()` **->** `Formatter.format_value()` <br>
+* Module `parser.py` : <br>
+  Renamed `Parser.parse_type()` **->** `Parser.parse_value()` <br>
+  Renamed `Parser.parse_types()` **->** `Parser.parse_values()` <br>
 * class `CppDict` in module `dictIO.cppDict` has been replaced with the new class `SDict[K, V]` in module `dictIO.dict`. <br>
   In order to maintain backward compatibility, a thin wrapper class named `CppDict` is kept in version ~0.4.0.
   It is marked as deprecated, though, and will be removed with release 0.5.0.
