@@ -5,7 +5,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
--/-
+### Solved
+* Resolved issues raised by `ruff`
 
 
 ## [0.4.0] - 2024-11-11

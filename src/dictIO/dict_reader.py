@@ -21,7 +21,7 @@ from math import (  # noqa: F401
     log,
     log10,
     pi,
-    pow,
+    pow,  # noqa: A004
     sin,
     sqrt,
     tan,

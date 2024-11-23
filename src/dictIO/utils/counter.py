@@ -3,7 +3,7 @@
 # pyright: reportUnnecessaryTypeIgnoreComment=false
 from typing import Any, ClassVar
 
-__all__ = ["BorgCounter", "Indenter", "DejaVue"]
+__all__ = ["BorgCounter", "DejaVue", "Indenter"]
 
 
 class BorgCounter:
