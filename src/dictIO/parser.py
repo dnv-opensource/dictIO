@@ -514,7 +514,7 @@ class NativeParser(Parser):
                 # From there, consider all chars until line ending as ONE comment.
                 line_comment = re.findall("/{2}.*$", line)[0]
                 s_dict.line_comments.update({key: line_comment})
-                placeholder = "LINECOMMENT%06i" % key
+                placeholder = f"LINECOMMENT{key:06d}"
                 if not comments:
                     placeholder = ""
                 # Replace line comment with placeholder
@@ -545,7 +545,7 @@ class NativeParser(Parser):
         for index, line in enumerate(s_dict.line_content):
             if re.search(r"^\s*#\s*include", line):
                 ii = self.counter()
-                s_dict.line_content[index] = "INCLUDE%06i\n" % ii
+                s_dict.line_content[index] = f"INCLUDE{ii:06d}\n"
 
                 include_file_name = re.sub(
                     r"(^\s*#\s*include\s*|\s*$)",
@@ -614,7 +614,7 @@ class NativeParser(Parser):
         s_dict.block_comments = {i: block_comments[i] for i in range(len(block_comments))}
 
         for key, block_comment in s_dict.block_comments.items():
-            placeholder = "BLOCKCOMMENT%06i" % key
+            placeholder = f"BLOCKCOMMENT{key:06d}"
             if not comments:
                 placeholder = ""
             # Replace block comment with placeholder
@@ -728,7 +728,7 @@ class NativeParser(Parser):
         )
         for string_literal in string_literals:
             index = self.counter()
-            placeholder = "STRINGLITERAL%06i" % index
+            placeholder = f"STRINGLITERAL{index:06d}"
 
             # Replace all occurances of the string literal in .block_content with the placeholder (STRINGLITERAL000000)
             # Note: For re.sub() to work properly we need to escape all special characters
@@ -773,7 +773,7 @@ class NativeParser(Parser):
         expressions = re.findall(search_pattern, s_dict.block_content, re.MULTILINE)
         for expression in expressions:
             index = self.counter()
-            placeholder = "EXPRESSION%06i" % index
+            placeholder = f"EXPRESSION{index:06d}"
 
             # Replace all occurances of the expression in .block_content with the placeholder (EXPRESSION000000)
             # Note: For re.sub() to work properly we need to escape all special characters
@@ -799,7 +799,7 @@ class NativeParser(Parser):
         while match := re.search(search_pattern, s_dict.block_content, re.MULTILINE):
             reference = match[0]
             index = self.counter()
-            placeholder = "EXPRESSION%06i" % index
+            placeholder = f"EXPRESSION{index:06d}"
             # Replace the found reference in .block_content with the placeholder (EXPRESSION000000)
             s_dict.block_content = match.re.sub(placeholder, s_dict.block_content, count=1)
             # Register the reference as expression in .expressions
@@ -975,10 +975,12 @@ class NativeParser(Parser):
                 last_index = None
                 # Start at opening bracket, go forward and copy the tokens
                 # until (and including) the accompanied closing bracket.
-                while (
-                    tokens[token_index + i][1] != closing_bracket
-                    or tokens[token_index + i][0] != closing_level
-                    and not re.match("^.*COMMENT.*$", str(tokens[token_index + i][1]))
+                while tokens[token_index + i][1] != closing_bracket or (
+                    tokens[token_index + i][0] != closing_level
+                    and not re.match(
+                        pattern="^.*COMMENT.*$",
+                        string=str(tokens[token_index + i][1]),
+                    )
                 ):
                     last_index = token_index + i
                     data_struct_tokens.append(tokens[token_index + i])
@@ -1182,10 +1184,12 @@ class NativeParser(Parser):
                 last_index = None
                 # Start at opening bracket, go forward and copy the tokens
                 # until (and including) the accompanied closing bracket
-                while (
-                    tokens[token_index + i][1] != closing_bracket
-                    or tokens[token_index + i][0] != closing_level
-                    and not re.match("^.*COMMENT.*$", str(tokens[token_index + i][1]))
+                while tokens[token_index + i][1] != closing_bracket or (
+                    tokens[token_index + i][0] != closing_level
+                    and not re.match(
+                        pattern="^.*COMMENT.*$",
+                        string=str(tokens[token_index + i][1]),
+                    )
                 ):
                     last_index = token_index + i
                     temp_tokens.append(tokens[token_index + i])
@@ -1294,7 +1298,7 @@ class NativeParser(Parser):
         """Substitutes STRINGLITERAL placeholders in the dict with the corresponding entry from dict.string_literals."""
         for index, string_literal in s_dict.string_literals.items():
             # Properties of the expression to be evaluated
-            placeholder = "STRINGLITERAL%06i" % index  # STRINGLITERAL000000
+            placeholder = f"STRINGLITERAL{index:06d}"  # STRINGLITERAL000000
             # The entry from dict.string_literals is parsed once again,
             # so that entries representing single value native types
             # (such as bool ,None, int, float) are transformed to its native type, accordingly.
@@ -1535,7 +1539,7 @@ class JsonParser(Parser):
             with a placeholder (EXPRESSION000000)
         """
         index: int = self.counter()
-        placeholder: str = "EXPRESSION%06i" % index
+        placeholder: str = f"EXPRESSION{index:06d}"
         # Note: For re.sub() to work properly we need to escape all special characters
         #       (covering both '$' as well as any mathematical operators in the expression)
         _pattern: re.Pattern[str] = re.compile(re.escape(expression))
@@ -1726,7 +1730,7 @@ class XmlParser(Parser):
         node_tag: str
         for node_tag in node_tags:
             index = self.counter()
-            indexed_node_tags.append(("%06i_%s" % (index, node_tag), node_tag))
+            indexed_node_tags.append((f"{index:06d}_{node_tag}", node_tag))
 
         key: TKey
         parsed_dict: dict[TKey, TValue] = {}

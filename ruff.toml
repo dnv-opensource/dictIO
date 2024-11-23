@@ -27,8 +27,6 @@ ignore = [
     "PLR0915", # Too many statements   <- @TODO: reactivate and resolve  @CLAROS, 2024-10-11
 
     # Ruff lint rules considered as too strict and hence ignored
-    "ANN101",  # Missing type annotation for `self` argument in instance methods (NOTE: also listed as deprecated by Ruff)
-    "ANN102",  # Missing type annotation for `cls` argument in class methods (NOTE: also listed as deprecated by Ruff)
     "FIX002",  # Line contains TODO, consider resolving the issue
     "TD003",   # Missing issue link on the line following a TODO
     "S101",    # Use of assert detected

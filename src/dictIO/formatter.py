@@ -794,7 +794,7 @@ class NativeFormatter(Formatter):
 
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original block_comment.
-            search_pattern = r"BLOCKCOMMENT%06i\s+BLOCKCOMMENT%06i;" % (key, key)
+            search_pattern = rf"BLOCKCOMMENT{key:06d}\s+BLOCKCOMMENT{key:06d};"
             if (
                 len(re.findall(search_pattern, s)) > 0
             ):  # if placeholders exist in s that match the key of the current block_comment
@@ -836,7 +836,7 @@ class NativeFormatter(Formatter):
             _include_file_name = include_file_name.replace("\\", "\\\\")
             _include_file_name = self.format_value(_include_file_name)
             _include_directive = f"#include {_include_file_name}"
-            search_pattern = r"INCLUDE%06i\s+INCLUDE%06i;" % (key, key)
+            search_pattern = rf"INCLUDE{key:06d}\s+INCLUDE{key:06d};"
             s = re.sub(search_pattern, _include_directive, s)
 
         return s
@@ -851,7 +851,7 @@ class NativeFormatter(Formatter):
         for key, line_comment in s_dict.line_comments.items():
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
             # and insert back the original block_comment.
-            search_pattern = r"LINECOMMENT%06i\s+LINECOMMENT%06i;" % (key, key)
+            search_pattern = rf"LINECOMMENT{key:06d}\s+LINECOMMENT{key:06d};"
             s = re.sub(search_pattern, line_comment, s)
 
         return s
@@ -1073,7 +1073,7 @@ class JsonFormatter(Formatter):
             # and insert back the original include directive.
             _include_file_name = include_file_name.replace("\\", "\\\\\\\\")
             _include_directive = f'"#include{key:06d}":"{_include_file_name}"'
-            search_pattern = r'"INCLUDE%06i"\s*:\s*"INCLUDE%06i"' % (key, key)
+            search_pattern = rf'"INCLUDE{key:06d}"\s*:\s*"INCLUDE{key:06d}"'
             s = re.sub(search_pattern, _include_directive, s)
 
         return s

@@ -614,7 +614,7 @@ class SDict(dict[K, V]):
         placeholder: str = ""
         while True:
             ii = self.counter()
-            placeholder = "INCLUDE%06i" % ii
+            placeholder = f"INCLUDE{ii:06}"
             if placeholder in self:
                 continue
             break
