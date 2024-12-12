@@ -1,0 +1,54 @@
+SDict
+=====
+
+.. currentmodule:: dictIO.dict
+
+.. autoclass:: SDict
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~SDict.__init__
+      ~SDict.clear
+      ~SDict.copy
+      ~SDict.dump
+      ~SDict.find_global_key
+      ~SDict.fromkeys
+      ~SDict.get
+      ~SDict.global_key_exists
+      ~SDict.include
+      ~SDict.items
+      ~SDict.keys
+      ~SDict.load
+      ~SDict.merge
+      ~SDict.order_keys
+      ~SDict.pop
+      ~SDict.popitem
+      ~SDict.reduce_scope
+      ~SDict.reset
+      ~SDict.set_global_key
+      ~SDict.setdefault
+      ~SDict.update
+      ~SDict.values
+   
+   
+
+
+   
+   
+   .. rubric:: Attributes
+   .. autosummary::
+   
+      ~SDict.data
+      ~SDict.name
+      ~SDict.path
+      ~SDict.source_file
+      ~SDict.variables
+   
+   
