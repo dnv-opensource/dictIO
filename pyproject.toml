@@ -83,7 +83,7 @@ dev-dependencies = [
     "nbconvert>=7.16",
     "jupyter>=1.0",
     "jupyter-client>=8.6",
-    "types-lxml>=2024.4",
+    "types-lxml>=2024.11",
 ]
 native-tls = true
 
