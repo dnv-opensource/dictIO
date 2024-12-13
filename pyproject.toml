@@ -52,7 +52,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "lxml>=5.2",
+    "lxml>=5.3",
     "jsonschema>=4.20",
     "numpy>=1.26,<2.0",
 ]
