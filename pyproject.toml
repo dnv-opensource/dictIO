@@ -81,7 +81,7 @@ dev-dependencies = [
     "myst-parser>=4.0",
     "furo>=2024.8",
     "nbconvert>=7.16",
-    "jupyter>=1.0",
+    "jupyter>=1.1",
     "jupyter-client>=8.6",
     "types-lxml>=2024.11",
 ]
