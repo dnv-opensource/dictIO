@@ -25,7 +25,7 @@ name = "dictIO"
 version = "0.4.0"
 description = "Python package to read, write and manipulate dictionary text files. Supports dictIOs native file format, as well as JSON, XML and OpenFOAM."
 readme = "README.md"
-requires-python = ">= 3.10"
+requires-python = ">= 3.10, < 3.14"
 license = { file = "LICENSE" }
 authors = [
     { name = "Frank Lumpitzsch", email = "frank.lumpitzsch@dnv.com" },
@@ -42,6 +42,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
