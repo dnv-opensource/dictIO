@@ -1,1 +1,1 @@
-"""dictIO command line interface."""
+"""dictIO Command line interface."""

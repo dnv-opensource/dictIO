@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding utf-8
 """dictParser command line interface."""
 
 import argparse
@@ -140,7 +139,7 @@ def _argparser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    """Entry point for console script as configured in setup.cfg.
+    """Entry point for console script as configured in pyproject.toml.
 
     Runs the command line interface and parses arguments and options entered on the console.
     """
@@ -152,7 +151,7 @@ def main() -> None:
     log_level_console: str = "WARNING"
     if any([args.quiet, args.verbose]):
         log_level_console = "ERROR" if args.quiet else log_level_console
-        log_level_console = "DEBUG" if args.verbose else log_level_console
+        log_level_console = "INFO" if args.verbose else log_level_console
     # ..to file
     log_file: Path | None = Path(args.log) if args.log else None
     log_level_file: str = args.log_level

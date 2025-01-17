@@ -1,1 +1,1 @@
-"""Utility functions for dictionary I/O operations."""
+"""Utilities for dictIO."""
