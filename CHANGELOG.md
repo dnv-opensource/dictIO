@@ -6,6 +6,15 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
+* Updated to ruff>=0.9.2  (from ruff>=0.8.3)
+* Updated to pyright>=1.1.392  (from pyright>=1.1.390)
+* Updated to sourcery>=1.31  (from sourcery>=1.27)
+* Updated to types-lxml>=2024.12  (from types-lxml>=2024.11)
+* Updated to sphinx-autodoc-typehints>=3.0  (from sphinx-autodoc-typehints>=2.5)
+* Updated to mypy>=1.14  (from mypy>=1.13)
+* Updated to setup-uv@v5  (from setup-uv@v2)
+
+### Dependencies
 * Updated to ruff>=0.8.3  (from ruff>=0.6.3)
 * Updated to pyright>=1.1.390  (from pyright>=1.1.378)
 * Updated to sourcery>=1.27  (from sourcery>=1.22)
