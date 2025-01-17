@@ -149,6 +149,14 @@ raises-require-match-for = [
     "T201",    # `print` found
     "E402",    # Module level import not at top of cell
 ]
+# utils/logging specific ignores
+"**/utils/logging.py" = [
+    "A005", # Module `logging` shadows a Python standard-library module
+]
+# types.py specific ignores
+"**/types.py" = [
+    "A005", # Module `types` shadows a Python standard-library module
+]
 
 [lint.pydocstyle]
 convention = "numpy"
