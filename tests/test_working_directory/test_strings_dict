@@ -1,0 +1,14 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+subDict
+{
+    string_00_dq_empty        "";
+    string_01_sq_empty        '';
+    string_02_dq_word         "string_02_dq_word";
+    string_03_sq_word         'string_03_sq_word';
+    string_04_dq_sq_word      "quote('string_04_dq_sq_word')";
+    string_05_dq_escsq_word   "quote(\'string_05_dq_escsq_word\')";
+    string_06_sq_dq_word      'quote("string_06_sq_dq_word")';
+    string_07_sq_escdq_word   'quote(\"string_07_sq_escdq_word\")';
+}

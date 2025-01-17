@@ -1,3 +1,4 @@
+# pyright: reportPrivateUsage=false
 from pathlib import Path
 
 from dictIO import DictParser, DictReader

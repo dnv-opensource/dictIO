@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<ROOT xmlns:xs="http://www.w3.org/2001/XMLSchema" version="0.1">
+    <TAG00>
+Extensible Markup Language (XML) is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable.
+Mapping the basic tree model of XML to type systems of programming languages or databases can be difficult, especially when XML is used for exchanging highly structured data between applications, which was not its primary design goal.
+JSON, YAML, and S-Expressions are frequently proposed as simpler alternatives that focus on representing highly structured data rather than documents, which may contain both highly structured and relatively unstructured content.
+</TAG00>
+    <TAG01/>
+    <TAG02/>
+    <TAG03/>
+    <TAG04/>
+    <TAG05 ATTR0="0"/>
+    <TAG06 ATTR0="0" ATTR1="1"/>
+    <TAG07 ATTR0="0" ATTR1="1"/>
+    <TAG08 ATTR0="0" ATTR1="1">TEXT</TAG08>
+    <TAG09>
+        <TAG91/>
+        <TAG92/>
+        <TAG93/>
+        <TAG94 ATTR0="0"/>
+        <TAG95 ATTR0="0">TEXT</TAG95>
+        <TAG96 ATTR0="0" ATTR1="1">TEXT</TAG96>
+    </TAG09>
+</ROOT>

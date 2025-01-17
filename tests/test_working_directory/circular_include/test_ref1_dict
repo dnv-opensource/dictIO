@@ -1,0 +1,10 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+#include test_ref2_dict
+ref1SubDict
+{
+    ref1Var1                      4;
+    ref1Var2                      $ref1Var1;
+    ref1Var3                      $ref2Var1;
+}
