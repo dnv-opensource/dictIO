@@ -5,31 +5,32 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
-### Dependencies
-* Updated to ruff>=0.9.2  (from ruff>=0.8.3)
-* Updated to pyright>=1.1.392  (from pyright>=1.1.390)
-* Updated to sourcery>=1.31  (from sourcery>=1.27)
-* Updated to types-lxml>=2024.12  (from types-lxml>=2024.11)
-* Updated to sphinx-autodoc-typehints>=3.0  (from sphinx-autodoc-typehints>=2.5)
-* Updated to mypy>=1.14  (from mypy>=1.13)
-* Updated to setup-uv@v5  (from setup-uv@v2)
+-/-
+
+
+## [0.4.1] - 2025-01-17
+
+### Added
+* Added support for Python 3.13
+
+### Solved
+* Resolved issues raised by `ruff`
 
 ### Dependencies
-* Updated to ruff>=0.8.3  (from ruff>=0.6.3)
-* Updated to pyright>=1.1.390  (from pyright>=1.1.378)
-* Updated to sourcery>=1.27  (from sourcery>=1.22)
+* Updated to ruff>=0.9.2  (from ruff>=0.6.3)
+* Updated to pyright>=1.1.392  (from pyright>=1.1.378)
+* Updated to sourcery>=1.31  (from sourcery>=1.22)
+* Updated to types-lxml>=2024.12  (from types-lxml>=2024.4)
+* Updated to sphinx-autodoc-typehints>=3.0  (from sphinx-autodoc-typehints>=2.2)
+* Updated to mypy>=1.14  (from mypy>=1.13)
+* Updated to setup-uv@v5  (from setup-uv@v2)
 * Updated to lxml>=5.3  (from lxml>=5.2)
-* Updated to types-lxml>=2024.11  (from types-lxml>=2024.4)
 * Updated to jupyter>=1.1  (from jupyter>=1.0)
 * Updated to pytest-cov>=6.0  (from pytest-cov>=5.0)
 * Updated to Sphinx>=8.1  (from Sphinx>=8.0)
 * Updated to sphinx-argparse-cli>=1.19  (from sphinx-argparse-cli>=1.17)
-* Updated to sphinx-autodoc-typehints>=2.5  (from sphinx-autodoc-typehints>=2.2)
 * Updated to pre-commit>=4.0  (from pre-commit>=3.8)
-* Updated to mypy>=1.13  (from mypy>=1.11.1)
-
-### Solved
-* Resolved issues raised by `ruff`
+* Updated to mypy>=1.14  (from mypy>=1.11.1)
 
 
 ## [0.4.0] - 2024-11-11
@@ -369,7 +370,8 @@ This removes the need to manually add /src to the PythonPath environment variabl
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.0...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/dnv-opensource/dictIO/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/dnv-opensource/dictIO/compare/v0.3.4...v0.4.0
 [0.3.4]: https://github.com/dnv-opensource/dictIO/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/dnv-opensource/dictIO/compare/v0.3.2...v0.3.3
