@@ -59,7 +59,8 @@ classifiers = [
 dependencies = [
     "lxml>=5.3",
     "jsonschema>=4.20",
-    "numpy>=1.26,<2.0",
+    "numpy>=1.26; python_version < '3.13'",
+    "numpy>=2.2; python_version >= '3.13'",
 ]
 
 [project.urls]
