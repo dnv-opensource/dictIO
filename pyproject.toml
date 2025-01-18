@@ -39,6 +39,9 @@ maintainers = [
     { name = "Claas Rostock", email = "claas.rostock@dnv.com" },
 ]
 keywords = [
+    "dictIO",
+    "dictParser",
+    "dict",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
