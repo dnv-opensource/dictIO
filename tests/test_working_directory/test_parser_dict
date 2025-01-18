@@ -1,0 +1,189 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+
+#include 'test_parser_paramDict'
+
+// This is a line comment at the top of the file
+
+emptyDict
+{
+
+}
+
+emptyList
+(
+
+);
+
+booleans
+{
+    bool1                     true;
+    bool2                     false;
+    bool3                     True;
+    bool4                     False;
+    bool5                     on;
+    bool6                     off;
+    bool7                     ON;
+    bool8                     OFF;
+}
+
+numbers
+{
+    int1                      0;
+    int2                      120;
+    float1                    3.5;
+}
+
+nones
+{
+    none1                     None;
+    none2                     none;
+    none3                     NULL;
+    none4                     null;
+}
+
+strings
+{
+    string1                   '';
+    string2                   'string';
+    string3                   'string with spaces';
+    string4                   singleWordsWithoutSpacesCanAlsoBeDeclaredWithoutQuotes;
+    string5                   'string with single quotes';
+    string6                   "string with double quotes";
+    listWithStrings
+    (
+        'string1'    'string2 has spaces'    'string3'     'string4 is ok but note that string5 is empty'     ''
+    );
+}
+
+invalid
+{
+    this is not a valid key value pair because the number of tokens is larger than two;
+    thisIsNeitherAValidKeyValuePairBecuaseThisIsOnlyOneToken;
+}
+
+nesting
+{
+    emptyNestedDict
+    {
+
+    }
+    emptyNestedList
+    (
+
+    );
+    nestedDictWithNestedList
+    {
+        list1
+        (
+            1.00000000e+00  2.20972831e-17  3.15717747e-18
+        );
+        list2
+        (
+            2.20972831e-17  1.00000000e+00 -7.07290050e-18
+        );
+        list3
+        (
+            3.15717747e-18 -7.07290050e-18  1.00000000e+00
+        );
+    }
+    nestedListWithNestedList
+    (
+        (
+            1.00000000e+00  2.20972831e-17  3.15717747e-18
+        )
+        (
+            2.20972831e-17  1.00000000e+00 -7.07290050e-18
+        )
+        (
+            3.15717747e-18 -7.07290050e-18  1.00000000e+00
+        )
+    );
+    nestedListWithNestedDict
+    (
+        (
+            11       12       13
+        )
+        {
+            value21     21;
+            value22     22;
+            value23     23;
+        }
+        (
+            31      32      33
+        )
+    );
+}
+
+expressions
+{
+    reference   // reference
+    {
+        name              'reference';
+        value             $paramA;   // Simple reference to a variable. References are prefixed with $.
+    }
+    expression1   // expression 1
+    {
+        name              'expression1';
+        value             "$paramB";  // Expression. However, result of this expression is same as using a simple reference without double quotes.
+    }
+    expression2   // expression 2
+    {
+        name              'expression2';
+        value             "$paramC + 4";  // Expression with one reference and one constant.
+    }
+    expression3   // expression 3
+    {
+        name              'expression3';
+        value             "$paramC + $paramD";  // Expression with two references.
+    }
+    expressionE
+    {
+        name              'expressionE';
+        value             $paramE[0];  // Reference to an item in a list
+    }
+    expressionF
+    {
+        name              'expressionF';
+        value             $paramF[0][0];  // Reference to an item in a list of lists
+    }
+    expressionG1
+    {
+        name              'expressionG1';
+        value             "$paramG";  // Assume variable paramG defines a two-dimensional matrix (i.e. implemented as a list of lists)
+    }
+    expressionG2
+    {
+        name              'expressionG2';
+        value             "$paramG[0]";  // ..then $paramG[0] is a reference to a specific row in the matrix (=returning a list)
+    }
+    expressionG3
+    {
+        name              'expressionG3';
+        value             "$paramG[1][2]";  // ..and $paramG[1][2] is a reference to a specific value in the matrix
+    }
+}
+
+theDictInAListPitfall
+{
+    keyToADict                  // This is a key. You can access its value (the subsequent dict {}) as a key'd element              -> exampleDict['keyToADict']
+    {                           // This is the key'd element associated with key 'keyToADict'. It is of type dict.
+        keyToAList              // This is a key. You can access its value (the subsequent list ()) as a key'd element              -> exampleDict['keyToADict']['keyToAList']
+        (                       // This is the key'd element associated with key 'keyToAList'. It is of type list.
+            notAKey             // This is NOT a key. It is a list element of type string. You can access it by its index           -> exampleDict['keyToADict']['keyToAList'][0]
+            {                   // This is NOT a key'd element. It is a list element of type dict. You can access it by its index   -> exampleDict['keyToADict']['keyToAList'][1]
+                key1 value1;    // This is a key'd element inside the surrounding dict                                              -> exampleDict['keyToADict']['keyToAList'][1]['key1']
+                key2 value2;    // This is a key'd element inside the surrounding dict                                              -> exampleDict['keyToADict']['keyToAList'][1]['key2']
+            }
+            notAKey             // another list element                                                                             -> exampleDict['keyToADict']['keyToAList'][2]
+            notAKey             // yet another list element                                                                         -> exampleDict['keyToADict']['keyToAList'][3]
+            notAKey             // yet .. well, you got the point ..                                                                -> exampleDict['keyToADict']['keyToAList'][4]
+            notAKey             // NOT A KEY !!                                                                                     -> exampleDict['keyToADict']['keyToAList'][5]
+            {                   // another list element of type dict                                                                -> exampleDict['keyToADict']['keyToAList'][6]
+                key1 value1;    // This is a key'd element inside the surrounding dict                                              -> exampleDict['keyToADict']['keyToAList'][6]['key1']
+                key2 value2;    // This is a key'd element inside the surrounding dict                                              -> exampleDict['keyToADict']['keyToAList'][6]['key2']
+            }
+        );
+    }
+}

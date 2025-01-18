@@ -8,7 +8,11 @@ import pytest
 
 @pytest.fixture(scope="package", autouse=True)
 def chdir() -> None:
-    os.chdir(Path(__file__).parent.absolute() / "test_dicts")
+    """
+    Fixture that changes the current working directory to the 'test_working_directory' folder.
+    This fixture is automatically used for the entire package.
+    """
+    os.chdir(Path(__file__).parent.absolute() / "test_working_directory")
 
 
 @pytest.fixture(scope="package", autouse=True)

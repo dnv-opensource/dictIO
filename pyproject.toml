@@ -10,6 +10,9 @@ only-include = [
     "tests",
     ".coveragerc",
     ".editorconfig",
+    ".pre-commit-config.yaml",
+    "manage.py",
+    "pyproject.toml",
     "pytest.ini",
     "ruff.toml",
     "uv.lock",
@@ -22,19 +25,23 @@ packages = [
 
 [project]
 name = "dictIO"
-version = "0.4.0"
+version = "0.4.1"
 description = "Python package to read, write and manipulate dictionary text files. Supports dictIOs native file format, as well as JSON, XML and OpenFOAM."
 readme = "README.md"
-requires-python = ">= 3.10"
+requires-python = ">= 3.10, < 3.14"
 license = { file = "LICENSE" }
 authors = [
     { name = "Frank Lumpitzsch", email = "frank.lumpitzsch@dnv.com" },
     { name = "Claas Rostock", email = "claas.rostock@dnv.com" },
+    { name = "Seunghyeon Yoo", email = "seunghyeon.yoo@dnv.com" },
 ]
 maintainers = [
     { name = "Claas Rostock", email = "claas.rostock@dnv.com" },
 ]
 keywords = [
+    "dictIO",
+    "dictParser",
+    "dict",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -42,6 +49,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
@@ -52,9 +60,10 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "lxml>=5.2",
+    "lxml>=5.3",
     "jsonschema>=4.20",
-    "numpy>=1.26,<2.0",
+    "numpy>=1.26; python_version < '3.13'",
+    "numpy>=2.2; python_version >= '3.13'",
 ]
 
 [project.urls]
@@ -65,25 +74,30 @@ Issues = "https://github.com/dnv-opensource/dictIO/issues"
 Changelog = "https://github.com/dnv-opensource/dictIO/blob/main/CHANGELOG.md"
 
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest>=8.3",
-    "pytest-cov>=5.0",
-    "ruff>=0.6.3",
-    "pyright>=1.1.378",
-    "mypy>=1.11.1",
-    "sourcery>=1.22",
-    "pre-commit>=3.8",
-    "Sphinx>=8.0",
-    "sphinx-argparse-cli>=1.17",
-    "sphinx-autodoc-typehints>=2.2",
+    "pytest-cov>=6.0",
+    "ruff>=0.9.2",
+    "pyright>=1.1.392",
+    "mypy>=1.14",
+    "sourcery>=1.31",
+    "pre-commit>=4.0",
+    "Sphinx>=8.1",
+    "sphinx-argparse-cli>=1.19",
+    "sphinx-autodoc-typehints>=3.0",
     "sphinxcontrib-mermaid>=1.0.0",
     "myst-parser>=4.0",
     "furo>=2024.8",
     "nbconvert>=7.16",
-    "jupyter>=1.0",
+    "jupyter>=1.1",
     "jupyter-client>=8.6",
-    "types-lxml>=2024.4",
+    "types-lxml>=2024.12",
+]
+
+[tool.uv]
+default-groups = [
+    "dev",
 ]
 native-tls = true
 

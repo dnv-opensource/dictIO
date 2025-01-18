@@ -22,11 +22,11 @@ sys.path.insert(0, str(Path("../../src").absolute()))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "dictIO"
-copyright = "2024, DNV SE. All rights reserved."
-author = "Frank Lumpitzsch, Claas Rostock, Seung Hyeon Yoo"
+copyright = "2024, DNV AS. All rights reserved."
+author = "Frank Lumpitzsch, Claas Rostock, Seunghyeon Yoo"
 
 # The full version, including alpha/beta/rc tags
-release = "0.4.0"
+release = "0.4.1"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -40,6 +40,12 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.todo",
     "sphinxcontrib.mermaid",
+]
+
+# Extenstion for myst_parser
+myst_enable_extensions = [
+    "dollarmath",
+    "attrs_inline",
 ]
 
 # The file extensions of source files.
@@ -72,6 +78,8 @@ autodoc_default_options = {
 autodoc_preserve_defaults = True
 
 myst_heading_anchors = 3
+
+todo_include_todos = False
 
 # add markdown mermaid support
 myst_fence_as_directive = ["mermaid"]

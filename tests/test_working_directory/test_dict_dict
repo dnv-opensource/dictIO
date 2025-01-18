@@ -1,0 +1,57 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+
+
+scope
+{
+    subscope1
+    {
+        subscope11
+        {
+            name        'subscope11';
+        }
+        subscope12
+        {
+            name        'subscope12';
+        }
+    }
+}
+
+ordered
+{
+    key1 val1;
+    key2 val2;
+    key3
+    {
+        key3a val3a;
+        key3b val3b;
+        key3c val3c;
+        key3d
+        {
+            key3dA val3dA;
+            key3dB val3dB;
+            key3dC val3dC;
+        }
+    }
+    key4 val4;
+}
+
+unordered
+{
+    key3
+    {
+        key3d
+        {
+            key3dC val3dC;
+            key3dA val3dA;
+            key3dB val3dB;
+        }
+        key3c val3c;
+        key3a val3a;
+        key3b val3b;
+    }
+    key4 val4;
+    key1 val1;
+    key2 val2;
+}

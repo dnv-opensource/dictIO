@@ -35,7 +35,7 @@ def string_diff(text_1: str, text_2: str) -> str:
     message: str = ""
     for index, item in enumerate(line for line in ndiff(lines_1, lines_2) if not re.search(r"^\s*$", line)):
         if re.match(r"^[+\-]", item):
-            message += str.format("diff in line %4i:" % index) + "\n"
+            message += f"diff in line {index:4d}:" + "\n"
             message += item + "\n"
             diffs.append(item)
 

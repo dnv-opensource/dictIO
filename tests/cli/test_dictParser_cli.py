@@ -2,12 +2,13 @@
 import sys
 from argparse import ArgumentError
 from collections.abc import MutableSequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 import pytest
 
+from dictIO.cli import dict_parser
 from dictIO.cli.dict_parser import _argparser, _validate_scope, main
 from dictIO.dict_parser import DictParser
 
@@ -20,9 +21,8 @@ class CliArgs:
     quiet: bool = False
     verbose: bool = False
     log: str | None = None
-    log_level: str = "WARNING"
-
-    dict: str | None = "test_dictParser_dict"
+    log_level: str = field(default_factory=lambda: "WARNING")
+    dict: str | None = field(default_factory=lambda: "test_dictParser_dict")
     ignore_includes: bool = False
     mode: str = "w"
     order: bool = False
@@ -100,7 +100,93 @@ def test_cli(
         with pytest.raises((exception, SystemExit)):
             args = parser.parse_args()
     else:
-        raise AssertionError
+        raise TypeError
+
+
+# *****Ensure the CLI correctly configures logging*************************************************
+
+
+@dataclass()
+class ConfigureLoggingArgs:
+    # Values that main() is expected to pass to ConfigureLogging() by default when configuring the logging
+    log_level_console: str = field(default_factory=lambda: "WARNING")
+    log_file: Path | None = None
+    log_level_file: str = field(default_factory=lambda: "WARNING")
+
+
+@pytest.mark.parametrize(
+    "inputs, expected",
+    [
+        ([], ArgumentError),
+        (["test_dictParser_dict"], ConfigureLoggingArgs()),
+        (["test_dictParser_dict", "-q"], ConfigureLoggingArgs(log_level_console="ERROR")),
+        (["test_dictParser_dict", "--quiet"], ConfigureLoggingArgs(log_level_console="ERROR")),
+        (["test_dictParser_dict", "-v"], ConfigureLoggingArgs(log_level_console="INFO")),
+        (
+            ["test_dictParser_dict", "--verbose"],
+            ConfigureLoggingArgs(log_level_console="INFO"),
+        ),
+        (["test_dictParser_dict", "-qv"], ArgumentError),
+        (
+            ["test_dictParser_dict", "--log", "logFile"],
+            ConfigureLoggingArgs(log_file=Path("logFile")),
+        ),
+        (["test_dictParser_dict", "--log"], ArgumentError),
+        (
+            ["test_dictParser_dict", "--log-level", "INFO"],
+            ConfigureLoggingArgs(log_level_file="INFO"),
+        ),
+        (["test_dictParser_dict", "--log-level"], ArgumentError),
+    ],
+)
+def test_logging_configuration(
+    inputs: list[str],
+    expected: ConfigureLoggingArgs | type,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    # sourcery skip: no-conditionals-in-tests
+    # sourcery skip: no-loop-in-tests
+    # Prepare
+    monkeypatch.setattr(sys, "argv", ["dictParser", *inputs])
+    args: ConfigureLoggingArgs = ConfigureLoggingArgs()
+
+    def fake_configure_logging(
+        log_level_console: str,
+        log_file: Path | None,
+        log_level_file: str,
+    ):
+        args.log_level_console = log_level_console
+        args.log_file = log_file
+        args.log_level_file = log_level_file
+
+    def fake_parse(
+        source_file: Path,
+        *,
+        includes: bool = True,
+        mode: str = "w",
+        order: bool = False,
+        comments: bool = True,
+        scope: MutableSequence[Any] | None = None,
+        output: str | None = None,
+    ):
+        pass
+
+    monkeypatch.setattr(dict_parser, "configure_logging", fake_configure_logging)
+    monkeypatch.setattr(DictParser, "parse", fake_parse)
+    # Execute
+    if isinstance(expected, ConfigureLoggingArgs):
+        args_expected: ConfigureLoggingArgs = expected
+        main()
+        # Assert args
+        for key in args_expected.__dataclass_fields__:
+            assert args.__getattribute__(key) == args_expected.__getattribute__(key)
+    elif issubclass(expected, Exception):
+        exception: type = expected
+        # Assert that expected exception is raised
+        with pytest.raises((exception, SystemExit)):
+            main()
+    else:
+        raise TypeError
 
 
 # *****Ensure the CLI correctly invokes the API****************************************************
@@ -109,7 +195,7 @@ def test_cli(
 @dataclass()
 class ApiArgs:
     # Values that main() is expected to pass to DictParser.parse() by default when invoking the API
-    source_file: Path = Path("test_dictParser_dict")
+    source_file: Path = field(default_factory=lambda: Path("test_dictParser_dict"))
     includes: bool = True
     mode: str = "w"
     order: bool = False
@@ -155,7 +241,7 @@ class ApiArgs:
         (["test_dictParser_dict", "--output"], ArgumentError),
     ],
 )
-def test_invoke_api(
+def test_api_invokation(
     inputs: list[str],
     expected: ApiArgs | type,
     monkeypatch: pytest.MonkeyPatch,
@@ -198,7 +284,7 @@ def test_invoke_api(
         with pytest.raises((exception, SystemExit)):
             main()
     else:
-        raise AssertionError
+        raise TypeError
 
 
 # *****Test _validate_scope() helper function******************************************************
