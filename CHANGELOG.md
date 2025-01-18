@@ -8,13 +8,15 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 -/-
 
 
-## [0.4.1] - 2025-01-17
+## [0.4.1] - 2025-01-18
 
 ### Added
 * Added support for Python 3.13
+* Added CITATION.cff
+* pyproject.toml : Added keywords
 
 ### Solved
-* Resolved issues raised by `ruff`
+* Resolved issues raised by `ruff` 0.9.2
 
 ### Dependencies
 * Updated to ruff>=0.9.2  (from ruff>=0.6.3)
@@ -31,6 +33,9 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Updated to sphinx-argparse-cli>=1.19  (from sphinx-argparse-cli>=1.17)
 * Updated to pre-commit>=4.0  (from pre-commit>=3.8)
 * Updated to mypy>=1.14  (from mypy>=1.11.1)
+* numpy: As Python 3.13 requires numpy 2.x, made minimum required numpy version in pyproject.toml dependent on Python version:
+  * "numpy>=1.26; python_version < '3.13'",
+  * "numpy>=2.2; python_version >= '3.13'",
 
 
 ## [0.4.0] - 2024-11-11
