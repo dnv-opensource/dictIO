@@ -128,12 +128,21 @@ Clone the dictIO repository into your local development directory:
 ```sh
 git clone https://github.com/dnv-opensource/dictIO path/to/your/dev/dictIO
 ```
+Change into the project directory after cloning:
+```sh
+cd dictIO
+```
 
 ### 4. Install dependencies
 Run `uv sync` to create a virtual environment and install all project dependencies into it:
 ```sh
 uv sync
 ```
+> **Note**: Using `--no-dev` will omit installing development dependencies.
+
+> **Note**: `uv` will create a new virtual environment called `.venv` in the project root directory when running
+> `uv sync` the first time. Optionally, you can create your own virtual environment using e.g. `uv venv`, before running
+> `uv sync`.
 
 ### 5. (Optional) Activate the virtual environment
 When using `uv`, there is in almost all cases no longer a need to manually activate the virtual environment. <br>
@@ -163,6 +172,20 @@ uv run pre-commit install
 
 All pre-commit hooks configured in `.pre-commit-config.yaml` will now run each time you commit changes.
 
+pre-commit can also manually be invoked, at anytime, using:
+```sh
+uv run pre-commit run --all-files
+```
+
+To skip the pre-commit validation on commits (e.g. when intentionally committing broken code), run:
+```sh
+uv run git commit -m <MSG> --no-verify
+```
+
+To update the hooks configured in `.pre-commit-config.yaml` to their newest versions, run:
+```sh
+uv run pre-commit autoupdate
+```
 
 ### 7. Test that the installation works
 To test that the installation works, run pytest in the project root folder:
@@ -172,7 +195,7 @@ uv run pytest
 
 ## Meta
 
-Copyright (c) 2024 [DNV](https://www.dnv.com) SE. All rights reserved.
+Copyright (c) 2024 [DNV](https://www.dnv.com) AS. All rights reserved.
 
 Frank Lumpitzsch - [@LinkedIn](https://www.linkedin.com/in/frank-lumpitzsch-23013196/) - frank.lumpitzsch@dnv.com
 

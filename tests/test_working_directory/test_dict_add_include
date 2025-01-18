@@ -1,0 +1,5 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+
+valueA              $paramA;    // paramA is defined in test_dict_paramDict

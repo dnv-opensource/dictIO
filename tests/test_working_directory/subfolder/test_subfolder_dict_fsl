@@ -1,0 +1,8 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+
+#include '../test_subfolder_paramDict_fsl'
+
+valueA              $paramA;    // paramA is defined in paramDict_bsl
+valueB              $paramB;    // paramB is defined in paramDict_fsl

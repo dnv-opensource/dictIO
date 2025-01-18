@@ -50,6 +50,7 @@ rule_settings:
 
 metrics:
   quality_threshold: 20.0
+
 # github:
 #   labels: []
 #   ignore_labels:

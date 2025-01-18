@@ -156,5 +156,8 @@ demos/**/*.log
 demos/**/*.db
 demos/**/*.nc
 
+# Cmake generated files
+CMakeUserPresets.json
+
 # modules
 modules.txt

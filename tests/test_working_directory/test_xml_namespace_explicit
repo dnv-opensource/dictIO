@@ -1,0 +1,17 @@
+/*---------------------------------*- C++ -*----------------------------------*\
+filetype dictionary; coding utf-8; version 0.1; local --; purpose --;
+\*----------------------------------------------------------------------------*/
+_xmlOpts
+{
+    _nameSpaces
+    {
+        xs                    'http://www.w3.org/2001/XMLSchema';
+    }
+    _rootTag                  ROOT;
+    _rootAttributes
+    {
+        version               0.1;
+        encoding             "UTF-8";
+    }
+    _addNodeNumbering         true;
+}

@@ -1,0 +1,128 @@
+{
+    "#include": "test_dictReader_paramDict.json",
+    "expressions": {
+        "reference": {
+            "name": "reference",
+            "value": "$paramA"
+        },
+        "expression1": {
+            "name": "expression1",
+            "value": "$paramB"
+        },
+        "expression2": {
+            "name": "expression2",
+            "value": "$paramC + 4"
+        },
+        "expression3": {
+            "name": "expression3",
+            "value": "$paramC + $paramD"
+        },
+        "expressionE": {
+            "name": "expressionE",
+            "value": "$paramE[0]"
+        },
+        "expressionF": {
+            "name": "expressionF",
+            "value": "$paramF[0][0]"
+        },
+        "expressionG1": {
+            "name": "expressionG1",
+            "value": "$paramG"
+        },
+        "expressionG2": {
+            "name": "expressionG2",
+            "value": "$paramG[0]"
+        },
+        "expressionG3": {
+            "name": "expressionG3",
+            "value": "$paramG[1][2]"
+        }
+    },
+    "keyA": "$paramA",
+    "keyB": "$paramB",
+    "keyC": "$paramC",
+    "keyD": "$paramD+$paramC/2",
+    "keyE": "$paramC-$paramD/2",
+    "keyF": "3 * $paramD + $paramC",
+    "keyG": "3 * $paramC - $paramD",
+    "keyH": "$paramE[1]",
+    "keyI": "$paramE",
+    "keyJ": "$paramF[1][1]",
+    "keyK": "$paramF[1]",
+    "keyL": "$paramF",
+    "keyM": "3 * $paramA",
+    "keyN": "$paramA + $paramB",
+    "differentKeyNames": {
+        "keyA": "$paramA",
+        "keyB": "$paramB",
+        "keyC": "$paramC",
+        "keyD": "$paramD+$paramC/2",
+        "keyE": "$paramC-$paramD/2",
+        "keyF": "3 * $paramD + $paramC",
+        "keyG": "3 * $paramC - $paramD",
+        "keyH": "$paramE[1]",
+        "keyI": "$paramE",
+        "keyJ": "$paramF[1][1]",
+        "keyK": "$paramF[1]",
+        "keyL": "$paramF",
+        "keyM": "3 * $paramA",
+        "keyN": "$paramA + $paramB"
+    },
+    "sameKeyNames": {
+        "paramA": "$paramA",
+        "paramB": "$paramB",
+        "paramC": "$paramC",
+        "paramD": "$paramC+$paramC/2",
+        "paramE": "$paramE[1]",
+        "paramF": "$paramF"
+    },
+    "keysWithNestedRefs": {
+        "nestKeyA": "$paramA",
+        "nestKeyB": "$paramB",
+        "nestKeyC": "$paramA * $paramB",
+        "nestKeyD": "$paramC / $paramE[1] + $paramE[2]",
+        "nestKeyE": "$paramE[2]",
+        "nestKeyF": "$paramF",
+        "nestKeyH": "$paramH",
+        "nestKeyI": "$paramI[1]",
+        "nestKeyJ": "$paramJ[0][1]",
+        "nestParamA": "$paramA",
+        "nestParamB": "$paramB",
+        "nestParamC": "$paramC",
+        "nestParamD": "$paramD",
+        "nestParamE": "$paramE",
+        "nestParamF": "$paramF[0][0]",
+        "nestParamH": "$paramH",
+        "nestParamI": "$paramI",
+        "nestParamJ": "$paramJ",
+        "nestParamK": "$nestKeyE",
+        "nestParamL": "$paramE[2] * 10 + $paramA",
+        "nestParamM": "$nestParamJ[1][1] + $paramC"
+    },
+    "keysPointingToAListOfExpressions": {
+        "keyToListA": [
+            "$paramA",
+            1,
+            2
+        ],
+        "keyToListB": [
+            "$paramB",
+            1,
+            2
+        ],
+        "keyToListL": [
+            "$nestParamJ[1][1] + $paramC",
+            1,
+            2
+        ]
+    },
+	"keysContainingNumpyExpressions": {
+		"npKey0": 2,
+		"npKeyA": "$npKey0",
+		"npKeyB": "ones(($npKey0, $npKey0))",
+		"npKeyC": "[$npKey0, $npKey0, $npKey0]",
+		"npKeyD": "diag($npKeyC)",
+		"npKeyE": "$npKey0 * eye(3)",
+		"npKeyZ": "$npKey0 * zeros((1, 4))"
+	}
+}

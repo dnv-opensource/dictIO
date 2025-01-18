@@ -30,3 +30,7 @@
 *.png -text
 *.gif -text
 *.ico -text
+
+# Denote all files that are truly binary and should not be modified.
+*.onnx binary
+*.fmu binary

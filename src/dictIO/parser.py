@@ -997,7 +997,7 @@ class NativeParser(Parser):
                     logger.warning(
                         "mis-spelled expression / missing ';' around \""
                         f"{' '.join([str(key)] + [t[1] for t in data_struct_tokens] + [tokens[token_index + i + 1][1]])}"  # noqa: E501
-                        "\""
+                        '"'
                     )
                 # dict:
                 if data_struct_tokens[-1][1] == "}":
@@ -1013,7 +1013,7 @@ class NativeParser(Parser):
                         logger.error(
                             "mis-spelled expression / missing ';' around \""
                             f"{' '.join([str(key)] + [t[1] for t in data_struct_tokens])}"
-                            "\""
+                            '"'
                         )
 
                 # Parse the tokenized data struct, translate it into its type (list or dict),
@@ -1217,9 +1217,7 @@ class NativeParser(Parser):
                     if temp_tokens[index][1] not in ["{", ";", "}"]:
                         # log error: Missing ';' after key value pair
                         logger.error(
-                            "mis-spelled expression / missing ';' around \""
-                            f"{' '.join([t[1] for t in temp_tokens])}"
-                            "\""
+                            f"mis-spelled expression / missing ';' around \"{' '.join([t[1] for t in temp_tokens])}\""
                         )
 
                 # Parse the tokenized data struct, translate it into its type (list or dict),
