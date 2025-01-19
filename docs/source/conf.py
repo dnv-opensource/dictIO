@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path("../../src").absolute()))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "dictIO"
-copyright = "2024, DNV AS. All rights reserved."
+copyright = "2024, DNV SE. All rights reserved."
 author = "Frank Lumpitzsch, Claas Rostock, Seunghyeon Yoo"
 
 # The full version, including alpha/beta/rc tags
