@@ -1,0 +1,32 @@
+XmlParser
+=========
+
+.. currentmodule:: dictIO.parser
+
+.. autoclass:: XmlParser
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~XmlParser.__init__
+      ~XmlParser.get_parser
+      ~XmlParser.parse_file
+      ~XmlParser.parse_key
+      ~XmlParser.parse_string
+      ~XmlParser.parse_value
+      ~XmlParser.parse_values
+      ~XmlParser.remove_quotes_from_string
+      ~XmlParser.remove_quotes_from_strings
+   
+   
+
+
+   
+   
+   
