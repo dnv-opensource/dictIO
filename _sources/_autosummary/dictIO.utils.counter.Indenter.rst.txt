@@ -1,0 +1,32 @@
+Indenter
+========
+
+.. currentmodule:: dictIO.utils.counter
+
+.. autoclass:: Indenter
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~Indenter.__init__
+      ~Indenter.decr
+      ~Indenter.incr
+      ~Indenter.reset
+   
+   
+
+
+   
+   
+   .. rubric:: Attributes
+   .. autosummary::
+   
+      ~Indenter.Ind
+   
+   
