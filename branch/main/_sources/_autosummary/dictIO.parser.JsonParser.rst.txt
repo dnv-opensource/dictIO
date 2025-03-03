@@ -1,0 +1,32 @@
+JsonParser
+==========
+
+.. currentmodule:: dictIO.parser
+
+.. autoclass:: JsonParser
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~JsonParser.__init__
+      ~JsonParser.get_parser
+      ~JsonParser.parse_file
+      ~JsonParser.parse_key
+      ~JsonParser.parse_string
+      ~JsonParser.parse_value
+      ~JsonParser.parse_values
+      ~JsonParser.remove_quotes_from_string
+      ~JsonParser.remove_quotes_from_strings
+   
+   
+
+
+   
+   
+   
