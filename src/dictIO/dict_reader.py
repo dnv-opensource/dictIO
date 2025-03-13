@@ -177,7 +177,7 @@ class DictReader:
                 else:
                     parser = Parser.get_parser(source_file=path)
                     included_dict = cast(
-                        SDict[K, V],
+                        "SDict[K, V]",
                         parser.parse_file(
                             source_file=path,
                             target_dict=None,
@@ -286,10 +286,10 @@ class DictReader:
                 eval_result: V | None = None
                 if "$" not in expression:
                     try:
-                        eval_result = cast(V, eval(expression))  # noqa: S307
+                        eval_result = cast("V", eval(expression))  # noqa: S307
                         eval_successful = True
                     except NameError:
-                        eval_result = cast(V, expression)
+                        eval_result = cast("V", expression)
                         eval_successful = True
                     except SyntaxError:
                         logger.warning(f'DictReader.(): evaluation of "{expression}" not yet possible')
@@ -338,7 +338,7 @@ class DictReader:
             expression = item["expression"]
             while global_key := dict_in.find_global_key(query=placeholder):
                 # Substitute the placeholder with the original (or at least partly resolved) expression
-                dict_in.set_global_key(global_key, value=cast(V, expression))
+                dict_in.set_global_key(global_key, value=cast("V", expression))
         dict_in.expressions.clear()
 
         return
@@ -351,7 +351,7 @@ class DictReader:
         with contextlib.suppress(Exception):
             for key in list(data.keys()):  # work on a copy of the keys
                 if isinstance(data[key], MutableMapping):
-                    sub_dict = cast(M, data[key])
+                    sub_dict = cast("M", data[key])
                     data.update({key: DictReader._remove_comment_keys(sub_dict)})  # recursion
                 elif re.search(pattern=remove, string=str(key)):
                     _ = data.pop(key)

@@ -94,7 +94,7 @@ class DictWriter:
             )
             from dictIO import DictReader
 
-            existing_dict = cast(SDict[K, V], DictReader.read(source_file=target_file, order=order))
+            existing_dict = cast("SDict[K, V]", DictReader.read(source_file=target_file, order=order))
             existing_dict.merge(source_dict)
             source_dict = existing_dict
 

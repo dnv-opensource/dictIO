@@ -9,15 +9,17 @@ from collections.abc import Mapping, MutableMapping, MutableSequence
 from copy import copy, deepcopy
 from pathlib import Path
 from re import Pattern
-from typing import Any, cast, overload
+from typing import TYPE_CHECKING, Any, cast, overload
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement, register_namespace, tostring
 
 from numpy import ndarray
 
 from dictIO import SDict
-from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V
 from dictIO.utils.counter import BorgCounter
+
+if TYPE_CHECKING:
+    from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V
 
 __ALL__ = [
     "Formatter",
@@ -192,9 +194,9 @@ class Formatter:
                 item = _arg[index]
                 # ndarray -> list
                 if isinstance(item, ndarray):
-                    item = cast(list[TValue], item.tolist())
+                    item = cast("list[TValue]", item.tolist())
                 if isinstance(item, MutableMapping | MutableSequence):
-                    _arg[index] = self.format_values(cast(M | S, item))
+                    _arg[index] = self.format_values(cast("M | S", item))
                 else:
                     _arg[index] = self.format_value(item)
 
@@ -203,13 +205,13 @@ class Formatter:
                 item = _arg[key]
                 # ndarray -> list
                 if isinstance(item, ndarray):
-                    item = cast(list[TValue], item.tolist())
+                    item = cast("list[TValue]", item.tolist())
                 if isinstance(item, MutableMapping | MutableSequence):
-                    _arg[key] = self.format_values(cast(M | S, item))
+                    _arg[key] = self.format_values(cast("M | S", item))
                 else:
                     _arg[key] = self.format_value(item)
 
-        return cast(M | S, _arg)
+        return cast("M | S", _arg)
 
     def format_key(
         self,
@@ -496,10 +498,10 @@ class NativeFormatter(Formatter):
         sorted_data: dict[K, V] = {}
         for key, element in original_data.items():
             if type(key) is str and re.search(r"BLOCKCOMMENT\d{6}", key):
-                sorted_data[cast(K, key)] = element
+                sorted_data[cast("K", key)] = element
         for key, element in original_data.items():
             if type(key) is str and re.search(r"INCLUDE\d{6}", key):
-                sorted_data[cast(K, key)] = element
+                sorted_data[cast("K", key)] = element
         for key in sorted_data:
             del original_data[key]
         sorted_data |= original_data
@@ -559,7 +561,7 @@ class NativeFormatter(Formatter):
                 item = arg[index]
                 # ndarray -> list
                 if isinstance(item, ndarray):
-                    item = cast(list[TValue], item.tolist())
+                    item = cast("list[TValue]", item.tolist())
 
                 # nested list
                 if isinstance(item, MutableSequence):
@@ -632,7 +634,7 @@ class NativeFormatter(Formatter):
                 item = arg[key]
                 # ndarray -> list
                 if isinstance(item, ndarray):
-                    item = cast(list[TValue], item.tolist())
+                    item = cast("list[TValue]", item.tolist())
 
                 # nested dict
                 if isinstance(item, dict):
@@ -1168,20 +1170,20 @@ class XmlFormatter(Formatter):
         # Check whether xml opts are contained in dict.
         # If so, read and use them
         if "_xmlOpts" in arg:
-            xml_opts = cast(MutableMapping[K, V], arg[cast(K, "_xmlOpts")])
+            xml_opts = cast("MutableMapping[K, V]", arg[cast("K", "_xmlOpts")])
             namespaces = (
-                cast(MutableMapping[str, str], xml_opts[cast(K, "_nameSpaces")])
+                cast("MutableMapping[str, str]", xml_opts[cast("K", "_nameSpaces")])
                 if "_nameSpaces" in xml_opts
                 else namespaces
             )
-            root_tag = str(xml_opts[cast(K, "_rootTag")]) if "_rootTag" in xml_opts else root_tag
+            root_tag = str(xml_opts[cast("K", "_rootTag")]) if "_rootTag" in xml_opts else root_tag
             root_attributes = (
-                cast(MutableMapping[str, str], xml_opts[cast(K, "_rootAttributes")])
+                cast("MutableMapping[str, str]", xml_opts[cast("K", "_rootAttributes")])
                 if "_rootAttributes" in xml_opts
                 else root_attributes
             )
             self.remove_node_numbering = (
-                bool(xml_opts[cast(K, "_removeNodeNumbering")])
+                bool(xml_opts[cast("K", "_removeNodeNumbering")])
                 if "_removeNodeNumbering" in xml_opts
                 else self.remove_node_numbering
             )
