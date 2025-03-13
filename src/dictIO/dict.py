@@ -90,11 +90,11 @@ class SDict(dict[K, V]):
         base_dict: MutableMapping[K, V] | None = None
 
         if isinstance(arg, Mapping):
-            base_dict = dict(cast(Mapping[K, V], arg))
+            base_dict = dict(cast("Mapping[K, V]", arg))
         elif isinstance(arg, str | os.PathLike):
             source_file = arg
         elif isinstance(arg, Iterable):
-            base_dict = dict(cast(Iterable[tuple[K, V]], arg))  # type: ignore[reportUnnecessaryCast]
+            base_dict = dict(cast("Iterable[tuple[K, V]]", arg))  # type: ignore[reportUnnecessaryCast]
 
         if base_dict:
             super().__init__(base_dict)
@@ -193,9 +193,9 @@ class SDict(dict[K, V]):
         SDict[_K, _V] | SDict[_K, Any | None]
             The created SDict instance.
         """
-        new_dict: SDict[_K, _V] = cast(SDict[_K, _V], cls())
+        new_dict: SDict[_K, _V] = cast("SDict[_K, _V]", cls())
         for key in iterable:
-            new_dict[key] = cast(_V, value)  # cast is safe, as `None` is within the type bounds of V
+            new_dict[key] = cast("_V", value)  # cast is safe, as `None` is within the type bounds of V
         return new_dict
 
     # TODO @CLAROS: Change return type to `Self` (from `typing`module)
@@ -380,10 +380,10 @@ class SDict(dict[K, V]):
                     continue
                 if isinstance(value, MutableSequence):
                     # special case: item is a list, but does NOT contain a nested dict (-> e.g. a vector or matrix)
-                    variables[key] = cast(V, value)
+                    variables[key] = cast("V", value)
                 else:
                     # base case: item is a single value type
-                    value = cast(V, value)
+                    value = cast("V", value)
                     _value = _insert_expression(value=value, s_dict=self)
                     if not _value_contains_circular_reference(key, _value):
                         variables[key] = _value
@@ -542,8 +542,8 @@ class SDict(dict[K, V]):
                 and isinstance(dict_to_merge[key], Mapping)
             ):  # dict
                 self._recursive_merge(  # Recursion
-                    target_dict=cast(MutableMapping[K, V], target_dict[key]),
-                    dict_to_merge=cast(Mapping[K, V], dict_to_merge[key]),
+                    target_dict=cast("MutableMapping[K, V]", target_dict[key]),
+                    dict_to_merge=cast("Mapping[K, V]", dict_to_merge[key]),
                     overwrite=overwrite,
                 )
             else:
@@ -619,7 +619,7 @@ class SDict(dict[K, V]):
                 continue
             break
         # cast is safe, as `str` is within the type bounds of both K and V
-        self[cast(K, placeholder)] = cast(V, placeholder)
+        self[cast("K", placeholder)] = cast("V", placeholder)
         self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
         return
 
@@ -657,10 +657,10 @@ class SDict(dict[K, V]):
         """
         new_dict: SDict[K | _K, V | _V]
         new_dict = cast(
-            SDict[K | _K, V | _V],
+            "SDict[K | _K, V | _V]",
             self.__class__(
                 cast(
-                    Mapping[K, V],
+                    "Mapping[K, V]",
                     super().__or__(other),
                 )
             ),
@@ -668,7 +668,7 @@ class SDict(dict[K, V]):
         # update attributes
         new_dict._post_update(
             cast(
-                Mapping[K | _K, V | _V],
+                "Mapping[K | _K, V | _V]",
                 other,
             )
         )
@@ -711,11 +711,11 @@ class SDict(dict[K, V]):
         """
         new_dict: SDict[K | _K, V | _V]
         new_dict = cast(
-            SDict[K | _K, V | _V],
-            self.__class__(super().__ror__(cast(dict[K, V], other))),
+            "SDict[K | _K, V | _V]",
+            self.__class__(super().__ror__(cast("dict[K, V]", other))),
         )
         # update attributes
-        new_dict._post_update(cast(SDict[K | _K, V | _V], self))
+        new_dict._post_update(cast("SDict[K | _K, V | _V]", self))
         new_dict._clean()
         return new_dict
 
@@ -1002,7 +1002,7 @@ class SDict(dict[K, V]):
                 if block_comment in unique_block_comments_on_this_level:
                     # Found doublette
                     # Remove from current level in data (the dict)
-                    del data[cast(K, _block_comment)]
+                    del data[cast("K", _block_comment)]
                     # ..AND from self.block_comments (the lookup table)
                     del self.block_comments[_id]
                 else:
@@ -1016,7 +1016,7 @@ class SDict(dict[K, V]):
                 if include in unique_includes_on_this_level:
                     # Found doublette
                     # Remove from current level in data (the dict)
-                    del data[cast(K, _include)]
+                    del data[cast("K", _include)]
                     # ..AND from self.includes (the lookup table)
                     del self.includes[_id]
                 else:
@@ -1030,7 +1030,7 @@ class SDict(dict[K, V]):
                 if line_comment in unique_line_comments_on_this_level:
                     # Found doublette
                     # Remove from current level in data (the dict)
-                    del data[cast(K, _line_comment)]
+                    del data[cast("K", _line_comment)]
                     # ..AND from self.line_comments (the lookup table)
                     del self.line_comments[_id]
                 else:
@@ -1076,12 +1076,12 @@ def _insert_expression(value: V, s_dict: SDict[K, V]) -> V:
     if not isinstance(value, str):
         return value
     if not re.search(r"EXPRESSION\d{6}", value):
-        return cast(V, value)
+        return cast("V", value)
     if match_index := re.search(r"\d{6}", value):
         index = int(match_index[0])
         _value = s_dict.expressions[index]["expression"] if index in s_dict.expressions else value
-        return cast(V, _value)
-    return cast(V, value)
+        return cast("V", _value)
+    return cast("V", value)
 
 
 def _value_contains_circular_reference(key: TKey, value: TValue) -> bool:

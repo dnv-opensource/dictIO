@@ -323,21 +323,21 @@ def test_order_keys_of_test_dict(test_dict: SDict[K, V]) -> None:
     # Execute
     test_dict.order_keys()
     # Assert
-    assert str(test_dict[cast(K, "unordered")]) == str(test_dict[cast(K, "ordered")])
+    assert str(test_dict[cast("K", "unordered")]) == str(test_dict[cast("K", "ordered")])
 
 
 def test_reduce_scope_of_test_dict(test_dict: SDict[K, V]) -> None:
     # Prepare
-    scope: list[K] = [cast(K, "scope"), cast(K, "subscope1")]
+    scope: list[K] = [cast("K", "scope"), cast("K", "subscope1")]
     # Execute
     test_dict.reduce_scope(scope)
     # Assert
     dict_out = test_dict
     assert len(dict_out) == 2  # subscope11, subscope12
     # assert dict_out["subscope11"] is not None
-    assert dict_out[cast(K, "subscope11")]["name"] == "subscope11"
-    assert dict_out[cast(K, "subscope12")] is not None
-    assert dict_out[cast(K, "subscope12")]["name"] == "subscope12"
+    assert dict_out[cast("K", "subscope11")]["name"] == "subscope11"
+    assert dict_out[cast("K", "subscope12")] is not None
+    assert dict_out[cast("K", "subscope12")]["name"] == "subscope12"
 
 
 def test_include() -> None:

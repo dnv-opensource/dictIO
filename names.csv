@@ -1,0 +1,26 @@
+Variable,Value
+PackageNameDashed,dictIO
+PackageNameCapitalized,DictParser
+GitHubOrganisation,dnv-opensource
+SubPackage1Name,
+Module1Name,
+SubPackage2Name,
+Module2Name,
+Author1Name,Frank Lumpitzsch
+Author1Email,frank.lumpitzsch@dnv.com
+Author1LinkedIn,https://www.linkedin.com/in/frank-lumpitzsch-23013196/
+Author2Name,Claas Rostock
+Author2Email,claas.rostock@dnv.com
+Author2LinkedIn,https://www.linkedin.com/in/claasrostock/?locale=en_US
+Author3Name,Seunghyeon Yoo
+Author3Email,seunghyeon.yoo@dnv.com
+Author3LinkedIn,https://www.linkedin.com/in/seunghyeon-yoo-3625173b/
+Maintainer1Name,Claas Rostock
+Maintainer1Email,claas.rostock@dnv.com
+Maintainer1LinkedIn,https://www.linkedin.com/in/claasrostock/?locale=en_US
+Maintainer2Name,
+Maintainer2Email,
+Maintainer2LinkedIn,
+Keyword1,dictIO
+Keyword2,dictParser
+Keyword3,dict

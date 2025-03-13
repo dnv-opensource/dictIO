@@ -280,15 +280,15 @@ class Parser:
         if isinstance(arg, MutableMapping):  # Dict
             for key in list(arg.keys()):  # work on a copy of keys
                 if isinstance(arg[key], MutableMapping | MutableSequence):
-                    self.parse_values(cast(MutableMapping[K, V] | MutableSequence[V], arg[key]))
+                    self.parse_values(cast("MutableMapping[K, V] | MutableSequence[V]", arg[key]))
                 else:
-                    arg[key] = cast(V, self.parse_value(arg[key]))
+                    arg[key] = cast("V", self.parse_value(arg[key]))
         else:  # List
             for index in range(len(arg)):
                 if isinstance(arg[index], MutableMapping | MutableSequence):
-                    self.parse_values(cast(MutableMapping[K, V] | MutableSequence[V], arg[index]))
+                    self.parse_values(cast("MutableMapping[K, V] | MutableSequence[V]", arg[index]))
                 else:
-                    arg[index] = cast(V, self.parse_value(arg[index]))
+                    arg[index] = cast("V", self.parse_value(arg[index]))
         return
 
     def parse_key(
@@ -371,14 +371,14 @@ class Parser:
 
         """
         if isinstance(arg, MutableMapping):  # Dict
-            arg = cast(M, arg)
+            arg = cast("M", arg)
             for key in list(arg.keys()):  # work on a copy of keys
                 if isinstance(arg[key], MutableMapping | MutableSequence):  # dict or list
                     arg[key] = Parser.remove_quotes_from_strings(arg[key])  # (recursion)
                 elif isinstance(arg[key], str):  # str
                     arg[key] = Parser.remove_quotes_from_string(arg[key])
         else:  # List
-            arg = cast(S, arg)
+            arg = cast("S", arg)
             for index in range(len(arg)):
                 if isinstance(arg[index], MutableMapping | MutableSequence):  # dict or list
                     arg[index] = Parser.remove_quotes_from_strings(arg[index])  # (recursion)
@@ -960,7 +960,7 @@ class NativeParser(Parser):
                 while re.match("^.*COMMENT.*$", str(tokens[token_index - offset][1])):
                     offset += 1
                 # key (name) of the data struct:
-                key = cast(K, self.parse_key(tokens[token_index - offset][1]))
+                key = cast("K", self.parse_key(tokens[token_index - offset][1]))
 
                 # Closing bracket has by definition same level as opening bracket.
                 # (Note: the tokens BETWEEN the brackets are considered one level 'deeper';
@@ -1025,7 +1025,7 @@ class NativeParser(Parser):
                     if len(data_struct_tokens) < 3:  # noqa: PLR2004
                         # is empty (contains only opening and closing bracket)
                         # update parsed_dict with just the empty list
-                        parsed_dict[key] = cast(V, [])
+                        parsed_dict[key] = cast("V", [])
                     else:
                         # has content
                         # parse the nested list
@@ -1035,7 +1035,7 @@ class NativeParser(Parser):
                             level=level + 1,
                         )
                         # update parsed_dict with the nested list
-                        parsed_dict[key] = cast(V, nested_list)
+                        parsed_dict[key] = cast("V", nested_list)
 
                 #  dict:
                 elif data_struct_tokens[0][1] == "{":
@@ -1046,7 +1046,7 @@ class NativeParser(Parser):
                         level=level + 1,
                     )
                     # update parsed_dict with the nested dict
-                    parsed_dict[key] = cast(V, nested_dict)
+                    parsed_dict[key] = cast("V", nested_dict)
 
                 # All done: Identified data struct is parsed, translated into its corresponding type,
                 # and local parsed_dict is updated.
@@ -1108,9 +1108,9 @@ class NativeParser(Parser):
                             f"more tokens in key-value pair than expected: {key_value_pair_tokens!s}"
                         )
                     # read the key (name) (first token, by convention)
-                    key = cast(K, self.parse_key(key_value_pair_tokens[0][1]))
+                    key = cast("K", self.parse_key(key_value_pair_tokens[0][1]))
                     # read the value (second token, by convention)
-                    value = cast(V, self.parse_value(key_value_pair_tokens[1][1]))
+                    value = cast("V", self.parse_value(key_value_pair_tokens[1][1]))
                     # update parsed_dict with the parsed key value pair
                     # Note: Following update would be greedy, if parsed_dict would be declared as global variable.
                     # This exactly is why parsed_dict is declared as local variable in _parse_tokenized_dict().
@@ -1127,7 +1127,7 @@ class NativeParser(Parser):
             elif re.match("^.*COMMENT.*$", str(tokens[token_index][1])) or re.match(
                 "^.*INCLUDE.*$", str(tokens[token_index][1])
             ):
-                parsed_dict[cast(K, tokens[token_index][1])] = cast(V, tokens[token_index][1])
+                parsed_dict[cast("K", tokens[token_index][1])] = cast("V", tokens[token_index][1])
 
             else:
                 pass
@@ -1229,7 +1229,7 @@ class NativeParser(Parser):
                     if len(temp_tokens) < 3:  # noqa: PLR2004
                         # list is empty (contains only the opening and the closing bracket)
                         # -> add an empty list to parsed_list
-                        parsed_list.append(cast(V, []))
+                        parsed_list.append(cast("V", []))
                     else:  # has content
                         # parse the nested list
                         nested_list = self._parse_tokenized_list(  # (recursion)
@@ -1238,7 +1238,7 @@ class NativeParser(Parser):
                             level=level + 1,
                         )
                         # add nested list to parsed_list
-                        parsed_list.append(cast(V, nested_list))
+                        parsed_list.append(cast("V", nested_list))
                         #  dict:
                 elif temp_tokens[0][1] == "{":
                     # parse the nested dict
@@ -1248,7 +1248,7 @@ class NativeParser(Parser):
                         level=level + 1,
                     )
                     # add nested dict to parsed_list
-                    parsed_list.append(cast(V, nested_dict))
+                    parsed_list.append(cast("V", nested_dict))
 
                 # All done: Identified data struct is parsed, translated into its corresponding type,
                 # and local parsed_list is updated.
@@ -1259,7 +1259,7 @@ class NativeParser(Parser):
 
             # Single value type
             elif tokens[token_index][1] not in ["(", ")", ";"]:
-                value = cast(V, self.parse_value(tokens[token_index][1]))
+                value = cast("V", self.parse_value(tokens[token_index][1]))
                 parsed_list.append(value)
 
             # -else = ';' or ')'
@@ -1300,7 +1300,7 @@ class NativeParser(Parser):
             # The entry from dict.string_literals is parsed once again,
             # so that entries representing single value native types
             # (such as bool ,None, int, float) are transformed to its native type, accordingly.
-            value = cast(V, self.parse_value(string_literal))
+            value = cast("V", self.parse_value(string_literal))
 
             # Replace all occurences of placeholder within the dictionary with the original string literal.
             # Note: As find_global_key() is non-greedy and returns the key of
@@ -1326,9 +1326,9 @@ class NativeParser(Parser):
         _includes
         """
         if "_variables" in s_dict:
-            del s_dict[cast(K, "_variables")]
+            del s_dict[cast("K", "_variables")]
         if "_includes" in s_dict:
-            del s_dict[cast(K, "_includes")]
+            del s_dict[cast("K", "_includes")]
 
 
 class FoamParser(NativeParser):
@@ -1442,7 +1442,7 @@ class JsonParser(Parser):
         include_placeholder_keys: dict[K, V] = {}
         for key in keys:
             if isinstance(key, str) and re.search(r"^\s*#\s*include", key):
-                include_file_name = str(s_dict[cast(K, key)])
+                include_file_name = str(s_dict[cast("K", key)])
                 include_file_name = self.remove_quotes_from_string(include_file_name)
 
                 include_file_path = Path.joinpath(s_dict.path, include_file_name)
@@ -1453,8 +1453,8 @@ class JsonParser(Parser):
                 ii = self.counter()
                 s_dict.includes.update({ii: (include_directive, include_file_name, include_file_path)})
 
-                include_placeholder_keys[cast(K, f"INCLUDE{ii:06d}")] = cast(V, f"INCLUDE{ii:06d}")
-                del s_dict[cast(K, key)]
+                include_placeholder_keys[cast("K", f"INCLUDE{ii:06d}")] = cast("V", f"INCLUDE{ii:06d}")
+                del s_dict[cast("K", key)]
 
         data_temp = deepcopy(s_dict)
         s_dict.clear()
@@ -1577,7 +1577,7 @@ class JsonParser(Parser):
                 else:
                     typed_value = self.parse_value(arg[key])
                     if isinstance(typed_value, str):
-                        arg[key] = cast(V, self._extract_expression(parsed_dict, string=arg[key]))
+                        arg[key] = cast("V", self._extract_expression(parsed_dict, string=arg[key]))
         else:  # List
             for index, _ in enumerate(arg):
                 if isinstance(arg[index], MutableMapping | MutableSequence):
@@ -1585,7 +1585,7 @@ class JsonParser(Parser):
                 else:
                     typed_value = self.parse_value(arg[index])
                     if isinstance(typed_value, str):
-                        arg[index] = cast(V, self._extract_expression(parsed_dict, string=arg[index]))
+                        arg[index] = cast("V", self._extract_expression(parsed_dict, string=arg[index]))
         return
 
 
@@ -1643,7 +1643,7 @@ class XmlParser(Parser):
         # Create XML parser
         parser = ETCompatXMLParser()
         # Read root element from XML string
-        root_element: LxmlElement = fromstring(string.encode("utf-8"), parser)  # noqa: S320
+        root_element: LxmlElement = fromstring(string.encode("utf-8"), parser)
         # Read root tag from XML string
         # there is a problem with .tag :
         # fromstring does not completely push all attributes into .attrib
@@ -1677,18 +1677,18 @@ class XmlParser(Parser):
         # If a `None` key existed, it had been transformed into its string equivalent 'None',
         # i.e. a `None` entry will now be in the form {'None': 'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd'}
         # We can hence safely cast to `dict[str, str]`.
-        namespaces: dict[str, str] = cast(dict[str, str], _namespaces)
+        namespaces: dict[str, str] = cast("dict[str, str]", _namespaces)
 
         # +++PARSE DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         # Transform XML root node into dict
-        parsed_nodes = cast(dict[K, V], self._parse_nodes(root_element=root_element, namespaces=namespaces))
+        parsed_nodes = cast("dict[K, V]", self._parse_nodes(root_element=root_element, namespaces=namespaces))
         parsed_dict.update(parsed_nodes)
 
         # Document XML options inside the dict
         try:
-            parsed_dict[cast(K, "_xmlOpts")] = cast(
-                V,
+            parsed_dict[cast("K", "_xmlOpts")] = cast(
+                "V",
                 {
                     "_nameSpaces": namespaces,
                     "_rootTag": root_tag,
