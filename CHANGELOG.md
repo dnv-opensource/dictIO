@@ -5,7 +5,9 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
--/-
+### Changed
+* Do not run code quality checks in nightly builds
+* Included uv.lock file in version control
 
 
 ## [0.4.1] - 2025-01-18
