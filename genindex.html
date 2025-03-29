@@ -1,0 +1,980 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 --><title>Index - dictIO 0.4.1</title>
+<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">dictIO 0.4.1</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/dictIO.svg" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">dictIO 0.4.1</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">dictIO</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dictIO.html">dictIO package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of dictIO package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/dictIO.utils.html">dictIO.utils</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of dictIO.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="_autosummary/dictIO.utils.counter.html">dictIO.utils.counter</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of dictIO.utils.counter</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/dictIO.utils.counter.BorgCounter.html">BorgCounter</a></li>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/dictIO.utils.counter.DejaVue.html">DejaVue</a></li>
+<li class="toctree-l5"><a class="reference internal" href="_autosummary/dictIO.utils.counter.Indenter.html">Indenter</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.utils.dict.html">dictIO.utils.dict</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.utils.logging.html">dictIO.utils.logging</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.utils.path.html">dictIO.utils.path</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.utils.strings.html">dictIO.utils.strings</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/dictIO.dict.html">dictIO.dict</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of dictIO.dict</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.dict.SDict.html">SDict</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/dictIO.dict_parser.html">dictIO.dict_parser</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of dictIO.dict_parser</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.dict_parser.DictParser.html">DictParser</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/dictIO.dict_reader.html">dictIO.dict_reader</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of dictIO.dict_reader</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.dict_reader.DictReader.html">DictReader</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/dictIO.dict_writer.html">dictIO.dict_writer</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of dictIO.dict_writer</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.dict_writer.DictWriter.html">DictWriter</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/dictIO.formatter.html">dictIO.formatter</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of dictIO.formatter</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.formatter.FoamFormatter.html">FoamFormatter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.formatter.Formatter.html">Formatter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.formatter.JsonFormatter.html">JsonFormatter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.formatter.NativeFormatter.html">NativeFormatter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.formatter.XmlFormatter.html">XmlFormatter</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/dictIO.parser.html">dictIO.parser</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of dictIO.parser</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.parser.FoamParser.html">FoamParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.parser.JsonParser.html">JsonParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.parser.NativeParser.html">NativeParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.parser.Parser.html">Parser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.parser.XmlParser.html">XmlParser</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/dictIO.types.html">dictIO.types</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/dictIO.cpp_dict.html">dictIO.cpp_dict</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of dictIO.cpp_dict</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/dictIO.cpp_dict.CppDict.html">CppDict</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="cli.html">CLI Documentation</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of CLI Documentation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.dict_parser.html">dictParser - CLI interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="fileFormat.html">File Format</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of File Format</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="fileFormat.sDict.html">dict</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="STYLEGUIDE.html">Style Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">LICENSE</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          
+<section class="genindex-section">
+  <h1 id="index">Index</h1>
+  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#J"><strong>J</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a> | <a href="#X"><strong>X</strong></a></div>
+</section>
+<section id="_" class="genindex-section">
+  <h2>_</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.cpp_dict.CppDict.html#dictIO.cpp_dict.CppDict.__init__">__init__() (dictIO.cpp_dict.CppDict method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.__init__">(dictIO.dict.SDict method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.dict_parser.DictParser.html#dictIO.dict_parser.DictParser.__init__">(dictIO.dict_parser.DictParser method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.dict_reader.DictReader.html#dictIO.dict_reader.DictReader.__init__">(dictIO.dict_reader.DictReader method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.dict_writer.DictWriter.html#dictIO.dict_writer.DictWriter.__init__">(dictIO.dict_writer.DictWriter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.FoamFormatter.html#dictIO.formatter.FoamFormatter.__init__">(dictIO.formatter.FoamFormatter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.__init__">(dictIO.formatter.Formatter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.JsonFormatter.html#dictIO.formatter.JsonFormatter.__init__">(dictIO.formatter.JsonFormatter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.__init__">(dictIO.formatter.NativeFormatter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.XmlFormatter.html#dictIO.formatter.XmlFormatter.__init__">(dictIO.formatter.XmlFormatter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.parser.FoamParser.html#dictIO.parser.FoamParser.__init__">(dictIO.parser.FoamParser method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.parser.JsonParser.html#dictIO.parser.JsonParser.__init__">(dictIO.parser.JsonParser method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.parser.NativeParser.html#dictIO.parser.NativeParser.__init__">(dictIO.parser.NativeParser method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.parser.Parser.html#dictIO.parser.Parser.__init__">(dictIO.parser.Parser method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.parser.XmlParser.html#dictIO.parser.XmlParser.__init__">(dictIO.parser.XmlParser method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.utils.counter.BorgCounter.html#dictIO.utils.counter.BorgCounter.__init__">(dictIO.utils.counter.BorgCounter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.utils.counter.DejaVue.html#dictIO.utils.counter.DejaVue.__init__">(dictIO.utils.counter.DejaVue method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.utils.counter.Indenter.html#dictIO.utils.counter.Indenter.__init__">(dictIO.utils.counter.Indenter method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="A" class="genindex-section">
+  <h2>A</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.add_double_quotes">add_double_quotes() (dictIO.formatter.Formatter method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.add_single_quotes">add_single_quotes() (dictIO.formatter.Formatter method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="B" class="genindex-section">
+  <h2>B</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.utils.counter.BorgCounter.html#dictIO.utils.counter.BorgCounter.Borg">Borg (dictIO.utils.counter.BorgCounter attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.utils.counter.BorgCounter.html#dictIO.utils.counter.BorgCounter">BorgCounter (class in dictIO.utils.counter)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="C" class="genindex-section">
+  <h2>C</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.utils.logging.html#dictIO.utils.logging.configure_logging">configure_logging() (in module dictIO.utils.logging)</a>
+</li>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.copy">copy() (dictIO.dict.SDict method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.cpp_dict.CppDict.html#dictIO.cpp_dict.CppDict">CppDict (class in dictIO.cpp_dict)</a>
+</li>
+        <li><a href="_autosummary/dictIO.dict_writer.html#dictIO.dict_writer.create_target_file_name">create_target_file_name() (in module dictIO.dict_writer)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="D" class="genindex-section">
+  <h2>D</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.data">data (dictIO.dict.SDict property)</a>
+</li>
+        <li><a href="_autosummary/dictIO.utils.counter.Indenter.html#dictIO.utils.counter.Indenter.decr">decr() (dictIO.utils.counter.Indenter static method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.utils.counter.DejaVue.html#dictIO.utils.counter.DejaVue">DejaVue (class in dictIO.utils.counter)</a>
+</li>
+        <li>
+    dictIO.cpp_dict
+
+        <ul>
+          <li><a href="_autosummary/dictIO.cpp_dict.html#module-dictIO.cpp_dict">module</a>
+</li>
+        </ul></li>
+        <li>
+    dictIO.dict
+
+        <ul>
+          <li><a href="_autosummary/dictIO.dict.html#module-dictIO.dict">module</a>
+</li>
+        </ul></li>
+        <li>
+    dictIO.dict_parser
+
+        <ul>
+          <li><a href="_autosummary/dictIO.dict_parser.html#module-dictIO.dict_parser">module</a>
+</li>
+        </ul></li>
+        <li>
+    dictIO.dict_reader
+
+        <ul>
+          <li><a href="_autosummary/dictIO.dict_reader.html#module-dictIO.dict_reader">module</a>
+</li>
+        </ul></li>
+        <li>
+    dictIO.dict_writer
+
+        <ul>
+          <li><a href="_autosummary/dictIO.dict_writer.html#module-dictIO.dict_writer">module</a>
+</li>
+        </ul></li>
+        <li>
+    dictIO.formatter
+
+        <ul>
+          <li><a href="_autosummary/dictIO.formatter.html#module-dictIO.formatter">module</a>
+</li>
+        </ul></li>
+        <li>
+    dictIO.parser
+
+        <ul>
+          <li><a href="_autosummary/dictIO.parser.html#module-dictIO.parser">module</a>
+</li>
+        </ul></li>
+        <li>
+    dictIO.types
+
+        <ul>
+          <li><a href="_autosummary/dictIO.types.html#module-dictIO.types">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    dictIO.utils
+
+        <ul>
+          <li><a href="_autosummary/dictIO.utils.html#module-dictIO.utils">module</a>
+</li>
+        </ul></li>
+        <li>
+    dictIO.utils.counter
+
+        <ul>
+          <li><a href="_autosummary/dictIO.utils.counter.html#module-dictIO.utils.counter">module</a>
+</li>
+        </ul></li>
+        <li>
+    dictIO.utils.dict
+
+        <ul>
+          <li><a href="_autosummary/dictIO.utils.dict.html#module-dictIO.utils.dict">module</a>
+</li>
+        </ul></li>
+        <li>
+    dictIO.utils.logging
+
+        <ul>
+          <li><a href="_autosummary/dictIO.utils.logging.html#module-dictIO.utils.logging">module</a>
+</li>
+        </ul></li>
+        <li>
+    dictIO.utils.path
+
+        <ul>
+          <li><a href="_autosummary/dictIO.utils.path.html#module-dictIO.utils.path">module</a>
+</li>
+        </ul></li>
+        <li>
+    dictIO.utils.strings
+
+        <ul>
+          <li><a href="_autosummary/dictIO.utils.strings.html#module-dictIO.utils.strings">module</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/dictIO.dict_parser.DictParser.html#dictIO.dict_parser.DictParser">DictParser (class in dictIO.dict_parser)</a>
+</li>
+        <li><a href="_autosummary/dictIO.dict_reader.DictReader.html#dictIO.dict_reader.DictReader">DictReader (class in dictIO.dict_reader)</a>
+</li>
+        <li><a href="_autosummary/dictIO.dict_writer.DictWriter.html#dictIO.dict_writer.DictWriter">DictWriter (class in dictIO.dict_writer)</a>
+</li>
+        <li><a href="_autosummary/dictIO.utils.counter.DejaVue.html#dictIO.utils.counter.DejaVue.djv">djv (dictIO.utils.counter.DejaVue attribute)</a>
+</li>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.dump">dump() (dictIO.dict.SDict method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.find_global_key">find_global_key() (dictIO.dict.SDict method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.utils.dict.html#dictIO.utils.dict.find_global_key">(in module dictIO.utils.dict)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/dictIO.formatter.FoamFormatter.html#dictIO.formatter.FoamFormatter">FoamFormatter (class in dictIO.formatter)</a>
+</li>
+        <li><a href="_autosummary/dictIO.parser.FoamParser.html#dictIO.parser.FoamParser">FoamParser (class in dictIO.parser)</a>
+</li>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_bool">format_bool() (dictIO.formatter.Formatter method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.format_bool">(dictIO.formatter.NativeFormatter method)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.format_dict">format_dict() (dictIO.formatter.NativeFormatter method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.formatter.FoamFormatter.html#dictIO.formatter.FoamFormatter.format_empty_string">format_empty_string() (dictIO.formatter.FoamFormatter method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_empty_string">(dictIO.formatter.Formatter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.format_empty_string">(dictIO.formatter.NativeFormatter method)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/dictIO.formatter.FoamFormatter.html#dictIO.formatter.FoamFormatter.format_expression_string">format_expression_string() (dictIO.formatter.FoamFormatter method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_expression_string">(dictIO.formatter.Formatter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.format_expression_string">(dictIO.formatter.NativeFormatter method)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_float">format_float() (dictIO.formatter.Formatter method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_int">format_int() (dictIO.formatter.Formatter method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_key">format_key() (dictIO.formatter.Formatter method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.formatter.FoamFormatter.html#dictIO.formatter.FoamFormatter.format_multi_word_string">format_multi_word_string() (dictIO.formatter.FoamFormatter method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_multi_word_string">(dictIO.formatter.Formatter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.format_multi_word_string">(dictIO.formatter.NativeFormatter method)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_none">format_none() (dictIO.formatter.Formatter method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.format_none">(dictIO.formatter.NativeFormatter method)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_reference_string">format_reference_string() (dictIO.formatter.Formatter method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_single_word_string">format_single_word_string() (dictIO.formatter.Formatter method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_string">format_string() (dictIO.formatter.Formatter method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.formatter.FoamFormatter.html#dictIO.formatter.FoamFormatter.format_string_with_nested_string">format_string_with_nested_string() (dictIO.formatter.FoamFormatter method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_string_with_nested_string">(dictIO.formatter.Formatter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.format_string_with_nested_string">(dictIO.formatter.NativeFormatter method)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_value">format_value() (dictIO.formatter.Formatter method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.format_values">format_values() (dictIO.formatter.Formatter method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter">Formatter (class in dictIO.formatter)</a>
+</li>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.fromkeys">fromkeys() (dictIO.dict.SDict class method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="G" class="genindex-section">
+  <h2>G</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.get_formatter">get_formatter() (dictIO.formatter.Formatter class method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.parser.Parser.html#dictIO.parser.Parser.get_parser">get_parser() (dictIO.parser.Parser class method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.global_key_exists">global_key_exists() (dictIO.dict.SDict method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.utils.dict.html#dictIO.utils.dict.global_key_exists">(in module dictIO.utils.dict)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="H" class="genindex-section">
+  <h2>H</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.utils.path.html#dictIO.utils.path.highest_common_root_folder">highest_common_root_folder() (in module dictIO.utils.path)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.include">include() (dictIO.dict.SDict method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.utils.counter.Indenter.html#dictIO.utils.counter.Indenter.incr">incr() (dictIO.utils.counter.Indenter static method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.utils.counter.Indenter.html#dictIO.utils.counter.Indenter.Ind">Ind (dictIO.utils.counter.Indenter attribute)</a>
+</li>
+        <li><a href="_autosummary/dictIO.utils.counter.Indenter.html#dictIO.utils.counter.Indenter">Indenter (class in dictIO.utils.counter)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.insert_block_comments">insert_block_comments() (dictIO.formatter.NativeFormatter method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.formatter.JsonFormatter.html#dictIO.formatter.JsonFormatter.insert_includes">insert_includes() (dictIO.formatter.JsonFormatter method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.insert_includes">(dictIO.formatter.NativeFormatter method)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.insert_line_comments">insert_line_comments() (dictIO.formatter.NativeFormatter method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="J" class="genindex-section">
+  <h2>J</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.formatter.JsonFormatter.html#dictIO.formatter.JsonFormatter">JsonFormatter (class in dictIO.formatter)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.parser.JsonParser.html#dictIO.parser.JsonParser">JsonParser (class in dictIO.parser)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.load">load() (dictIO.dict.SDict method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="M" class="genindex-section">
+  <h2>M</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.formatter.FoamFormatter.html#dictIO.formatter.FoamFormatter.make_default_block_comment">make_default_block_comment() (dictIO.formatter.FoamFormatter method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.make_default_block_comment">(dictIO.formatter.NativeFormatter method)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.merge">merge() (dictIO.dict.SDict method)</a>
+</li>
+        <li>
+    module
+
+        <ul>
+          <li><a href="_autosummary/dictIO.cpp_dict.html#module-dictIO.cpp_dict">dictIO.cpp_dict</a>
+</li>
+          <li><a href="_autosummary/dictIO.dict.html#module-dictIO.dict">dictIO.dict</a>
+</li>
+          <li><a href="_autosummary/dictIO.dict_parser.html#module-dictIO.dict_parser">dictIO.dict_parser</a>
+</li>
+          <li><a href="_autosummary/dictIO.dict_reader.html#module-dictIO.dict_reader">dictIO.dict_reader</a>
+</li>
+          <li><a href="_autosummary/dictIO.dict_writer.html#module-dictIO.dict_writer">dictIO.dict_writer</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.html#module-dictIO.formatter">dictIO.formatter</a>
+</li>
+          <li><a href="_autosummary/dictIO.parser.html#module-dictIO.parser">dictIO.parser</a>
+</li>
+          <li><a href="_autosummary/dictIO.types.html#module-dictIO.types">dictIO.types</a>
+</li>
+          <li><a href="_autosummary/dictIO.utils.html#module-dictIO.utils">dictIO.utils</a>
+</li>
+          <li><a href="_autosummary/dictIO.utils.counter.html#module-dictIO.utils.counter">dictIO.utils.counter</a>
+</li>
+          <li><a href="_autosummary/dictIO.utils.dict.html#module-dictIO.utils.dict">dictIO.utils.dict</a>
+</li>
+          <li><a href="_autosummary/dictIO.utils.logging.html#module-dictIO.utils.logging">dictIO.utils.logging</a>
+</li>
+          <li><a href="_autosummary/dictIO.utils.path.html#module-dictIO.utils.path">dictIO.utils.path</a>
+</li>
+          <li><a href="_autosummary/dictIO.utils.strings.html#module-dictIO.utils.strings">dictIO.utils.strings</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="N" class="genindex-section">
+  <h2>N</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.name">name (dictIO.dict.SDict property)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter">NativeFormatter (class in dictIO.formatter)</a>
+</li>
+        <li><a href="_autosummary/dictIO.parser.NativeParser.html#dictIO.parser.NativeParser">NativeParser (class in dictIO.parser)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.order_keys">order_keys() (dictIO.dict.SDict method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.utils.dict.html#dictIO.utils.dict.order_keys">(in module dictIO.utils.dict)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict_parser.DictParser.html#dictIO.dict_parser.DictParser.parse">parse() (dictIO.dict_parser.DictParser static method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.parser.Parser.html#dictIO.parser.Parser.parse_file">parse_file() (dictIO.parser.Parser method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.parser.Parser.html#dictIO.parser.Parser.parse_key">parse_key() (dictIO.parser.Parser method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.parser.FoamParser.html#dictIO.parser.FoamParser.parse_string">parse_string() (dictIO.parser.FoamParser method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.parser.JsonParser.html#dictIO.parser.JsonParser.parse_string">(dictIO.parser.JsonParser method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.parser.NativeParser.html#dictIO.parser.NativeParser.parse_string">(dictIO.parser.NativeParser method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.parser.Parser.html#dictIO.parser.Parser.parse_string">(dictIO.parser.Parser method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.parser.XmlParser.html#dictIO.parser.XmlParser.parse_string">(dictIO.parser.XmlParser method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.parser.Parser.html#dictIO.parser.Parser.parse_value">parse_value() (dictIO.parser.Parser method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.parser.Parser.html#dictIO.parser.Parser.parse_values">parse_values() (dictIO.parser.Parser method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.parser.Parser.html#dictIO.parser.Parser">Parser (class in dictIO.parser)</a>
+</li>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.path">path (dictIO.dict.SDict property)</a>
+</li>
+        <li><a href="_autosummary/dictIO.formatter.XmlFormatter.html#dictIO.formatter.XmlFormatter.populate_into_element">populate_into_element() (dictIO.formatter.XmlFormatter method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict_reader.DictReader.html#dictIO.dict_reader.DictReader.read">read() (dictIO.dict_reader.DictReader static method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.reduce_scope">reduce_scope() (dictIO.dict.SDict method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.utils.path.html#dictIO.utils.path.relative_path">relative_path() (in module dictIO.utils.path)</a>
+</li>
+        <li><a href="_autosummary/dictIO.utils.strings.html#dictIO.utils.strings.remove_quotes">remove_quotes() (in module dictIO.utils.strings)</a>
+</li>
+        <li><a href="_autosummary/dictIO.parser.Parser.html#dictIO.parser.Parser.remove_quotes_from_string">remove_quotes_from_string() (dictIO.parser.Parser static method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.parser.Parser.html#dictIO.parser.Parser.remove_quotes_from_strings">remove_quotes_from_strings() (dictIO.parser.Parser static method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.remove_trailing_spaces">remove_trailing_spaces() (dictIO.formatter.NativeFormatter method)</a>
+</li>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.reset">reset() (dictIO.dict.SDict method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.utils.counter.BorgCounter.html#dictIO.utils.counter.BorgCounter.reset">(dictIO.utils.counter.BorgCounter static method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.utils.counter.DejaVue.html#dictIO.utils.counter.DejaVue.reset">(dictIO.utils.counter.DejaVue method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.utils.counter.Indenter.html#dictIO.utils.counter.Indenter.reset">(dictIO.utils.counter.Indenter static method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict">SDict (class in dictIO.dict)</a>
+</li>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.set_global_key">set_global_key() (dictIO.dict.SDict method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.utils.dict.html#dictIO.utils.dict.set_global_key">(in module dictIO.utils.dict)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.source_file">source_file (dictIO.dict.SDict property)</a>
+</li>
+        <li><a href="_autosummary/dictIO.utils.strings.html#dictIO.utils.strings.string_diff">string_diff() (in module dictIO.utils.strings)</a>
+</li>
+        <li><a href="_autosummary/dictIO.utils.counter.DejaVue.html#dictIO.utils.counter.DejaVue.strings">strings (dictIO.utils.counter.DejaVue property)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="T" class="genindex-section">
+  <h2>T</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.formatter.FoamFormatter.html#dictIO.formatter.FoamFormatter.to_string">to_string() (dictIO.formatter.FoamFormatter method)</a>
+
+        <ul>
+          <li><a href="_autosummary/dictIO.formatter.Formatter.html#dictIO.formatter.Formatter.to_string">(dictIO.formatter.Formatter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.JsonFormatter.html#dictIO.formatter.JsonFormatter.to_string">(dictIO.formatter.JsonFormatter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.NativeFormatter.html#dictIO.formatter.NativeFormatter.to_string">(dictIO.formatter.NativeFormatter method)</a>
+</li>
+          <li><a href="_autosummary/dictIO.formatter.XmlFormatter.html#dictIO.formatter.XmlFormatter.to_string">(dictIO.formatter.XmlFormatter method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="U" class="genindex-section">
+  <h2>U</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.update">update() (dictIO.dict.SDict method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="V" class="genindex-section">
+  <h2>V</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict.SDict.html#dictIO.dict.SDict.variables">variables (dictIO.dict.SDict property)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="W" class="genindex-section">
+  <h2>W</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.dict_writer.DictWriter.html#dictIO.dict_writer.DictWriter.write">write() (dictIO.dict_writer.DictWriter static method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="X" class="genindex-section">
+  <h2>X</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.formatter.XmlFormatter.html#dictIO.formatter.XmlFormatter">XmlFormatter (class in dictIO.formatter)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/dictIO.parser.XmlParser.html#dictIO.parser.XmlParser">XmlParser (class in dictIO.parser)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, DNV AS. All rights reserved.
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=c87aa342"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    </body>
+</html>

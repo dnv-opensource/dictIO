@@ -1,0 +1,25 @@
+DictReader
+==========
+
+.. currentmodule:: dictIO.dict_reader
+
+.. autoclass:: DictReader
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~DictReader.__init__
+      ~DictReader.read
+   
+   
+
+
+   
+   
+   

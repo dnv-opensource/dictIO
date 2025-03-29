@@ -1,0 +1,32 @@
+NativeParser
+============
+
+.. currentmodule:: dictIO.parser
+
+.. autoclass:: NativeParser
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~NativeParser.__init__
+      ~NativeParser.get_parser
+      ~NativeParser.parse_file
+      ~NativeParser.parse_key
+      ~NativeParser.parse_string
+      ~NativeParser.parse_value
+      ~NativeParser.parse_values
+      ~NativeParser.remove_quotes_from_string
+      ~NativeParser.remove_quotes_from_strings
+   
+   
+
+
+   
+   
+   

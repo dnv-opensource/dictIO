@@ -1,0 +1,17 @@
+﻿dictIO.dict\_parser
+===================
+
+.. automodule:: dictIO.dict_parser
+   :members:
+   :exclude-members: DictParser,
+   
+
+
+   
+   .. rubric:: Classes
+   .. autosummary::
+      :toctree:
+      :template: custom-class.rst
+   
+      DictParser
+   
