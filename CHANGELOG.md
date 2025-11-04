@@ -6,14 +6,6 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
-* .pre-commit-config.yaml : updated id of ruff to ruff-check
-
-### Dependencies
-* GitHub workflow _test_future.yml : updated Python specifier in comment to 3.15
-* GitHub workflow _test_future.yml : updated Python specifier in workflow name to py315
-* .pre-commit-config.yaml : updated rev of ruff-pre-commit to v0.14.3
-
-### Dependencies
 * Updated to ruff>=0.14.3  (from ruff>=0.9.2)
 * Updated to pyright>=1.1.407  (from pyright>=1.1.392)
 * Updated to sourcery>=1.40  (from sourcery>=1.31)
@@ -37,14 +29,19 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
 * Do not run code quality checks in nightly builds
 * Included uv.lock file in version control
-* pyproject.toml : added required-environments to uv.tools (windows, linux, macos)
-* pyproject.toml : updated supported Python versions to 3.11, 3.12, 3.13, 3.14
-* GitHub workflow _test.yml : updated Python versions in test matrix to 3.11, 3.12, 3.13, 3.14
-* GitHub workflow _test_future.yml : updated Python version in test_future to 3.15.0-alpha - 3.15.0
-* GitHub workflow _test_future.yml : updated name of test_future job to 'test315'
-* .pre-commit-config.yaml : updated rev of pre-commit-hooks to v6.0.0
-* .pre-commit-config.yaml : updated rev of ruff-pre-commit to v0.14.3
-* demos\folder_for_demos.py : removed ruff rule exception
+* pyproject.toml:
+  * added required-environments to uv.tools (windows, linux, macos)
+  * updated supported Python versions to 3.11, 3.12, 3.13, 3.14
+* GitHub workflow _test.yml:
+  * updated Python versions in test matrix to 3.11, 3.12, 3.13, 3.14
+* GitHub workflow _test_future.yml:
+  * updated Python version in test_future to 3.15.0-alpha - 3.15.0
+* .pre-commit-config.yaml:
+  * updated rev of pre-commit-hooks to v6.0.0
+  * updated rev of ruff-pre-commit to v0.14.3
+  * updated id of ruff to ruff-check
+* demos\folder_for_demos.py:
+  * removed ruff rule exception
 
 ### Solved
 * Resolved issues raised by `ruff` 0.14.3
