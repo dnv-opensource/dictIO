@@ -1408,7 +1408,7 @@ class JsonParser(Parser):
         SDict[K, V]
             the parsed dict
         """
-        import json
+        import json  # noqa: PLC0415
 
         # +++CALL BASE CLASS IMPLEMENTATION+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         parsed_dict = super().parse_string(
@@ -1436,7 +1436,7 @@ class JsonParser(Parser):
         self,
         s_dict: SDict[K, V],
     ) -> None:
-        from copy import deepcopy
+        from copy import deepcopy  # noqa: PLC0415
 
         keys: list[K] = list(s_dict.keys())
         include_placeholder_keys: dict[K, V] = {}

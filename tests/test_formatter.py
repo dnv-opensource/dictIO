@@ -567,7 +567,7 @@ class TestXmlFormatter:
 
     def test_parse_format_reparse(self) -> None:
         # Prepare XML string to be parsed
-        from dictIO import XmlParser
+        from dictIO import XmlParser  # noqa: PLC0415
 
         file_name = Path("test_parser_xml.xml")
         str_in = ""
