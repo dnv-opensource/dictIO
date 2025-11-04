@@ -6,6 +6,9 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
+* .pre-commit-config.yaml : updated id of ruff to ruff-check
+
+### Dependencies
 * GitHub workflow _test_future.yml : updated Python specifier in comment to 3.15
 * GitHub workflow _test_future.yml : updated Python specifier in workflow name to py315
 * .pre-commit-config.yaml : updated rev of ruff-pre-commit to v0.14.3
