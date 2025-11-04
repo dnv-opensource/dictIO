@@ -36,7 +36,6 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * GitHub workflow _test_future.yml : updated name of test_future job to 'test315'
 * .pre-commit-config.yaml : updated rev of pre-commit-hooks to v6.0.0
 * .pre-commit-config.yaml : updated rev of ruff-pre-commit to v0.14.3
-* Sphinx conf.py : updated ruff rule exceptions on file level
 * demos\folder_for_demos.py : removed ruff rule exception
 
 ### Solved
