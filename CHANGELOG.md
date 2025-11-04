@@ -6,6 +6,10 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
+* .pre-commit-config.yaml : updated rev of pre-commit-hooks to v6.0.0
+* .pre-commit-config.yaml : updated rev of ruff-pre-commit to v0.14.3
+
+### Dependencies
 * Updated to ruff>=0.14.3  (from ruff>=0.11.0)
 * Updated to pyright>=1.1.407  (from pyright>=1.1.396)
 * Updated to sourcery>=1.40  (from sourcery>=1.35)
