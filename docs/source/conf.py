@@ -1,4 +1,4 @@
-# ruff: noqa
+# ruff: noqa: D100, A001, INP001
 # mypy: ignore-errors
 
 # Configuration file for the Sphinx documentation builder.
