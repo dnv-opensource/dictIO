@@ -6,6 +6,9 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
+* Sphinx conf.py : updated ruff rule exceptions on file level
+
+### Dependencies
 * .pre-commit-config.yaml : updated rev of pre-commit-hooks to v6.0.0
 * .pre-commit-config.yaml : updated rev of ruff-pre-commit to v0.14.3
 
