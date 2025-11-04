@@ -6,6 +6,32 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
+* Updated to ruff>=0.14.3  (from ruff>=0.11.0)
+* Updated to pyright>=1.1.407  (from pyright>=1.1.396)
+* Updated to sourcery>=1.40  (from sourcery>=1.35)
+* Updated to lxml>=6.0  (from lxml>=6.0)
+* Updated to types-lxml>=2025.8  (from types-lxml>=2025.3)
+* Updated to numpy>=2.3  (from numpy>=2.2)
+* Updated to pytest>=8.4  (from pytest>=8.3)
+* Updated to pytest-cov>=7.0  (from pytest-cov>=6.0)
+* Updated to Sphinx>=8.2  (from Sphinx>=8.1)
+* Updated to sphinx-argparse-cli>=1.20  (from sphinx-argparse-cli>=1.19)
+* Updated to sphinx-autodoc-typehints>=3.5  (from sphinx-autodoc-typehints>=3.0)
+* Updated to furo>=2025.9  (from furo>=2024.8)
+* Updated to pre-commit>=4.3  (from pre-commit>=4.1)
+* Updated to mypy>=1.18  (from mypy>=1.15)
+* Updated to checkout@v5  (from checkout@v4)
+* Updated to setup-python@v6  (from setup-python@v5)
+* Updated to setup-uv@v7  (from setup-uv@v5)
+* Updated to upload-artifact@v5  (from upload-artifact@v4)
+* Updated to download-artifact@v5  (from download-artifact@v4)
+* pyproject.toml : added required-environments to uv.tools (windows, linux, macos)
+* pyproject.toml : updated supported Python versions to 3.11, 3.12, 3.13, 3.14
+* GitHub workflow _test.yml : updated Python versions in test matrix to 3.11, 3.12, 3.13, 3.14
+* GitHub workflow _test_future.yml : updated Python version in test_future to 3.15.0-alpha - 3.15.0
+* GitHub workflow _test_future.yml : updated name of test_future job to 'test315'
+
+### Dependencies
 * Updated to ruff>=0.11.0  (from ruff>=0.9.2)
 * Updated to pyright>=1.1.396  (from pyright>=1.1.392)
 * Updated to sourcery>=1.35  (from sourcery>=1.31)
