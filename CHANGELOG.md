@@ -6,6 +6,9 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
+* demos\folder_for_demos.py : removed ruff rule exception
+
+### Dependencies
 * Sphinx conf.py : updated ruff rule exceptions on file level
 
 ### Dependencies
