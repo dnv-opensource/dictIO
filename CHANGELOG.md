@@ -6,6 +6,9 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
+* pyproject.toml: updated supported Python versions to 3.11, 3.12, 3.13, 3.14
+
+### Dependencies
 * pyproject.toml: removed deprecated pyright setting 'reportShadowedImports'
 
 ### Dependencies
