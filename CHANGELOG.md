@@ -6,9 +6,6 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
-* .sourcery.yaml: updated the lowest Python version the project supports to '3.11'
-
-### Dependencies
 * Updated to ruff>=0.14.3  (from ruff>=0.9.2)
 * Updated to pyright>=1.1.407  (from pyright>=1.1.392)
 * Updated to sourcery>=1.40  (from sourcery>=1.31)
@@ -45,8 +42,12 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
   * updated rev of pre-commit-hooks to v6.0.0
   * updated rev of ruff-pre-commit to v0.14.3
   * updated id of ruff to ruff-check
+* Sphinx conf.py:
+  * removed ruff rule exception on file level
 * demos\folder_for_demos.py:
   * removed ruff rule exception
+* .sourcery.yaml:
+  * updated the lowest Python version the project supports to '3.11'
 
 ### Solved
 * Resolved issues raised by `ruff` 0.14.3
