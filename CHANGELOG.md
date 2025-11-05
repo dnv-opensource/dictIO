@@ -6,12 +6,6 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
-* pyproject.toml: updated supported Python versions to 3.11, 3.12, 3.13, 3.14
-
-### Dependencies
-* pyproject.toml: removed deprecated pyright setting 'reportShadowedImports'
-
-### Dependencies
 * Updated to ruff>=0.14.3  (from ruff>=0.9.2)
 * Updated to pyright>=1.1.407  (from pyright>=1.1.392)
 * Updated to sourcery>=1.40  (from sourcery>=1.31)
@@ -37,7 +31,9 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Included uv.lock file in version control
 * pyproject.toml:
   * added required-environments to uv.tools (windows, linux, macos)
+  * updated required Python version to ">= 3.11, < 3.15"
   * updated supported Python versions to 3.11, 3.12, 3.13, 3.14
+  * removed deprecated pyright setting 'reportShadowedImports'
 * GitHub workflow _test.yml:
   * updated Python versions in test matrix to 3.11, 3.12, 3.13, 3.14
 * GitHub workflow _test_future.yml:
