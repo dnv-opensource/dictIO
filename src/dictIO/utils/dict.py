@@ -110,9 +110,9 @@ def set_global_key(
         if isinstance(last_node, MutableSequence):
             if not isinstance(next_key, int):
                 raise KeyError(f"KeyError: {global_key} not found in {arg}")
-            next_node = last_node[cast(int, next_key)]
+            next_node = last_node[cast("int", next_key)]
         else:
-            next_node = last_node[cast(K, next_key)]
+            next_node = last_node[cast("K", next_key)]
         if not isinstance(next_node, MutableMapping | MutableSequence):
             raise KeyError(f"KeyError: {global_key} not found in {arg}")
         last_node = next_node
@@ -133,7 +133,7 @@ def set_global_key(
             raise KeyError(f"KeyError: {global_key} not found in {arg}")
         target_node[int(target_key)] = value
     else:
-        target_node[cast(K, target_key)] = value
+        target_node[cast("K", target_key)] = value
 
     return
 

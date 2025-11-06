@@ -206,17 +206,17 @@ def _validate_scope(
     elif isinstance(scope, str):  # string
         if re.match(r"^\s*\[", scope):  # ..maybe a string that LOOKS like a list?
             try:  # Then try to convert that string to a list
-                from dictIO import Parser
+                from dictIO import Parser  # noqa: PLC0415
 
                 parser = Parser()
                 _scope: str = scope.strip(" []")
-                validated_scope = cast(list[K], [key.strip() for key in _scope.split(",")])
+                validated_scope = cast("list[K]", [key.strip() for key in _scope.split(",")])
                 parser.parse_values(validated_scope)
             except Exception:
                 logger.exception(f"setOptions: misspelled scope: {scope}")
         else:  # string is just a single value.
             # Store it not as string but as a (one-element) list
-            validated_scope = [cast(K, scope)]
+            validated_scope = [cast("K", scope)]
     else:  # 'scope' is neither a list nor a string -> set validated_scope to None
         validated_scope = None
     return validated_scope
