@@ -3,14 +3,11 @@ revision = 3
 requires-python = ">=3.11, <3.15"
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version == '3.13.*' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.14' and sys_platform != 'linux' and sys_platform != 'win32'",
     "python_full_version >= '3.14' and sys_platform == 'linux'",
-    "python_full_version == '3.13.*' and sys_platform == 'linux'",
+    "python_full_version < '3.14' and sys_platform == 'linux'",
     "python_full_version >= '3.14' and sys_platform == 'win32'",
-    "python_full_version == '3.13.*' and sys_platform == 'win32'",
-    "python_full_version < '3.13' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version < '3.13' and sys_platform == 'linux'",
-    "python_full_version < '3.13' and sys_platform == 'win32'",
+    "python_full_version < '3.14' and sys_platform == 'win32'",
 ]
 required-markers = [
     "sys_platform == 'win32'",
@@ -543,8 +540,7 @@ dev = [
 requires-dist = [
     { name = "jsonschema", specifier = ">=4.20" },
     { name = "lxml", specifier = ">=6.0" },
-    { name = "numpy", marker = "python_full_version < '3.13'", specifier = ">=1.26" },
-    { name = "numpy", marker = "python_full_version >= '3.13'", specifier = ">=2.3" },
+    { name = "numpy", specifier = ">=2.3" },
 ]
 
 [package.metadata.requires-dev]
@@ -2193,11 +2189,9 @@ version = "1.40.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'linux'",
-    "python_full_version == '3.13.*' and sys_platform == 'linux'",
+    "python_full_version < '3.14' and sys_platform == 'linux'",
     "python_full_version >= '3.14' and sys_platform == 'win32'",
-    "python_full_version == '3.13.*' and sys_platform == 'win32'",
-    "python_full_version < '3.13' and sys_platform == 'linux'",
-    "python_full_version < '3.13' and sys_platform == 'win32'",
+    "python_full_version < '3.14' and sys_platform == 'win32'",
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/73/ef/42fa2226110cba8f0b656a0f30cac9e66fe0285fa249698bc1d9c5d6b8b4/sourcery-1.40.0-py2.py3-none-manylinux1_x86_64.whl", hash = "sha256:19116cc91aed5db2badca22cd2d745b8e2151bf22bac037d4b00aa2edd52217c", size = 124203805, upload-time = "2025-10-28T11:37:28.078Z" },
@@ -2210,8 +2204,7 @@ version = "1.41.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version == '3.13.*' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version < '3.13' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.14' and sys_platform != 'linux' and sys_platform != 'win32'",
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/85/92/8150f339ca39a3bbca83cb70a49b22e7c2234ec8d8129bc6bfbe1a6aaf47/sourcery-1.41.1-py2.py3-none-macosx_10_9_universal2.whl", hash = "sha256:9ecb7636301e9dea8934f897151e504127274ea60c7709a65bed7457850f994c", size = 101735565, upload-time = "2025-10-30T14:04:17.397Z" },
