@@ -20,7 +20,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Updated to ruff>=0.14.3  (from ruff>=0.9.2)
 * Updated to pyright>=1.1.407  (from pyright>=1.1.392)
 * Updated to sourcery>=1.40  (from sourcery>=1.31)
-* Updated to lxml>=6.0  (from lxml>=6.0)
+* Updated to lxml>=6.0  (from lxml>=5.3)
 * Updated to types-lxml>=2025.8  (from types-lxml>=2024.12)
 * Updated to numpy>=2.3  (removed split version specifiers)
 * Updated to pytest>=8.4  (from pytest>=8.3)
