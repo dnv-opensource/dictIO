@@ -206,7 +206,7 @@ def _validate_scope(
     elif isinstance(scope, str):  # string
         if re.match(r"^\s*\[", scope):  # ..maybe a string that LOOKS like a list?
             try:  # Then try to convert that string to a list
-                from dictIO import Parser
+                from dictIO import Parser  # noqa: PLC0415
 
                 parser = Parser()
                 _scope: str = scope.strip(" []")

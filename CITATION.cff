@@ -1,5 +1,5 @@
 title: dictIO
-version: 0.4.1
+version: 0.4.2
 abstract: >-
   Python package to read, write and manipulate dictionary text files.
   Supports dictIOs native file format, as well as JSON, XML and OpenFOAM.

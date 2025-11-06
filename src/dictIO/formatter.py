@@ -1045,7 +1045,7 @@ class JsonFormatter(Formatter):
         str
             string representation of the dict in JSON dictionary format
         """
-        import json
+        import json  # noqa: PLC0415
 
         # Json dump
         s = json.dumps(

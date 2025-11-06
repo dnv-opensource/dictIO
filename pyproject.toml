@@ -25,10 +25,10 @@ packages = [
 
 [project]
 name = "dictIO"
-version = "0.4.1"
+version = "0.4.2"
 description = "Python package to read, write and manipulate dictionary text files. Supports dictIOs native file format, as well as JSON, XML and OpenFOAM."
 readme = "README.md"
-requires-python = ">= 3.10, < 3.14"
+requires-python = ">= 3.11, < 3.15"
 license = { file = "LICENSE" }
 authors = [
     { name = "Frank Lumpitzsch", email = "frank.lumpitzsch@dnv.com" },
@@ -46,10 +46,10 @@ keywords = [
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
@@ -60,10 +60,9 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "lxml>=5.3",
+    "lxml>=6.0",
     "jsonschema>=4.20",
-    "numpy>=1.26; python_version < '3.13'",
-    "numpy>=2.2; python_version >= '3.13'",
+    "numpy>=2.3",
 ]
 
 [project.urls]
@@ -76,23 +75,23 @@ Changelog = "https://github.com/dnv-opensource/dictIO/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
-    "pytest>=8.3",
-    "pytest-cov>=6.0",
-    "ruff>=0.11.0",
-    "pyright>=1.1.396",
-    "mypy>=1.15",
-    "sourcery>=1.35",
-    "pre-commit>=4.1",
-    "Sphinx>=8.1",
-    "sphinx-argparse-cli>=1.19",
-    "sphinx-autodoc-typehints>=3.0",
+    "pytest>=8.4",
+    "pytest-cov>=7.0",
+    "ruff>=0.14.3",
+    "pyright>=1.1.407",
+    "mypy>=1.18",
+    "sourcery>=1.40",
+    "pre-commit>=4.3",
+    "Sphinx>=8.2",
+    "sphinx-argparse-cli>=1.20",
+    "sphinx-autodoc-typehints>=3.5",
     "sphinxcontrib-mermaid>=1.0.0",
     "myst-parser>=4.0",
-    "furo>=2024.8",
+    "furo>=2025.9",
     "nbconvert>=7.16",
     "jupyter>=1.1",
     "jupyter-client>=8.6",
-    "types-lxml>=2025.3",
+    "types-lxml>=2025.8",
 ]
 
 [tool.uv]
@@ -100,6 +99,11 @@ default-groups = [
     "dev",
 ]
 native-tls = true
+required-environments = [
+    "sys_platform == 'win32'",
+    "sys_platform == 'linux'",
+    "sys_platform == 'darwin'",
+]
 
 
 [project.scripts]
@@ -107,9 +111,7 @@ dictParser = "dictIO.cli.dict_parser:main"
 
 
 [tool.mypy]
-plugins = [
-    "numpy.typing.mypy_plugin",
-]
+plugins = []
 mypy_path = "stubs"
 files = [
     "src",
@@ -160,7 +162,6 @@ reportUnnecessaryContains = "warning"
 reportUnusedCallResult = "warning"
 reportUnusedExpression = "warning"
 reportMatchNotExhaustive = "warning"
-reportShadowedImports = "warning"
 reportUntypedFunctionDecorator = "warning"
 reportUntypedClassDecorator = "warning"
 reportUntypedBaseClass = "error"

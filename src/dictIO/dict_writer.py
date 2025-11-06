@@ -92,7 +92,7 @@ class DictWriter:
                 f"{source_dict}\n"
                 "into it."
             )
-            from dictIO import DictReader
+            from dictIO import DictReader  # noqa: PLC0415
 
             existing_dict = cast("SDict[K, V]", DictReader.read(source_file=target_file, order=order))
             existing_dict.merge(source_dict)

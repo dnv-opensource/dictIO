@@ -1,4 +1,3 @@
-# ruff: noqa
 # mypy: ignore-errors
 
 # Configuration file for the Sphinx documentation builder.
@@ -26,7 +25,7 @@ copyright = "2024, DNV SE. All rights reserved."
 author = "Frank Lumpitzsch, Claas Rostock, Seunghyeon Yoo"
 
 # The full version, including alpha/beta/rc tags
-release = "0.4.1"
+release = "0.4.2"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

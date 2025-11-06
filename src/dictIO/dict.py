@@ -43,7 +43,7 @@ _V = TypeVar("_V", bound=TValue)
 logger = logging.getLogger(__name__)
 
 
-class SDict(dict[K, V]):
+class SDict(dict[K, V]):  # noqa: PLW1641
     """Generic data structure for serializable dictionaries. Core class in dictIO.
 
     SDict inherits from dict. It can hence be used transparently in any context
@@ -244,7 +244,7 @@ class SDict(dict[K, V]):
         if self:
             logger.warning("SDict instance is not empty. `load()` will overwrite current content will.")
 
-        from dictIO.dict_reader import DictReader
+        from dictIO.dict_reader import DictReader  # noqa: PLC0415
 
         loaded_dict: SDict[K, V] = DictReader.read(
             source_file=source_file,
@@ -297,7 +297,7 @@ class SDict(dict[K, V]):
         # Make sure target_file argument is of type Path. If not, cast it to Path type.
         target_file = target_file if isinstance(target_file, Path) else Path(target_file)
 
-        from dictIO.dict_writer import DictWriter
+        from dictIO.dict_writer import DictWriter  # noqa: PLC0415
 
         DictWriter.write(
             source_dict=self,
@@ -469,10 +469,12 @@ class SDict(dict[K, V]):
         **kwargs: V
             optional keyword arguments. These will be passed on to the update() method of the parent class.
         """
-        if m is None:
-            super().update(**kwargs)
-        else:
-            super().update(m, **kwargs)
+        if m is not None:
+            super().update(m)
+        if kwargs:
+            # Update with keyword arguments.
+            # Note: Cast keys to the generic type K expected by the UserDict base class
+            super().update({cast("K", k): v for k, v in kwargs.items()})
         # update attributes
         self._post_update(m, **kwargs)
         self._clean()
@@ -601,7 +603,7 @@ class SDict(dict[K, V]):
                 f"Cannot include {dict_to_include.name}. Relative path to {dict_to_include.name} could not be resolved."
             ) from e
 
-        from dictIO import NativeFormatter
+        from dictIO import NativeFormatter  # noqa: PLC0415
 
         formatter = NativeFormatter()
         include_file_name = str(relative_file_path)
@@ -797,7 +799,7 @@ class SDict(dict[K, V]):
             the string representation
         """
         # __str__ shall be formatted in dictIO native file format
-        from dictIO import NativeFormatter
+        from dictIO import NativeFormatter  # noqa: PLC0415
 
         formatter = NativeFormatter()
         return formatter.to_string(self)
