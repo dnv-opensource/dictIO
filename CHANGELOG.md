@@ -6,9 +6,6 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ## [Unreleased]
 
 ### Dependencies
-* pyproject.toml: removed deprecated mypy plugin 'numpy.typing.mypy_plugin'
-
-### Dependencies
 * Updated to ruff>=0.14.3  (from ruff>=0.9.2)
 * Updated to pyright>=1.1.407  (from pyright>=1.1.392)
 * Updated to sourcery>=1.40  (from sourcery>=1.31)
@@ -37,6 +34,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
   * updated required Python version to ">= 3.11, < 3.15"
   * updated supported Python versions to 3.11, 3.12, 3.13, 3.14
   * removed deprecated pyright setting 'reportShadowedImports'
+  * removed deprecated mypy plugin 'numpy.typing.mypy_plugin'
 * GitHub workflow _test.yml:
   * updated Python versions in test matrix to 3.11, 3.12, 3.13, 3.14
 * GitHub workflow _test_future.yml:
