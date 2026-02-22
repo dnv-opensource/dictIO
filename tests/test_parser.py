@@ -10,6 +10,7 @@ from typing import Any
 import pytest
 
 from dictIO import NativeParser, Parser, SDict, XmlParser
+from dictIO.parser import JsonParser
 from dictIO.types import K, V
 from dictIO.utils.counter import BorgCounter
 from dictIO.utils.strings import string_diff
@@ -1147,6 +1148,35 @@ class TestXmlParser:
         assert len(namespaces) == 1
         assert "None" in namespaces
         assert namespaces["None"] == "http://www.w3.org/2001/XMLSchema"
+
+
+class TestJsonParser:
+    def test_read_sml_v2(self) -> None:
+        # Prepare
+        file_name = Path("test_sysml_v2.json")
+        dict_out: SDict[str, Any] = SDict(file_name)
+        parser = JsonParser()
+        # Execute
+        dict_out = parser.parse_file(file_name, dict_out)
+        # Assert
+        assert len(dict_out) == 13
+        keys: list[str] = list(dict_out.keys())
+        assert type(keys[0]) is str
+        assert keys[0][:12] == "BLOCKCOMMENT"
+        assert type(keys[1]) is str
+        assert keys[1][:7] == "INCLUDE"
+        assert type(keys[2]) is str
+        assert keys[2][:11] == "LINECOMMENT"
+        assert keys[3] == "emptyDict"
+        assert keys[4] == "emptyList"
+        assert keys[5] == "booleans"
+        assert keys[6] == "numbers"
+        assert keys[7] == "nones"
+        assert keys[8] == "strings"
+        assert keys[9] == "invalid"
+        assert keys[10] == "nesting"
+        assert keys[11] == "expressions"
+        assert keys[12] == "theDictInAListPitfall"
 
 
 class SetupHelper:
