@@ -1786,12 +1786,9 @@ class XmlParser(Parser):
                     text = ""
                 parsed_dict[key] = {"_content": text}
 
-            # If the node contains attributes: Save the attributes
-            # and merge with the contents
+            # If the node contains attributes: Save the attributes and merge with the contents
             if len(nodes[index].attrib) > 0:
-                # Avoid empty strings in attributes
-                # Might be substtituted by any kind of substitution later if required.
-                attributes_dict = {"_attributes": {k: str(v) for k, v in nodes[index].attrib.items() if str(v) != ""}}
+                attributes_dict = {"_attributes": {k: str(v) for k, v in nodes[index].attrib.items()}}
 
                 if parsed_dict[key] is None:
                     parsed_dict[key] = attributes_dict
