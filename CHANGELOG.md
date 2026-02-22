@@ -42,6 +42,8 @@ VS Code Settings: (Recommended extensions): Added 'ms-python.debugpy' (Python De
 VS Code Settings: (Recommended extensions): Added 'ms-python.vscode-python-envs' (Python Environments).
   * VS Code settings: (Recommended extensions): Removed deprecated IntelliCode extension and replaced it by GitHub Copilot Chat as recommended replacement.
   * VS Code settings: Updated 'mypy-type-checker.reportingScope' to 'custom'.
+* README.md: Updated year in copyright statement to 2026
+* ruff.toml: Updated target Python version to "py311"
 
 
 ## [0.4.2] - 2025-11-06
