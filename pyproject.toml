@@ -90,7 +90,7 @@ dev = [
     "furo>=2025.12",
     "nbconvert>=7.16",
     "jupyter>=1.1.1",
-    "jupyter-client>=8.6",
+    "jupyter-client>=8.8",
     "types-lxml>=2025.8",
 ]
 
