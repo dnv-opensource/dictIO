@@ -5,7 +5,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
--/-
+### Resolved
+* Improved the XmlParser and XmlFormatter classes to correctly parse and format attributes that have an empty string as value.
 
 
 ## [0.4.2] - 2025-11-06
