@@ -61,7 +61,7 @@ classifiers = [
 ]
 dependencies = [
     "lxml>=6.0",
-    "jsonschema>=4.20",
+    "jsonschema>=4.26",
     "numpy>=2.3",
 ]
 
