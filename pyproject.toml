@@ -28,7 +28,7 @@ name = "dictIO"
 version = "0.4.2"
 description = "Python package to read, write and manipulate dictionary text files. Supports dictIOs native file format, as well as JSON, XML and OpenFOAM."
 readme = "README.md"
-requires-python = ">= 3.11, < 3.15"
+requires-python = ">= 3.11"
 license = { file = "LICENSE" }
 authors = [
     { name = "Frank Lumpitzsch", email = "frank.lumpitzsch@dnv.com" },
