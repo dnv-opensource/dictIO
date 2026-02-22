@@ -5,9 +5,13 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
-### Resolved
-* Improved the XmlParser and XmlFormatter classes to correctly parse and format attributes that have an empty string as value.
+* -/-
 
+
+## [0.4.3] - 2026-02-22
+
+### Solved
+* Resolved an issue where attributes in XML nodes, which had an empty string as value, were omitted. The XmlParser and XmlFormatter classes have now been improved to correctly parse and format attributes that have an empty string as value.
 
 ### Changed
 * GitHub Workflows:
@@ -23,8 +27,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
   * Replaced 'Run twine check' with 'Check build artifacts' in workflow step names, to better reflect the purpose of the step.
   * Updated the syntax used for the OS and Python matrix in test workflows.
 * pyproject.toml:
-  * pyproject.toml: Removed leading carets and trailing slashes from 'exclude' paths
-  * pyproject.toml: Removed trailing slashes from 'exclude' paths
+  * Removed leading carets and trailing slashes from 'exclude' paths
   * Removed upper version constraint from required Python version, i.e. changed the "requires-python" field from ">= 3.11, < 3.15" to ">= 3.11". <br>
     Detailed background and reasoning in this good yet long post by Henry Schreiner:
     https://iscinumpy.dev/post/bound-version-constraints/#pinning-the-python-version-is-special <br>
@@ -37,14 +40,14 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Sphinx Documentation:
   * Sphinx conf.py: Updated year in copyright statement to 2026
 * VS Code Settings:
-  * VS Code Settings: (Recommended extensions): Removed 'njqdev.vscode-python-typehint' (Python Type Hint). Not maintained since 1 year, and the functionality is now covered by GitHub Copilot.
-VS Code Settings: (Recommended extensions): Added 'ms-python.debugpy' (Python Debugger).
-VS Code Settings: (Recommended extensions): Added 'ms-python.vscode-python-envs' (Python Environments).
-  * VS Code settings: (Recommended extensions): Removed deprecated IntelliCode extension and replaced it by GitHub Copilot Chat as recommended replacement.
-  * VS Code settings: Updated 'mypy-type-checker.reportingScope' to 'custom'.
+  * Recommended extensions:
+    * Removed 'njqdev.vscode-python-typehint' (Python Type Hint). Not maintained since 1 year, and the functionality is now covered by GitHub Copilot.
+    * Added 'ms-python.debugpy' (Python Debugger).
+    * Added 'ms-python.vscode-python-envs' (Python Environments).
+    * Removed deprecated IntelliCode extension and replaced it by GitHub Copilot Chat as recommended replacement.
+  * Updated 'mypy-type-checker.reportingScope' to 'custom'.
 * README.md: Updated year in copyright statement to 2026
 * ruff.toml: Updated target Python version to "py311"
-
 
 ### Dependencies
 * .pre-commit-config.yaml: Updated rev of ruff-pre-commit to v0.15.1
@@ -491,7 +494,8 @@ This removes the need to manually add /src to the PythonPath environment variabl
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.2...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/dnv-opensource/dictIO/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/dnv-opensource/dictIO/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/dnv-opensource/dictIO/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/dnv-opensource/dictIO/compare/v0.3.4...v0.4.0
