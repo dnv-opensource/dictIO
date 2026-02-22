@@ -1106,15 +1106,19 @@ class TestXmlParser:
             "_content": "TEXT",
             "_attributes": {"ATTR0": 0, "ATTR1": 1},
         }
-        assert dict_out["000009_TAG09"]["000010_TAG91"] == {}
-        assert dict_out["000009_TAG09"]["000011_TAG92"] == {}
-        assert dict_out["000009_TAG09"]["000012_TAG93"] == {}
-        assert dict_out["000009_TAG09"]["000013_TAG94"]["_attributes"]["ATTR0"] == 0
-        assert dict_out["000009_TAG09"]["000014_TAG95"]["_content"] == "TEXT"
-        assert dict_out["000009_TAG09"]["000015_TAG96"] == {
+        assert dict_out["000009_TAG09"]["000011_TAG91"] == {}
+        assert dict_out["000009_TAG09"]["000012_TAG92"] == {}
+        assert dict_out["000009_TAG09"]["000013_TAG93"] == {}
+        assert dict_out["000009_TAG09"]["000014_TAG94"]["_attributes"]["ATTR0"] == 0
+        assert dict_out["000009_TAG09"]["000015_TAG95"]["_content"] == "TEXT"
+        assert dict_out["000009_TAG09"]["000016_TAG96"] == {
             "_content": "TEXT",
             "_attributes": {"ATTR0": 0, "ATTR1": 1},
         }
+        assert dict_out["000010_TAG10"]["000017_TAG101"]["_attributes"]["ATTR0"] == ""
+        assert dict_out["000010_TAG10"]["000017_TAG101"]["_attributes"]["ATTR1"] == 1
+        assert dict_out["000010_TAG10"]["000018_TAG102"]["_attributes"]["ATTR0"] == 0
+        assert dict_out["000010_TAG10"]["000018_TAG102"]["_attributes"]["ATTR1"] == ""
 
     def test_parse_xml_namespace_explicit(self) -> None:
         # Prepare XML string to be parsed

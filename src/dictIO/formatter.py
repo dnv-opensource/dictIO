@@ -1270,21 +1270,18 @@ class XmlFormatter(Formatter):
 
                 elif self.integrate_attributes and re.match(pattern="_attrib", string=skey):
                     # attributes to integrate in node, otherwise leave in content
-                    # and remove attribs with empy strings
                     # correct occurence of true false -> de-pythonize for lowercase
-                    # if here is more expense needed, we have to revoke the one-liner
                     if isinstance(item, Mapping):
                         attributes: dict[str, str] = {
                             k: str(v).lower()
                             if re.match(pattern="^(true|false)$", string=str(v), flags=re.IGNORECASE)
                             else str(v)
                             for k, v in item.items()
-                            if str(v) != ""
                         }
                         element.attrib = attributes
 
                 elif re.match(pattern="^(_.*[Oo]pts|INCLUDE)", string=skey):
-                    # undescore elements _opts _xmlOpts and INCLUDE are considered not being content so far
+                    # underscore elements _opts _xmlOpts and INCLUDE are considered not being content so far
                     pass
 
                 elif re.match(pattern="BLOCKCOMMENT[0-9]+", string=skey):

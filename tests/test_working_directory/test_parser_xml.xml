@@ -41,5 +41,11 @@ block comment 3
         </TAG95>
         <TAG96 ATTR0= "0" ATTR1= "1">TEXT</TAG96>
     </TAG09>
+    <TAG10>
+        <TAG101 ATTR0= "" ATTR1= "1">
+        </TAG101>
+        <TAG102 ATTR0= "0" ATTR1= "">
+        </TAG102>
+    </TAG10>
 
 </ROOT>
