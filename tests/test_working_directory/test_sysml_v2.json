@@ -1,0 +1,246 @@
+[
+    {
+        "@type": "Namespace",
+        "@id": "f975c9d6-ebc4-4ba8-a06c-d312b1e316a1",
+        "elementId": "f975c9d6-ebc4-4ba8-a06c-d312b1e316a1",
+        "ownedRelationship": [
+            {
+                "@id": "0a680cbf-b149-5715-8acd-2ce5ab495768"
+            }
+        ]
+    },
+    {
+        "@type": "OwningMembership",
+        "@id": "0a680cbf-b149-5715-8acd-2ce5ab495768",
+        "elementId": "0a680cbf-b149-5715-8acd-2ce5ab495768",
+        "owningRelatedElement": {
+            "@id": "f975c9d6-ebc4-4ba8-a06c-d312b1e316a1"
+        },
+        "memberElement": {
+            "@id": "f20f3ad6-71e5-580d-bef8-22f8b3084bae"
+        },
+        "memberName": "JSON Export Example",
+        "ownedRelatedElement": [
+            {
+                "@id": "f20f3ad6-71e5-580d-bef8-22f8b3084bae"
+            }
+        ]
+    },
+    {
+        "@type": "Package",
+        "@id": "f20f3ad6-71e5-580d-bef8-22f8b3084bae",
+        "elementId": "f20f3ad6-71e5-580d-bef8-22f8b3084bae",
+        "declaredName": "JSON Export Example",
+        "owningRelationship": {
+            "@id": "0a680cbf-b149-5715-8acd-2ce5ab495768"
+        },
+        "ownedRelationship": [
+            {
+                "@id": "61bdbd4a-dc8e-59e5-85ae-2d0a35ecf30b"
+            },
+            {
+                "@id": "bd235a9c-2698-5574-9a01-d972c7ee778a"
+            },
+            {
+                "@id": "f43d85c4-3605-57a8-bf7a-2421596cf4b4"
+            }
+        ]
+    },
+    {
+        "@type": "OwningMembership",
+        "@id": "61bdbd4a-dc8e-59e5-85ae-2d0a35ecf30b",
+        "elementId": "61bdbd4a-dc8e-59e5-85ae-2d0a35ecf30b",
+        "owningRelatedElement": {
+            "@id": "f20f3ad6-71e5-580d-bef8-22f8b3084bae"
+        },
+        "memberElement": {
+            "@id": "59009c6d-ed8e-5e5f-95c4-2d91f3730a15"
+        },
+        "memberName": "Electrical",
+        "ownedRelatedElement": [
+            {
+                "@id": "59009c6d-ed8e-5e5f-95c4-2d91f3730a15"
+            }
+        ]
+    },
+    {
+        "@type": "PartDefinition",
+        "@id": "59009c6d-ed8e-5e5f-95c4-2d91f3730a15",
+        "elementId": "59009c6d-ed8e-5e5f-95c4-2d91f3730a15",
+        "declaredName": "Electrical",
+        "owningRelationship": {
+            "@id": "61bdbd4a-dc8e-59e5-85ae-2d0a35ecf30b"
+        },
+        "isVariation": false
+    },
+    {
+        "@type": "OwningMembership",
+        "@id": "bd235a9c-2698-5574-9a01-d972c7ee778a",
+        "elementId": "bd235a9c-2698-5574-9a01-d972c7ee778a",
+        "owningRelatedElement": {
+            "@id": "f20f3ad6-71e5-580d-bef8-22f8b3084bae"
+        },
+        "memberElement": {
+            "@id": "787ad28e-fbef-50ca-af0c-bef7f6ac65eb"
+        },
+        "memberName": "Mechanical",
+        "ownedRelatedElement": [
+            {
+                "@id": "787ad28e-fbef-50ca-af0c-bef7f6ac65eb"
+            }
+        ]
+    },
+    {
+        "@type": "PartDefinition",
+        "@id": "787ad28e-fbef-50ca-af0c-bef7f6ac65eb",
+        "elementId": "787ad28e-fbef-50ca-af0c-bef7f6ac65eb",
+        "declaredName": "Mechanical",
+        "owningRelationship": {
+            "@id": "bd235a9c-2698-5574-9a01-d972c7ee778a"
+        },
+        "isVariation": false
+    },
+    {
+        "@type": "OwningMembership",
+        "@id": "f43d85c4-3605-57a8-bf7a-2421596cf4b4",
+        "elementId": "f43d85c4-3605-57a8-bf7a-2421596cf4b4",
+        "owningRelatedElement": {
+            "@id": "f20f3ad6-71e5-580d-bef8-22f8b3084bae"
+        },
+        "memberElement": {
+            "@id": "bac7b912-5575-5f6a-9df6-cced858dcda1"
+        },
+        "memberName": "Automobile",
+        "ownedRelatedElement": [
+            {
+                "@id": "bac7b912-5575-5f6a-9df6-cced858dcda1"
+            }
+        ]
+    },
+    {
+        "@type": "PartUsage",
+        "@id": "bac7b912-5575-5f6a-9df6-cced858dcda1",
+        "elementId": "bac7b912-5575-5f6a-9df6-cced858dcda1",
+        "declaredName": "Automobile",
+        "owningRelationship": {
+            "@id": "f43d85c4-3605-57a8-bf7a-2421596cf4b4"
+        },
+        "isVariation": false,
+        "ownedRelationship": [
+            {
+                "@id": "76080b80-74de-5f5f-be1c-8cb46b523f8d"
+            },
+            {
+                "@id": "0d015b91-eaf5-51fe-9a8e-7becc647bd0b"
+            }
+        ]
+    },
+    {
+        "@type": "FeatureMembership",
+        "@id": "76080b80-74de-5f5f-be1c-8cb46b523f8d",
+        "elementId": "76080b80-74de-5f5f-be1c-8cb46b523f8d",
+        "owningRelatedElement": {
+            "@id": "bac7b912-5575-5f6a-9df6-cced858dcda1"
+        },
+        "memberElement": {
+            "@id": "46f32266-d488-50d1-abe0-988d5245f25d"
+        },
+        "memberName": "Drive Train",
+        "ownedRelatedElement": [
+            {
+                "@id": "46f32266-d488-50d1-abe0-988d5245f25d"
+            }
+        ]
+    },
+    {
+        "@type": "PartUsage",
+        "@id": "46f32266-d488-50d1-abe0-988d5245f25d",
+        "elementId": "46f32266-d488-50d1-abe0-988d5245f25d",
+        "declaredName": "Drive Train",
+        "owningRelationship": {
+            "@id": "76080b80-74de-5f5f-be1c-8cb46b523f8d"
+        },
+        "isComposite": true,
+        "isVariable": true,
+        "isVariation": false,
+        "ownedRelationship": [
+            {
+                "@id": "471a8497-a20a-4089-84e7-423c72aad243"
+            }
+        ]
+    },
+    {
+        "@type": "FeatureTyping",
+        "@id": "471a8497-a20a-4089-84e7-423c72aad243",
+        "elementId": "471a8497-a20a-4089-84e7-423c72aad243",
+        "owningRelatedElement": {
+            "@id": "46f32266-d488-50d1-abe0-988d5245f25d"
+        },
+        "general": {
+            "@id": "59009c6d-ed8e-5e5f-95c4-2d91f3730a15"
+        },
+        "specific": {
+            "@id": "46f32266-d488-50d1-abe0-988d5245f25d"
+        },
+        "type": {
+            "@id": "59009c6d-ed8e-5e5f-95c4-2d91f3730a15"
+        },
+        "typedFeature": {
+            "@id": "46f32266-d488-50d1-abe0-988d5245f25d"
+        }
+    },
+    {
+        "@type": "FeatureMembership",
+        "@id": "0d015b91-eaf5-51fe-9a8e-7becc647bd0b",
+        "elementId": "0d015b91-eaf5-51fe-9a8e-7becc647bd0b",
+        "owningRelatedElement": {
+            "@id": "bac7b912-5575-5f6a-9df6-cced858dcda1"
+        },
+        "memberElement": {
+            "@id": "ae75c320-492a-509b-86f3-f983173d050d"
+        },
+        "memberName": "Chassis",
+        "ownedRelatedElement": [
+            {
+                "@id": "ae75c320-492a-509b-86f3-f983173d050d"
+            }
+        ]
+    },
+    {
+        "@type": "PartUsage",
+        "@id": "ae75c320-492a-509b-86f3-f983173d050d",
+        "elementId": "ae75c320-492a-509b-86f3-f983173d050d",
+        "declaredName": "Chassis",
+        "owningRelationship": {
+            "@id": "0d015b91-eaf5-51fe-9a8e-7becc647bd0b"
+        },
+        "isComposite": true,
+        "isVariable": true,
+        "isVariation": false,
+        "ownedRelationship": [
+            {
+                "@id": "edbccc4e-2371-4d7b-aa55-d6f3ba1cbe74"
+            }
+        ]
+    },
+    {
+        "@type": "FeatureTyping",
+        "@id": "edbccc4e-2371-4d7b-aa55-d6f3ba1cbe74",
+        "elementId": "edbccc4e-2371-4d7b-aa55-d6f3ba1cbe74",
+        "owningRelatedElement": {
+            "@id": "ae75c320-492a-509b-86f3-f983173d050d"
+        },
+        "general": {
+            "@id": "787ad28e-fbef-50ca-af0c-bef7f6ac65eb"
+        },
+        "specific": {
+            "@id": "ae75c320-492a-509b-86f3-f983173d050d"
+        },
+        "type": {
+            "@id": "787ad28e-fbef-50ca-af0c-bef7f6ac65eb"
+        },
+        "typedFeature": {
+            "@id": "ae75c320-492a-509b-86f3-f983173d050d"
+        }
+    }
+]
