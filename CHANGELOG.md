@@ -5,8 +5,69 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
-### Resolved
-* Improved the XmlParser and XmlFormatter classes to correctly parse and format attributes that have an empty string as value.
+* -/-
+
+
+## [0.4.3] - 2026-02-22
+
+### Solved
+* Resolved an issue where attributes in XML nodes, which had an empty string as value, were omitted. The XmlParser and XmlFormatter classes have now been improved to correctly parse and format attributes that have an empty string as value.
+
+### Changed
+* GitHub Workflows:
+  * Added 'name: Checkout code' to uses of 'actions/checkout', for better readability and consistency across workflow files.
+  * Added 'name: Download build artifacts' to uses of 'actions/download-artifact', for better readability and consistency across workflow files.
+  * Added 'name: Publish to PyPI' to uses of 'pypa/gh-action-pypi-publish', for better readability and consistency across workflow files.
+  * Added 'name: Upload build artifacts' to uses of 'actions/upload-artifact', for better readability and consistency across workflow files.
+  * Changed 'uv sync --upgrade' to 'uv sync -U'
+  * Ensured that actions 'upload-artifact' and 'download-artifact' uniformly specify 'dist' as (file)name for the artifact uploaded (or downloaded, respectively), for consistency across workflow files.
+  * pull_request_to_main.yml and nightly_build.yml: Added 'workflow_dispatch:' in selected workflows to allow manual trigger of the workflow.
+  * Removed redundant 'Set up Python' steps (no longer needed, as 'uv sync' will automatically install Python if not present).
+  * Replaced 'Build source distribution and wheel' with 'Build source distribution and wheels' (plural) in workflow step names.
+  * Replaced 'Run twine check' with 'Check build artifacts' in workflow step names, to better reflect the purpose of the step.
+  * Updated the syntax used for the OS and Python matrix in test workflows.
+* pyproject.toml:
+  * Removed leading carets and trailing slashes from 'exclude' paths
+  * Removed upper version constraint from required Python version, i.e. changed the "requires-python" field from ">= 3.11, < 3.15" to ">= 3.11". <br>
+    Detailed background and reasoning in this good yet long post by Henry Schreiner:
+    https://iscinumpy.dev/post/bound-version-constraints/#pinning-the-python-version-is-special <br>
+    TLDR: Placing an upper Python version constraint on a Python package causes more harm than it provides benefits.
+    The upper version constraint unnecessarily manifests incompatibility with future Python releases.
+    Removing the upper version constraint ensures the package remains installable as Python evolves.
+    In the majority of cases, the newer Python version will anyhow be backward-compatible. And in the rare case where your package would really not work with a newer Python version,
+    users can at least find a solution manually to resolve the conflict, e.g. by pinning your package to the last version compatible with the environment they install it in.
+    That way, we ensure it remains _possible_ for users to find a solution, instead of rendering it impossible forever.
+* Sphinx Documentation:
+  * Sphinx conf.py: Updated year in copyright statement to 2026
+* VS Code Settings:
+  * Recommended extensions:
+    * Removed 'njqdev.vscode-python-typehint' (Python Type Hint). Not maintained since 1 year, and the functionality is now covered by GitHub Copilot.
+    * Added 'ms-python.debugpy' (Python Debugger).
+    * Added 'ms-python.vscode-python-envs' (Python Environments).
+    * Removed deprecated IntelliCode extension and replaced it by GitHub Copilot Chat as recommended replacement.
+  * Updated 'mypy-type-checker.reportingScope' to 'custom'.
+* README.md: Updated year in copyright statement to 2026
+* ruff.toml: Updated target Python version to "py311"
+
+### Dependencies
+* .pre-commit-config.yaml: Updated rev of ruff-pre-commit to v0.15.1
+* Updated to furo>=2025.12
+* Updated to jsonschema>=4.26
+* Updated to jupyter-client>=8.8
+* Updated to jupyter>=1.1.1
+* Updated to mypy>=1.19.1
+* Updated to myst-parser>=5.0
+* Updated to nbconvert>=7.17
+* Updated to pre-commit>=4.5
+* Updated to pyright>=1.1.408
+* Updated to pytest>=9.0
+* Updated to ruff>=0.15.1
+* Updated to sourcery>=1.43.0
+* Updated to sphinx-argparse-cli>=1.20.1
+* Updated to sphinx-autodoc-typehints>=3.6
+* Updated to sphinx>=9.0
+* Updated to sphinxcontrib-mermaid>=2.0
+* Updated to types-lxml>=2026.1
 
 
 ## [0.4.2] - 2025-11-06
@@ -433,7 +494,8 @@ This removes the need to manually add /src to the PythonPath environment variabl
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.2...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/dnv-opensource/dictIO/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/dnv-opensource/dictIO/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/dnv-opensource/dictIO/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/dnv-opensource/dictIO/compare/v0.3.4...v0.4.0

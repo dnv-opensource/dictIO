@@ -42,7 +42,7 @@ def highest_common_root_folder(paths: Sequence[Path]) -> Path:
 
     # Find highest common root folder
     folders_as_parts: list[tuple[str, ...]] = [folder.parts for folder in folders]
-    folders_as_parts.sort(key=lambda x: len(x), reverse=False)
+    folders_as_parts.sort(key=len, reverse=False)
     shortest_folder_as_parts: tuple[str, ...] = folders_as_parts[0]
     common_parts: list[str] = []
     for index, part in enumerate(shortest_folder_as_parts):

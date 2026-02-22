@@ -29,7 +29,7 @@
     "python.terminal.activateEnvironment": false,
     "python.terminal.activateEnvInCurrentTerminal": false,
     "mypy-type-checker.importStrategy": "fromEnvironment",
-    "mypy-type-checker.reportingScope": "workspace",
+    "mypy-type-checker.reportingScope": "custom",
     "mypy-type-checker.preferDaemon": true,
     "ruff.configurationPreference": "filesystemFirst",
 }
