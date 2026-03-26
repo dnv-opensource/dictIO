@@ -24,7 +24,7 @@ from dictIO.utils.counter import BorgCounter
 if TYPE_CHECKING:
     import os
 
-__ALL__ = ["Parser", "NativeParser", "FoamParser", "JsonParser", "XmlParser"]
+__all__ = ["FoamParser", "JsonParser", "NativeParser", "Parser", "XmlParser"]
 
 logger = logging.getLogger(__name__)
 

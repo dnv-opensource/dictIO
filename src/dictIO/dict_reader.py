@@ -44,7 +44,7 @@ from dictIO import Parser, SDict
 from dictIO.types import K, M, V
 from dictIO.utils.counter import DejaVue
 
-__ALL__ = ["DictReader"]
+__all__ = ["DictReader"]
 
 logger = logging.getLogger(__name__)
 
