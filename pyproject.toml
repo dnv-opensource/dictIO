@@ -91,7 +91,7 @@ dev = [
     "nbconvert>=7.17",
     "jupyter>=1.1.1",
     "jupyter-client>=8.8",
-    "types-lxml>=2026.1",
+    "types-lxml>=2026.2",
 ]
 
 [tool.uv]
