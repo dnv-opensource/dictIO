@@ -27,6 +27,9 @@ authors:
     email: seunghyeon.yoo@dnv.com
     website: 'https://www.linkedin.com/in/seunghyeon-yoo-3625173b/'
 keywords:
+  - dictIO
+  - dictParser
+  - dict
 license: MIT
 license-url: 'https://dnv-opensource.github.io/dictIO/LICENSE.html'
 url: 'https://dnv-opensource.github.io/dictIO/README.html'

@@ -24,7 +24,7 @@ Further, dictIO
 pip install dictIO
 ```
 
-## Usage Example
+## Usage
 
 dictIO's core class is `SDict`, a generic data structure for serializable dictionaries. <br>
 `SDict` inherits from Python's builtin `dict`. It can hence be used transparently in any context where a `dict` or any other `MutableMapping` type is expected.
@@ -110,7 +110,7 @@ uv self update
 ```
 
 ### 2. Install Python
-This project requires Python 3.10 or later. <br>
+This project requires Python 3.11 or later. <br>
 If you don't already have a compatible version installed on your machine, the probably most comfortable way to install Python is through `uv`:
 ```sh
 uv python install
@@ -134,15 +134,18 @@ cd dictIO
 ```
 
 ### 4. Install dependencies
-Run `uv sync` to create a virtual environment and install all project dependencies into it:
+Run `uv sync -U` to create a virtual environment and install all project dependencies into it:
 ```sh
-uv sync
+uv sync -U
 ```
 > **Note**: Using `--no-dev` will omit installing development dependencies.
 
+> **Explanation**: The `-U` option stands for `--update`. It forces `uv` to fetch and install the latest versions of all dependencies,
+> ensuring that your environment is up-to-date.
+
 > **Note**: `uv` will create a new virtual environment called `.venv` in the project root directory when running
-> `uv sync` the first time. Optionally, you can create your own virtual environment using e.g. `uv venv`, before running
-> `uv sync`.
+> `uv sync -U` the first time. Optionally, you can create your own virtual environment using e.g. `uv venv`, before running
+> `uv sync -U`.
 
 ### 5. (Optional) Activate the virtual environment
 When using `uv`, there is in almost all cases no longer a need to manually activate the virtual environment. <br>
