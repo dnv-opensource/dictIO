@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# ruff: noqa: N999
 """dictParser command line interface."""
 
 import argparse
@@ -200,7 +201,7 @@ def main() -> None:
     _formatted_args = pprint.pformat(_arg_mapping, sort_dicts=True)
     _indented_args = "\n".join(f"{_indent}{line}" for line in _formatted_args.splitlines())
     logger.info(
-        "Start dictIO.py with following arguments:\n%s\n",
+        "Start dictParser with following arguments:\n%s\n",
         _indented_args,
     )
 
