@@ -29,7 +29,7 @@ from dictIO.utils.dict import (
 )
 from dictIO.utils.path import relative_path
 
-__ALL__ = [
+__all__ = [
     "SDict",
 ]
 

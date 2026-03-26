@@ -21,7 +21,7 @@ from dictIO.utils.counter import BorgCounter
 if TYPE_CHECKING:
     from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V
 
-__ALL__ = [
+__all__ = [
     "Formatter",
     "NativeFormatter",
     "FoamFormatter",

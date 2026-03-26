@@ -8,7 +8,7 @@ from typing import Any
 
 from dictIO import DictReader, DictWriter, SDict, create_target_file_name
 
-__ALL__ = ["DictParser"]
+__all__ = ["DictParser"]
 
 logger = logging.getLogger(__name__)
 

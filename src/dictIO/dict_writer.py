@@ -10,7 +10,7 @@ from typing import Any, cast
 from dictIO import Formatter, NativeParser, SDict, order_keys
 from dictIO.types import K, V
 
-__ALL__ = ["DictWriter", "create_target_file_name"]
+__all__ = ["DictWriter", "create_target_file_name"]
 
 logger = logging.getLogger(__name__)
 
