@@ -8,6 +8,10 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * -/-
 
 
+### Changed
+* Python modules: Changed __ALL__ to __all__ (lowercase, PEP8 and PEP257 compliant).
+
+
 ## [0.4.4] - 2026-03-26
 
 ### Changed
