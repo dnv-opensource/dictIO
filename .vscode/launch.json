@@ -19,7 +19,11 @@
             "autoReload": {
                 "enable": true
             },
+            "subProcess": true,
             "justMyCode": true,
+            "redirectOutput": true, // pipe stdout/stderr to Debug Console
+            "showReturnValue": true,
+            "logToFile": false, // set true temporarily when diagnosing debugger issues
         },
         {
             "name": "Python: Current File, cwd = file dir",
@@ -28,10 +32,14 @@
             "cwd": "${fileDirname}", // working dir = dir where current file is
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true,
             "autoReload": {
                 "enable": true
             },
+            "subProcess": true,
+            "justMyCode": true,
+            "redirectOutput": true,
+            "showReturnValue": true,
+            "logToFile": false,
         },
         {
             "name": "Python: Current File, cwd = workspace root folder",
@@ -43,55 +51,31 @@
             "autoReload": {
                 "enable": true
             },
+            "subProcess": true,
             "justMyCode": true,
+            "redirectOutput": true,
+            "showReturnValue": true,
+            "logToFile": false,
         },
         {
-            "name": "dictParser test_dict",
+            "name": "dictParser test_dictParser_dict",
             "type": "debugpy",
             "request": "launch",
-            "cwd": "${workspaceFolder}\\tests",
-            "program": "${workspaceFolder}\\src\\dictIO\\cli\\dictParser.py",
+            "cwd": "${workspaceFolder}\\tests\\test_working_directory",
+            "program": "${workspaceFolder}\\src\\dictIO\\cli\\__main__.py",
             "args": [
+                "test_dictParser_dict",
                 "-v",
-                "test_dict"
             ],
             "console": "integratedTerminal",
             "autoReload": {
                 "enable": true
             },
+            "subProcess": true,
             "justMyCode": true,
-        },
-        {
-            "name": "dictParser include\\initialConditions",
-            "type": "debugpy",
-            "request": "launch",
-            "cwd": "${workspaceFolder}\\tests",
-            "program": "${workspaceFolder}\\src\\dictIO\\cli\\dictParser.py",
-            "args": [
-                "-v",
-                "include\\initialConditions"
-            ],
-            "console": "integratedTerminal",
-            "autoReload": {
-                "enable": true
-            },
-            "justMyCode": true,
-        },
-        {
-            "name": "dictParser test_dict",
-            "type": "debugpy",
-            "request": "launch",
-            "cwd": "${workspaceFolder}\\tests",
-            "program": "${workspaceFolder}\\src\\dictIO\\cli\\dictParser.py",
-            "args": [
-                "-v",
-                "test_dict"
-            ],
-            "console": "integratedTerminal",
-            "autoReload": {
-                "enable": true
-            },
-            "justMyCode": true,
+            "redirectOutput": true,
+            "showReturnValue": true,
+            "logToFile": false,
         },
     ]
 }
