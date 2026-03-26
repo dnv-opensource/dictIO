@@ -22,10 +22,10 @@ if TYPE_CHECKING:
     from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V
 
 __all__ = [
-    "Formatter",
-    "NativeFormatter",
     "FoamFormatter",
+    "Formatter",
     "JsonFormatter",
+    "NativeFormatter",
     "XmlFormatter",
 ]
 
