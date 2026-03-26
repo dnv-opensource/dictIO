@@ -7,6 +7,7 @@ jobs:
     name: Test (Python ${{ matrix.python }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python: ['3.11', '3.12', '3.13', '3.14']
@@ -17,7 +18,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-          cache-dependency-glob: "uv.lock"
+          cache-dependency-glob: 'uv.lock'
       - name: Install the project
         run: uv sync -p ${{ matrix.python }} -U --no-dev
       - name: Run pytest
