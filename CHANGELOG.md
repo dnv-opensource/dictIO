@@ -14,6 +14,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Renamed command line script `src/dictIO/cli/dictParser.py` to ` src/dictIO/cli/__main__.py`
 * VS Code Settings:
   * .vscode/launch.json: Corrected the CLI debug launch configuration
+* Updated code base with latest changes in python_project_template v0.2.10
 
 ### Dependencies
 * .pre-commit-config.yaml: Updated rev of ruff-pre-commit to v0.15.7
