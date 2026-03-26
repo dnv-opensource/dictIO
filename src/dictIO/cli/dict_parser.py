@@ -3,8 +3,10 @@
 
 import argparse
 import logging
+import pprint
 import re
 from collections.abc import MutableSequence
+from importlib import metadata
 from pathlib import Path
 from typing import Any, cast
 
@@ -13,6 +15,15 @@ from dictIO.types import K
 from dictIO.utils.logging import configure_logging
 
 logger = logging.getLogger(__name__)
+
+
+def _get_version() -> str:
+    """Return the installed package version, or a safe fallback if unavailable."""
+    try:
+        return metadata.version("dictIO")
+    except metadata.PackageNotFoundError:
+        # Fallback when package metadata is not available (e.g. running from source)
+        return "dictIO (version unknown)"
 
 
 def _argparser() -> argparse.ArgumentParser:
@@ -135,6 +146,13 @@ def _argparser() -> argparse.ArgumentParser:
         required=False,
     )
 
+    _ = parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=_get_version(),
+    )
+
     return parser
 
 
@@ -167,18 +185,23 @@ def main() -> None:
     output: str | None = args.output
 
     # Check whether source file exists
-    if not source_file.exists():
+    if not source_file.is_file():
         logger.error(f"dictParser.py: File {source_file} not found.")
         return
 
+    # Print the parsed commandline arguments for documentation and debugging purposes.
+    # The arguments will be split into one argument per line, if possible.
+    # If extracting a mapping from `args` fails, fall back to its string representation.
+    _indent: str = " " * 13
+    try:
+        _arg_mapping = vars(args)
+    except TypeError:
+        _arg_mapping = {"args": str(args)}
+    _formatted_args = pprint.pformat(_arg_mapping, sort_dicts=True)
+    _indented_args = "\n".join(f"{_indent}{line}" for line in _formatted_args.splitlines())
     logger.info(
-        f"Start dictParser.py with following arguments:\n"
-        f"\t source_file: \t\t{source_file}\n"
-        f"\t includes: \t\t\t{includes}\n"
-        f"\t order: \t\t\t\t{order}\n"
-        f"\t comments: \t\t\t{comments}\n"
-        f"\t scope: \t\t\t\t{scope}\n"
-        f"\t output: \t\t\t{output}"
+        "Start dictIO.py with following arguments:\n%s\n",
+        _indented_args,
     )
 
     # Invoke API
