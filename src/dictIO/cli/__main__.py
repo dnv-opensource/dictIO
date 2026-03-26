@@ -1,10 +1,13 @@
 #!/usr/bin/env python
+# ruff: noqa: N999
 """dictParser command line interface."""
 
 import argparse
 import logging
+import pprint
 import re
 from collections.abc import MutableSequence
+from importlib import metadata
 from pathlib import Path
 from typing import Any, cast
 
@@ -13,6 +16,15 @@ from dictIO.types import K
 from dictIO.utils.logging import configure_logging
 
 logger = logging.getLogger(__name__)
+
+
+def _get_version() -> str:
+    """Return the installed package version, or a safe fallback if unavailable."""
+    try:
+        return metadata.version("dictIO")
+    except metadata.PackageNotFoundError:
+        # Fallback when package metadata is not available (e.g. running from source)
+        return "dictIO (version unknown)"
 
 
 def _argparser() -> argparse.ArgumentParser:
@@ -135,6 +147,13 @@ def _argparser() -> argparse.ArgumentParser:
         required=False,
     )
 
+    _ = parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=_get_version(),
+    )
+
     return parser
 
 
@@ -157,7 +176,7 @@ def main() -> None:
     log_level_file: str = args.log_level
     configure_logging(log_level_console, log_file, log_level_file)
 
-    source_file = Path(args.dict)
+    dict_file = Path(args.dict)
     includes: bool = not args.ignore_includes
     mode: str = args.mode
     order: bool = args.order
@@ -166,24 +185,29 @@ def main() -> None:
     scope: MutableSequence[Any] | None = _validate_scope(args.scope)
     output: str | None = args.output
 
-    # Check whether source file exists
-    if not source_file.exists():
-        logger.error(f"dictParser.py: File {source_file} not found.")
+    # Check whether dict file exists
+    if not dict_file.is_file():
+        logger.error(f"dictParser: File {dict_file} not found.")
         return
 
+    # Print the parsed commandline arguments for documentation and debugging purposes.
+    # The arguments will be split into one argument per line, if possible.
+    # If extracting a mapping from `args` fails, fall back to its string representation.
+    _indent: str = " " * 13
+    try:
+        _arg_mapping = vars(args)
+    except TypeError:
+        _arg_mapping = {"args": str(args)}
+    _formatted_args = pprint.pformat(_arg_mapping, sort_dicts=True)
+    _indented_args = "\n".join(f"{_indent}{line}" for line in _formatted_args.splitlines())
     logger.info(
-        f"Start dictParser.py with following arguments:\n"
-        f"\t source_file: \t\t{source_file}\n"
-        f"\t includes: \t\t\t{includes}\n"
-        f"\t order: \t\t\t\t{order}\n"
-        f"\t comments: \t\t\t{comments}\n"
-        f"\t scope: \t\t\t\t{scope}\n"
-        f"\t output: \t\t\t{output}"
+        "Start dictParser with following arguments:\n%s\n",
+        _indented_args,
     )
 
     # Invoke API
     if DictParser.parse(
-        source_file=source_file,
+        source_file=dict_file,
         includes=includes,
         mode=mode,
         order=order,
@@ -191,9 +215,9 @@ def main() -> None:
         scope=scope,
         output=output,
     ):
-        logger.info("dictParser.py finished successfully.\n")
+        logger.info("dictParser finished successfully.\n")
     else:
-        logger.error("dictParser.py finished with errors.\n")
+        logger.error("dictParser finished with errors.\n")
 
 
 def _validate_scope(

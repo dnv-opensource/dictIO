@@ -8,8 +8,8 @@ from typing import Any
 
 import pytest
 
-from dictIO.cli import dict_parser
-from dictIO.cli.dict_parser import _argparser, _validate_scope, main
+from dictIO.cli import __main__
+from dictIO.cli.__main__ import _argparser, _get_version, _validate_scope, main
 from dictIO.dict_parser import DictParser
 
 # *****Test commandline interface (CLI)************************************************************
@@ -103,6 +103,23 @@ def test_cli(
         raise TypeError
 
 
+@pytest.mark.parametrize("flag", ["-V", "--version"])
+def test_cli_version(
+    flag: str,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+):
+    # Prepare
+    monkeypatch.setattr(sys, "argv", ["dictIO", flag])
+    parser = _argparser()
+    # Execute & Assert
+    with pytest.raises(SystemExit) as exc_info:
+        _ = parser.parse_args()
+    assert exc_info.value.code == 0
+    captured = capsys.readouterr()
+    assert _get_version() in captured.out
+
+
 # *****Ensure the CLI correctly configures logging*************************************************
 
 
@@ -171,7 +188,7 @@ def test_logging_configuration(
     ):
         pass
 
-    monkeypatch.setattr(dict_parser, "configure_logging", fake_configure_logging)
+    monkeypatch.setattr(__main__, "configure_logging", fake_configure_logging)
     monkeypatch.setattr(DictParser, "parse", fake_parse)
     # Execute
     if isinstance(expected, ConfigureLoggingArgs):

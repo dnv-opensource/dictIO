@@ -11,7 +11,6 @@ only-include = [
     ".coveragerc",
     ".editorconfig",
     ".pre-commit-config.yaml",
-    "manage.py",
     "pyproject.toml",
     "pytest.ini",
     "ruff.toml",
@@ -23,9 +22,12 @@ packages = [
     "src/dictIO",
 ]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [project]
 name = "dictIO"
-version = "0.4.3"
+version = "0.4.4"
 description = "Python package to read, write and manipulate dictionary text files. Supports dictIOs native file format, as well as JSON, XML and OpenFOAM."
 readme = "README.md"
 requires-python = ">= 3.11"
@@ -62,7 +64,7 @@ classifiers = [
 dependencies = [
     "lxml>=6.0",
     "jsonschema>=4.26",
-    "numpy>=2.3",
+    "numpy>=2.4",
 ]
 
 [project.urls]
@@ -76,22 +78,21 @@ Changelog = "https://github.com/dnv-opensource/dictIO/blob/main/CHANGELOG.md"
 [dependency-groups]
 dev = [
     "pytest>=9.0",
-    "pytest-cov>=7.0",
-    "ruff>=0.15.1",
+    "pytest-cov>=7.1",
+    "ruff>=0.15.7",
     "pyright>=1.1.408",
     "mypy>=1.19.1",
     "sourcery>=1.43.0",
     "pre-commit>=4.5",
     "Sphinx>=9.0",
-    "sphinx-argparse-cli>=1.20.1",
+    "sphinx-argparse-cli>=1.21.3",
     "sphinx-autodoc-typehints>=3.6",
     "sphinxcontrib-mermaid>=2.0",
     "myst-parser>=5.0",
     "furo>=2025.12",
-    "nbconvert>=7.17",
     "jupyter>=1.1.1",
-    "jupyter-client>=8.8",
-    "types-lxml>=2026.1",
+    "nbconvert>=7.17",
+    "types-lxml>=2026.2",
 ]
 
 [tool.uv]
@@ -107,7 +108,7 @@ required-environments = [
 
 
 [project.scripts]
-dictParser = "dictIO.cli.dict_parser:main"
+dictParser = "dictIO.cli.__main__:main"
 
 
 [tool.mypy]
@@ -136,6 +137,10 @@ include = [
     "demos",
 ]
 exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    ".venv",
     "src/folder_to_be_excluded",
 ]
 
