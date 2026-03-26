@@ -175,7 +175,7 @@ def main() -> None:
     log_level_file: str = args.log_level
     configure_logging(log_level_console, log_file, log_level_file)
 
-    source_file = Path(args.dict)
+    dict_file = Path(args.dict)
     includes: bool = not args.ignore_includes
     mode: str = args.mode
     order: bool = args.order
@@ -184,9 +184,9 @@ def main() -> None:
     scope: MutableSequence[Any] | None = _validate_scope(args.scope)
     output: str | None = args.output
 
-    # Check whether source file exists
-    if not source_file.is_file():
-        logger.error(f"dictParser.py: File {source_file} not found.")
+    # Check whether dict file exists
+    if not dict_file.is_file():
+        logger.error(f"dictParser: File {dict_file} not found.")
         return
 
     # Print the parsed commandline arguments for documentation and debugging purposes.
@@ -206,7 +206,7 @@ def main() -> None:
 
     # Invoke API
     if DictParser.parse(
-        source_file=source_file,
+        source_file=dict_file,
         includes=includes,
         mode=mode,
         order=order,
@@ -214,9 +214,9 @@ def main() -> None:
         scope=scope,
         output=output,
     ):
-        logger.info("dictParser.py finished successfully.\n")
+        logger.info("dictParser finished successfully.\n")
     else:
-        logger.error("dictParser.py finished with errors.\n")
+        logger.error("dictParser finished with errors.\n")
 
 
 def _validate_scope(

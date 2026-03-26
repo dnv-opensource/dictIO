@@ -8,8 +8,8 @@ from typing import Any
 
 import pytest
 
-from dictIO.cli import dict_parser
-from dictIO.cli.dict_parser import _argparser, _validate_scope, _get_version, main
+from dictIO.cli import __main__
+from dictIO.cli.__main__ import _argparser, _get_version, _validate_scope, main
 from dictIO.dict_parser import DictParser
 
 # *****Test commandline interface (CLI)************************************************************
@@ -188,7 +188,7 @@ def test_logging_configuration(
     ):
         pass
 
-    monkeypatch.setattr(dict_parser, "configure_logging", fake_configure_logging)
+    monkeypatch.setattr(__main__, "configure_logging", fake_configure_logging)
     monkeypatch.setattr(DictParser, "parse", fake_parse)
     # Execute
     if isinstance(expected, ConfigureLoggingArgs):

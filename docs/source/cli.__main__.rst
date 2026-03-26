@@ -1,3 +1,3 @@
 .. sphinx_argparse_cli::
-   :module: dictIO.cli.dict_parser
+   :module: dictIO.cli.__main__
    :func: _argparser
