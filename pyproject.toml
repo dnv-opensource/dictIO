@@ -27,7 +27,7 @@ allow-direct-references = true
 
 [project]
 name = "dictIO"
-version = "0.4.3"
+version = "0.4.4"
 description = "Python package to read, write and manipulate dictionary text files. Supports dictIOs native file format, as well as JSON, XML and OpenFOAM."
 readme = "README.md"
 requires-python = ">= 3.11"
