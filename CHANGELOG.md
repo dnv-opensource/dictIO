@@ -8,6 +8,13 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * -/-
 
 
+## [0.4.4] - 2026-03-26
+
+### Changed
+* Renamed command line script `src/dictIO/cli/dictParser.py` to ` src/dictIO/cli/__main__.py`
+* VS Code Settings:
+  * .vscode/launch.json: Corrected the CLI debug launch configuration
+
 ### Dependencies
 * .pre-commit-config.yaml: Updated rev of ruff-pre-commit to v0.15.7
 * Updated to numpy>=2.4
@@ -503,7 +510,8 @@ This removes the need to manually add /src to the PythonPath environment variabl
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.3...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.4...HEAD
+[0.4.4]: https://github.com/dnv-opensource/dictIO/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/dnv-opensource/dictIO/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/dnv-opensource/dictIO/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/dnv-opensource/dictIO/compare/v0.4.0...v0.4.1
