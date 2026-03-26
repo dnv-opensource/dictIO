@@ -8,6 +8,15 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * -/-
 
 
+### Dependencies
+* .pre-commit-config.yaml: Updated rev of ruff-pre-commit to v0.15.7
+* Updated to numpy>=2.4
+* Updated to pytest-cov>=7.1
+* Updated to ruff>=0.15.7
+* Updated to sphinx-argparse-cli>=1.21.3
+* Updated to types-lxml>=2026.2
+
+
 ## [0.4.3] - 2026-02-22
 
 ### Solved
