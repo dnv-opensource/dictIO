@@ -44,8 +44,8 @@ def _argparser() -> argparse.ArgumentParser:
     )
 
     _ = parser.add_argument(
-        "dict",
-        metavar="dict",
+        "dict_file",
+        metavar="dict_file",
         type=str,
         help="name of dict file to be parsed.",
     )
@@ -176,7 +176,7 @@ def main() -> None:
     log_level_file: str = args.log_level
     configure_logging(log_level_console, log_file, log_level_file)
 
-    dict_file = Path(args.dict)
+    dict_file = Path(args.dict_file)
     includes: bool = not args.ignore_includes
     mode: str = args.mode
     order: bool = args.order
