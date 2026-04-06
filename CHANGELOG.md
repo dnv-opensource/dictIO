@@ -10,6 +10,11 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ### Changed
 * Python modules: Changed `__ALL__` to `__all__` (lowercase, PEP8 and PEP257 compliant).
+* Updated code base with latest changes in python_project_template v0.2.10
+
+### Dependencies
+* .pre-commit-config.yaml: Updated rev of ruff-pre-commit to v0.15.9
+* Updated to ruff>=0.15.9
 
 
 ## [0.4.4] - 2026-03-26
