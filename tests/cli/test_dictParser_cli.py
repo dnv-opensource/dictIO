@@ -22,7 +22,7 @@ class CliArgs:
     verbose: bool = False
     log: str | None = None
     log_level: str = field(default_factory=lambda: "WARNING")
-    dict: str | None = field(default_factory=lambda: "test_dictParser_dict")
+    dict_file: str | None = field(default_factory=lambda: "test_dictParser_dict")
     ignore_includes: bool = False
     mode: str = "w"
     order: bool = False
