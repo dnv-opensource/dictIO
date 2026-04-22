@@ -497,10 +497,10 @@ class NativeFormatter(Formatter):
         original_data = deepcopy(_arg)
         sorted_data: dict[K, V] = {}
         for key, element in original_data.items():
-            if type(key) is str and re.search(r"BLOCKCOMMENT\d{6}", key):
+            if isinstance(key, str) and re.search(r"BLOCKCOMMENT\d{6}", key):
                 sorted_data[cast("K", key)] = element
         for key, element in original_data.items():
-            if type(key) is str and re.search(r"INCLUDE\d{6}", key):
+            if isinstance(key, str) and re.search(r"INCLUDE\d{6}", key):
                 sorted_data[cast("K", key)] = element
         for key in sorted_data:
             del original_data[key]
