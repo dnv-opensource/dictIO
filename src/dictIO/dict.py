@@ -376,7 +376,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
                     extract_variables_from_list(list_in=value)  # recursion
                 # 2: All other value types are considered variables, given that their key is of type string
                 #    (by convention, only strings are allowed as variable names)
-                if type(key) is not str:
+                if not isinstance(key, str):
                     continue
                 if isinstance(value, MutableSequence):
                     # special case: item is a list, but does NOT contain a nested dict (-> e.g. a vector or matrix)
@@ -987,7 +987,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         includes_on_this_level: list[str] = []
         line_comments_on_this_level: list[str] = []
         for key in keys_on_this_level:
-            if type(key) is not str:
+            if not isinstance(key, str):
                 continue
             if re.search(pattern=r"BLOCKCOMMENT\d{6}", string=key):
                 block_comments_on_this_level.append(key)
