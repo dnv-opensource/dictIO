@@ -15,6 +15,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Dependencies
 * .pre-commit-config.yaml: Updated rev of ruff-pre-commit to v0.15.9
 * Updated to ruff>=0.15.9
+* Updated to lxml>=6.1
+* Updated to nbconvert>=7.17.1
 
 
 ## [0.4.4] - 2026-03-26
