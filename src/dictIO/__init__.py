@@ -2,7 +2,7 @@
 
 from dictIO.dict import SDict
 
-from dictIO.cpp_dict import CppDict  # for backward compatibility
+from dictIO.cppDict import CppDict  # for backward compatibility
 
 from dictIO.utils.dict import (
     order_keys,
@@ -25,9 +25,9 @@ from dictIO.parser import (
     XmlParser,
 )
 
-from dictIO.dict_reader import DictReader
-from dictIO.dict_writer import DictWriter, create_target_file_name
-from dictIO.dict_parser import DictParser
+from dictIO.dictReader import DictReader
+from dictIO.dictWriter import DictWriter, create_target_file_name
+from dictIO.dictParser import DictParser
 
 __all__ = [
     "CppDict",
