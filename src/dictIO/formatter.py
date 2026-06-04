@@ -16,6 +16,7 @@ from xml.etree.ElementTree import Element, SubElement, register_namespace, tostr
 from numpy import ndarray
 
 from dictIO import SDict
+from dictIO.types import ProtectedString
 from dictIO.utils.counter import BorgCounter
 
 if TYPE_CHECKING:
@@ -309,6 +310,9 @@ class Formatter:
         str
             the formatted string
         """
+        # ProtectedString -> literal, preserve single quotes
+        if isinstance(arg, ProtectedString):
+            return self.add_single_quotes(arg)
         if re.search(r"[$]", arg):
             if re.search(r"^\$\w[\w\[\]]*$", arg):  # reference
                 return self.format_reference_string(arg)

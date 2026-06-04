@@ -108,7 +108,7 @@ required-environments = [
 
 
 [project.scripts]
-dictParser = "dictIO.cli.__main__:main"
+dictParser = "dictIO.cli.dictParser:main"
 
 
 [tool.mypy]

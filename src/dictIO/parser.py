@@ -18,7 +18,7 @@ from lxml.etree import ETCompatXMLParser, fromstring
 from lxml.etree import _Element as LxmlElement  # pyright: ignore[reportPrivateUsage]
 
 from dictIO import SDict
-from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V
+from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V, ProtectedString
 from dictIO.utils.counter import BorgCounter
 
 if TYPE_CHECKING:
@@ -281,12 +281,16 @@ class Parser:
             for key in list(arg.keys()):  # work on a copy of keys
                 if isinstance(arg[key], MutableMapping | MutableSequence):
                     self.parse_values(cast("MutableMapping[K, V] | MutableSequence[V]", arg[key]))
+                elif isinstance(arg[key], ProtectedString):
+                    pass    # ProtectedString: preserve as-is, do not re-parse
                 else:
                     arg[key] = cast("V", self.parse_value(arg[key]))
         else:  # List
             for index in range(len(arg)):
                 if isinstance(arg[index], MutableMapping | MutableSequence):
                     self.parse_values(cast("MutableMapping[K, V] | MutableSequence[V]", arg[index]))
+                elif isinstance(arg[index], ProtectedString):
+                    pass    # ProtectedString: preserve as-is, do not re-parse                    
                 else:
                     arg[index] = cast("V", self.parse_value(arg[index]))
         return
@@ -740,8 +744,10 @@ class NativeParser(Parser):
             )
 
             # Register the string literal in .string_literals
-            s_dict.string_literals.update({index: Parser.remove_quotes_from_string(string_literal)})
-
+            raw = Parser.remove_quotes_from_string(string_literal)
+            if string_literal.startswith("'") and "$" in raw:
+                raw = ProtectedString(raw)
+            s_dict.string_literals.update({index: raw})
         return
 
     def _extract_expressions(
@@ -1297,10 +1303,14 @@ class NativeParser(Parser):
         for index, string_literal in s_dict.string_literals.items():
             # Properties of the expression to be evaluated
             placeholder = f"STRINGLITERAL{index:06d}"  # STRINGLITERAL000000
-            # The entry from dict.string_literals is parsed once again,
-            # so that entries representing single value native types
-            # (such as bool ,None, int, float) are transformed to its native type, accordingly.
-            value = cast("V", self.parse_value(string_literal))
+            # ProtectedString: already protected, keep as-is
+            if isinstance(string_literal, ProtectedString):
+                value = string_literal
+            else:
+                # The entry from dict.string_literals is parsed once again,
+                # so that entries representing single value native types
+                # (such as bool ,None, int, float) are transformed to its native type, accordingly.
+                value = cast("V", self.parse_value(string_literal))
 
             # Replace all occurences of placeholder within the dictionary with the original string literal.
             # Note: As find_global_key() is non-greedy and returns the key of
@@ -1311,7 +1321,6 @@ class NativeParser(Parser):
                 # Back insert the string literal
                 s_dict.set_global_key(global_key, value)
         s_dict.string_literals.clear()
-        return
 
     def _clean(
         self,

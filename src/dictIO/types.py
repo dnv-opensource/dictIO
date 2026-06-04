@@ -16,3 +16,11 @@ K = TypeVar("K", bound=TKey)
 V = TypeVar("V", bound=TValue)
 M = TypeVar("M", bound=MutableMapping[K, V])  # type: ignore[valid-type, reportGeneralTypeIssues]
 S = TypeVar("S", bound=MutableSequence[V])  # type: ignore[valid-type, reportGeneralTypeIssues]
+
+class ProtectedString(str):
+    """A string literal that was single-quoted and shall be protected from expression resolution.
+    
+    ProtectedString values are preserved as-is during DictWriter output,
+    using single quotes around them to prevent $expression resolution on subsequent reeds.
+    """
+    pass

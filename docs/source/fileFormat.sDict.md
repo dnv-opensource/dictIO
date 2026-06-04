@@ -188,6 +188,17 @@ expression3     "$varA + $varB";    // expression with two references.
 expression4     "$list[0] + 3.14";  // expression with an indexed reference.
 ~~~
 
+### Protected strings (literal single-quted)
+
+Single-quoted strings that contain a `$` are treated as **literal** - the `$` character is NOT interpreted as a reference or expression, but preserved as-is in the string value. This makes it possible to pass shell commands or other content using `$` syntax without escaping.
+
+~~~cpp
+protected1      '${file[0]}';        // protected: the string remains
+literal
+protected2      'echo $HOME';        // protected: $HOME is preserved
+
+not_protected   "$varA + 4";         // expression: $varA is resolved (double-quoted)
+~~~
 
 ## Nesting
 

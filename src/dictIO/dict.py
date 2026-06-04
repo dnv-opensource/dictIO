@@ -244,7 +244,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         if self:
             logger.warning("SDict instance is not empty. `load()` will overwrite current content will.")
 
-        from dictIO.dict_reader import DictReader  # noqa: PLC0415
+        from dictIO.dictReader import DictReader 
 
         loaded_dict: SDict[K, V] = DictReader.read(
             source_file=source_file,
@@ -297,7 +297,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         # Make sure target_file argument is of type Path. If not, cast it to Path type.
         target_file = target_file if isinstance(target_file, Path) else Path(target_file)
 
-        from dictIO.dict_writer import DictWriter  # noqa: PLC0415
+        from dictIO.dictWriter import DictWriter 
 
         DictWriter.write(
             source_dict=self,
@@ -739,7 +739,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     #      once we drop support for Python 3.10
     #      (see https://docs.python.org/3/library/typing.html#typing.Self)
     #      CLAROS, 2024-10-15
-    def __ior__(  # noqa: PYI034
+    def __ior__(
         self,
         other: Mapping[K, V] | Iterable[tuple[K, V]],
     ) -> SDict[K, V]:

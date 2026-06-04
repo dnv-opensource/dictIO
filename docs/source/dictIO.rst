@@ -21,10 +21,10 @@ Modules
    :recursive:
 
    dictIO.dict
-   dictIO.dict_parser
-   dictIO.dict_reader
-   dictIO.dict_writer
+   dictIO.dictParser
+   dictIO.dictReader
+   dictIO.dictWriter
    dictIO.formatter
    dictIO.parser
    dictIO.types
-   dictIO.cpp_dict
+   dictIO.cppDict

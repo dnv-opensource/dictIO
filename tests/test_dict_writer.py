@@ -445,3 +445,42 @@ class TestCreateTargetFileName:
         # Assert
         assert target_file_first_call == target_file_expected
         assert target_file_second_call == target_file_expected
+
+    def test_protected_string_roundtrip(self) -> None:
+        """Verify that single-quoted strings with $ keep their protection through a write/read roundtrip."""
+        # Prepare
+        from dictIO.types import ProtectedString
+        import tempfile
+        
+        # Write test dict with a ProtectedString containing $shell syntax
+        s_dict: SDict[str, Any] = SDict()
+        s_dict["protected_cmd"] = ProtectedString(
+            'files=(results/*.csv) ; if [ -e "${files[0]}" ]; then mv results/*.csv ./ fi'
+        )
+        s_dict["normal_expr"] = "$a + $b * 2.0"
+        s_dict["plain_str"] = "just a string"
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target_file = Path(tmpdir) / "test_protected.dict"
+            DictWriter.write(s_dict, target_file)
+            
+            # Read back
+            s_dict_read = DictReader.read(target_file)
+            
+            # Assert
+            # ProtectedString with $ -> remains ProtectedString
+            cmd = s_dict_read["protected_cmd"]
+            assert isinstance(cmd, ProtectedString), "protected_cmd is not a ProtectedString"
+            assert cmd == s_dict["protected_cmd"], "protected_cmd value changed"
+            
+            # Normal expression -> remains str
+            expr = s_dict["normal_expr"]
+            assert not isinstance(expr, ProtectedString), "normal_expr should not be a ProtectedString"
+            assert expr == s_dict["normal_expr"], "normal_expr value changed"
+            
+            # Plain string -> remains str
+            result = s_dict_read["plain_str"]
+            assert not isinstance(result, ProtectedString), "plain_str should not be ProtectedString"
+            assert result == s_dict["plain_str"], "plain_str value changed"
+            
+        
