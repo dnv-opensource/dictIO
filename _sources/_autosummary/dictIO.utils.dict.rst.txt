@@ -1,0 +1,16 @@
+dictIO.utils.dict
+=================
+
+.. automodule:: dictIO.utils.dict
+   :members:
+
+
+   
+   .. rubric:: Functions
+   .. autosummary::
+   
+      find_global_key
+      global_key_exists
+      order_keys
+      set_global_key
+   

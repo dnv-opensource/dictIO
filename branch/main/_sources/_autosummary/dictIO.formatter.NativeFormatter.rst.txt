@@ -1,0 +1,48 @@
+NativeFormatter
+===============
+
+.. currentmodule:: dictIO.formatter
+
+.. autoclass:: NativeFormatter
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~NativeFormatter.__init__
+      ~NativeFormatter.add_double_quotes
+      ~NativeFormatter.add_single_quotes
+      ~NativeFormatter.format_bool
+      ~NativeFormatter.format_dict
+      ~NativeFormatter.format_empty_string
+      ~NativeFormatter.format_expression_string
+      ~NativeFormatter.format_float
+      ~NativeFormatter.format_int
+      ~NativeFormatter.format_key
+      ~NativeFormatter.format_multi_word_string
+      ~NativeFormatter.format_none
+      ~NativeFormatter.format_reference_string
+      ~NativeFormatter.format_single_word_string
+      ~NativeFormatter.format_string
+      ~NativeFormatter.format_string_with_nested_string
+      ~NativeFormatter.format_value
+      ~NativeFormatter.format_values
+      ~NativeFormatter.get_formatter
+      ~NativeFormatter.insert_block_comments
+      ~NativeFormatter.insert_includes
+      ~NativeFormatter.insert_line_comments
+      ~NativeFormatter.make_default_block_comment
+      ~NativeFormatter.remove_trailing_spaces
+      ~NativeFormatter.to_string
+   
+   
+
+
+   
+   
+   
