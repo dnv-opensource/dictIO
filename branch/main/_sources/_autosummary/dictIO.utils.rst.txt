@@ -1,0 +1,19 @@
+﻿dictIO.utils
+============
+
+.. automodule:: dictIO.utils
+   :members:
+
+
+   
+.. rubric:: Modules
+.. autosummary::
+   :toctree:
+   :template: custom-module.rst
+   :recursive:
+
+   counter
+   dict
+   logging
+   path
+   strings

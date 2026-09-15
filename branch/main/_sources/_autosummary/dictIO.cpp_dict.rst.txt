@@ -1,0 +1,17 @@
+﻿dictIO.cpp\_dict
+================
+
+.. automodule:: dictIO.cpp_dict
+   :members:
+   :exclude-members: CppDict,
+   
+
+
+   
+   .. rubric:: Classes
+   .. autosummary::
+      :toctree:
+      :template: custom-class.rst
+   
+      CppDict
+   

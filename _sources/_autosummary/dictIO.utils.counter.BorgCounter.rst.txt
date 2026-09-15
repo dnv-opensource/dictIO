@@ -1,0 +1,30 @@
+BorgCounter
+===========
+
+.. currentmodule:: dictIO.utils.counter
+
+.. autoclass:: BorgCounter
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~BorgCounter.__init__
+      ~BorgCounter.reset
+   
+   
+
+
+   
+   
+   .. rubric:: Attributes
+   .. autosummary::
+   
+      ~BorgCounter.Borg
+   
+   
