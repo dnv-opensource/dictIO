@@ -1,0 +1,17 @@
+﻿dictIO.dict\_reader
+===================
+
+.. automodule:: dictIO.dict_reader
+   :members:
+   :exclude-members: DictReader,
+   
+
+
+   
+   .. rubric:: Classes
+   .. autosummary::
+      :toctree:
+      :template: custom-class.rst
+   
+      DictReader
+   

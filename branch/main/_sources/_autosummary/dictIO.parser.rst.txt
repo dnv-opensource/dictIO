@@ -1,0 +1,21 @@
+﻿dictIO.parser
+=============
+
+.. automodule:: dictIO.parser
+   :members:
+   :exclude-members: FoamParser,JsonParser,NativeParser,Parser,XmlParser,
+   
+
+
+   
+   .. rubric:: Classes
+   .. autosummary::
+      :toctree:
+      :template: custom-class.rst
+   
+      FoamParser
+      JsonParser
+      NativeParser
+      Parser
+      XmlParser
+   
