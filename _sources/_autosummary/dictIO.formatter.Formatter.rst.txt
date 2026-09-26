@@ -1,0 +1,42 @@
+Formatter
+=========
+
+.. currentmodule:: dictIO.formatter
+
+.. autoclass:: Formatter
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~Formatter.__init__
+      ~Formatter.add_double_quotes
+      ~Formatter.add_single_quotes
+      ~Formatter.format_bool
+      ~Formatter.format_empty_string
+      ~Formatter.format_expression_string
+      ~Formatter.format_float
+      ~Formatter.format_int
+      ~Formatter.format_key
+      ~Formatter.format_multi_word_string
+      ~Formatter.format_none
+      ~Formatter.format_reference_string
+      ~Formatter.format_single_word_string
+      ~Formatter.format_string
+      ~Formatter.format_string_with_nested_string
+      ~Formatter.format_value
+      ~Formatter.format_values
+      ~Formatter.get_formatter
+      ~Formatter.to_string
+   
+   
+
+
+   
+   
+   

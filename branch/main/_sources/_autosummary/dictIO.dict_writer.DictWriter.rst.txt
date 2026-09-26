@@ -1,0 +1,25 @@
+DictWriter
+==========
+
+.. currentmodule:: dictIO.dict_writer
+
+.. autoclass:: DictWriter
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~DictWriter.__init__
+      ~DictWriter.write
+   
+   
+
+
+   
+   
+   
