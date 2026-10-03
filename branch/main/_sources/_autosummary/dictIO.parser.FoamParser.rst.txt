@@ -1,0 +1,32 @@
+FoamParser
+==========
+
+.. currentmodule:: dictIO.parser
+
+.. autoclass:: FoamParser
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~FoamParser.__init__
+      ~FoamParser.get_parser
+      ~FoamParser.parse_file
+      ~FoamParser.parse_key
+      ~FoamParser.parse_string
+      ~FoamParser.parse_value
+      ~FoamParser.parse_values
+      ~FoamParser.remove_quotes_from_string
+      ~FoamParser.remove_quotes_from_strings
+   
+   
+
+
+   
+   
+   

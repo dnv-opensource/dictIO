@@ -1,0 +1,19 @@
+dictIO.utils.counter
+====================
+
+.. automodule:: dictIO.utils.counter
+   :members:
+   :exclude-members: BorgCounter,DejaVue,Indenter,
+   
+
+
+   
+   .. rubric:: Classes
+   .. autosummary::
+      :toctree:
+      :template: custom-class.rst
+   
+      BorgCounter
+      DejaVue
+      Indenter
+   

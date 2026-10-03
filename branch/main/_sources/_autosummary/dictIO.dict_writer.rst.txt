@@ -1,0 +1,22 @@
+﻿dictIO.dict\_writer
+===================
+
+.. automodule:: dictIO.dict_writer
+   :members:
+   :exclude-members: DictWriter,
+   
+
+
+   
+   .. rubric:: Functions
+   .. autosummary::
+   
+      create_target_file_name
+   
+   .. rubric:: Classes
+   .. autosummary::
+      :toctree:
+      :template: custom-class.rst
+   
+      DictWriter
+   
