@@ -10,7 +10,7 @@ src = [
     "src",
 ]
 line-length = 120
-target-version = "py311"
+target-version = "py312"
 
 [lint]
 # Settings for Ruff linter (invoked with `uv run ruff check`).
