@@ -1,14 +1,24 @@
 ---
-agent: agent
-description: "Reflect on the current session and propose improvements to instructions and draft plans."
+name: reflect-and-improve
+description: >-
+  Reflect on the current session and propose improvements to repository
+  instruction files, reusable prompts/skills, and draft plans. Use when:
+  ending a session and asked to reflect, capture learnings, or improve
+  instructions/skills/plan-drafts based on what happened in the session.
+  Do not use for: making the proposed edits automatically without
+  discussion, or performing a broad, unrelated instruction-file audit (see
+  the `improve-agent-instructions-and-plans` plan for that).
+disable-model-invocation: true
 ---
+
+# Reflect and Improve
 
 Before we end this session, reflect on what happened:
 
 1. Review the work done in this session.
 2. Consider whether any learnings should be fed back into:
    - The repository instruction files (`/.github/copilot-instructions.md`, `/AGENTS.md`)
-   - The reusable prompt files inside `/.github/prompts/`
+   - The reusable skills inside `/.github/skills/`
    - Any `plan-draft.md` files inside `/plans/**/`
 
 The goal is NOT to copy detailed `plan.md` content back into draft plans.

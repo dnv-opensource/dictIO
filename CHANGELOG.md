@@ -20,6 +20,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
   * VS Code Settings: (Recommended extensions): Removed 'sourcery.sourcery' (Sourcery).
 * .sourcery.yaml: Updated the lowest Python version the project supports to '3.12'
 * ruff.toml: Updated target Python version to "py312"
+* Migrated the four agent workflow prompts to explicitly invoked skills for Copilot Agent Host compatibility, removed the obsolete prompt files, and updated related instruction and plan references.
 
 ### Dependencies
 * .pre-commit-config.yaml: Updated rev of ruff-pre-commit to v0.15.9

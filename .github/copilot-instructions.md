@@ -41,18 +41,17 @@ Additional GitHub-specific guidance MAY apply from:
   `examples.instructions.md`); add more when a real path-specific need
   arises.
 
-- `.github/prompts/*.prompt.md`
-  Reusable workflow prompts (plan from draft, implement, commit, reflect).
-
 - `.github/agents/*.agent.md`
   Named agent personas, if explicitly activated.
 
 - `.github/skills/**/SKILL.md`
-  Reusable, invoke-by-name procedures (see `.github/skills/README.md`).
+  Reusable, invoke-by-name procedures (see `.github/skills/README.md`),
+  including the reusable workflow skills `generate-plan`, `implement-plan`,
+  `prepare-commits`, and `reflect-and-improve`.
 
 Unlike `.github/instructions/` (opted into discovery via
 `.vscode/settings.json`'s `chat.instructionsFilesLocations`), the
-`prompts/`, `agents/`, and `skills/` folders above are discovered by
+`agents/` and `skills/` folders above are discovered by
 fixed, tool-level convention - no corresponding settings entry is
 needed or expected for them.
 
@@ -70,10 +69,10 @@ custom instructions (not merely a repository convention):
 2. Repository-wide `.github/copilot-instructions.md` (this file)
 3. Agent instructions in `/AGENTS.md`
 
-Reusable prompt files (`.github/prompts/*.prompt.md`) and skill/agent
-definitions (`.github/skills/`, `.github/agents/`) rank below all three
-tiers above; see `/AGENTS.md`'s "Instruction Precedence and Scope" section
-for how they relate to the repository instruction files as a whole.
+Skill and agent definitions (`.github/skills/`, `.github/agents/`) rank
+below all three tiers above; see `/AGENTS.md`'s "Instruction Precedence
+and Scope" section for how they relate to the repository instruction
+files as a whole.
 
 When in doubt:
 

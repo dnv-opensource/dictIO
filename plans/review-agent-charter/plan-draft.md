@@ -2,8 +2,8 @@
 
 ## Problem Statement
 
-This repository's "agent charter" - the collection of instruction files, prompt
-files, skill files, agent persona files, and plan templates that agents read
+This repository's "agent charter" - the collection of instruction files,
+skill files, agent persona files, and plan templates that agents read
 and act on - has grown organically over multiple sessions. It has not yet been
 reviewed as a whole, from an outside, unbiased perspective.
 
@@ -24,7 +24,7 @@ session works through that report's findings, a second, dated "after" report
 can be generated to close the loop (see "Reporting convention" below).
 
 **Relationship to `plans/improve-agent-instructions-and-plans/`**: that plan
-also targets the instruction files, prompts, and draft plans, but audits and
+also targets the instruction files and draft plans, but audits and
 implements changes directly in a single pass. This plan is the periodic,
 read-only health check; `improve-agent-instructions-and-plans` (or a
 purpose-specific follow-up plan) is the vehicle used to actually apply this
@@ -47,9 +47,10 @@ another charter file explicitly instructs it to. At minimum, this includes:
   or, if it intentionally targets a path that does not exist yet (e.g.
   anticipating a pending rename), that this is explicitly documented in
   the file itself, not left to be mistaken for an error.
-- `.github/prompts/*.prompt.md` (workflow prompts)
 - `.github/agents/*.agent.md` (named agent personas)
-- `.github/skills/**/SKILL.md` (reusable procedures)
+- `.github/skills/**/SKILL.md` (reusable procedures, including the
+  reusable workflow skills `generate-plan`, `implement-plan`,
+  `prepare-commits`, and `reflect-and-improve`)
 - `plans/README.md`, `plans/.plan.md` (template), and every
   `plans/<task>/plan-draft.md`
 - Any other root-level files an agent is told to consult (e.g.
@@ -242,7 +243,7 @@ even if the answer is "no issue found".
   maintained like production code"?
 - Is there any mechanism (automated or procedural) to catch charter drift
   over time (e.g. this plan itself, run periodically, plus the existing
-  `reflect-and-improve` prompt and `improve-agent-instructions-and-plans`
+  `reflect-and-improve` skill and `improve-agent-instructions-and-plans`
   plan), and is it sufficient?
 - Is the charter's own size/complexity proportionate to the size of the
   codebase it governs, or is it over-engineered relative to actual team

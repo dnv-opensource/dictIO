@@ -60,7 +60,7 @@ For each plan you work on, follow these phases **in order**:
 - After implementation, consider whether learnings should be fed back into:
   - The `plan-draft.md` (to make future runs start better)
   - Repository instruction files (`/AGENTS.md`)
-  - Prompt files in `.github/prompts/`
+  - Reusable skills in `.github/skills/`
 - Propose minimal, specific improvements. Do NOT copy detailed plan content back.
 
 #### Phase 4: Prepare Commits
@@ -116,10 +116,10 @@ Before committing ANY code change, ALL of these must pass. Do not skip any gate.
 
 The detailed instructions for each workflow phase are maintained in:
 
-- `.github/prompts/generate-plan.prompt.md`
-- `.github/prompts/implement-plan.prompt.md`
-- `.github/prompts/reflect-and-improve.prompt.md`
-- `.github/prompts/prepare-commits.prompt.md`
+- `.github/skills/generate-plan/SKILL.md`
+- `.github/skills/implement-plan/SKILL.md`
+- `.github/skills/reflect-and-improve/SKILL.md`
+- `.github/skills/prepare-commits/SKILL.md`
 
 The plan template is at `plans/.plan.md`. Draft plans live in `plans/<task>/plan-draft.md`.
 
