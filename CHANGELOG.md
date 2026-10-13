@@ -11,12 +11,39 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Changed
 * Python modules: Changed `__ALL__` to `__all__` (lowercase, PEP8 and PEP257 compliant).
 * Updated code base with latest changes in python_project_template v0.2.10
+* GitHub Workflows:
+  * _test.yml: Updated Python versions in test matrix to 3.12, 3.13, 3.14
+* pyproject.toml:
+  * pyproject.toml: Updated required Python version to ">=3.12"
+  * pyproject.toml: Updated supported Python versions to 3.12, 3.13, 3.14
+* VS Code Settings:
+  * VS Code Settings: (Recommended extensions): Removed 'sourcery.sourcery' (Sourcery).
+* .sourcery.yaml: Updated the lowest Python version the project supports to '3.12'
+* ruff.toml: Updated target Python version to "py312"
 
 ### Dependencies
 * .pre-commit-config.yaml: Updated rev of ruff-pre-commit to v0.15.9
 * Updated to ruff>=0.15.9
 * Updated to lxml>=6.1
 * Updated to nbconvert>=7.17.1
+* .pre-commit-config.yaml: Updated rev of ruff-pre-commit to v0.17.0
+* Updated to mypy>=2.4
+* Updated to myst-parser>=5.1
+* Updated to nbconvert>=7.17
+* Updated to numpy>=2.5
+* Updated to pre-commit>=4.7
+* Updated to pyright>=1.1.414
+* Updated to pytest>=9.1
+* Updated to ruff>=0.17.0
+* Updated to sphinx-argparse-cli>=1.24.0
+* Updated to sphinx-autodoc-typehints>=3.13
+* Updated to Sphinx>=9.1
+* Updated to sphinxcontrib-mermaid>=2.1
+* GitHub Workflows:
+  * Updated 'checkout' action to v7
+  * Updated 'download-artifact' action to v8
+  * Updated 'setup-uv' action to v10.3.0
+  * Updated 'upload-artifact' action to v7
 
 
 ## [0.4.4] - 2026-03-26
