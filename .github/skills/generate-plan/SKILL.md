@@ -1,7 +1,17 @@
 ---
-agent: agent
-description: "Create detailed plan(s) from one or more draft plans. Attach the plan-draft.md file(s) as context."
+name: generate-plan
+description: >-
+  Create detailed plan.md file(s) from one or more draft plans
+  (plan-draft.md). Use when: turning a plan-draft.md into a full,
+  actionable plan.md, or when asked to generate/expand a plan from one or
+  more drafts. Attach the plan-draft.md file(s) as context.
+  Do not use for: implementing an existing plan.md (see the implement-plan
+  skill) or writing the initial plan-draft.md itself.
+argument-hint: "[plan-draft.md path(s)]"
+disable-model-invocation: true
 ---
+
+# Generate Plan
 
 Read the repository instructions:
 - `/.github/copilot-instructions.md`

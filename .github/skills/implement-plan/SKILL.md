@@ -1,7 +1,17 @@
 ---
-agent: agent
-description: "Implement one or more plans. Attach the plan.md file(s) as context."
+name: implement-plan
+description: >-
+  Implement one or more plan.md files. Use when: asked to implement,
+  execute, or carry out an existing plan.md (or several), working through
+  its phases/steps and running its validation strategy. Attach the plan.md
+  file(s) as context.
+  Do not use for: creating a plan.md from a plan-draft.md (see the
+  generate-plan skill).
+argument-hint: "[plan.md path(s)]"
+disable-model-invocation: true
 ---
+
+# Implement Plan
 
 Read the repository instructions:
 
@@ -38,4 +48,4 @@ If a terminal command fails immediately with a generic "command/executable not r
 
 If a validation command's terminal output comes back empty, truncated, or otherwise garbled even though the command should produce output (observed with Node/npm-based tools in some environments), do not treat that as `passed`, `failed`, or `blocked` on its own: redirect the command's output to a temporary file and read the file back (e.g. `<command> 2>&1 | Out-File -FilePath out.log; Get-Content out.log`) to get a reliable result, then delete the temporary file. A freshly-written log file can still read back as empty or partial on the first attempt even after the command has finished (a filesystem write-visibility lag, also observed with `uv run pytest`, not just Node tooling) - re-read it once or twice more before concluding the command produced no output.
 
-If changes affect the package (code, tests, public docs, or API), update `./CHANGELOG.md` (at the repository root) — add entries to the "Unreleased" section.
+If changes affect the package (code, tests, public docs, or API), update `./CHANGELOG.md` (at the repository root) - add entries to the "Unreleased" section.

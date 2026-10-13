@@ -7,11 +7,11 @@ refined based on experience. After each working session, learnings should be fed
 into the instruction files and draft plans to improve future sessions.
 
 The goal is to analyse the current setup and identify improvements to:
-- `/AGENTS.md` — project-wide engineering rules and default working style
-- `/.github/copilot-instructions.md` — GitHub-specific scoping
-- `/.github/agents/code-quality.agent.md` — code quality agent persona
-- `/.github/prompts/*.prompt.md` — reusable workflow prompts
-- `/plans/*/plan-draft.md` — task-specific draft plans
+- `/AGENTS.md` - project-wide engineering rules and default working style
+- `/.github/copilot-instructions.md` - GitHub-specific scoping
+- `/.github/agents/code-quality.agent.md` - code quality agent persona
+- `/.github/skills/*/SKILL.md` - reusable workflow skills
+- `/plans/*/plan-draft.md` - task-specific draft plans
 
 **Relationship to `plans/review-agent-charter/`**: that plan is the periodic,
 read-only health check over this same set of files (structure, internal
@@ -22,8 +22,8 @@ from other, independently noticed friction points - once a fix is
 significant enough to warrant its own audit-and-implement pass rather than a
 direct small fix.
 
-**Relationship to `.github/prompts/reflect-and-improve.prompt.md`**: that
-prompt is the cheap, always-run, session-scoped reflection step at the end
+**Relationship to `.github/skills/reflect-and-improve/SKILL.md`**: that
+skill is the cheap, always-run, session-scoped reflection step at the end
 of every session, proposing minimal fixes tied to that session's own work.
 This plan is the broader, systematic audit it escalates to when a session's
 reflection surfaces issues wider than its own specific edits (e.g. several

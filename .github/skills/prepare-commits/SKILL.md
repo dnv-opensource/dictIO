@@ -1,7 +1,15 @@
 ---
-agent: agent
-description: "Split the current uncommitted changes into logical, well-structured commits."
+name: prepare-commits
+description: >-
+  Split the current uncommitted changes into logical, well-structured local
+  commits. Use when: asked to prepare, organize, or split uncommitted
+  changes into commits, or to stage and commit work in progress.
+  Do not use for: pushing commits, opening a pull request, or generating a
+  plan or implementing one.
+disable-model-invocation: true
 ---
+
+# Prepare Commits
 
 Review the current uncommitted changes in the working tree.
 
