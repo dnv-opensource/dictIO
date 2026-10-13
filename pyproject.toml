@@ -76,7 +76,7 @@ Changelog = "https://github.com/dnv-opensource/dictIO/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
-    "pytest>=9.0",
+    "pytest>=9.1",
     "pytest-cov>=7.1",
     "ruff>=0.15.9",
     "pyright>=1.1.408",
