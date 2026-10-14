@@ -2,7 +2,7 @@
 
 [project]
 name = "dictIO"
-version = "0.4.4"
+version = "0.4.5"
 description = "Python package to read, write and manipulate dictionary text files. Supports dictIOs native file format, as well as JSON, XML and OpenFOAM."
 requires-python = ">=3.12"
 readme = "README.md"

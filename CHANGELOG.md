@@ -5,6 +5,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
+## [0.4.5] - 2026-10-14
+
 ### Changed
 * Added behavior-focused Google-style docstrings to test, example, and Sphinx configuration modules and enabled Ruff's D-family checks for those files.
 * Clarified argument defaults and stateful behavior in parser and indentation utility docstrings.
@@ -15,19 +17,14 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 * Reformatted package docstrings to use Google-style documentation consistently.
 * Python modules: Changed `__ALL__` to `__all__` (lowercase, PEP8 and PEP257 compliant).
 * Updated code base with latest changes in python_project_template v0.5.0
-* VS Code Settings:
-  * VS Code Settings: (Recommended extensions): Removed 'sourcery.sourcery' (Sourcery).
+* VS Code Settings: (Recommended extensions): Removed 'sourcery.sourcery' (Sourcery).
 * ruff.toml: Updated target Python version to "py312"
 * Migrated the four agent workflow prompts to explicitly invoked skills for Copilot Agent Host compatibility, removed the obsolete prompt files, and updated related instruction and plan references.
 * Agent charter: Updated with latest changes in python_project_template
-* GitHub Workflows:
-  * _test_future.yml: Updated Python version in test_future to 3.16.0-alpha - 3.16.0
-  * _test.yml: Updated Python versions in test matrix to 3.12, 3.13, 3.14, 3.15
-* pyproject.toml:
-  * pyproject.toml: Updated required Python version to ">=3.12"
-  * pyproject.toml: Updated supported Python versions to 3.12, 3.13, 3.14, 3.15
-
-### Dependencies
+* _test_future.yml: Updated Python version in test_future to 3.16.0-alpha - 3.16.0
+* _test.yml: Updated Python versions in test matrix to 3.12, 3.13, 3.14, 3.15
+* pyproject.toml: Updated required Python version to ">=3.12"
+* pyproject.toml: Updated supported Python versions to 3.12, 3.13, 3.14, 3.15
 * Updated to lxml>=6.1
 * Updated to ruff>=0.17.0
 * .pre-commit-config.yaml: Updated rev of ruff-pre-commit to v0.17.0
@@ -552,7 +549,8 @@ This removes the need to manually add /src to the PythonPath environment variabl
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.4...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.5...HEAD
+[0.4.5]: https://github.com/dnv-opensource/dictIO/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/dnv-opensource/dictIO/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/dnv-opensource/dictIO/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/dnv-opensource/dictIO/compare/v0.4.1...v0.4.2
