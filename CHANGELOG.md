@@ -9,6 +9,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 
 ### Changed
+* Clarified argument defaults and stateful behavior in parser and indentation utility docstrings.
 * Resolved a Pyright type error in `SDict` dictionary union handling.
 * Modernized type alias declarations and removed active Ruff check violations.
 * Added specific type annotations to dictionary parsing, formatting, and utility APIs and test helpers.
