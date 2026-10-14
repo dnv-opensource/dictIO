@@ -14,5 +14,5 @@ type TSingleValue = str | int | float | bool | None
 # Generic Type Variables
 K = TypeVar("K", bound=TKey)
 V = TypeVar("V", bound=TValue)
-M = TypeVar("M", bound=MutableMapping[K, V])  # type: ignore[valid-type, reportGeneralTypeIssues]
-S = TypeVar("S", bound=MutableSequence[V])  # type: ignore[valid-type, reportGeneralTypeIssues]
+M = TypeVar("M", bound=MutableMapping[K, V])  # type: ignore[valid-type]
+S = TypeVar("S", bound=MutableSequence[V])  # type: ignore[valid-type]
