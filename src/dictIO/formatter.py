@@ -40,21 +40,19 @@ class Formatter:
     """
 
     def __init__(self) -> None:
+        """Initialize a formatter with a shared placeholder counter."""
         self.counter = BorgCounter()
 
     @classmethod
     def get_formatter(cls, target_file: Path | None = None) -> Formatter:
         """Return a Formatter instance matching the type of the target file to be formatted (factory method).
 
-        Parameters
-        ----------
-        target_file : Path, optional
-            name of the target file to be formatted, by default None
+        Args:
+            target_file: Target path used to choose a format-specific formatter.
+                If `None`, return the native formatter. Defaults to `None`.
 
-        Returns
-        -------
-        Formatter
-            specific Formatter instance matching the target file type to be formatted
+        Returns:
+            Formatter selected for the target file's suffix.
         """
         # Determine the formatter to be applied by a two stage process:
 
@@ -81,17 +79,13 @@ class Formatter:
     ) -> str:
         """Create a string representation of the passed in dict.
 
-        Note: Override this method when implementing a specific Formatter.
+        Override this method in a format-specific formatter.
 
-        Parameters
-        ----------
-        arg : Union[MutableMapping[K, V]]
-            dict to be formatted
+        Args:
+            arg: Mapping to format.
 
-        Returns
-        -------
-        str
-            string representation of the dict
+        Returns:
+            Formatted mapping as a string.
         """
         return ""
 
@@ -115,20 +109,14 @@ class Formatter:
     ) -> str:
         """Format a single value.
 
-        Formats a single value of type TSingleValue = str | int | float | bool | Path | None
+        Format strings, booleans, numbers, paths, and `None` with their
+        format-specific handlers. Other values are converted with `str`.
 
-        Parameters
-        ----------
-        arg : V
-            the value to be formatted
+        Args:
+            arg: Value to format.
 
-        Returns
-        -------
-        str
-            the formatted string representation of the passed in value,
-            if value is of TSingleValue type = str | int | float | bool | Path | None.
-            For all other types, the method will, as fallback, call and return `str(arg)`.
-            It is hence guaranteed that a string gets returned.
+        Returns:
+            Formatted value as a string.
         """
         # sourcery skip: assign-if-exp, reintroduce-else
 
@@ -171,21 +159,14 @@ class Formatter:
     ) -> M | S:
         """Format multiple values.
 
-        Formats all values inside a dict or list.
-        The function traverses the passed in dict or list recursively
-        so that all values in also nested dicts and lists get formatted.
-        A copy of the passed in dict or list is returned with all values formatted.
-        (The original dict or list is not modified.)
+        Traverse nested mappings and sequences recursively. The input object is
+        not modified.
 
-        Parameters
-        ----------
-        arg : MutableMapping[K, V] | MutableSequence[V]
-            the dict or list containing the values to be formatted.
+        Args:
+            arg: Mapping or sequence whose values should be formatted.
 
-        Returns
-        -------
-        MutableMapping[K, V] | MutableSequence[V]
-            a copy of the passed in dict or list, with all values formatted.
+        Returns:
+            Shallow copy of the input container with formatted values.
         """
         item: TValue
         _arg = copy(arg)  # shallow copy is sufficient because this function is recursive
@@ -219,95 +200,71 @@ class Formatter:
     ) -> str:
         """Format a key.
 
-        Formats a key of type TKey = str | int
+        Args:
+            arg: Key to format.
 
-        Parameters
-        ----------
-        arg : TKey
-            the key to be formatted
-
-        Returns
-        -------
-        str
-            the formatted string representation of the passed in key
+        Returns:
+            Formatted key as a string.
         """
         return self.format_value(arg)
 
     def format_bool(self, arg: bool) -> str:  # noqa: FBT001
         """Format a boolean.
 
-        Note: Override this method for specific formatting of booleans when implementing a Formatter.
+        Override this method for format-specific boolean representations.
 
-        Parameters
-        ----------
-        arg : bool
-            the boolean value to be formatted
+        Args:
+            arg: Boolean value to format.
 
-        Returns
-        -------
-        str
-            the formatted string representation of the passed in boolean value
+        Returns:
+            Formatted boolean as a string.
         """
         return str(arg)
 
     def format_int(self, arg: int) -> str:
         """Format an integer.
 
-        Note: Override this method for specific formatting of integers when implementing a Formatter.
+        Override this method for format-specific integer representations.
 
-        Parameters
-        ----------
-        arg : int
-            the int to be formatted
+        Args:
+            arg: Integer to format.
 
-        Returns
-        -------
-        str
-            the formatted string representation of the passed in int
+        Returns:
+            Formatted integer as a string.
         """
         return str(arg)
 
     def format_float(self, arg: float) -> str:
         """Format a floating point number.
 
-        Note: Override this method for specific formatting of floating point numbers when implementing a Formatter.
+        Override this method for format-specific floating-point representations.
 
-        Parameters
-        ----------
-        arg : float
-            the float to be formatted
+        Args:
+            arg: Floating-point value to format.
 
-        Returns
-        -------
-        str
-            the formatted string representation of the passed in float
+        Returns:
+            Formatted value as a string.
         """
         return str(arg)
 
     def format_none(self) -> str:
         """Format None value.
 
-        Note: Override this method for specific formatting of None when implementing a Formatter.
+        Override this method for a format-specific representation of `None`.
 
-        Returns
-        -------
-        str
-            the formatted string representation of None
+        Returns:
+            Formatted `None` value as a string.
         """
         return str(None)
 
     def format_string(self, arg: str) -> str:
         """Format a string.
 
-        Parameters
-        ----------
-        arg : str
-            the string to be formatted
+        Args:
+            arg: String to format.
 
-        Returns
-        -------
-        str
-            the formatted string
+        Returns:
+            Formatted string.
         """
         if re.search(r"[$]", arg):
             if re.search(r"^\$\w[\w\[\]]*$", arg):  # reference
@@ -326,142 +283,109 @@ class Formatter:
     def format_empty_string(self, arg: str) -> str:
         """Format an empty string.
 
-        Note: Override this method for specific formatting of empty strings when implementing a Formatter.
+        Override this method for a format-specific representation of an empty
+        string.
 
-        Parameters
-        ----------
-        arg : str
-            the empty string to be formatted
+        Args:
+            arg: Empty string to format.
 
-        Returns
-        -------
-        str
-            the formatted empty string
+        Returns:
+            Formatted empty string.
         """
         return arg
 
     def format_single_word_string(self, arg: str) -> str:
         """Format a single word string.
 
-        Note: Override this method for specific formatting of single word strings when implementing a Formatter.
+        Override this method for a format-specific representation of a
+        single-word string.
 
-        Parameters
-        ----------
-        arg : str
-            the single word string to be formatted
+        Args:
+            arg: Single-word string to format.
 
-        Returns
-        -------
-        str
-            the formatted single word string
+        Returns:
+            Formatted string.
         """
         return arg
 
     def format_string_with_nested_string(self, arg: str) -> str:
         """Format a string that contains a nested string.
 
-        Note: Override this method for specific formatting of strings with nested strings when implementing a Formatter.
+        Override this method for a format-specific representation of a string
+        containing nested quotes.
 
-        Parameters
-        ----------
-        arg : str
-            the string with a nested string to be formatted
+        Args:
+            arg: String containing nested quotes.
 
-        Returns
-        -------
-        str
-            the formatted string with a nested string
+        Returns:
+            Formatted string.
+
         """
         return self.add_single_quotes(arg)
 
     def format_multi_word_string(self, arg: str) -> str:
         """Format a multi word string.
 
-        Note: Override this method for specific formatting of multi word strings when implementing a Formatter.
+        Override this method for a format-specific representation of a
+        multi-word string.
 
-        Parameters
-        ----------
-        arg : str
-            the multi word string to be formatted
+        Args:
+            arg: Multi-word string to format.
 
-        Returns
-        -------
-        str
-            the formatted multi word string
+        Returns:
+            Formatted string.
         """
         return arg
 
     def format_reference_string(self, arg: str) -> str:
         """Format a reference.
 
-        Note: Override this method for specific formatting of references when implementing a Formatter.
+        Override this method for format-specific reference handling.
 
-        Parameters
-        ----------
-        arg : str
-            the reference to be formatted
+        Args:
+            arg: Reference string to format.
 
-        Returns
-        -------
-        str
-            the formatted reference
+        Returns:
+            Formatted reference.
         """
         return arg
 
     def format_expression_string(self, arg: str) -> str:
         """Format an expression.
 
-        Note: Override this method for specific formatting of expressions when implementing a Formatter.
+        Override this method for format-specific expression handling.
 
-        Parameters
-        ----------
-        arg : str
-            the expression to be formatted
+        Args:
+            arg: Expression string to format.
 
-        Returns
-        -------
-        str
-            the formatted expression
+        Returns:
+            Formatted expression.
         """
         return arg
 
     def add_single_quotes(self, arg: str) -> str:
         """Add single quotes to a string.
 
-        Leading and trailing single quotes will added to the passed in string
-        (i.e. it will be wrapped in single quotes).
-        Note: Call this base class method from any specific Formatter implementation
-        to easily add single quotes to a string when formatting.
+        This helper is available to subclasses when quoting formatted values.
 
-        Parameters
-        ----------
-        arg : str
-            the string to be wrapped in single quotes
+        Args:
+            arg: String to wrap in single quotes.
 
-        Returns
-        -------
-        str
-            the string wrapped in single quotes
+        Returns:
+            String wrapped in single quotes.
         """
         return f"'{arg}'"
 
     def add_double_quotes(self, arg: str) -> str:
         """Add double quotes to a string.
 
-        Leading and trailing double quotes will added to the passed in string
-        (i.e. it will be wrapped in double quotes).
-        Note: Call this base class method from any specific Formatter implementation
-        to easily add double quotes to a string when formatting.
+        This helper is available to subclasses when quoting formatted values.
 
-        Parameters
-        ----------
-        arg : str
-            the string to be wrapped in double quotes
+        Args:
+            arg: String to wrap in double quotes.
 
-        Returns
-        -------
-        str
-            the string wrapped in double quotes
+        Returns:
+            String wrapped in double quotes.
         """
         return f'"{arg}"'
 
@@ -480,14 +404,10 @@ class NativeFormatter(Formatter):
     ) -> str:  # sourcery skip: dict-comprehension
         """Create a string representation of the passed in dict in dictIO native file format.
 
-        Parameters
-        ----------
-        arg : MutableMapping[K, V]
-            dict to be formatted
+        Args:
+            arg: dict to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             string representation of the dict in dictIO native file format
         """
         # Create a working copy of the passed in dict, to avoid modifying the original.
@@ -541,7 +461,25 @@ class NativeFormatter(Formatter):
         end: str = "\n",
         ancestry: type[MutableMapping[Any, Any] | MutableSequence[Any]] = MutableMapping,
     ) -> str:
-        """Format a dict or list object."""
+        """Serialize a mapping, sequence, or scalar value.
+
+        Args:
+            arg: Value or nested container to serialize.
+            tab_len: Number of indentation characters per level. Defaults to
+                `4`.
+            level: Initial indentation level. Defaults to `0`.
+            sep: Character used between keys and values. Defaults to `" "`.
+            items_per_line: Maximum number of sequence items written on a line.
+                Defaults to `10`.
+            end: Line ending appended to each serialized element. Defaults to
+                the newline character.
+            ancestry: Container type that determines whether a sequence is
+                serialized as a top-level value or as a mapping value.
+                Defaults to `MutableMapping`.
+
+        Returns:
+            Serialized representation of the input.
+        """
         total_indent = 30
         s = ""
         indent = sep * tab_len * level
@@ -679,14 +617,10 @@ class NativeFormatter(Formatter):
     def format_bool(self, arg: bool) -> str:  # noqa: FBT001
         """Format a boolean.
 
-        Parameters
-        ----------
-        arg : bool
-            the boolean value to be formatted
+        Args:
+            arg: the boolean value to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             the formatted string representation of the passed in boolean value
         """
         return str(arg).lower()
@@ -694,9 +628,7 @@ class NativeFormatter(Formatter):
     def format_none(self) -> str:
         """Format None.
 
-        Returns
-        -------
-        str
+        Returns:
             the formatted string representation of None
         """
         return "NULL"
@@ -704,14 +636,10 @@ class NativeFormatter(Formatter):
     def format_empty_string(self, arg: str) -> str:
         """Format an empty string.
 
-        Parameters
-        ----------
-        arg : str
-            the empty string to be formatted
+        Args:
+            arg: the empty string to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             the formatted empty string
         """
         return self.add_single_quotes(arg)
@@ -719,15 +647,14 @@ class NativeFormatter(Formatter):
     def format_string_with_nested_string(self, arg: str) -> str:
         """Format a string that contains a nested string.
 
-        Parameters
-        ----------
-        arg : str
-            the string with a nested string to be formatted
+        Args:
+            arg: the string with a nested string to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             the formatted string with a nested string
+
+        Raises:
+            ValueError: If the input does not contain a nested quote.
         """
         if re.search(r'"', arg):
             return self.add_single_quotes(arg)
@@ -738,14 +665,10 @@ class NativeFormatter(Formatter):
     def format_multi_word_string(self, arg: str) -> str:
         """Format a multi word string.
 
-        Parameters
-        ----------
-        arg : str
-            the multi word string to be formatted
+        Args:
+            arg: the multi word string to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             the formatted multi word string
         """
         return self.add_single_quotes(arg)
@@ -753,14 +676,10 @@ class NativeFormatter(Formatter):
     def format_expression_string(self, arg: str) -> str:
         """Format an expression.
 
-        Parameters
-        ----------
-        arg : str
-            the expression to be formatted
+        Args:
+            arg: the expression to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             the formatted expression
         """
         return self.add_double_quotes(arg)
@@ -770,11 +689,18 @@ class NativeFormatter(Formatter):
         s_dict: SDict[K, V],
         s: str,
     ) -> str:
-        """Insert back all block comments.
+        """Replace block-comment placeholders with their original text.
 
-        Replaces all BLOCKCOMMENT placeholders in s with the actual block_comments saved in dict
-        str s is expected to contain the SDict's block_content containing block comment placeholders
-        to substitute (BLOCKCOMMENT... BLOCKCOMMENT...)
+        The first inserted block comment receives the default dict header when
+        it does not already contain a C++ marker. If no comment placeholder is
+        present, insert the default header at the start of the output.
+
+        Args:
+            s_dict: Dictionary containing block-comment text.
+            s: Formatted text containing block-comment placeholders.
+
+        Returns:
+            Text with block-comment placeholders replaced.
         """
         # Replace all BLOCKCOMMENT placeholders in s with the actual block_comments saved in dict
         block_comments_inserted_so_far = ""
@@ -812,7 +738,15 @@ class NativeFormatter(Formatter):
         return s
 
     def make_default_block_comment(self, block_comment: str = "") -> str:
-        """Create the default block comment (header) for files in dictIO native file format."""
+        """Ensure a native-format header precedes the supplied block comment.
+
+        Args:
+            block_comment: Existing block comment. If it contains a C++ marker,
+                leave it unchanged. Defaults to `""`.
+
+        Returns:
+            Block comment with the native-format header prepended when needed.
+        """
         # If there is no ' C++ ' contained in block_comment,
         # then insert the C++ default block comment in front:
         # sourcery skip: move-assign
@@ -830,7 +764,15 @@ class NativeFormatter(Formatter):
         s_dict: SDict[K, V],
         s: str,
     ) -> str:
-        """Insert back all include directives."""
+        """Replace include placeholders with their source directives.
+
+        Args:
+            s_dict: Dictionary containing include metadata.
+            s: Formatted text containing include placeholders.
+
+        Returns:
+            Text with include placeholders replaced.
+        """
         search_pattern: str | Pattern[str]
         for key, (_, include_file_name, _) in s_dict.includes.items():
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
@@ -848,7 +790,15 @@ class NativeFormatter(Formatter):
         s_dict: SDict[K, V],
         s: str,
     ) -> str:
-        """Insert back all line directives."""
+        """Replace line-comment placeholders with their original comments.
+
+        Args:
+            s_dict: Dictionary containing line comments.
+            s: Formatted text containing line-comment placeholders.
+
+        Returns:
+            Text with line-comment placeholders replaced.
+        """
         search_pattern: str | Pattern[str]
         for key, line_comment in s_dict.line_comments.items():
             # Search for the placeholder entry we created in _parse_tokenized_dict(),
@@ -861,8 +811,11 @@ class NativeFormatter(Formatter):
     def remove_trailing_spaces(self, s: str) -> str:
         """Remove trailing spaces from all lines.
 
-        Reads all lines from the passed in string, removes trailing spaces from each line and
-        returns a new string with trailing spaces removed.
+        Args:
+            s: Text whose lines should be stripped of trailing whitespace.
+
+        Returns:
+            Text with trailing spaces removed and line endings preserved.
         """
         stream = io.StringIO(newline=None)
         _ = stream.write(s)
@@ -891,14 +844,10 @@ class FoamFormatter(NativeFormatter):
     ) -> str:
         """Create a string representation of the passed in dict in OpenFOAM dictionary format.
 
-        Parameters
-        ----------
-        arg : MutableMapping[K, V]
-            dict to be formatted
+        Args:
+            arg: dict to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             string representation of the dict in OpenFOAM dictionary format
         """
         # Foam dicts are, in contrast to dictIO default dicts, restricted in what they may contain.
@@ -931,14 +880,10 @@ class FoamFormatter(NativeFormatter):
     def format_empty_string(self, arg: str) -> str:
         """Format an empty string.
 
-        Parameters
-        ----------
-        arg : str
-            the empty string to be formatted
+        Args:
+            arg: the empty string to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             the formatted empty string
         """
         return self.add_double_quotes(arg)
@@ -946,15 +891,14 @@ class FoamFormatter(NativeFormatter):
     def format_string_with_nested_string(self, arg: str) -> str:
         """Format a string that contains a nested string.
 
-        Parameters
-        ----------
-        arg : str
-            the string with a nested string to be formatted
+        Args:
+            arg: the string with a nested string to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             the formatted string with a nested string
+
+        Raises:
+            ValueError: If the input does not contain a nested quote.
         """
         if re.search(r'"', arg):
             _arg: str = re.sub(r'"', '\\"', arg)
@@ -966,14 +910,10 @@ class FoamFormatter(NativeFormatter):
     def format_multi_word_string(self, arg: str) -> str:
         """Format a multi word string.
 
-        Parameters
-        ----------
-        arg : str
-            the multi word string to be formatted
+        Args:
+            arg: the multi word string to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             the formatted multi word string
         """
         return self.add_double_quotes(arg)
@@ -981,20 +921,25 @@ class FoamFormatter(NativeFormatter):
     def format_expression_string(self, arg: str) -> str:
         """Format an expression.
 
-        Parameters
-        ----------
-        arg : str
-            the expression to be formatted
+        Args:
+            arg: the expression to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             the formatted expression
         """
         return self.add_double_quotes(arg)
 
     def make_default_block_comment(self, block_comment: str = "") -> str:
-        """Create the default block comment (header) for files in OpenFOAM dictionary format."""
+        """Ensure an OpenFOAM header precedes the supplied block comment.
+
+        Args:
+            block_comment: Existing block comment. If it contains a C++ marker
+                and the OpenFOAM header, leave it unchanged. If it has no C++
+                marker, prepend the default OpenFOAM header. Defaults to `""`.
+
+        Returns:
+            Block comment with the OpenFOAM header prepended when needed.
+        """
         # If there is no ' C++ ' and 'OpenFoam' contained in block_comment,
         # then insert the OpenFOAM default block comment in front:
         default_block_comment = (
@@ -1035,14 +980,10 @@ class JsonFormatter(Formatter):
     ) -> str:
         """Create a string representation of the passed in dict in JSON dictionary format.
 
-        Parameters
-        ----------
-        arg : MutableMapping[K, V]
-            dict to be formatted
+        Args:
+            arg: dict to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             string representation of the dict in JSON dictionary format
         """
         import json  # noqa: PLC0415
@@ -1068,7 +1009,15 @@ class JsonFormatter(Formatter):
         s_dict: SDict[K, V],
         s: str,
     ) -> str:
-        """Insert back all include directives."""
+        """Replace include placeholders with JSON include directives.
+
+        Args:
+            s_dict: Dictionary containing include metadata.
+            s: JSON text containing include placeholders.
+
+        Returns:
+            JSON text with include placeholders replaced.
+        """
         search_pattern: str | Pattern[str]
         for key, (_, include_file_name, _) in s_dict.includes.items():
             # Search for the placeholder key in the Json string,
@@ -1137,7 +1086,16 @@ class XmlFormatter(Formatter):
         integrate_attributes: bool = True,
         remove_node_numbering: bool = True,
     ) -> None:
-        """Define default configuration for XmlFormatter."""
+        """Initialize XML formatting options.
+
+        Args:
+            omit_prefix: Whether to remove namespace prefixes from serialized
+                element tags. Defaults to `True`.
+            integrate_attributes: Whether to serialize recognized dictionary
+                attributes as XML attributes. Defaults to `True`.
+            remove_node_numbering: Whether to remove generated node numbers
+                from element names. Defaults to `True`.
+        """
         # Invoke base class constructor
         super().__init__()
         # Save default configuration as attributes
@@ -1151,14 +1109,10 @@ class XmlFormatter(Formatter):
     ) -> str:
         """Create a string representation of the passed in dict in XML format.
 
-        Parameters
-        ----------
-        arg : MutableMapping[K, V]
-            dict to be formatted
+        Args:
+            arg: dict to be formatted
 
-        Returns
-        -------
-        str
+        Returns:
             string representation of the dict in XML format
         """
         # Default configuration
@@ -1239,14 +1193,11 @@ class XmlFormatter(Formatter):
         If arg is a dict or list, method will call itself recursively until all nested content within the dict or list
         is populated into nested elements, eventually creating an XML dom.
 
-        Parameters
-        ----------
-        element : Element
-            element which will be populated
-        arg : MutableMapping[Any, Any] | MutableSequence[Any] | Any
-            value to be populated into the element
-        xsd_uri : str, optional
-            xsd uri, by default None
+        Args:
+            element: XML element to populate.
+            arg: Value or nested container to add to the element.
+            xsd_uri: Namespace URI for created child elements. If `None`, use
+                the namespace configured by the caller. Defaults to `None`.
         """
         # sourcery skip: merge-duplicate-blocks, remove-pass-body, remove-pass-elif, remove-redundant-pass
 

@@ -19,7 +19,12 @@ logger = logging.getLogger(__name__)
 
 
 def _get_version() -> str:
-    """Return the installed package version, or a safe fallback if unavailable."""
+    """Return the installed package version or a fallback for source checkouts.
+
+    Returns:
+        The installed distribution version, or a message when package
+        metadata is unavailable.
+    """
     try:
         return metadata.version("dictIO")
     except metadata.PackageNotFoundError:
@@ -28,6 +33,11 @@ def _get_version() -> str:
 
 
 def _argparser() -> argparse.ArgumentParser:
+    """Create the command-line argument parser.
+
+    Returns:
+        Configured parser for the `dictParser` command.
+    """
     parser = argparse.ArgumentParser(
         prog="dictParser",
         usage="%(prog)s dict [options [args]]",
@@ -158,9 +168,10 @@ def _argparser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    """Entry point for console script as configured in pyproject.toml.
+    """Run the command-line interface.
 
-    Runs the command line interface and parses arguments and options entered on the console.
+    Parse command-line arguments, configure logging, and parse the requested
+    dictionary file.
     """
     parser = _argparser()
     args = parser.parse_args()
