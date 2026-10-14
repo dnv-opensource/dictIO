@@ -2,7 +2,7 @@
 applyTo: "examples/**/*"
 ---
 
-Files in `examples/` (tutorial and demonstration scripts/notebooks)
+Files in `examples/` (tutorial and example scripts/notebooks)
 are exempt from some rules that apply elsewhere in the codebase,
 matching `ruff.toml`'s `"examples/**/*"` ignore block:
 

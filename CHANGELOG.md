@@ -9,6 +9,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 
 ### Changed
+* Renamed the tutorial directory to `examples/` and updated related references.
 * Reformatted package docstrings to use Google-style documentation consistently.
 * Python modules: Changed `__ALL__` to `__all__` (lowercase, PEP8 and PEP257 compliant).
 * Updated code base with latest changes in python_project_template v0.5.0
@@ -175,7 +176,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
   * updated id of ruff to ruff-check
 * Sphinx conf.py:
   * removed ruff rule exception on file level
-* demos\folder_for_demos.py:
+* examples\folder_for_examples.py:
   * removed ruff rule exception
 * .sourcery.yaml:
   * updated the lowest Python version the project supports to '3.11'

@@ -22,7 +22,7 @@ for the shared steps below.
 
 1. Determine scope: check which directories in the current code base
    actually contain Python source files (e.g. `src/`, `examples/`,
-   `demos/`, `scripts/`, `tests/`, `packages/`, `tools/`, etc.).
+   `scripts/`, `tests/`, `packages/`, `tools/`, etc.).
 2. Run `uv run ruff format --check` and confirm formatting is clean.
 3. Run `uv run pytest -q` and record how many tests pass
    (pytest-baseline).

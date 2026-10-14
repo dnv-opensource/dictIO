@@ -36,5 +36,5 @@ relative to `/AGENTS.md` and `.github/copilot-instructions.md`.
   apply to `tests/**/*`, mirroring `ruff.toml`'s `"tests/**/*"`
   ignore block.
 - [`examples.instructions.md`](./examples.instructions.md) -
-  exemptions for tutorial/demo code, mirroring `ruff.toml`'s
+  exemptions for tutorial/example code, mirroring `ruff.toml`'s
   `"examples/**/*"` ignore block.

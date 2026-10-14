@@ -135,7 +135,7 @@ mypy_path = "stubs"
 files = [
     "src",
     "tests",
-    "demos",
+    "examples",
 ]
 exclude = [
     "src/folder_to_be_excluded",
@@ -154,7 +154,7 @@ stubPath = "stubs"
 include = [
     "src",
     "tests",
-    "demos",
+    "examples",
 ]
 exclude = [
     "**/node_modules",

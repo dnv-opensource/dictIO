@@ -209,7 +209,8 @@ even if the answer is "no issue found".
   repository state (e.g. tooling commands in `/AGENTS.md` versus
   actual `pyproject.toml`/`ruff.toml` configuration)?
 - Are there stale references to folders or conventions that were renamed or
-  removed (e.g. `demos/` vs. `examples/`)?
+  removed (e.g. references to a former directory name that no longer matches
+  the current path)?
 
 ### Reuse and the plan-vs-skill boundary
 
