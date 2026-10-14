@@ -48,6 +48,26 @@ class SDict(dict[K, V]):  # noqa: PLW1641
 
     SDict inherits from dict. It can hence be used transparently in any context
     where a dict or any other MutableMapping type is expected.
+
+    Attributes:
+        counter: Counter used to create unique keys for parser metadata.
+        source_file: Source file associated with this dictionary, or `None` if unset.
+        path: Parent directory of `source_file`, or the current working directory if unset.
+        name: Name of `source_file`, or an empty string if unset.
+        line_content: Source lines retained while parsing.
+        block_content: Source text retained while parsing.
+        tokens: Tokens retained while parsing.
+        string_literals: String literals retained while parsing.
+        expressions: Expressions parsed from the source file.
+        line_comments: Line comments parsed from the source file.
+        block_comments: Block comments parsed from the source file.
+        includes: Include directives parsed from the source file.
+        brackets: Opening and closing bracket pairs recognized by the parser.
+        delimiters: Characters that separate dictionary elements.
+        openingBrackets: Opening bracket characters recognized by the parser.
+        closingBrackets: Closing bracket characters recognized by the parser.
+        variables: Values exposed through the dictionary's variable lookup.
+        data: Deprecated alias for the dictionary content.
     """
 
     @overload
@@ -86,6 +106,13 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         arg: Mapping[K, V] | Iterable[tuple[K, V]] | str | os.PathLike[str] | None = None,
         **kwargs: V,
     ) -> None:
+        """Initialize a dictionary, optionally associating it with a source file.
+
+        Args:
+            arg: Initial mapping, key-value iterable, or source file. If `None`,
+                initialize an empty dictionary. Defaults to `None`.
+            **kwargs: Additional entries to initialize the dictionary with.
+        """
         source_file: str | os.PathLike[str] | None = None
         base_dict: MutableMapping[K, V] | None = None
 
@@ -181,16 +208,12 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     ) -> SDict[_K, _V] | SDict[_K, Any | None]:
         """Create a new SDict instance from the keys of an iterable.
 
-        Parameters
-        ----------
-        iterable : Iterable[_K]
-            An iterable with keys
-        value : _V | None, optional
-            The value to be assigned to the passed in keys, by default None
+        Args:
+            iterable: An iterable with keys.
+            value: Value assigned to each key. If `None`, each key is mapped to
+                `None`. Defaults to `None`.
 
-        Returns
-        -------
-        SDict[_K, _V] | SDict[_K, Any | None]
+        Returns:
             The created SDict instance.
         """
         new_dict: SDict[_K, _V] = cast("SDict[_K, _V]", cls())
@@ -218,20 +241,15 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         '.json'          ->   Json dictionary file
         '.xml'           ->   XML file
 
-        Parameters
-        ----------
-        source_file : Union[str, os.PathLike[str]]
-            dict file to be loaded
+        Args:
+            source_file: dict file to be loaded.
 
-        Returns
-        -------
-        SDict[K, V]
-            self
+        Returns:
+            This dictionary instance after its content has been replaced by
+            the file contents.
 
-        Raises
-        ------
-        FileNotFoundError
-            if source_file does not exist
+        Raises:
+            FileNotFoundError: If `source_file` does not exist.
         """
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
         source_file = source_file if isinstance(source_file, Path) else Path(source_file)
@@ -272,21 +290,17 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         '.json'          ->   Json dictionary file
         '.xml'           ->   XML file
 
-        Parameters
-        ----------
-        target_file : Union[str, os.PathLike[str], None], optional
-            target dict file name, by default None
+        Args:
+            target_file: Target file name. If `None`, use the source file
+                associated with this instance; if no source file is set, raise
+                `ValueError`. Defaults to `None`.
 
-        Returns
-        -------
-        Path
-            target dict file
+        Returns:
+            Path to the written dictionary file.
 
-        Raises
-        ------
-        ValueError
-            if target_file was not specified while the current SDict instance has no source file set
-            (and hence the target file cannot be inferred).
+        Raises:
+            ValueError: If `target_file` is `None` and this instance has no
+                source file from which to infer the target.
         """
         if target_file is None and self._source_file is None:
             raise ValueError("target_file must be specified if the current SDict instance has no source file set.")
@@ -311,16 +325,18 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     def source_file(self) -> Path | None:
         """Return the source file of the SDict instance.
 
-        Returns
-        -------
-        Path or None
-            source file of the SDict instance
+        Returns:
+            Source file associated with this dictionary, or `None` if unset.
         """
         return self._source_file
 
     @source_file.setter
     def source_file(self, source_file: Path | None) -> None:
-        """Set the source file of the SDict instance."""
+        """Set or clear the source file associated with this dictionary.
+
+        Args:
+            source_file: Source file path, or `None` to clear the association.
+        """
         self._set_source_file(source_file)
         return
 
@@ -337,10 +353,9 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     def path(self) -> Path:
         """Return the path of the source file of the SDict instance.
 
-        Returns
-        -------
-        Path
-            path of the source file of the SDict instance
+        Returns:
+            Parent directory of the associated source file, or the current
+            working directory if no source file is set.
         """
         return self._path
 
@@ -348,10 +363,9 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     def name(self) -> str:
         """Return the name of the source file of the SDict instance.
 
-        Returns
-        -------
-        str
-            name of the source file of the SDict instance
+        Returns:
+            Name of the associated source file, or an empty string if no source
+            file is set.
         """
         return self._name
 
@@ -359,9 +373,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     def variables(self) -> dict[str, V]:
         """Returns a dict with all Variables currently registered.
 
-        Returns
-        -------
-        Dict[str, V]
+        Returns:
             dict of all Variables currently registered.
         """
         variables: MutableMapping[str, V] = {}
@@ -456,18 +468,16 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         from passed in dict into the existing, use merge() instead.
 
         Note:
+            The behavior of `update()` corresponds with default mode `-w` in
+            the dictParser command line interface.
 
-        The behaviour of update() corresponds with default mode '-w' in the dictParser command line interface.
+            The behavior of `merge()` corresponds with mode `-a` in the
+            dictParser command line interface. See the CLI documentation.
 
-        The behaviour of merge() corresponds with mode '-a' in the dictParser command line interface.
-        See also CLI Documentation.
-
-        Parameters
-        ----------
-        m : Mapping[K, V] | Iterable[tuple[K, V]] | None
-            dict containing the keys to be updated and its new values
-        **kwargs: V
-            optional keyword arguments. These will be passed on to the update() method of the parent class.
+        Args:
+            m: Mapping or iterable of key-value pairs to update. If `None`, no
+                entries are taken from this argument. Defaults to `None`.
+            **kwargs: Additional entries to update.
         """
         if m is not None:
             super().update(m)
@@ -501,10 +511,8 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         This prevents nested keys from being deleted.
         Further, existing keys will NOT be overwritten.
 
-        Parameters
-        ----------
-        other : Mapping[K, V]
-            dict to be merged
+        Args:
+            other: Mapping whose entries are recursively merged into this dictionary.
         """
         # merge other dict into self (=into self)
         self._recursive_merge(target_dict=self, dict_to_merge=other)
@@ -528,14 +536,10 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         but recursively merges (potentially nested) content from dict_to_merge into target_dict.
         This prevents nested keys from being deleted.
 
-        Parameters
-        ----------
-        target_dict : MutableMapping[_K, _V]
-            target dict
-        dict_to_merge : Mapping[_K, _V]
-            dict to be merged into target dict
-        overwrite : bool, optional
-            if True, existing keys will be overwritten, by default False
+        Args:
+            target_dict: target dict.
+            dict_to_merge: dict to be merged into target dict.
+            overwrite: if True, existing keys will be overwritten. Defaults to `False`.
         """
         for key in dict_to_merge:
             if (
@@ -570,17 +574,12 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     def include(self, dict_to_include: SDict[_K, _V]) -> None:
         """Add an include directive for the passed in dict.
 
-        Parameters
-        ----------
-        dict_to_include : SDict
-            The dict to be included via an include directive
+        Args:
+            dict_to_include: The dict to be included via an include directive.
 
-        Raises
-        ------
-        AttributeError
-            If dict_to_include.source_file is None
-        ValueError
-            If no relative path in between the current dict and the included dict can be resolved
+        Raises:
+            AttributeError: If dict_to_include.source_file is None
+            ValueError: If no relative path in between the current dict and the included dict can be resolved
         """
         if not dict_to_include.source_file:
             raise AttributeError(
@@ -647,14 +646,10 @@ class SDict(dict[K, V]):  # noqa: PLW1641
 
         The `__or__()` method is called by the ` | ` operator when it is used with `self` on the left-hand side.
 
-        Parameters
-        ----------
-        other : MutableMapping[K, V]
-            The other dictionary
+        Args:
+            other: The other dictionary.
 
-        Returns
-        -------
-        SDict[K, V]
+        Returns:
             A new SDict instance containing the content of `self` updated with the content of `other`.
         """
         new_dict: SDict[K | _K, V | _V]
@@ -701,14 +696,10 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         This method is only called if `other` and `self` are of different types
         and `other` does not implement `__or__()`, i.e. other.__or__() returns `NotImplemented`.
 
-        Parameters
-        ----------
-        other : dict[K, V]
-            The other dictionary
+        Args:
+            other: The other dictionary.
 
-        Returns
-        -------
-        SDict[K, V]
+        Returns:
             A new SDict instance containing the content of `other` updated with the content of `self`.
         """
         new_dict: SDict[K | _K, V | _V]
@@ -749,14 +740,10 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         The `__ior__()` method is called by the ` |= ` operator with `self` on the left-hand side.
         The content of `self` gets updated with the content of `other`.
 
-        Parameters
-        ----------
-        other : MutableMapping[K, V]
-            The other dictionary
+        Args:
+            other: The other dictionary.
 
-        Returns
-        -------
-        SDict[K, V]
+        Returns:
             Reference to `self`.
         """
         should_be_self = super().__ior__(other)
@@ -769,9 +756,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     def __copy__(self) -> SDict[K, V]:
         """Return a shallow copy of the SDict instance.
 
-        Returns
-        -------
-        SDict[K, V]
+        Returns:
             shallow copy of the SDict instance
         """
         copied_dict = self.__class__.__new__(self.__class__)
@@ -782,9 +767,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     def copy(self) -> SDict[K, V]:
         """Return a shallow copy of the SDict instance.
 
-        Returns
-        -------
-        SDict[K, V]
+        Returns:
             shallow copy of the SDict instance
         """
         copied_dict = copy(self)  # calls __copy__()
@@ -793,9 +776,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     def __str__(self) -> str:
         """Return a string representation of the SDict instance in dictIO native format.
 
-        Returns
-        -------
-        str
+        Returns:
             the string representation
         """
         # __str__ shall be formatted in dictIO native file format
@@ -807,9 +788,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     def __repr__(self) -> str:
         """Return a string representation of the SDict instance.
 
-        Returns
-        -------
-        str
+        Returns:
             string representation of the SDict instance.
         """
         return f"SDict({self._source_file!r})"
@@ -819,14 +798,10 @@ class SDict(dict[K, V]):  # noqa: PLW1641
 
         Determines equality of two SDict instances by comparing their string representations.
 
-        Parameters
-        ----------
-        value : object
-            the other SDict instance to determine equality with.
+        Args:
+            value: the other SDict instance to determine equality with.
 
-        Returns
-        -------
-        bool
+        Returns:
             True if the two SDict instances are equal, otherwise False.
         """
         if isinstance(value, SDict):
@@ -850,14 +825,10 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         It represents the sequence of keys that one needs to traverse downwards
         in order to arrive at the target key found.
 
-        Parameters
-        ----------
-        query : str, optional
-            query string for the value to search for by default ''
+        Args:
+            query: Value to search for. Defaults to `""`.
 
-        Returns
-        -------
-        list[K | int] | None
+        Returns:
             global key thread to the first key the value of which matches the passed in query, if found. Otherwise None.
         """
         return find_global_key(self, query)
@@ -868,12 +839,10 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         The global key thread is traversed downwards until arrival at the target key,
         the value of which is then set.
 
-        Parameters
-        ----------
-        global_key : MutableSequence[K | int]
-            list of keys defining the global key thread to the target key (such as returned by method find_global_key())
-        value : V
-            value the target key shall be set to
+        Args:
+            global_key: Keys defining the path to the target key, such as the
+                sequence returned by `find_global_key()`.
+            value: Value to assign to the target key.
         """
         set_global_key(
             arg=self,
@@ -886,14 +855,10 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     def global_key_exists(self, global_key: MutableSequence[K | int]) -> bool:
         """Check whether the specified global key exists.
 
-        Parameters
-        ----------
-        global_key : MutableSequence[K | int]
-            global key the existence of which is checked
+        Args:
+            global_key: global key the existence of which is checked.
 
-        Returns
-        -------
-        bool
+        Returns:
             True if the specified global key exists, otherwise False
         """
         """
@@ -907,10 +872,8 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     def reduce_scope(self, scope: MutableSequence[K]) -> None:
         """Reduces the dict to the keys defined in scope.
 
-        Parameters
-        ----------
-        scope : MutableSequence[K]
-            scope the dict shall be reduced to
+        Args:
+            scope: scope the dict shall be reduced to.
         """
         if scope:
             _scope: list[str] = [str(key) for key in scope]
@@ -1050,9 +1013,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         Mimicks the data property of the deprecated CppDict class to maintain
         backward compatibility. This property is deprecated and will be removed with v0.5.0.
 
-        Returns
-        -------
-        dict[K, V]
+        Returns:
             the content of the SDict instance
         """
         warnings.warn(
@@ -1064,6 +1025,11 @@ class SDict(dict[K, V]):  # noqa: PLW1641
 
     @data.setter
     def data(self, data: dict[K, V]) -> None:
+        """Replace dictionary content through the deprecated compatibility property.
+
+        Args:
+            data: New dictionary content.
+        """
         warnings.warn(
             f"`{self.__class__.__name__}.data` is deprecated. Use `SDict.update()` instead.",
             DeprecationWarning,

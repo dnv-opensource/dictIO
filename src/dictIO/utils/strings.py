@@ -14,7 +14,14 @@ logger = logging.getLogger(__name__)
 def remove_quotes(string: str) -> str:
     """Remove quotes (single or double quotes) from the string object passed in.
 
-    Not only leading and trailing quotes are removed; also any quotes inside a string, if so, are removed.
+    Removes quote characters throughout the string, including quotes between
+    other characters.
+
+    Args:
+        string: Text from which to remove single and double quote characters.
+
+    Returns:
+        The input text with all single and double quote characters removed.
     """
     search_pattern: Pattern[str]
     # Pattern 1 removes only leading and trailing quotes. Quotes inside a string are kept.
@@ -28,7 +35,17 @@ def remove_quotes(string: str) -> str:
 
 
 def string_diff(text_1: str, text_2: str) -> str:
-    """Return diff line by line."""
+    """Describe the line-by-line differences between two text values.
+
+    Blank lines in the diff output are omitted.
+
+    Args:
+        text_1: First text value to compare.
+        text_2: Second text value to compare.
+
+    Returns:
+        A summary containing changed lines and the total number of differences.
+    """
     lines_1: list[str] = re.split("[\r\n]+", text_1)
     lines_2: list[str] = re.split("[\r\n]+", text_2)
     diffs: list[str] = []

@@ -69,6 +69,13 @@ class CppDict(SDict[str, Any]):
         arg: Mapping[str, Any] | Iterable[tuple[str, Any]] | str | os.PathLike[str] | None = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize a deprecated C++ dictionary wrapper.
+
+        Args:
+            arg: Initial mapping, key-value iterable, or source file. If `None`,
+                initialize an empty dictionary. Defaults to `None`.
+            **kwargs: Additional entries to initialize the dictionary with.
+        """
         warnings.warn(
             "`CppDict` is deprecated. Use `SDict[K, V]` instead.",
             DeprecationWarning,
