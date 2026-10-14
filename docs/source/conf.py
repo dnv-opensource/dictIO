@@ -1,3 +1,5 @@
+"""Configure Sphinx extensions, documentation paths, and project metadata."""
+
 # mypy: ignore-errors
 
 # Configuration file for the Sphinx documentation builder.

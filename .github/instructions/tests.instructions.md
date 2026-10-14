@@ -2,12 +2,12 @@
 applyTo: "tests/**/*"
 ---
 
-Test files in `tests/` are exempt from some rules that apply
-elsewhere in the codebase, matching `ruff.toml`'s `"tests/**/*"`
-ignore block:
+Test files in `tests/` are subject to the project-wide docstring
+requirements in `/AGENTS.md`; public test modules, classes, functions,
+and methods need behavior-focused Google-style docstrings. Ruff's `D`
+rules are enabled for tests. Other test-specific exceptions remain in
+`ruff.toml`'s `"tests/**/*"` ignore block:
 
-- Docstrings are **not required** on test modules, classes, or
-  functions (ruff's `D` family is ignored here).
 - Return type annotations are **not required** on test functions or
   methods (`ANN201`/`ANN202` ignored).
 - `assert` statements and magic values in comparisons are allowed

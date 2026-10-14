@@ -1,3 +1,5 @@
+"""Tests dictionary loading, include and expression processing, and input formats."""
+
 # pyright: reportPrivateUsage=false
 # pyright: reportUnnecessaryTypeIgnoreComment=false
 
@@ -20,6 +22,7 @@ WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(not sys.platform.startswi
 
 def test_file_not_found_exception() -> None:
     # Prepare
+    """Verify that reading a missing dictionary file raises FileNotFoundError."""
     source_file = Path("this_file_does_not_exist")
     # Execute and Assert
     with pytest.raises(FileNotFoundError):
@@ -29,6 +32,7 @@ def test_file_not_found_exception() -> None:
 def test_merge_includes() -> None:
     # sourcery skip: class-extract-method
     # Prepare dict until and including _parse_tokenized_dict()
+    """Verify that included dictionary files are merged into the parent dictionary."""
     s_dict: SDict[str, Any] = SDict()
     SetupHelper.prepare_dict_until(s_dict, until_step=-1)
     dict_in = deepcopy(s_dict)
@@ -53,6 +57,7 @@ def test_merge_includes() -> None:
 
 def test_resolve_reference() -> None:
     # Prepare dict until and including ()
+    """Verify that references resolve to values defined elsewhere in the dictionary."""
     s_dict: SDict[str, Any] = SDict()
     SetupHelper.prepare_dict_until(s_dict, until_step=0)
     # Assert non-indexed references have been resolved
@@ -109,6 +114,7 @@ def test_resolve_reference() -> None:
 
 def test_eval_expressions() -> None:
     # Prepare dict until and including ()
+    """Verify that dictionary expressions are evaluated and substituted with their values."""
     s_dict: SDict[str, Any] = SDict()
     SetupHelper.prepare_dict_until(s_dict, until_step=0)
     dict_in = deepcopy(s_dict)
@@ -150,6 +156,7 @@ def test_eval_expressions() -> None:
 def test_eval_expressions_with_included_keys() -> None:
     # test keys with the same name as included keys
     # Prepare
+    """Verify that expressions can refer to keys introduced by included files."""
     source_file = Path("test_dictReader_dict")
 
     # Execute
@@ -240,6 +247,7 @@ def test_eval_expressions_with_included_keys() -> None:
 
 def test_eval_expressions_with_included_numpy_expressions() -> None:
     # Prepare
+    """Verify that included expressions can use supported NumPy operations."""
     source_file = Path("test_dictReader_dict")
 
     # Execute
@@ -288,6 +296,7 @@ def test_eval_expressions_with_included_numpy_expressions() -> None:
 
 def test_reread_string_literals() -> None:
     # Prepare
+    """Verify that string literals remain intact when a parsed dictionary is processed again."""
     source_file = Path("test_dictReader_dict")
     parsed_file = Path(f"parsed.{source_file.name}")
     parsed_file.unlink(missing_ok=True)
@@ -309,17 +318,18 @@ def test_reread_string_literals() -> None:
 # @TODO: To be implemented
 @pytest.mark.skip(reason="To be implemented")
 def test_remove_comment_keys() -> None:
-    pass
+    """Verify that comment-only keys are removed from dictionary data."""
 
 
 # @TODO: To be implemented
 @pytest.mark.skip(reason="To be implemented")
 def test_remove_include_keys() -> None:
-    pass
+    """Verify that include bookkeeping keys are removed after included data is merged."""
 
 
 def test_read_dict() -> None:
     # Prepare
+    """Verify that the reader loads native dictionary syntax and its metadata."""
     source_file = Path("test_dictReader_dict")
     # Execute
     dict_in = DictReader.read(source_file)
@@ -350,6 +360,7 @@ def test_read_dict() -> None:
 
 def test_read_json() -> None:
     # Prepare
+    """Verify that the reader converts JSON objects into dictionary data."""
     source_file = Path("test_dictReader_json.json")
     # Execute
     dict_in = DictReader.read(source_file)
@@ -381,6 +392,7 @@ def test_read_json() -> None:
 def test_compare_expressions_in_dict_format_with_expressions_in_json_format() -> None:
     # sourcery skip: no-loop-in-tests
     # Prepare
+    """Verify that expression results agree between native dictionary and JSON inputs."""
     source_file_dict = Path("test_dictReader_dict")
     source_file_json = Path("test_dictReader_json.json")
     # Execute
@@ -433,6 +445,7 @@ def _resolve_references(
 
 def test_read_foam() -> None:
     # Prepare
+    """Verify that the reader converts OpenFOAM input into dictionary data."""
     source_file = Path("test_dictReader_foam")
     # Execute
     dict_in = DictReader.read(source_file)
@@ -443,6 +456,7 @@ def test_read_foam() -> None:
 
 def test_read_xml() -> None:
     # Prepare
+    """Verify that the reader converts XML input into dictionary data."""
     source_file = Path("test_dictReader_xml.xml")
     # Execute
     dict_in = DictReader.read(source_file)
@@ -459,6 +473,7 @@ def test_read_xml() -> None:
 @WindowsOnly
 def test_read_dict_in_subfolder_bsl() -> None:
     # Prepare
+    """Verify that relative includes resolve from nested sources using backslash paths."""
     source_file = Path.cwd() / "subfolder" / "test_subfolder_dict_bsl"
     # Execute
     dict_in = DictReader.read(source_file)
@@ -469,6 +484,7 @@ def test_read_dict_in_subfolder_bsl() -> None:
 
 def test_read_dict_in_subfolder_fsl() -> None:
     # Prepare
+    """Verify that relative includes resolve from nested sources using forward-slash paths."""
     source_file = Path.cwd() / "subfolder" / "test_subfolder_dict_fsl"
     # Execute
     dict_in = DictReader.read(source_file)
@@ -479,6 +495,7 @@ def test_read_dict_in_subfolder_fsl() -> None:
 
 def test_read_dict_in_subfolder_source_file_given_as_str() -> None:
     # Prepare
+    """Verify that nested includes resolve when the source filename is a string."""
     source_file = Path.cwd().absolute() / "subfolder" / "test_subfolder_dict_fsl"
     source_file_as_str = str(source_file)
     # Execute
@@ -489,6 +506,7 @@ def test_read_dict_in_subfolder_source_file_given_as_str() -> None:
 
 def test_read_dict_in_subfolder_source_file_given_as_purepath() -> None:
     # Prepare
+    """Verify that nested includes resolve when the source filename is a Path."""
     source_file = Path.cwd().absolute() / "subfolder" / "test_subfolder_dict_fsl"
     source_file_as_purepath = PurePath(str(source_file))
     # Execute
@@ -499,6 +517,7 @@ def test_read_dict_in_subfolder_source_file_given_as_purepath() -> None:
 
 def test_read_dict_in_subfolder_parsed_via_dictparser_cli() -> None:
     # Prepare
+    """Verify that the CLI resolves includes relative to a dictionary in a subfolder."""
     source_file = "subfolder/test_subfolder_dict_fsl"
     parsed_file = Path("subfolder/parsed.test_subfolder_dict_fsl")
     parsed_file_foam = Path("subfolder/parsed.test_subfolder_dict_fsl.foam")
@@ -522,6 +541,7 @@ def test_read_dict_in_subfolder_parsed_via_dictparser_cli() -> None:
 
 def test_read_circular_includes() -> None:
     # Prepare
+    """Verify that circular includes are detected without unbounded recursion."""
     source_file = Path("circular_include/test_base_dict")
     # Execute
     dict_in = DictReader.read(source_file)
@@ -535,6 +555,11 @@ def test_read_circular_includes() -> None:
 
 def test_read_circular_includes_log_warning(caplog: pytest.LogCaptureFixture) -> None:
     # Prepare
+    """Verify that circular includes emit a warning describing the skipped include.
+
+    Args:
+        caplog: Pytest fixture used to inspect log records emitted by the operation.
+    """
     source_file = Path("circular_include/test_base_dict")
     log_level_expected = "WARNING"
     log_message_expected = (
@@ -552,6 +577,7 @@ def test_read_circular_includes_log_warning(caplog: pytest.LogCaptureFixture) ->
 
 def test_read_strings_dict() -> None:
     # Prepare
+    """Verify that string values retain their quoting semantics when read."""
     source_file = Path("test_strings_dict")
     # Execute
     dict_in = DictReader.read(source_file)
@@ -568,6 +594,7 @@ def test_read_strings_dict() -> None:
 
 def test_reread_strings_dict() -> None:
     # Prepare
+    """Verify that rereading string values preserves parsed dictionary contents."""
     source_file = Path("test_strings_dict")
     parsed_file = Path(f"parsed.{source_file.name}")
     parsed_file.unlink(missing_ok=True)
@@ -589,6 +616,7 @@ def test_reread_strings_dict() -> None:
 
 def test_single_character_vars() -> None:
     # Prepare
+    """Verify that single-character variables are recognized in expressions."""
     source_file = Path("test_single_character_vars_dict")
     # Execute
     dict_in = DictReader.read(source_file, includes=False)
@@ -601,6 +629,7 @@ def test_single_character_vars() -> None:
 
 def test_single_character_references() -> None:
     # Prepare
+    """Verify that references to single-character keys resolve correctly."""
     source_file = Path("test_single_character_vars_dict")
     # Execute
     dict_in = DictReader.read(source_file)
@@ -618,12 +647,21 @@ def test_single_character_references() -> None:
 
 
 class SetupHelper:
+    """Provides helpers that run parser or reader preparation through a selected processing step."""
+
     @staticmethod
     def prepare_dict_until(
         dict_to_prepare: SDict[K, V],
         until_step: int = -1,
         file_to_read: str = "test_dictReader_dict",
     ) -> None:
+        """Run native parser preparation through the requested processing step for a test dictionary.
+
+        Args:
+            dict_to_prepare: Dictionary instance whose parser state is prepared for the test.
+            until_step: Last preparation step to execute; the default runs all steps.
+            file_to_read: Fixture filename used to populate the dictionary.
+        """
         file_name = Path.cwd() / file_to_read
 
         parser = NativeParser()

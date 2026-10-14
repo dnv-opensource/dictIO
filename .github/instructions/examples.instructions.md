@@ -2,12 +2,13 @@
 applyTo: "examples/**/*"
 ---
 
-Files in `examples/` (tutorial and example scripts/notebooks)
-are exempt from some rules that apply elsewhere in the codebase,
-matching `ruff.toml`'s `"examples/**/*"` ignore block:
+Files in `examples/` (tutorial and example scripts/notebooks) are
+subject to the project-wide docstring requirements in `/AGENTS.md`;
+public modules, classes, functions, and methods need behavior-focused
+Google-style docstrings. Ruff's `D` rules are enabled for examples.
+Other example-specific exceptions remain in `ruff.toml`'s
+`"examples/**/*"` ignore block:
 
-- Docstrings are **not required** (ruff's `D` family is ignored
-  here).
 - `assert` statements and magic values in comparisons are allowed
   (`S101`, `PLR2004` ignored) - illustrative/tutorial code, not
   production logic.

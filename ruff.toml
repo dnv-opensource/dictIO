@@ -108,7 +108,6 @@ raises-require-match-for = [
 ]
 # `tests` specific ignores
 "tests/**/*" = [
-    "D",       # Missing docstrings
     "ERA001",  # Found commented-out code
     "PT006",   # Wrong type passed to first argument of `@pytest.mark.parametrize` (NOTE: ignored to allow parameters args as "args_1,arg_2,arg_3,..."
     "S101",    # Use of assert detected
@@ -148,7 +147,6 @@ raises-require-match-for = [
 ]
 # `examples` specific ignores
 "examples/**/*" = [
-    "D",       # Missing docstrings
     "S101",    # Use of assert detected
     "PLR2004", # Magic value used in comparison
     "INP001",  # File is part of an implicit namespace package. Add an `__init__.py`. (NOTE: tutorials are not intended to be a module, __init__.py hence not required.)
@@ -163,7 +161,6 @@ raises-require-match-for = [
 "docs/source/conf.py" = [
     "INP001", # File is part of an implicit namespace package. Add an `__init__.py`. (NOTE: conf.py is not intended to be a module, __init__.py hence not required.)
     "A001",   # Variable {name} is shadowing a Python builtin
-    "D100",   # Missing docstring in public module
 ]
 # types.py specific ignores
 "**/types.py" = [
