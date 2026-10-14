@@ -18,11 +18,12 @@ from lxml.etree import ETCompatXMLParser, fromstring
 from lxml.etree import _Element as LxmlElement  # pyright: ignore[reportPrivateUsage]
 
 from dictIO import SDict
-from dictIO.types import K, M, S, TKey, TSingleValue, V
 from dictIO.utils.counter import BorgCounter
 
 if TYPE_CHECKING:
     import os
+
+    from dictIO.types import K, M, S, TKey, TSingleValue, V
 
 __all__: list[str] = ["FoamParser", "JsonParser", "NativeParser", "Parser", "XmlParser"]
 
@@ -305,7 +306,7 @@ class Parser:
             TypeError: If the parsed value is not a string or integer.
         """
         key: TSingleValue = self.parse_value(arg)
-        if not isinstance(key, TKey):
+        if not isinstance(key, Hashable):
             raise TypeError(f"Key '{key}' is not of type TKey. Found type: {type(key)}")
         return key
 
