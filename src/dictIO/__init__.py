@@ -29,7 +29,7 @@ from dictIO.dict_reader import DictReader
 from dictIO.dict_writer import DictWriter, create_target_file_name
 from dictIO.dict_parser import DictParser
 
-__all__ = [
+__all__: list[str] = [
     "CppDict",
     "DictParser",
     "DictReader",

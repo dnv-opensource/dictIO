@@ -7,10 +7,11 @@ from pathlib import Path
 from typing import Any
 
 from dictIO import DictReader, DictWriter, SDict, create_target_file_name
+from dictIO.types import TKey
 
-__all__ = ["DictParser"]
+__all__: list[str] = ["DictParser"]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class DictParser:
@@ -32,7 +33,7 @@ class DictParser:
         mode: str = "w",
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[Any] | None = None,
+        scope: MutableSequence[TKey] | None = None,
         output: str | None = None,
     ) -> SDict[Any, Any] | None:
         """Parse a dictionary file and save it with prefix 'parsed.'.

@@ -41,12 +41,12 @@ from numpy import (  # noqa: F401
 )
 
 from dictIO import Parser, SDict
-from dictIO.types import K, M, V
+from dictIO.types import K, M, TKey, V
 from dictIO.utils.counter import DejaVue
 
-__all__ = ["DictReader"]
+__all__: list[str] = ["DictReader"]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class DictReader:
@@ -63,7 +63,7 @@ class DictReader:
         includes: bool = True,
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[Any] | None = None,
+        scope: MutableSequence[TKey] | None = None,
         parser: Parser | None = None,
     ) -> SDict[Any, Any]:
         """Read and parse a dictionary file.

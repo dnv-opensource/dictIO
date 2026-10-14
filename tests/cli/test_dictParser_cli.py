@@ -4,13 +4,13 @@ from argparse import ArgumentError
 from collections.abc import MutableSequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 import pytest
 
 from dictIO.cli import __main__
 from dictIO.cli.__main__ import _argparser, _get_version, _validate_scope, main
 from dictIO.dict_parser import DictParser
+from dictIO.types import TKey
 
 # *****Test commandline interface (CLI)************************************************************
 
@@ -81,7 +81,7 @@ def test_cli(
     inputs: list[str],
     expected: CliArgs | type,
     monkeypatch: pytest.MonkeyPatch,
-):
+) -> None:
     # sourcery skip: no-conditionals-in-tests
     # sourcery skip: no-loop-in-tests
     # Prepare
@@ -108,7 +108,7 @@ def test_cli_version(
     flag: str,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
-):
+) -> None:
     # Prepare
     monkeypatch.setattr(sys, "argv", ["dictIO", flag])
     parser = _argparser()
@@ -160,7 +160,7 @@ def test_logging_configuration(
     inputs: list[str],
     expected: ConfigureLoggingArgs | type,
     monkeypatch: pytest.MonkeyPatch,
-):
+) -> None:
     # sourcery skip: no-conditionals-in-tests
     # sourcery skip: no-loop-in-tests
     # Prepare
@@ -171,7 +171,7 @@ def test_logging_configuration(
         log_level_console: str,
         log_file: Path | None,
         log_level_file: str,
-    ):
+    ) -> None:
         args.log_level_console = log_level_console
         args.log_file = log_file
         args.log_level_file = log_level_file
@@ -183,9 +183,9 @@ def test_logging_configuration(
         mode: str = "w",
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[Any] | None = None,
+        scope: MutableSequence[TKey] | None = None,
         output: str | None = None,
-    ):
+    ) -> None:
         pass
 
     monkeypatch.setattr(__main__, "configure_logging", fake_configure_logging)
@@ -217,7 +217,7 @@ class ApiArgs:
     mode: str = "w"
     order: bool = False
     comments: bool = True
-    scope: MutableSequence[Any] | None = None
+    scope: MutableSequence[TKey] | None = None
     output: str | None = "cpp"
 
 
@@ -262,7 +262,7 @@ def test_api_invokation(
     inputs: list[str],
     expected: ApiArgs | type,
     monkeypatch: pytest.MonkeyPatch,
-):
+) -> None:
     # sourcery skip: no-conditionals-in-tests
     # sourcery skip: no-loop-in-tests
     # Prepare
@@ -276,9 +276,9 @@ def test_api_invokation(
         mode: str = "w",
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[Any] | None = None,
+        scope: MutableSequence[TKey] | None = None,
         output: str | None = None,
-    ):
+    ) -> None:
         args.source_file = source_file
         args.includes = includes
         args.mode = mode

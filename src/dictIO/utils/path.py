@@ -5,9 +5,9 @@ import os
 from collections.abc import Sequence
 from pathlib import Path
 
-__all__ = ["highest_common_root_folder", "relative_path"]
+__all__: list[str] = ["highest_common_root_folder", "relative_path"]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def highest_common_root_folder(paths: Sequence[Path]) -> Path:

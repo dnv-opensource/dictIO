@@ -4,9 +4,9 @@ import logging
 import sys
 from pathlib import Path
 
-__all__ = ["configure_logging"]
+__all__: list[str] = ["configure_logging"]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def configure_logging(

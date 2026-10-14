@@ -19,9 +19,9 @@ from dictIO import SDict
 from dictIO.utils.counter import BorgCounter
 
 if TYPE_CHECKING:
-    from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V
+    from dictIO.types import K, M, S, TKey, TValue, V
 
-__all__ = [
+__all__: list[str] = [
     "FoamFormatter",
     "Formatter",
     "JsonFormatter",
@@ -30,7 +30,7 @@ __all__ = [
 ]
 
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Formatter:
@@ -89,23 +89,9 @@ class Formatter:
         """
         return ""
 
-    @overload
     def format_value(
         self,
-        arg: TSingleValue,
-    ) -> str:
-        pass
-
-    @overload
-    def format_value(
-        self,
-        arg: TValue,
-    ) -> str:
-        pass
-
-    def format_value(
-        self,
-        arg: TSingleValue | TValue,
+        arg: object,
     ) -> str:
         """Format a single value.
 
@@ -453,13 +439,13 @@ class NativeFormatter(Formatter):
 
     def format_dict(
         self,
-        arg: MutableMapping[Any, Any] | MutableSequence[Any] | Any,  # noqa: ANN401
+        arg: object,
         tab_len: int = 4,
         level: int = 0,
         sep: str = " ",
         items_per_line: int = 10,
         end: str = "\n",
-        ancestry: type[MutableMapping[Any, Any] | MutableSequence[Any]] = MutableMapping,
+        ancestry: type[object] = MutableMapping,
     ) -> str:
         """Serialize a mapping, sequence, or scalar value.
 
@@ -488,6 +474,7 @@ class NativeFormatter(Formatter):
 
         # list
         if isinstance(arg, MutableSequence):
+            arg = cast("MutableSequence[Any]", arg)
             # Opening bracket
             s += self.format_dict("(", level=level, end=end)
 
@@ -568,6 +555,7 @@ class NativeFormatter(Formatter):
 
         # dict
         elif isinstance(arg, MutableMapping):
+            arg = cast("MutableMapping[Any, Any]", arg)
             for key in arg:
                 item = arg[key]
                 # ndarray -> list
@@ -1185,7 +1173,7 @@ class XmlFormatter(Formatter):
     def populate_into_element(
         self,
         element: Element,
-        arg: MutableMapping[Any, Any] | MutableSequence[Any] | Any,  # noqa: ANN401
+        arg: object,
         xsd_uri: str | None = None,
     ) -> None:
         """Populate arg into the XML element node.
@@ -1204,9 +1192,11 @@ class XmlFormatter(Formatter):
         # @TODO: LINECOMMENTs not handled yet
 
         if isinstance(arg, MutableSequence):
+            arg = cast("MutableSequence[Any]", arg)
             element.text = " ".join(str(x) for x in arg)
 
         elif isinstance(arg, MutableMapping):
+            arg = cast("MutableMapping[Any, Any]", arg)
             for key, item in arg.items():
                 skey: str = self.format_key(key)
                 if re.match(pattern="_content", string=skey):

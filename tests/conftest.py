@@ -2,6 +2,7 @@
 
 import logging
 import os
+from collections.abc import Generator
 from pathlib import Path
 from shutil import rmtree
 
@@ -9,7 +10,7 @@ import pytest
 
 
 @pytest.fixture(scope="session", autouse=True)
-def chdir():
+def chdir() -> Generator[None, None, None]:
     """
     Fixture that changes the current working directory to the 'test_working_directory' folder.
     This fixture is automatically used for the entire session.
@@ -38,7 +39,7 @@ output_files: list[str] = [
 
 
 @pytest.fixture(autouse=True)
-def default_setup_and_teardown():
+def default_setup_and_teardown() -> Generator[None, None, None]:
     """
     Fixture that performs setup and teardown actions before and after each test function.
     It removes the output directories and files specified in 'output_dirs' and 'output_files' lists.

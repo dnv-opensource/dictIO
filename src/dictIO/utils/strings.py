@@ -5,10 +5,10 @@ import re
 from difflib import ndiff
 from re import Pattern
 
-__all__ = ["remove_quotes", "string_diff"]
+__all__: list[str] = ["remove_quotes", "string_diff"]
 
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def remove_quotes(string: str) -> str:

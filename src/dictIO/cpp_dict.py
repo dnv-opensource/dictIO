@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from _collections_abc import Iterable, Mapping
 
 
-__all__ = [
+__all__: list[str] = [
     "CppDict",
 ]
 

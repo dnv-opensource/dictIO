@@ -5,14 +5,14 @@ import os
 import re
 from collections.abc import MutableMapping, MutableSequence
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 from dictIO import Formatter, NativeParser, SDict, order_keys
-from dictIO.types import K, V
+from dictIO.types import K, TKey, V
 
-__all__ = ["DictWriter", "create_target_file_name"]
+__all__: list[str] = ["DictWriter", "create_target_file_name"]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class DictWriter:
@@ -118,7 +118,7 @@ class DictWriter:
 def create_target_file_name(
     source_file: str | os.PathLike[str],
     prefix: str | None = None,
-    scope: MutableSequence[Any] | None = None,
+    scope: MutableSequence[TKey] | None = None,
     output: str | None = None,
 ) -> Path:
     """Create a well defined target file name.

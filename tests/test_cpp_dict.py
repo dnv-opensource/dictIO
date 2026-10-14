@@ -1,8 +1,8 @@
 import copy
-from collections.abc import MutableMapping
 from copy import deepcopy
 from pathlib import Path
-from typing import Any
+from types import NotImplementedType
+from typing import Any, cast
 
 import pytest
 
@@ -1451,8 +1451,8 @@ def test_left_or_does_also_update_attributes() -> None:
     assert new_dict.includes[3] == ("#include dict_23", "dict_23", Path("dict_23"))
 
 
-class DictWithoutOr(dict[Any, Any]):
-    def __or__(self, value: MutableMapping[Any, Any]) -> dict[Any, Any]:
+class DictWithoutOr(dict[str, Any]):
+    def __or__(self, value: object) -> NotImplementedType:
         return NotImplemented
 
 
@@ -1686,7 +1686,7 @@ def test_right_or_does_also_update_attributes() -> None:
     }
     # execute right or operation
     new_dict: SDict[str, Any]
-    new_dict = dict_1 | dict_2  # type: ignore[assignment, reportAssignmentType]
+    new_dict = cast("SDict[str, Any]", dict_1 | dict_2)
     # assert that existing entries in the attributes of dict_1 HAVE been overwritten
     # and new entries have been added
     assert new_dict.expressions[1] == {

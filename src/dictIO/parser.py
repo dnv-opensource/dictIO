@@ -5,28 +5,28 @@ from __future__ import annotations
 
 import logging
 import re
-from collections.abc import MutableMapping, MutableSequence, Sequence
+from collections.abc import Hashable, MutableMapping, MutableSequence, Sequence
 from pathlib import Path
 from re import Match, Pattern
 from typing import (
     TYPE_CHECKING,
-    Any,
     cast,
+    overload,
 )
 
 from lxml.etree import ETCompatXMLParser, fromstring
 from lxml.etree import _Element as LxmlElement  # pyright: ignore[reportPrivateUsage]
 
 from dictIO import SDict
-from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V
+from dictIO.types import K, M, S, TKey, TSingleValue, V
 from dictIO.utils.counter import BorgCounter
 
 if TYPE_CHECKING:
     import os
 
-__all__ = ["FoamParser", "JsonParser", "NativeParser", "Parser", "XmlParser"]
+__all__: list[str] = ["FoamParser", "JsonParser", "NativeParser", "Parser", "XmlParser"]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Parser:
@@ -174,10 +174,22 @@ class Parser:
         # +++RETURN PARSED DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         return parsed_dict
 
+    @overload
     def parse_value(
         self,
-        arg: TValue,
-    ) -> TSingleValue:
+        arg: str,
+    ) -> TSingleValue: ...
+
+    @overload
+    def parse_value(
+        self,
+        arg: object,
+    ) -> object: ...
+
+    def parse_value(
+        self,
+        arg: object,
+    ) -> object:
         """Parse a single value.
 
         Convert numeric, boolean, and null string representations to native
@@ -1699,7 +1711,7 @@ class XmlParser(Parser):
         self,
         root_element: LxmlElement,
         namespaces: dict[str, str],
-    ) -> dict[Any, Any]:
+    ) -> dict[TKey, object]:
         """Recursively convert child XML nodes into a dictionary.
 
         Args:
@@ -1729,7 +1741,7 @@ class XmlParser(Parser):
             indexed_node_tags.append((f"{index:06d}_{node_tag}", node_tag))
 
         key: TKey
-        parsed_dict: dict[TKey, TValue] = {}
+        parsed_dict: dict[TKey, object] = {}
 
         # Parse all nodes
         for index, indexed_node_tag in enumerate(indexed_node_tags):
@@ -1791,7 +1803,8 @@ class XmlParser(Parser):
                 if parsed_dict[key] is None:
                     parsed_dict[key] = attributes_dict
                 else:
-                    parsed_dict[key].update(attributes_dict)
+                    content = cast("MutableMapping[Hashable, object]", parsed_dict[key])
+                    content.update(attributes_dict)
 
         # before returning the new dict, doublecheck that all of its elements are correctly typed.
         self.parse_values(parsed_dict)

@@ -1,9 +1,9 @@
 """Singleton classes for global counter, indentation and string registry."""
 
 # pyright: reportUnnecessaryTypeIgnoreComment=false
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TypedDict, cast
 
-__all__ = ["BorgCounter", "DejaVue", "Indenter"]
+__all__: list[str] = ["BorgCounter", "DejaVue", "Indenter"]
 
 
 class BorgCounter:
@@ -43,6 +43,12 @@ class BorgCounter:
         BorgCounter.Borg["theCount"] = -1
 
 
+class _IndentationState(TypedDict):
+    Indent: int
+    TabSize: int
+    TabChar: str
+
+
 class Indenter:
     """A class that implements a static global indentation.
 
@@ -53,7 +59,7 @@ class Indenter:
         Ind: Shared storage for the indentation level and formatting settings.
     """
 
-    Ind: dict[str, Any] = {  # noqa: RUF012
+    Ind: ClassVar[_IndentationState] = {
         "Indent": 0,
         "TabSize": 4,
         "TabChar": " ",
@@ -72,7 +78,7 @@ class Indenter:
             tab_char: Character used to render indentation. Defaults to
                 `" "`.
         """
-        self.__dict__ = Indenter.Ind
+        self.__dict__ = cast("dict[str, Any]", Indenter.Ind)
         Indenter.Ind["TabSize"] = tab_size
         Indenter.Ind["TabChar"] = tab_char
 
