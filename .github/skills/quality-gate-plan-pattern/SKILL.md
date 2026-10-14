@@ -23,10 +23,15 @@ for the shared steps below.
 1. Determine scope: check which directories in the current code base
    actually contain Python source files (e.g. `src/`, `examples/`,
    `scripts/`, `tests/`, `packages/`, `tools/`, etc.).
-2. Run `uv run ruff format --check` and confirm formatting is clean.
-3. Run `uv run pytest -q` and record how many tests pass
+2. Inspect the Ruff configuration's global and per-file ignores for
+   suppressions of the plan's target rule family. Run the normal configured
+   check and a direct check selecting that rule family with relevant
+   per-file ignores disabled, then record both results. Do not treat a clean
+   configured check as proof that the target family has no findings.
+3. Run `uv run ruff format --check` and confirm formatting is clean.
+4. Run `uv run pytest -q` and record how many tests pass
    (pytest-baseline).
-4. Run the plan's own rule-specific baseline command(s) (e.g.
+5. Run the plan's own rule-specific baseline command(s) (e.g.
    `uv run ruff check --ignore <FAMILY>`, `uv run pyright`,
    `uv run mypy`) - see the calling plan for which ones apply.
 
