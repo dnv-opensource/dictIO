@@ -19,8 +19,20 @@ jobs:
           fetch-depth: 0
           # The branch you want to checkout (usually equal to `branchtomerge`)
           # ref: ${{ github.event.ref }}
+      - name: Resolve head commit
+        id: resolve_head
+        run: |
+          # Prefer a v* version tag pointing at HEAD, fall back to short hash, then full SHA
+          TAG=$(git tag --list 'v*' --points-at HEAD --sort=-version:refname | head -n 1)
+          if [ -n "$TAG" ]; then
+            echo "head_ref=$TAG" >> "$GITHUB_OUTPUT"
+          else
+            SHORT=$(git rev-parse --short HEAD 2>/dev/null || echo "")
+            echo "head_ref=${SHORT:-${{ github.sha }}}" >> "$GITHUB_OUTPUT"
+          fi
       - uses: devmasx/merge-branch@v1.4.0
         with:
           type: now
           target_branch: release
+          head_to_merge: ${{ steps.resolve_head.outputs.head_ref }}
           github_token: ${{ secrets.RELEASE_TOKEN }}

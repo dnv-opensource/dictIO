@@ -1,7 +1,8 @@
 name: Unit Tests (py315)
 # Test also with Python 3.15 (experimental; workflow will not fail on error.)
 
-on: workflow_call
+on:
+  workflow_call:
 
 jobs:
   test315:
@@ -13,8 +14,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         python:
-          - version: '3.15.0-alpha - 3.15.0'
-            uvpy: '3.15'
+          - version: "3.15.0-alpha - 3.15.0"
+            uvpy: "3.15"
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -22,7 +23,7 @@ jobs:
         uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
-          cache-dependency-glob: 'uv.lock'
+          cache-dependency-glob: "uv.lock"
       - name: Remove Python upper version constraint from pyproject.toml
         shell: pwsh
         run: |
@@ -35,8 +36,8 @@ jobs:
               $Content -Replace $RequiresPythonFound, $RequiresPythonReplacement | Set-Content $File -NoNewline
           }
       - name: Install the project
-        run: uv sync -p ${{ matrix.python.uvpy }} -U --no-dev
+        run: uv sync -p ${{ matrix.python.uvpy }} -U --no-dev --group test
       - name: Run pytest
-        run: >
-          uv run --with pytest --with pytest-cov
-          pytest --cov
+        env:
+          CI: true
+        run: uv run pytest -q --cov

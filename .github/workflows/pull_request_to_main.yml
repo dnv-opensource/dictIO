@@ -5,7 +5,6 @@ on:
   pull_request:
     types:
       - opened
-#      - synchronize
       - reopened
       - ready_for_review
       - converted_to_draft
@@ -22,8 +21,3 @@ jobs:
     uses: ./.github/workflows/_code_quality.yml
   test:
     uses: ./.github/workflows/_test.yml
-#  build_package:
-#    needs:
-#      - code_quality
-#      - test
-#    uses: ./.github/workflows/_build_package.yml

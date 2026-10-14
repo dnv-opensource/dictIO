@@ -1,6 +1,7 @@
 name: Code Quality
 
-on: workflow_call
+on:
+  workflow_call:
 
 jobs:
   ruff_format:
@@ -13,7 +14,7 @@ jobs:
         uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
-          cache-dependency-glob: 'uv.lock'
+          cache-dependency-glob: "uv.lock"
       - name: Install the project
         run: uv sync -U
       - name: Run ruff format
@@ -29,7 +30,7 @@ jobs:
         uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
-          cache-dependency-glob: 'uv.lock'
+          cache-dependency-glob: "uv.lock"
       - name: Install the project
         run: uv sync -U
       - name: Run ruff check
@@ -45,7 +46,7 @@ jobs:
         uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
-          cache-dependency-glob: 'uv.lock'
+          cache-dependency-glob: "uv.lock"
       - name: Install the project
         run: uv sync -U
       - name: Run pyright
@@ -61,7 +62,7 @@ jobs:
         uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
-          cache-dependency-glob: 'uv.lock'
+          cache-dependency-glob: "uv.lock"
       - name: Install the project
         run: uv sync -U
       - name: Run mypy

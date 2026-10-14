@@ -3,14 +3,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-dictIO Documentation
-====================
+.. include:: README.md
+   :parser: myst_parser.sphinx_
+
 
 .. toctree::
    :maxdepth: 4
    :caption: Contents:
 
-   README
    api
    cli
    fileFormat
