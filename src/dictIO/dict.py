@@ -657,7 +657,9 @@ class SDict(dict[K, V]):  # noqa: PLW1641
             self.__class__(
                 cast(
                     "Mapping[K, V]",
-                    super().__or__(other),
+                    # dict.__or__ supports heterogeneous dictionaries at runtime,
+                    # but its typing requires invariant matching key and value types.
+                    super().__or__(cast("dict[K, V]", other)),
                 )
             ),
         )
