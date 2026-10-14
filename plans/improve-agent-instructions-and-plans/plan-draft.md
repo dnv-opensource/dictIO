@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-This repository has agent instructions, prompts, and draft plans that are iteratively
+This repository has agent instructions, skills, and draft plans that are iteratively
 refined based on experience. After each working session, learnings should be fed back
 into the instruction files and draft plans to improve future sessions.
 
@@ -10,7 +10,7 @@ The goal is to analyse the current setup and identify improvements to:
 - `/AGENTS.md` - project-wide engineering rules and default working style
 - `/.github/copilot-instructions.md` - GitHub-specific scoping
 - `/.github/agents/code-quality.agent.md` - code quality agent persona
-- `/.github/skills/*/SKILL.md` - reusable workflow skills
+- `/.github/skills/**/SKILL.md` - reusable procedures, including workflow skills
 - `/plans/*/plan-draft.md` - task-specific draft plans
 
 **Relationship to `plans/review-agent-charter/`**: that plan is the periodic,
@@ -22,8 +22,8 @@ from other, independently noticed friction points - once a fix is
 significant enough to warrant its own audit-and-implement pass rather than a
 direct small fix.
 
-**Relationship to `.github/skills/reflect-and-improve/SKILL.md`**: that
-skill is the cheap, always-run, session-scoped reflection step at the end
+**Relationship to [reflect-and-improve](../../.github/skills/reflect-and-improve/SKILL.md)**: that
+skill is the cheap, explicitly invoked, session-scoped reflection step at the end
 of every session, proposing minimal fixes tied to that session's own work.
 This plan is the broader, systematic audit it escalates to when a session's
 reflection surfaces issues wider than its own specific edits (e.g. several
@@ -37,19 +37,19 @@ warrants the fuller pass.
 - Review each instruction file for outdated, incorrect, or incomplete guidance.
 - Review each draft plan for commands, paths, or conventions that no longer match
   the current repository state.
-- Review prompt files for clarity, completeness, and correct file references.
+- Review skill files for clarity, completeness, and correct file references.
 - Note any friction points encountered in recent agent sessions.
 
 ## Proposed Approach
 
-1. **Audit instruction files** — Read each file and note inconsistencies, outdated
+1. **Audit instruction files** - Read each file and note inconsistencies, outdated
    references, or missing guidance.
-2. **Audit draft plans** — Verify all commands and paths are current. Check that
+2. **Audit draft plans** - Verify all commands and paths are current. Check that
    validation strategies and definitions of done are complete.
-3. **Audit prompts** — Verify referenced file paths are correct. Ensure prompts
+3. **Audit skills** - Verify referenced file paths are correct. Ensure skills
    produce the desired agent behavior.
-4. **Propose changes** — Present a summary of proposed improvements for approval.
-5. **Implement** — Apply approved changes.
+4. **Propose changes** - Present a summary of proposed improvements for approval.
+5. **Implement** - Apply approved changes.
 
 ## Context
 
@@ -58,11 +58,11 @@ warrants the fuller pass.
 - Constraints:
   - Do not change the fundamental structure or conventions without explicit approval.
   - Changes must be backward-compatible with existing workflows.
-  - Keep instructions concise — avoid duplication across files.
+  - Keep instructions concise - avoid duplication across files.
 
 ## Validation Strategy
 
-- All referenced file paths in instructions and prompts resolve correctly.
+- All referenced file paths in instructions and skills resolve correctly.
 - All commands in draft plans and instructions are executable and produce expected results.
 - The plan-first workflow (draft → generate → implement → commit → reflect) still functions.
 - Pre-commit hooks pass on all modified files.
@@ -71,7 +71,7 @@ warrants the fuller pass.
 
 - [ ] All instruction files reviewed and updated where needed.
 - [ ] All draft plans verified to use current commands and paths.
-- [ ] All prompts verified to reference correct files.
+- [ ] All skills verified to reference correct files.
 - [ ] No stale or contradictory guidance remains.
 - [ ] Changes are validated and ready for review; committing remains a separate
    explicitly requested workflow.

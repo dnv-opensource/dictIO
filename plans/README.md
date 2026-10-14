@@ -16,16 +16,18 @@ plans/
 ## Workflow
 
 1. **Create a draft** - Create a new subfolder under `plans/` and write a `plan-draft.md` describing the problem and rough approach. By default, treat the new plan as one-off: add the local `.gitignore` described under Conventions to the subfolder right away, before or as you write `plan-draft.md`. Only remove it later if the plan turns out to be worth reusing.
-2. **Generate a plan** - Attach one or more `plan-draft.md` files to the chat. Use the skill `generate-plan` to task the agent with expanding the drafts (`plan-draft.md` files) into respective detailed plans (`plan.md` files). The agent will process the draft plans in the order attached.
-3. **Implement** - Attach one or more `plan.md` files to the chat. Use the skill `implement-plan` to execute the plans. The agent will execute the plans in the order attached.
-4. **Reflect** - Use the skill `reflect-and-improve` to feed learnings back into drafts and instructions.
-5. **Commit** - Use the skill `prepare-commits` to split changes into logical commits.
+2. **Generate a plan** - Attach one or more `plan-draft.md` files to the chat. Invoke the [generate-plan](../.github/skills/generate-plan/SKILL.md) skill to task the agent with expanding the drafts (`plan-draft.md` files) into respective detailed plans (`plan.md` files). The agent will process the draft plans in the order attached.
+3. **Implement** - Attach one or more `plan.md` files to the chat. Invoke the [implement-plan](../.github/skills/implement-plan/SKILL.md) skill to execute the plans. The agent will execute the plans in the order attached.
+4. **Reflect** - Invoke the [reflect-and-improve](../.github/skills/reflect-and-improve/SKILL.md) skill to feed learnings back into drafts and instructions.
+5. **Commit** - Invoke the [prepare-commits](../.github/skills/prepare-commits/SKILL.md) skill to split changes into logical commits.
 
-All workflow skills are located in `.github/skills/`.
+All workflow skills are located in `.github/skills/<skill-name>/SKILL.md`.
+Invoke them explicitly as slash commands (for example, `/generate-plan`);
+these four skills disable automatic model invocation.
 
 ## Attaching Files
 
-Skills reference files you "attach" as context. Files are **not** attached automatically from open editor tabs - you must add them explicitly. Ways to attach:
+Workflow skills reference files you "attach" as context. Files are **not** attached automatically from open editor tabs - you must add them explicitly. Ways to attach:
 
 - **Paperclip / "+" button** in the chat input - select files from the picker.
 - **Type `#file:`** in your prompt - autocomplete lets you pick a file.
@@ -40,7 +42,7 @@ When working on multiple tasks in a preferred sequence, attach the files in the 
   (human-maintained, iterated over time; included in version control only
   once a plan is deliberately kept reusable - see the default below).
 - Generated plans are named `plan.md`
-  (disposable, foreseen to be regenerated from the draft each time the skill `generate-plan` is used. Hence also git-ignored).
+  (disposable, foreseen to be regenerated from the draft each time the `generate-plan` skill is used. Hence also git-ignored).
 - The template `.plan.md` defines the expected structure for plans.
   (both for the _draft_ plans the user creates (-> `plan-draft.md` files) as well as for the plans the agent then generates from the drafts (-> `plan.md` files)).
 - **Default: every new plan folder is one-off.** Most plans are drafted,
@@ -103,7 +105,7 @@ quality tools first, then executing applicable plans automatically.
 ### What the Agent Does
 
 When triggered, the agent follows the same 4-phase sequence you would do
-manually with the skills:
+manually with the workflow skills:
 
 1. **Generate plan** — reads the `plan-draft.md`, expands it into a `plan.md`
 2. **Implement plan** — executes the plan, validates with quality gates

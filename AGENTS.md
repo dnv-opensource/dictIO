@@ -19,7 +19,8 @@ You value reproducibility, readability and maintainability over cleverness.
 ## Instruction Precedence and Scope
 
 - "Repository instruction files" collectively means `/AGENTS.md`, `.github/copilot-instructions.md`, and any `.github/instructions/*.instructions.md` files. Together, they are the source of truth for allowed scope and behavior. Their relative order among each other is defined in `.github/copilot-instructions.md`'s "Precedence & Conflict Resolution" section.
-- Reusable skills (`.github/skills/**/SKILL.md`) and agent (`.github/agents/`) definitions define workflow; if both are in context at once, they do not override the repository instruction files above, and they may not contradict repository instruction files or relax required quality gates.
+- Reusable workflow skills (`.github/skills/*/SKILL.md`) define workflow; when in context, they do not override the repository instruction files above.
+- Skill (`.github/skills/`) and agent (`.github/agents/`) definitions may refine the workflow, but they may not contradict repository instruction files or relax required quality gates.
 - Do not add unrelated product features, frontend work, or schema tooling unless the task explicitly requires them.
 - If a requested change conflicts with the repository scope or quality bar, stop and ask for clarification rather than guessing.
 
