@@ -1,4 +1,4 @@
-name: Unit Tests (py315)
+name: Unit Tests (py316)
 # Test also with Python 3.16 (experimental; workflow will not fail on error.)
 
 on:
