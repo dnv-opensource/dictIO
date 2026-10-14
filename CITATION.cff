@@ -32,7 +32,7 @@ keywords:
   - dict
 license: MIT
 license-url: 'https://dnv-opensource.github.io/dictIO/LICENSE.html'
-url: 'https://dnv-opensource.github.io/dictIO/README.html'
+url: 'https://dnv-opensource.github.io/dictIO'
 repository-code: 'https://github.com/dnv-opensource/dictIO'
 message: 'Please cite this software using these metadata.'
 cff-version: 1.2.0

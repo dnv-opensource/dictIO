@@ -16,6 +16,8 @@
 *.toml text
 *.rst text
 *.ini text
+*.lock text
+*.ts text
 
 # Declare files that will always have CRLF line endings on checkout.
 *.vcproj text eol=crlf

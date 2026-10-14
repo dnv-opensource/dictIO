@@ -1,6 +1,7 @@
 name: Unit Tests
 
-on: workflow_call
+on:
+  workflow_call:
 
 jobs:
   test:
@@ -10,7 +11,7 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ['3.12', '3.13', '3.14']
+        python: ["3.12", "3.13", "3.14"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -18,10 +19,10 @@ jobs:
         uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
-          cache-dependency-glob: 'uv.lock'
+          cache-dependency-glob: "uv.lock"
       - name: Install the project
-        run: uv sync -p ${{ matrix.python }} -U --no-dev
+        run: uv sync -p ${{ matrix.python }} -U --no-dev --group test
       - name: Run pytest
-        run: >
-          uv run --with pytest --with pytest-cov
-          pytest --cov
+        env:
+          CI: true
+        run: uv run pytest -q --cov

@@ -1,37 +1,12 @@
-[build-system]
-requires = [
-    "hatchling",
-]
-build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.sdist]
-only-include = [
-    "src/dictIO",
-    "tests",
-    ".coveragerc",
-    ".editorconfig",
-    ".pre-commit-config.yaml",
-    "pyproject.toml",
-    "pytest.ini",
-    "ruff.toml",
-    "uv.lock",
-]
-
-[tool.hatch.build.targets.wheel]
-packages = [
-    "src/dictIO",
-]
-
-[tool.hatch.metadata]
-allow-direct-references = true
+# ===== project metadata =====
 
 [project]
 name = "dictIO"
 version = "0.4.4"
 description = "Python package to read, write and manipulate dictionary text files. Supports dictIOs native file format, as well as JSON, XML and OpenFOAM."
-readme = "README.md"
 requires-python = ">=3.12"
-license = { file = "LICENSE" }
+readme = "README.md"
+license-files = [ "LICENSE" ]
 authors = [
     { name = "Frank Lumpitzsch", email = "frank.lumpitzsch@dnv.com" },
     { name = "Claas Rostock", email = "claas.rostock@dnv.com" },
@@ -66,39 +41,54 @@ dependencies = [
     "numpy>=2.5",
 ]
 
+[project.scripts]
+dictParser = "dictIO.cli.__main__:main"
+
 [project.urls]
 Homepage = "https://github.com/dnv-opensource/dictIO"
-Documentation = "https://dnv-opensource.github.io/dictIO/README.html"
+Documentation = "https://dnv-opensource.github.io/dictIO"
 Repository = "https://github.com/dnv-opensource/dictIO.git"
 Issues = "https://github.com/dnv-opensource/dictIO/issues"
 Changelog = "https://github.com/dnv-opensource/dictIO/blob/main/CHANGELOG.md"
 
 
+# ===== dependency groups (PEP 735) =====
+
 [dependency-groups]
-dev = [
+test = [
     "pytest>=9.1",
     "pytest-cov>=7.1",
-    "ruff>=0.17.0",
-    "pyright>=1.1.414",
-    "mypy>=2.4",
-    "sourcery>=1.43.0",
-    "pre-commit>=4.7",
+    "pytest-dependency>=0.6.0",
+    "pytest-timeout>=2.3.1",
+]
+docs = [
     "Sphinx>=9.1",
     "sphinx-argparse-cli>=1.24.0",
     "sphinx-autodoc-typehints>=3.13",
     "sphinxcontrib-mermaid>=2.1",
     "myst-parser>=5.1",
     "furo>=2025.12",
+]
+dev = [
+    {include-group = "test"},
+    {include-group = "docs"},
+    "ruff>=0.17.0",
+    "pyright>=1.1.414",
+    "mypy>=2.4",
+    "pre-commit>=4.7",
     "jupyter>=1.1.1",
     "nbconvert>=7.17",
     "types-lxml>=2026.2",
 ]
 
+
+# ===== `uv` settings =====
+
 [tool.uv]
 default-groups = [
     "dev",
 ]
-native-tls = true
+system-certs = true
 required-environments = [
     "sys_platform == 'win32'",
     "sys_platform == 'linux'",
@@ -106,9 +96,38 @@ required-environments = [
 ]
 
 
-[project.scripts]
-dictParser = "dictIO.cli.__main__:main"
 
+# ===== build system settings =====
+
+[build-system]
+requires = [
+    "hatchling",
+]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+only-include = [
+    "src/dictIO",
+    "tests",
+    ".coveragerc",
+    ".editorconfig",
+    ".pre-commit-config.yaml",
+    "pyproject.toml",
+    "pytest.ini",
+    "ruff.toml",
+    "uv.lock",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/dictIO",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+
+# ===== `mypy` settings =====
 
 [tool.mypy]
 plugins = []
@@ -127,6 +146,8 @@ disable_error_code = [
     "import-untyped",
 ]
 
+
+# ===== `pyright` settings =====
 
 [tool.pyright]
 stubPath = "stubs"

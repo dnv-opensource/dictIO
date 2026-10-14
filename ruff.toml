@@ -4,8 +4,10 @@ exclude = [
     "dist",
     "*cache",
     "**/__pycache__",
+    "STYLEGUIDE.md",
     "src/folder_to_be_excluded",
 ]
+force-exclude = true
 src = [
     "src",
 ]
@@ -39,6 +41,7 @@ ignore = [
     "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
     "PLW0603", # Using the global statement to update {name} is discouraged
     "PYI041",  # Use `float` instead of `int | float`
+    "CPY001",  # Missing copyright notice at top of file
 
     # Ruff lint rules recommended to keep enabled,
     # but which are typical candidates you might have a need to ignore,
@@ -168,7 +171,8 @@ raises-require-match-for = [
 ]
 
 [lint.pydocstyle]
-convention = "numpy"
+convention = "google"
 
 [format]
 docstring-code-format = true
+# preview = true  # uncomment to enable preview features of Ruff formatter (https://docs.astral.sh/ruff/formatter/#preview-features)

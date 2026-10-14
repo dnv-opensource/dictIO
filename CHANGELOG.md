@@ -10,7 +10,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ### Changed
 * Python modules: Changed `__ALL__` to `__all__` (lowercase, PEP8 and PEP257 compliant).
-* Updated code base with latest changes in python_project_template v0.2.10
+* Updated code base with latest changes in python_project_template v0.5.0
 * GitHub Workflows:
   * _test.yml: Updated Python versions in test matrix to 3.12, 3.13, 3.14
 * pyproject.toml:
@@ -484,7 +484,7 @@ This removes the need to manually add /src to the PythonPath environment variabl
     This change solves [issue #4](https://github.com/dnv-opensource/dictIO/issues/4).<br>
     Problem was that None is not iterable, and code such as the following had caused an exception:
     ~~~py
-    if '_attributes' in my_parsed_xml_dict[node_key]:
+    if "_attributes" in my_parsed_xml_dict[node_key]:
         ...
     ~~~
     because my_parsed_xml_dict[node_key] had been None.
