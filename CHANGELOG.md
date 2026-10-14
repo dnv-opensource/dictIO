@@ -9,6 +9,7 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 
 ### Changed
+* Added specific type annotations to dictionary parsing, formatting, and utility APIs and test helpers.
 * Renamed the tutorial directory to `examples/` and updated related references.
 * Reformatted package docstrings to use Google-style documentation consistently.
 * Python modules: Changed `__ALL__` to `__all__` (lowercase, PEP8 and PEP257 compliant).

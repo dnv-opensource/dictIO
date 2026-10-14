@@ -13,7 +13,6 @@ from _collections_abc import Iterable, Mapping, MutableMapping, MutableSequence
 from copy import copy
 from pathlib import Path
 from typing import (
-    Any,
     TypeVar,
     cast,
     overload,
@@ -29,7 +28,7 @@ from dictIO.utils.dict import (
 )
 from dictIO.utils.path import relative_path
 
-__all__ = [
+__all__: list[str] = [
     "SDict",
 ]
 
@@ -40,7 +39,7 @@ __all__ = [
 _K = TypeVar("_K", bound=TKey)
 _V = TypeVar("_V", bound=TValue)
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class SDict(dict[K, V]):  # noqa: PLW1641
@@ -188,7 +187,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         cls,
         iterable: Iterable[_K],
         value: None = None,
-    ) -> SDict[_K, Any | None]:
+    ) -> SDict[_K, None]:
         pass
 
     @overload
@@ -205,7 +204,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         cls,
         iterable: Iterable[_K],
         value: _V | None = None,
-    ) -> SDict[_K, _V] | SDict[_K, Any | None]:
+    ) -> SDict[_K, _V] | SDict[_K, None]:
         """Create a new SDict instance from the keys of an iterable.
 
         Args:
@@ -216,10 +215,10 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         Returns:
             The created SDict instance.
         """
-        new_dict: SDict[_K, _V] = cast("SDict[_K, _V]", cls())
+        new_dict: SDict[_K, _V | None] = cast("SDict[_K, _V | None]", cls())
         for key in iterable:
-            new_dict[key] = cast("_V", value)  # cast is safe, as `None` is within the type bounds of V
-        return new_dict
+            new_dict[key] = value
+        return cast("SDict[_K, _V] | SDict[_K, None]", new_dict)
 
     # TODO @CLAROS: Change return type to `Self` (from `typing`module)
     #      once we drop support for Python 3.10
@@ -1052,7 +1051,7 @@ def _insert_expression(value: V, s_dict: SDict[K, V]) -> V:
     return cast("V", value)
 
 
-def _value_contains_circular_reference(key: TKey, value: TValue) -> bool:
+def _value_contains_circular_reference(key: TKey, value: object) -> bool:
     if isinstance(key, str) and isinstance(value, str):
         return key in value
     return False

@@ -15,7 +15,7 @@ from dictIO import DictParser
 from dictIO.types import K
 from dictIO.utils.logging import configure_logging
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def _get_version() -> str:
