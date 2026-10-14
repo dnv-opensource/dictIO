@@ -1,3 +1,5 @@
+"""Tests native, OpenFOAM, and XML dictionary formatting behavior."""
+
 import re
 from copy import copy, deepcopy
 from pathlib import Path
@@ -9,13 +11,16 @@ from dictIO import DictReader, FoamFormatter, Formatter, NativeFormatter, SDict,
 
 
 class TestFormatter:
+    """Tests formatter selection and shared value-formatting behavior."""
+
     # @TODO: To be implemented
     @pytest.mark.skip(reason="To be implemented")
     def test_returned_formatter_type(self) -> None:
-        pass
+        """Verify that formatter selection returns the expected formatter implementation."""
 
     def test_format_value_bool(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
+        """Verify that boolean values use the expected text representation for the selected formatter."""
         formatter = Formatter()
         bool_in = False
         str_out = formatter.format_value(bool_in)
@@ -28,6 +33,8 @@ class TestFormatter:
 
 
 class TestNativeFormatter:
+    """Tests native dictionary value and document formatting."""
+
     @pytest.mark.parametrize(
         "str_in",
         [
@@ -45,6 +52,11 @@ class TestNativeFormatter:
     )
     def test_format_value_string_no_additional_quotes_expected(self, str_in: str) -> None:
         # Prepare
+        """Verify that strings needing no quoting are emitted unchanged.
+
+        Args:
+            str_in: Input string supplied to the formatter for this case.
+        """
         formatter = NativeFormatter()
         str_expected = str_in
         # Execute
@@ -65,6 +77,11 @@ class TestNativeFormatter:
     )
     def test_format_value_string_additional_single_quotes_expected(self, str_in: str) -> None:
         # Prepare
+        """Verify that strings with spaces or embedded double quotes receive single-quote delimiters.
+
+        Args:
+            str_in: Input string supplied to the formatter for this case.
+        """
         formatter = NativeFormatter()
         str_expected = f"'{str_in}'"
         # Execute
@@ -84,6 +101,11 @@ class TestNativeFormatter:
     )
     def test_format_value_string_additional_double_quotes_expected(self, str_in: str) -> None:
         # Prepare
+        """Verify that expressions and strings containing single quotes receive double-quote delimiters.
+
+        Args:
+            str_in: Input string supplied to the formatter for this case.
+        """
         formatter = NativeFormatter()
         str_expected = f'"{str_in}"'
         # Execute
@@ -93,6 +115,7 @@ class TestNativeFormatter:
 
     def test_format_value_float(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
+        """Verify that floating-point values retain their decimal representation."""
         formatter = NativeFormatter()
         float_in = 1.23
         str_out = formatter.format_value(float_in)
@@ -109,6 +132,7 @@ class TestNativeFormatter:
 
     def test_format_value_int(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
+        """Verify that positive, negative, and zero integers are emitted as decimal text."""
         formatter = NativeFormatter()
         int_in = 1234
         str_out = formatter.format_value(int_in)
@@ -129,6 +153,7 @@ class TestNativeFormatter:
 
     def test_format_value_bool(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
+        """Verify that boolean values use the expected text representation for the selected formatter."""
         formatter = NativeFormatter()
         bool_in = False
         str_out = formatter.format_value(bool_in)
@@ -141,6 +166,7 @@ class TestNativeFormatter:
 
     def test_format_value_Path(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
+        """Verify that Path values are emitted using their string representation."""
         formatter = NativeFormatter()
         path_in = Path("folder1/folder2/file.txt")
         str_out = formatter.format_value(path_in)
@@ -149,6 +175,7 @@ class TestNativeFormatter:
 
     def test_format_value_None(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
+        """Verify that None is emitted using the native null token."""
         formatter = NativeFormatter()
         none_in = None
         str_out = formatter.format_value(none_in)
@@ -158,6 +185,7 @@ class TestNativeFormatter:
     def test_insert_block_comments(self) -> None:
         # sourcery skip: class-extract-method
         # Prepare
+        """Verify existing comments are preserved and missing comments use the format default."""
         formatter = NativeFormatter()
         as_is_block_comment = (
             "/*---------------------------------*- C++ -*----------------------------------*\\\n"
@@ -183,6 +211,13 @@ class TestNativeFormatter:
         as_is_block_comment: str,
         default_block_comment: str,
     ) -> None:
+        """Check preservation, default insertion, and numbering of block comments in formatted text.
+
+        Args:
+            formatter: Formatter instance whose comment insertion behavior is checked.
+            as_is_block_comment: Existing comment text expected to be retained verbatim.
+            default_block_comment: Default comment text expected when the dictionary has no comment.
+        """
         s_dict: SDict[str, Any] = SDict()
         # as we used test_simpleDict, str_in does not have a block comment yet
         str_in_template = formatter.format_dict(s_dict)
@@ -264,6 +299,7 @@ class TestNativeFormatter:
 
     def test_insert_includes(self) -> None:
         # Prepare
+        """Verify that include directives replace their placeholders in formatted text."""
         include_directive_in = '#include "test formatter paramDict"'
         include_file_name_in = "test formatter paramDict"
         include_file_path_in = Path("test formatter paramDict").absolute()
@@ -285,6 +321,7 @@ class TestNativeFormatter:
 
     def test_insert_line_comments(self) -> None:
         # Prepare
+        """Verify that line comments are restored at their original positions in formatted text."""
         s_dict: SDict[str, Any] = SDict()
         line_comment_in = "// This is a line comment"
         formatter = NativeFormatter()
@@ -304,6 +341,7 @@ class TestNativeFormatter:
         # sourcery skip: extract-duplicate-method, move-assign-in-block
         # Prepare
         # Construct 7 test strings, each having a different number of leading and trailing spaces
+        """Verify that formatting removes trailing whitespace from dictionary lines."""
         str_in_1 = "a string with one trailing space "
         str_expected_1 = "a string with one trailing space"
         str_in_2 = "a string with five trailing spaces     "
@@ -364,6 +402,7 @@ class TestNativeFormatter:
 
     def test_list_with_nested_list(self) -> None:
         # Prepare
+        """Verify that nested lists are serialized with the expected structure."""
         test_obj: dict[str, Any] = {
             "blocks": [
                 "hex",
@@ -391,6 +430,7 @@ class TestNativeFormatter:
 
     def test_to_string_does_not_alter_original(self) -> None:
         # Prepare
+        """Verify that serialization leaves the original dictionary and nested values unchanged."""
         dict_in = DictReader.read(Path("test_formatter_dict"))
         formatter = NativeFormatter()
         dict_in_reference = dict_in
@@ -413,9 +453,12 @@ class TestNativeFormatter:
 
 
 class TestFoamFormatter:
+    """Tests OpenFOAM dictionary formatting and serialization behavior."""
+
     def test_insert_block_comments(self) -> None:
         # sourcery skip: class-extract-method
         # Prepare
+        """Verify existing comments are preserved and missing comments use the format default."""
         formatter = FoamFormatter()
         as_is_block_comment = (
             "/*--------------------------------*- C++ -*----------------------------------*\\\n"
@@ -461,6 +504,7 @@ class TestFoamFormatter:
 
     def test_insert_includes(self) -> None:
         # Prepare
+        """Verify that include directives replace their placeholders in formatted text."""
         include_directive_in = "#include 'test formatter paramDict'"
         include_file_name_in = "test formatter paramDict"
         include_file_path_in = Path("test formatter paramDict").absolute()
@@ -482,6 +526,7 @@ class TestFoamFormatter:
 
     def test_ensure_string_does_not_contain_single_quotes(self) -> None:
         # Prepare dict until and including ()
+        """Verify that OpenFOAM output does not contain single-quoted strings."""
         dict_in = DictReader.read(Path("test_formatter_dict"), comments=True)
         formatter = FoamFormatter()
         # Execute
@@ -491,6 +536,7 @@ class TestFoamFormatter:
 
     def test_ensure_string_does_not_contain_underscore_variables(self) -> None:
         # Prepare dict until and including ()
+        """Verify that OpenFOAM output does not emit underscore-prefixed variables."""
         dict_in = DictReader.read(Path("test_formatter_dict"), comments=False)
         formatter = FoamFormatter()
         # Execute
@@ -500,6 +546,7 @@ class TestFoamFormatter:
 
     def test_to_string_does_not_alter_original(self) -> None:
         # Prepare
+        """Verify that serialization leaves the original dictionary and nested values unchanged."""
         dict_in = DictReader.read(Path("test_formatter_dict"))
         formatter = FoamFormatter()
         dict_in_reference = dict_in
@@ -522,8 +569,11 @@ class TestFoamFormatter:
 
 
 class TestXmlFormatter:
+    """Tests XML formatter defaults and serialization behavior."""
+
     def test_default_options(self) -> None:
         # Execute
+        """Verify that the XML formatter initializes with its documented option defaults."""
         formatter = XmlFormatter()
         # Assert
         assert formatter.omit_prefix is True
@@ -544,6 +594,7 @@ class TestXmlFormatter:
 
     def test_to_string(self) -> None:
         # Prepare
+        """Verify that the XML formatter serializes the prepared dictionary to text."""
         source_file = Path("test_formatter_dict")
         target_file = Path(f"parsed.{source_file}.xml")
         target_file.unlink(missing_ok=True)
@@ -567,6 +618,7 @@ class TestXmlFormatter:
 
     def test_parse_format_reparse(self) -> None:
         # Prepare XML string to be parsed
+        """Verify that formatted XML can be parsed again into equivalent dictionary data."""
         from dictIO import XmlParser  # noqa: PLC0415
 
         file_name = Path("test_parser_xml.xml")
@@ -587,6 +639,7 @@ class TestXmlFormatter:
     def test_format_xml_namespace_explicit(self) -> None:
         # sourcery skip: class-extract-method
         # Prepare
+        """Verify that XML output uses an explicitly supplied namespace prefix."""
         source_file = Path("test_formatter_dict")
         dict_in = DictReader.read(source_file)
         xml_opts = {
@@ -604,6 +657,7 @@ class TestXmlFormatter:
 
     def test_format_xml_namespace_default(self) -> None:
         # Prepare
+        """Verify that XML output handles a namespace declared without a prefix."""
         source_file = Path("test_formatter_dict")
         dict_in = DictReader.read(source_file)
         xml_opts = {
@@ -622,6 +676,7 @@ class TestXmlFormatter:
     @pytest.mark.skip(reason="XML pretty printing is not solved yet. The root attribute for encoding still gets lost.")
     def test_format_xml_root_attributes(self) -> None:
         # Prepare
+        """Verify that configured attributes are written on the XML root element."""
         source_file = Path("test_formatter_dict")
         dict_in = DictReader.read(source_file)
         xml_opts = {
@@ -643,6 +698,7 @@ class TestXmlFormatter:
 
     def test_to_string_does_not_alter_original(self) -> None:
         # Prepare
+        """Verify that serialization leaves the original dictionary and nested values unchanged."""
         dict_in = DictReader.read(Path("test_formatter_dict"))
         formatter = XmlFormatter()
         dict_in_reference = dict_in

@@ -4,9 +4,9 @@ import logging
 import sys
 from pathlib import Path
 
-__all__ = ["configure_logging"]
+__all__: list[str] = ["configure_logging"]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def configure_logging(
@@ -16,25 +16,30 @@ def configure_logging(
 ) -> None:
     """Configure logging for the application, allowing for both console and file logging.
 
-    Sets the log levels and formats for the output, ensuring that logs are captured as specified.
+    Sets the log levels and formats for console output and, when requested,
+    file output.
 
-    Parameters
-    ----------
-    log_level_console : str, optional
-        log level for console output, by default "WARNING"
-    log_file : Path | None, optional
-        log file to be used. If None, file logging is disabled. by default None
-    log_level_file : str, optional
-        log level for file output, by default "WARNING"
+    Args:
+        log_level_console: Logging level for console output. Defaults to
+            `"WARNING"`.
+        log_file: Path to the log file. If `None`, file logging is disabled.
+            Defaults to `None`.
+        log_level_file: Logging level for file output. Defaults to
+            `"WARNING"`.
 
-    Raises
-    ------
-    TypeError
-        if an invalid value for log_level_console or log_level_file is passed
+    Raises:
+        TypeError: If either logging level is not a valid logging level name.
 
-    Examples
-    --------
-        configure_logging(log_level_console="INFO", log_file=Path("app.log"), log_level_file="DEBUG")
+    Examples:
+        Configure console and file logging:
+
+        ```python
+        configure_logging(
+            log_level_console="INFO",
+            log_file=Path("app.log"),
+            log_level_file="DEBUG",
+        )
+        ```
     """
     # sourcery skip: extract-duplicate-method, extract-method
     log_level_console_numeric = getattr(logging, log_level_console.upper(), None)

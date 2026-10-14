@@ -9,7 +9,6 @@
         "ms-python.debugpy",
         "ms-python.vscode-python-envs",
         "charliermarsh.ruff",
-        "sourcery.sourcery",
         "njpwerner.autodocstring",
         "editorconfig.editorconfig",
         "ms-toolsai.jupyter",

@@ -1,3 +1,5 @@
+"""Tests shared, native, and XML parser behavior."""
+
 # pyright: reportPrivateUsage=false
 # pyright: reportUnnecessaryTypeIgnoreComment=false
 # ruff: noqa: T201, E501
@@ -16,13 +18,16 @@ from dictIO.utils.strings import string_diff
 
 
 class TestParser:
+    """Tests shared parser selection, value conversion, and file handling."""
+
     # @TODO: To be implemented
     @pytest.mark.skip(reason="To be implemented")
     def test_get_parser(self) -> None:
-        pass
+        """Verify that parser selection returns the expected parser implementation."""
 
     def test_file_not_found_exception(self) -> None:
         # Prepare
+        """Verify that reading a missing dictionary file raises FileNotFoundError."""
         parser = Parser()
         source_file = Path("this_file_does_not_exist")
         # Execute and Assert
@@ -30,6 +35,7 @@ class TestParser:
             _ = parser.parse_file(source_file)
 
     def test_remove_quotes_from_string(self) -> None:
+        """Verify that surrounding quotes are removed while nested quotes follow the all_quotes option."""
         str_in_1 = "'a string with single quotes'"
         str_in_2 = '"a string with double quotes"'
         str_in_3 = "'a string with 'inside' quotes'"
@@ -59,13 +65,14 @@ class TestParser:
         assert str_out_4 == "a string with inside double quotes"
 
         with pytest.raises(TypeError):
-            _ = Parser.remove_quotes_from_string(not_a_str_1)  # type: ignore[arg-type, reportArgumentType]
+            _ = Parser.remove_quotes_from_string(not_a_str_1)  # type: ignore[arg-type]
         with pytest.raises(TypeError):
-            _ = Parser.remove_quotes_from_string(not_a_str_2)  # type: ignore[arg-type, reportArgumentType]
+            _ = Parser.remove_quotes_from_string(not_a_str_2)  # type: ignore[arg-type]
         with pytest.raises(TypeError):
-            _ = Parser.remove_quotes_from_string(not_a_str_3)  # type: ignore[arg-type, reportArgumentType]
+            _ = Parser.remove_quotes_from_string(not_a_str_3)  # type: ignore[arg-type]
 
     def test_remove_quotes_from_strings(self) -> None:
+        """Verify that quoted strings are unwrapped recursively without changing non-string values."""
         str_in_1 = "'a string with single quotes'"
         str_in_2 = '"a string with double quotes"'
         str_in_3 = "'a string with 'inside' quotes'"
@@ -130,11 +137,12 @@ class TestParser:
         assert dict_out[keyl][5] == not_a_str_3
 
         with pytest.raises(TypeError):
-            _ = Parser.remove_quotes_from_strings(str_in_1)  # type: ignore[arg-type, reportArgumentType]
+            _ = Parser.remove_quotes_from_strings(str_in_1)  # type: ignore[arg-type]
         with pytest.raises(TypeError):
-            _ = Parser.remove_quotes_from_strings(not_a_str_1)  # type: ignore[arg-type, reportArgumentType]
+            _ = Parser.remove_quotes_from_strings(not_a_str_1)  # type: ignore[arg-type]
 
     def test_parse_value_int(self) -> None:
+        """Verify that integer input is returned as an integer value."""
         parser = Parser()
         int_in = 1
         int_out = parser.parse_value(int_in)
@@ -142,6 +150,7 @@ class TestParser:
         assert int_out == int_in
 
     def test_parse_value_float(self) -> None:
+        """Verify that floating-point input is returned as a float value."""
         parser = Parser()
         float_in = 1.0
         float_out = parser.parse_value(float_in)
@@ -150,6 +159,7 @@ class TestParser:
 
     def test_parse_value_bool(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
+        """Verify that true and false tokens, including case and surrounding spaces, become booleans."""
         parser = Parser()
         bool_in: str | bool
         bool_in = True
@@ -200,6 +210,7 @@ class TestParser:
         assert bool_out is False
 
     def test_parse_value_none(self) -> None:
+        """Verify that supported null tokens are converted to None."""
         parser = Parser()
         none_in = None
         none_out = parser.parse_value(none_in)
@@ -235,6 +246,7 @@ class TestParser:
 
     def test_parse_value_string_numbers(self) -> None:
         # sourcery skip: extract-duplicate-method, inline-variable
+        """Verify that numeric-looking quoted values remain strings."""
         parser = Parser()
         str_in = "1234"
         int_out = parser.parse_value(str_in)
@@ -261,7 +273,12 @@ class TestParser:
         ],
     )
     def test_parse_value_str(self, str_in: str, str_expected: str) -> None:
-        """Make sure additional surrounding quotes of strings, if existing, get removed by parsing"""
+        """Verify that value parsing removes optional surrounding quotes from strings.
+
+        Args:
+            str_in: String value supplied to the parser.
+            str_expected: Expected string after parsing.
+        """
         # Prepare
         parser = Parser()
         # Execute
@@ -272,6 +289,7 @@ class TestParser:
 
     def test_parse_list(self) -> None:
         # Prepare
+        """Verify that list values are parsed recursively into their corresponding Python values."""
         parser = Parser()
         str_1 = "string 1"
         str_2 = "string 2"
@@ -333,6 +351,7 @@ class TestParser:
 
     def test_parse_file_into_existing_dict(self) -> None:
         # Prepare
+        """Verify that parsing a file populates the supplied dictionary instance."""
         target_dict: SDict[str, Any] = SDict()
         source_file = Path("test_parser_dict")
         parser = Parser()
@@ -345,9 +364,12 @@ class TestParser:
 
 
 class TestNativeParser:
+    """Tests parsing and transformation of native dictionary syntax."""
+
     def test_extract_line_comments(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare
+        """Verify that line comments are separated from dictionary content when enabled."""
         s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         line1 = "a line with no line comment\n"
@@ -369,6 +391,7 @@ class TestNativeParser:
     def test_extract_includes(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare
+        """Verify that include directives are recorded with their source locations."""
         s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         line1 = "a line with no include directive\n"
@@ -402,6 +425,7 @@ class TestNativeParser:
 
     def test_convert_line_content_to_block_content(self) -> None:
         # Prepare
+        """Verify that multiline block content is assembled from parsed source lines."""
         s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         # Three lines with line endings
@@ -416,6 +440,7 @@ class TestNativeParser:
 
     def test_remove_line_endings_from_block_content(self) -> None:
         # Prepare
+        """Verify that line endings are removed from block content without changing its text."""
         s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         # Three lines with line endings
@@ -431,6 +456,7 @@ class TestNativeParser:
 
     def test_extract_block_comments(self) -> None:
         # Prepare
+        """Verify that block comments are extracted and associated with dictionary positions."""
         s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
@@ -467,6 +493,7 @@ class TestNativeParser:
 
     def test_extract_string_literals(self) -> None:
         # Prepare
+        """Verify that quoted string literals are isolated from syntax during token parsing."""
         s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
@@ -514,6 +541,7 @@ class TestNativeParser:
 
     def test_extract_expressions(self) -> None:
         # Prepare
+        """Verify that expressions are extracted and recorded for later evaluation."""
         s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
@@ -599,6 +627,7 @@ class TestNativeParser:
 
     def test_extract_single_character_expressions(self) -> None:
         # Prepare
+        """Verify that expressions containing single-character variables are recognized."""
         s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
@@ -685,6 +714,7 @@ class TestNativeParser:
     def test_separate_delimiters(self) -> None:
         # sourcery skip: no-loop-in-tests
         # Prepare
+        """Verify that delimiters are separated into the expected parser tokens."""
         s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block_in = (
@@ -732,6 +762,7 @@ class TestNativeParser:
 
     def test_determine_token_hierarchy(self) -> None:
         # Prepare
+        """Verify that token nesting is represented by the correct hierarchy."""
         s_dict: SDict[str, Any] = SDict()
         parser = NativeParser()
         text_block = (
@@ -751,6 +782,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict(self) -> None:
         # Prepare
+        """Verify that tokenized dictionary entries are reconstructed as nested mappings and sequences."""
         dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
@@ -778,6 +810,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_booleans(self) -> None:
         # Prepare
+        """Verify that boolean tokens in a tokenized dictionary become Python booleans."""
         dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
@@ -804,6 +837,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_numbers(self) -> None:
         # Prepare
+        """Verify that numeric tokens in a tokenized dictionary become numbers."""
         dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
@@ -820,6 +854,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_nones(self) -> None:
         # Prepare
+        """Verify that null tokens in a tokenized dictionary become None values."""
         dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
@@ -834,6 +869,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_strings(self) -> None:
         # Prepare
+        """Verify that string tokens in a tokenized dictionary retain their contents."""
         dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
@@ -855,6 +891,11 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_invalid(self, caplog: pytest.LogCaptureFixture) -> None:
         # Prepare
+        """Verify that invalid token sequences are rejected with the expected diagnostic.
+
+        Args:
+            caplog: Pytest fixture used to inspect log records emitted by the operation.
+        """
         dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
@@ -881,6 +922,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_nesting(self) -> None:
         # Prepare
+        """Verify that nested dictionaries and lists are reconstructed from token hierarchy."""
         dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
@@ -946,6 +988,7 @@ class TestNativeParser:
 
     def test_parse_tokenized_dict_expressions(self) -> None:
         # Prepare
+        """Verify that extracted expressions remain associated with the correct dictionary values."""
         dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9)
         parser = NativeParser()
@@ -979,6 +1022,7 @@ class TestNativeParser:
         # sourcery skip: extract-duplicate-method
 
         # Prepare
+        """Verify that a dictionary nested in a list is not mistaken for the surrounding dictionary."""
         dict_in: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=dict_in, until_step=9, comments=False)
         parser = NativeParser()
@@ -1015,6 +1059,7 @@ class TestNativeParser:
 
     def test_insert_string_literals(self) -> None:
         # Prepare
+        """Verify that extracted string literals are restored in parsed values."""
         s_dict: SDict[str, Any] = SDict()
         SetupHelper.prepare_dict_until(dict_to_prepare=s_dict, until_step=10)
         parser = NativeParser()
@@ -1030,8 +1075,11 @@ class TestNativeParser:
 
 
 class TestXmlParser:
+    """Tests generic XML conversion and namespace handling."""
+
     def test_default_options(self) -> None:
         # Execute
+        """Verify that the XML formatter initializes with its documented option defaults."""
         parser = XmlParser()
         # Assert
         assert parser.add_node_numbering is True
@@ -1041,6 +1089,7 @@ class TestXmlParser:
 
     def test_parse_generic_xml_without_node_numbering(self) -> None:
         # Prepare XML string to be parsed
+        """Verify that XML elements are parsed without node-number suffixes."""
         file_name = Path("test_parser_xml.xml")
         str_in = ""
         with Path.open(file_name) as f:
@@ -1079,6 +1128,7 @@ class TestXmlParser:
 
     def test_parse_generic_xml_with_node_numbering(self) -> None:
         # Prepare XML string to be parsed
+        """Verify that repeated XML nodes receive distinct numbered keys when enabled."""
         file_name = Path("test_parser_xml.xml")
         str_in = ""
         with Path.open(file_name) as f:
@@ -1122,6 +1172,7 @@ class TestXmlParser:
 
     def test_parse_xml_namespace_explicit(self) -> None:
         # Prepare XML string to be parsed
+        """Verify that XML parsing resolves a namespace declared with an explicit prefix."""
         file_name = Path("test_xml_namespace_explicit.xml")
         str_in = ""
         with Path.open(file_name) as f:
@@ -1138,6 +1189,7 @@ class TestXmlParser:
 
     def test_parse_xml_namespace_default(self) -> None:
         # Prepare XML string to be parsed
+        """Verify that XML parsing resolves a namespace declared as the default namespace."""
         file_name = Path("test_xml_namespace_default.xml")
         str_in = ""
         with Path.open(file_name) as f:
@@ -1154,6 +1206,8 @@ class TestXmlParser:
 
 
 class SetupHelper:
+    """Provides helpers that run parser or reader preparation through a selected processing step."""
+
     @staticmethod
     def prepare_dict_until(
         dict_to_prepare: SDict[K, V],
@@ -1162,6 +1216,14 @@ class SetupHelper:
         *,
         comments: bool = True,
     ) -> None:
+        """Run native parser preparation through the requested processing step for a test dictionary.
+
+        Args:
+            dict_to_prepare: Dictionary instance whose parser state is prepared for the test.
+            until_step: Last preparation step to execute; the default runs all steps.
+            file_to_read: Fixture filename used to populate the dictionary.
+            comments: Whether comments should be retained while processing the input.
+        """
         source_file = Path.cwd() / file_to_read
 
         dict_to_prepare.source_file = source_file.absolute()

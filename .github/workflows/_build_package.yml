@@ -4,24 +4,24 @@ on: workflow_call
 
 jobs:
   build:
-    name: Build source distribution
+    name: Build package
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           lfs: true
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: true
-          cache-dependency-glob: 'uv.lock'
+          cache-dependency-glob: "uv.lock"
       - name: Build source distribution and wheels
         run: uv build
       - name: Check build artifacts
         run: uvx twine check --strict dist/*
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: |

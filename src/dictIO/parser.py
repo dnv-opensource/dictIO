@@ -5,28 +5,29 @@ from __future__ import annotations
 
 import logging
 import re
-from collections.abc import MutableMapping, MutableSequence, Sequence
+from collections.abc import Hashable, MutableMapping, MutableSequence, Sequence
 from pathlib import Path
 from re import Match, Pattern
 from typing import (
     TYPE_CHECKING,
-    Any,
     cast,
+    overload,
 )
 
 from lxml.etree import ETCompatXMLParser, fromstring
 from lxml.etree import _Element as LxmlElement  # pyright: ignore[reportPrivateUsage]
 
 from dictIO import SDict
-from dictIO.types import K, M, S, TKey, TSingleValue, TValue, V
 from dictIO.utils.counter import BorgCounter
 
 if TYPE_CHECKING:
     import os
 
-__ALL__ = ["Parser", "NativeParser", "FoamParser", "JsonParser", "XmlParser"]
+    from dictIO.types import K, M, S, TKey, TSingleValue, V
 
-logger = logging.getLogger(__name__)
+__all__: list[str] = ["FoamParser", "JsonParser", "NativeParser", "Parser", "XmlParser"]
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Parser:
@@ -34,9 +35,15 @@ class Parser:
 
     Parsers deserialize a string into a SDict.
     Subclasses of Parser implement parsing of different, specifically formatted strings (see also Formatters).
+
+    Attributes:
+        counter: Shared placeholder counter used while parsing.
+        source_file: Source file currently being parsed, or `None` when no
+            file has been assigned.
     """
 
     def __init__(self) -> None:
+        """Initialize parser state and a shared placeholder counter."""
         self.counter = BorgCounter()
         self.source_file: Path | None = None
         return
@@ -45,15 +52,13 @@ class Parser:
     def get_parser(cls, source_file: Path | None = None) -> Parser:
         """Return a Parser instance matching the type of the source file to be parsed (factory method).
 
-        Parameters
-        ----------
-        source_file : Path, optional
-            name of the source file to be parsed, by default None
+        Args:
+            source_file: Path used to select a format-specific parser. If
+                `None` or an unsupported suffix is supplied, use the native
+                parser. Defaults to `None`.
 
-        Returns
-        -------
-        Parser
-            specific Parser instance matching the source file type to be parsed
+        Returns:
+            Parser selected for the source file's format.
         """
         # Determine the parser to be used by a two stage process:
 
@@ -81,24 +86,19 @@ class Parser:
     ) -> SDict[K, V]:
         """Parse a file and deserialize it into a dict.
 
-        Parameters
-        ----------
-        source_file : Union[str, os.PathLike[str]]
-            name of the dict file to be parsed
-        target_dict : SDict[K, V], optional
-            the target dict the parsed dict file shall be merged into, by default None
-        comments : bool, optional
-            reads comments from source file, by default True
+        Args:
+            source_file: Dictionary file to parse.
+            target_dict: Dictionary into which parsed content is merged. If
+                `None`, create a new dictionary for the source file. Defaults
+                to `None`.
+            comments: Whether to preserve comments from the source file.
+                Defaults to `True`.
 
-        Returns
-        -------
-        SDict[K, V]
-            the parsed dict
+        Returns:
+            Parsed dictionary.
 
-        Raises
-        ------
-        FileNotFoundError
-            if source_file does not exist
+        Raises:
+            FileNotFoundError: If `source_file` does not exist.
         """
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
         source_file = source_file if isinstance(source_file, Path) else Path(source_file)
@@ -148,19 +148,14 @@ class Parser:
 
         Note: Override this method when implementing a specific Parser.
 
-        Parameters
-        ----------
-        string : str
-            the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : SDict[K, V]
-            the target dict the parsed dict file shall be merged into
-        comments : bool, optional
-            reads comments, by default True
+        Args:
+            string: Text to parse, typically the content read by `parse_file`.
+            target_dict: Dictionary into which parsed content is merged.
+            comments: Whether to preserve comments in the parsed content.
+                Defaults to `True`.
 
-        Returns
-        -------
-        SDict[K, V]
-            the parsed dict
+        Returns:
+            Parsed dictionary content.
         """
         # sourcery skip: lift-return-into-if
         # +++VERIFY STRING CONTENT++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -185,23 +180,32 @@ class Parser:
         # +++RETURN PARSED DICTIONARY+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         return parsed_dict
 
+    @overload
     def parse_value(
         self,
-        arg: TValue,
-    ) -> TSingleValue:
+        arg: str,
+    ) -> TSingleValue: ...
+
+    @overload
+    def parse_value(
+        self,
+        arg: object,
+    ) -> object: ...
+
+    def parse_value(
+        self,
+        arg: object,
+    ) -> object:
         """Parse a single value.
 
-        Parses a single value and casts it to its native type (TSingleValue = str | int | float | bool | None).
+        Convert numeric, boolean, and null string representations to native
+        values. Other strings are returned without conversion.
 
-        Parameters
-        ----------
-        arg : TValue
-            the value to be parsed
+        Args:
+            arg: Value to parse.
 
-        Returns
-        -------
-        TSingleValue
-            the value casted to its native type (TSingleValue = str | int | float | bool | None)
+        Returns:
+            Parsed value, converted when it matches a supported native value.
         """
         # Numbers (int and float) are returned without conversion
         if isinstance(arg, int) and not isinstance(arg, bool):  # int
@@ -270,11 +274,9 @@ class Parser:
         The function traverses the passed in dict or list recursively
         so that all values in also nested dicts and lists are parsed.
 
-        Parameters
-        ----------
-        arg : Union[MutableMapping[K, V], MutableSequence[V]]
-            the dict or list containing the values to be parsed and casted to its native types
-            (str, int, float, bool or None)
+        Args:
+            arg: the dict or list containing the values to be parsed and casted to its native types
+                (str, int, float, bool or None)
 
         """
         if isinstance(arg, MutableMapping):  # Dict
@@ -297,20 +299,19 @@ class Parser:
     ) -> TKey:
         """Parse a single key.
 
-        Parses a single key and casts it to its native type (TKey = str | int).
+        Parse the value, then accept only string or integer keys.
 
-        Parameters
-        ----------
-        arg : str
-            the value to be parsed
+        Args:
+            arg: Key value to parse.
 
-        Returns
-        -------
-        TKey
-            the value casted to its native type (TKey = str | int)
+        Returns:
+            Parsed key.
+
+        Raises:
+            TypeError: If the parsed value is not a string or integer.
         """
         key: TSingleValue = self.parse_value(arg)
-        if not isinstance(key, TKey):
+        if not isinstance(key, Hashable):
             raise TypeError(f"Key '{key}' is not of type TKey. Found type: {type(key)}")
         return key
 
@@ -324,18 +325,13 @@ class Parser:
 
         Removes quotes (single and double quotes) from the string object passed in.
 
-        Parameters
-        ----------
-        arg : str
-            the string with quotes
-        all_quotes : bool, optional
-            if true, all quotes inside the string will be removed (not only leading and trailing quotes),
-            by default False
+        Args:
+            arg: String from which quote characters are removed.
+            all_quotes: Whether to remove quotes throughout the string instead
+                of only at its edges. Defaults to `False`.
 
-        Returns
-        -------
-        str
-            the string with quotes being removed
+        Returns:
+            String with the selected quote characters removed.
         """
         search_pattern: Pattern[str]
         if all_quotes:  # noqa: SIM108
@@ -359,14 +355,10 @@ class Parser:
         so that all strings in also nested dicts and lists are processed.
 
 
-        Parameters
-        ----------
-        arg : MutableMapping[K, V] | MutableSequence[V]
-            the dict or list containing strings the quotes in which shall be removed
+        Args:
+            arg: the dict or list containing strings the quotes in which shall be removed
 
-        Returns
-        -------
-        MutableMapping[K, V] | MutableSequence[V]
+        Returns:
             the original dict or list, yet with quotes in all strings being removed
 
         """
@@ -405,18 +397,12 @@ class NativeParser(Parser):
     ) -> SDict[K, V]:
         """Parse a string in dictIO native file format and deserialize it into a SDict.
 
-        Parameters
-        ----------
-        string : str
-            the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : SDict
-            the target dict the parsed dict file shall be merged into
-        comments : bool, optional
-            reads comments, by default True
+        Args:
+            string: the string to be parsed (i.e. the content of the file that had been read using parse_file())
+            target_dict: the target dict the parsed dict file shall be merged into
+            comments: reads comments. Defaults to `True`.
 
-        Returns
-        -------
-        SDict
+        Returns:
             the parsed dict
         """
         # +++CALL BASE CLASS IMPLEMENTATION+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -497,13 +483,10 @@ class NativeParser(Parser):
         The extracted line comments are stored in .line_comments as key value pairs {index:line_comment}.
         index, therein, corresponds to the integer number in LINECOMMENT000000.
 
-        Parameters
-        ----------
-        s_dict : SDict[K, V]
-            dict to be processed. _extract_line_comments() works on dict.line_content
-        comments : bool
-            If False, line comments will be removed
-            (they get replaced by an empty placeholder then, which in effect removes them).
+        Args:
+            s_dict: dict to be processed. _extract_line_comments() works on dict.line_content
+            comments: If False, line comments will be removed
+                (they get replaced by an empty placeholder then, which in effect removes them).
         """
         for index, line in enumerate(s_dict.line_content):
             # if it is a line comment or just a "http://"?
@@ -537,10 +520,8 @@ class NativeParser(Parser):
         {index:(include_directive, include_file_name, include_file_path)}
         index, therein, corresponds to the integer number in #INCLUDE000000.
 
-        Parameters
-        ----------
-        s_dict : SDict[K, V]
-            dict to be processed. _extract_includes() works on dict.line_content
+        Args:
+            s_dict: dict to be processed. _extract_includes() works on dict.line_content
         """
         for index, line in enumerate(s_dict.line_content):
             if re.search(r"^\s*#\s*include", line):
@@ -572,6 +553,9 @@ class NativeParser(Parser):
 
         Concatenate all lines from line_content to one long string (text block)
         and store the result in block_content.
+
+        Args:
+            s_dict: Dictionary whose line content is combined.
         """
         s_dict.block_content = "".join(s_dict.line_content)
         s_dict.line_content.clear()
@@ -581,7 +565,11 @@ class NativeParser(Parser):
         self,
         s_dict: SDict[K, V],
     ) -> None:
-        """Remove all line endings in .block_content and substuitute them by single spaces."""
+        """Replace line endings in the block content with spaces.
+
+        Args:
+            s_dict: Dictionary whose block content is updated.
+        """
         s_dict.block_content = re.sub(
             r"\n",
             " ",
@@ -602,13 +590,10 @@ class NativeParser(Parser):
         The extracted block comments are stored in .block_comments as key value pairs {index:block_comment}.
         index, therein, corresponds to the integer number in BLOCKCOMMENT000000.
 
-        Parameters
-        ----------
-        s_dict : SDict[K, V]
-            dict to be processed. _extract_block_comments() works on dict.block_content
-        comments : bool
-            If False, block comments will be removed
-            (they get replaced by an empty placeholder then, which in effect removes them).
+        Args:
+            s_dict: dict to be processed. _extract_block_comments() works on dict.block_content
+            comments: If False, block comments will be removed
+                (they get replaced by an empty placeholder then, which in effect removes them).
         """
         block_comments = re.findall(r"/\*[\w\W\d\D\s]*?\*/", s_dict.block_content, re.MULTILINE)
         s_dict.block_comments = {i: block_comments[i] for i in range(len(block_comments))}
@@ -638,10 +623,8 @@ class NativeParser(Parser):
         The extracted string literals are stored in .string_literals as key value pairs {index:string_literal}.
         index, therein, corresponds to the integer number in STRINGLITERAL000000.
 
-        Parameters
-        ----------
-        s_dict : SDict[K, V]
-            dict to be processed. _extract_string_literals() works on dict.block_content.
+        Args:
+            s_dict: dict to be processed. _extract_string_literals() works on dict.block_content.
         """
         search_pattern: Pattern[str]
         string_literals: list[str]
@@ -758,10 +741,8 @@ class NativeParser(Parser):
         with multiple elements {index:{'index': index, 'expression': expression, 'name': placeholder}}.
         index, therein, corresponds to the integer number in EXPRESSION000000.
 
-        Parameters
-        ----------
-        s_dict : SDict[K, V]
-            dict to be processed. _extract_expressions() works on dict.block_content.
+        Args:
+            s_dict: dict to be processed. _extract_expressions() works on dict.block_content.
         """
         s_dict.expressions = {}
 
@@ -825,6 +806,11 @@ class NativeParser(Parser):
         decomposing .block_content into a list of tokens with re.split('\\s').
         It ensures that re.split('\\s') generates tokens containing one single word each (or a single char delimiter)
         but not any 'waste' tokens with spaces, tabs or line endings will be deleted.
+
+        Args:
+            s_dict: Dictionary whose block content is normalized.
+            delimiters: Delimiter characters to separate. If `None`, use the
+                delimiters configured on `s_dict`. Defaults to `None`.
         """
         if delimiters is None:
             delimiters = s_dict.delimiters
@@ -853,7 +839,11 @@ class NativeParser(Parser):
         self,
         s_dict: SDict[K, V],
     ) -> None:
-        """Decomposes .block_content into a list of tokens."""
+        """Split block content into tokens and clear the source text.
+
+        Args:
+            s_dict: Dictionary whose block content is tokenized.
+        """
         s_dict.tokens = [(0, i) for i in re.split(r"\s", s_dict.block_content)]
         s_dict.block_content = ""
 
@@ -864,7 +854,11 @@ class NativeParser(Parser):
         s_dict: SDict[K, V],
     ) -> None:
         # sourcery skip: use-join
-        """Create the hierarchy among the tokens and test their indentation."""
+        """Assign nesting levels to tokens and check delimiter balance.
+
+        Args:
+            s_dict: Dictionary containing tokens to process.
+        """
         level = 0
         count_open: list[str] = []
         count_close: list[str] = []
@@ -914,7 +908,11 @@ class NativeParser(Parser):
         self,
         s_dict: SDict[K, V],
     ) -> None:
-        """Convert the hierarchic tokens into a dict."""
+        """Parse hierarchical tokens into the dictionary and clear them.
+
+        Args:
+            s_dict: Dictionary whose tokens are parsed.
+        """
         s_dict.update(self._parse_tokenized_dict(s_dict))
         s_dict.tokens.clear()
 
@@ -939,6 +937,16 @@ class NativeParser(Parser):
         After all tokens have successfully been parsed, return the parsed dict.
 
         Note: To allow recursive calls in case of nested dicts, parsed_dict is declared as a local variable.
+
+        Args:
+            s_dict: Parsed dictionary containing tokens and delimiter metadata.
+            tokens: Tokens to parse. If `None`, use the tokens stored in
+                `s_dict`. Defaults to `None`.
+            level: Current nesting depth used for recursive parsing. Defaults
+                to `0`.
+
+        Returns:
+            Dictionary represented by the tokens.
         """
         # sourcery skip: remove-redundant-pass
 
@@ -1156,6 +1164,16 @@ class NativeParser(Parser):
         After all tokens have successfully been parsed, return the parsed list.
 
         Note: To allow recursive calls in case of nested lists, parsed_list is declared as a local variable.
+
+        Args:
+            s_dict: Parsed dictionary containing tokens and delimiter metadata.
+            tokens: Tokens to parse. If `None`, use the tokens stored in
+                `s_dict`. Defaults to `None`.
+            level: Current nesting depth used for recursive parsing. Defaults
+                to `0`.
+
+        Returns:
+            List represented by the tokens.
         """
         # sourcery skip: remove-empty-nested-block, remove-redundant-if, remove-redundant-pass
 
@@ -1279,7 +1297,15 @@ class NativeParser(Parser):
     ) -> str:
         """Return the companion bracket character for the passed in bracket character.
 
-        Example: If you pass in '{', _find_companion() will return '}'  (and vice versa)
+        Args:
+            s_dict: Dictionary defining the supported bracket pairs.
+            bracket: Opening or closing bracket to match.
+
+        Returns:
+            Matching bracket, or an empty string if no pair matches.
+
+        Examples:
+            Passing `"{"` returns `"}"` and vice versa.
         """
         companion = ""
         for item in s_dict.brackets:
@@ -1293,7 +1319,12 @@ class NativeParser(Parser):
         self,
         s_dict: SDict[K, V],
     ) -> None:
-        """Substitutes STRINGLITERAL placeholders in the dict with the corresponding entry from dict.string_literals."""
+        """Replace string-literal placeholders with their parsed values.
+
+        Args:
+            s_dict: Dictionary containing placeholders and stored string
+                literals.
+        """
         for index, string_literal in s_dict.string_literals.items():
             # Properties of the expression to be evaluated
             placeholder = f"STRINGLITERAL{index:06d}"  # STRINGLITERAL000000
@@ -1324,6 +1355,9 @@ class NativeParser(Parser):
         In specific, it is the following two keys that get deleted if existing:
         _variables
         _includes
+
+        Args:
+            s_dict: Dictionary from which internal metadata keys are removed.
         """
         if "_variables" in s_dict:
             del s_dict[cast("K", "_variables")]
@@ -1348,18 +1382,12 @@ class FoamParser(NativeParser):
     ) -> SDict[K, V]:
         """Parse a string in OpenFOAM dictionary format and deserialize it into a SDict.
 
-        Parameters
-        ----------
-        string : str
-            the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : SDict[K, V]
-            the target dict the parsed dict file shall be merged into
-        comments : bool, optional
-            reads comments, by default True
+        Args:
+            string: the string to be parsed (i.e. the content of the file that had been read using parse_file())
+            target_dict: the target dict the parsed dict file shall be merged into
+            comments: reads comments. Defaults to `True`.
 
-        Returns
-        -------
-        SDict[K, V]
+        Returns:
             the parsed dict
         """
         # +++CALL BASE CLASS IMPLEMENTATION+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1394,18 +1422,12 @@ class JsonParser(Parser):
     ) -> SDict[K, V]:
         """Parse a string in JSON dictionary format and deserialize it into a SDict.
 
-        Parameters
-        ----------
-        string : str
-            the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : SDict[K, V]
-            the target dict the parsed dict file shall be merged into
-        comments : bool, optional
-            reads comments, by default True
+        Args:
+            string: the string to be parsed (i.e. the content of the file that had been read using parse_file())
+            target_dict: the target dict the parsed dict file shall be merged into
+            comments: reads comments. Defaults to `True`.
 
-        Returns
-        -------
-        SDict[K, V]
+        Returns:
             the parsed dict
         """
         import json  # noqa: PLC0415
@@ -1473,16 +1495,11 @@ class JsonParser(Parser):
         Parses a string, checks whether it contains an expression, and if so,
         extracts the expression and replaces it with a placeholder.
 
-        Parameters
-        ----------
-        parsed_dict : SDict
-            the SDict instance the extracted expression shall be saved in
-        string : str
-            the string from which expressions shall be extracted and replaced by placeholders
+        Args:
+            parsed_dict: the SDict instance the extracted expression shall be saved in
+            string: the string from which expressions shall be extracted and replaced by placeholders
 
-        Returns
-        -------
-        str
+        Returns:
             the string with all found expressions replaced by the respective placeholders
         """
         # Gatekeeper: Check whether minimum one reference is contained in string.
@@ -1521,18 +1538,12 @@ class JsonParser(Parser):
         Replaces all occurances of expression in string with a placeholder (EXPRESSION000000)
         and register the expression in parsed_dict.
 
-        Parameters
-        ----------
-        parsed_dict : SDict
-            the SDict instance the expression will be registered in
-        string : str
-            the string in which expression shall be found and replaced
-        expression : str
-            the expression to be found, replaced and registered
+        Args:
+            parsed_dict: the SDict instance the expression will be registered in
+            string: the string in which expression shall be found and replaced
+            expression: the expression to be found, replaced and registered
 
-        Returns
-        -------
-        str
+        Returns:
             the modified string, in which all occurrences of expression got replaced
             with a placeholder (EXPRESSION000000)
         """
@@ -1563,12 +1574,9 @@ class JsonParser(Parser):
         {index:{'index': index, 'expression': expression, 'name': placeholder}}.
         index, therein, corresponds to the integer number in EXPRESSION000000.
 
-        Parameters
-        ----------
-        parsed_dict : SDict[K, V]
-            the SDict instance the extracted expressions shall be saved in
-        arg : Union[MutableMapping[K, V], MutableSequence[V]]
-            the dict or list containing values to be parsed for expressions
+        Args:
+            parsed_dict: the SDict instance the extracted expressions shall be saved in
+            arg: the dict or list containing values to be parsed for expressions
         """
         if isinstance(arg, MutableMapping):  # Dict
             for key in arg:
@@ -1590,14 +1598,24 @@ class JsonParser(Parser):
 
 
 class XmlParser(Parser):
-    """Parser to deserialize a string in XML format into a SDict."""
+    """Parser to deserialize a string in XML format into a SDict.
+
+    Attributes:
+        add_node_numbering: Whether repeated XML element names receive unique
+            numbering in the parsed dictionary.
+    """
 
     def __init__(
         self,
         *,
         add_node_numbering: bool = True,
     ) -> None:
-        """Define default configuration for XmlParser."""
+        """Initialize XML parser options.
+
+        Args:
+            add_node_numbering: Whether to add unique numbering to repeated
+                XML element names. Defaults to `True`.
+        """
         # Invoke base class constructor
         super().__init__()
         # Save default configuration as attributes
@@ -1612,18 +1630,12 @@ class XmlParser(Parser):
     ) -> SDict[K, V]:
         """Parse a string in XML format and deserialize it into a SDict.
 
-        Parameters
-        ----------
-        string : str
-            the string to be parsed (i.e. the content of the file that had been read using parse_file())
-        target_dict : SDict[K, V]
-            the target dict the parsed dict file shall be merged into
-        comments : bool, optional
-            reads comments, by default True
+        Args:
+            string: the string to be parsed (i.e. the content of the file that had been read using parse_file())
+            target_dict: the target dict the parsed dict file shall be merged into
+            comments: reads comments. Defaults to `True`.
 
-        Returns
-        -------
-        SDict[K, V]
+        Returns:
             the parsed dict
         """
         # +++CALL BASE CLASS IMPLEMENTATION+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1710,8 +1722,17 @@ class XmlParser(Parser):
         self,
         root_element: LxmlElement,
         namespaces: dict[str, str],
-    ) -> dict[Any, Any]:
-        """Recursively parses all nodes and saves the nodes' content in a dict."""
+    ) -> dict[TKey, object]:
+        """Recursively convert child XML nodes into a dictionary.
+
+        Args:
+            root_element: XML element whose children are parsed.
+            namespaces: Namespace prefixes and URIs used to locate child
+                elements.
+
+        Returns:
+            Mapping of parsed element names to their contents.
+        """
         # Default case: Make all node tags temporarily unique by indexing them using BorgCounter
         node_tags: list[str] = [
             re.sub(
@@ -1731,7 +1752,7 @@ class XmlParser(Parser):
             indexed_node_tags.append((f"{index:06d}_{node_tag}", node_tag))
 
         key: TKey
-        parsed_dict: dict[TKey, TValue] = {}
+        parsed_dict: dict[TKey, object] = {}
 
         # Parse all nodes
         for index, indexed_node_tag in enumerate(indexed_node_tags):
@@ -1793,7 +1814,8 @@ class XmlParser(Parser):
                 if parsed_dict[key] is None:
                     parsed_dict[key] = attributes_dict
                 else:
-                    parsed_dict[key].update(attributes_dict)
+                    content = cast("MutableMapping[Hashable, object]", parsed_dict[key])
+                    content.update(attributes_dict)
 
         # before returning the new dict, doublecheck that all of its elements are correctly typed.
         self.parse_values(parsed_dict)

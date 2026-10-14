@@ -1,28 +1,47 @@
+"""Tests command-line argument parsing, logging setup, and API dispatch."""
+
 # pyright: reportPrivateUsage=false
 import sys
 from argparse import ArgumentError
 from collections.abc import MutableSequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 import pytest
 
 from dictIO.cli import __main__
 from dictIO.cli.__main__ import _argparser, _get_version, _validate_scope, main
 from dictIO.dict_parser import DictParser
+from dictIO.types import TKey
 
 # *****Test commandline interface (CLI)************************************************************
 
 
 @dataclass()
 class CliArgs:
+    """Expected command-line argument values used to check parser defaults and options.
+
+    Attributes:
+        quiet: Whether quiet logging was requested.
+        verbose: Whether verbose logging was requested.
+        log: Optional path for log output.
+        log_level: Console logging threshold.
+        dict_file: Input dictionary file.
+        ignore_includes: Whether include processing is disabled.
+        mode: File mode passed to the parser.
+        order: Whether dictionary keys should be ordered.
+        ignore_comments: Whether comments should be omitted.
+        scope: Optional dictionary scope selection.
+        output: Requested output format.
+    """
+
     # Expected default values for the CLI arguments when dictParser gets called via the commandline
+
     quiet: bool = False
     verbose: bool = False
     log: str | None = None
     log_level: str = field(default_factory=lambda: "WARNING")
-    dict: str | None = field(default_factory=lambda: "test_dictParser_dict")
+    dict_file: str | None = field(default_factory=lambda: "test_dictParser_dict")
     ignore_includes: bool = False
     mode: str = "w"
     order: bool = False
@@ -81,10 +100,17 @@ def test_cli(
     inputs: list[str],
     expected: CliArgs | type,
     monkeypatch: pytest.MonkeyPatch,
-):
+) -> None:
     # sourcery skip: no-conditionals-in-tests
     # sourcery skip: no-loop-in-tests
     # Prepare
+    """Verify that supported command-line options produce expected values and invalid combinations are rejected.
+
+    Args:
+        inputs: Command-line arguments passed to the parser or entry point.
+        expected: Expected parsed values or expected exception type for this case.
+        monkeypatch: Pytest fixture used to replace process arguments or API dependencies.
+    """
     monkeypatch.setattr(sys, "argv", ["dictParser", *inputs])
     parser = _argparser()
     # Execute
@@ -108,8 +134,15 @@ def test_cli_version(
     flag: str,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
-):
+) -> None:
     # Prepare
+    """Verify that either version flag prints the package version and exits successfully.
+
+    Args:
+        flag: Version option being tested.
+        monkeypatch: Pytest fixture used to replace process arguments or API dependencies.
+        capsys: Pytest fixture used to inspect text written to standard output.
+    """
     monkeypatch.setattr(sys, "argv", ["dictIO", flag])
     parser = _argparser()
     # Execute & Assert
@@ -125,7 +158,16 @@ def test_cli_version(
 
 @dataclass()
 class ConfigureLoggingArgs:
+    """Expected logging options passed by the command-line entry point.
+
+    Attributes:
+        log_level_console: Console logging threshold.
+        log_file: Optional destination for log messages.
+        log_level_file: Logging threshold for the file destination.
+    """
+
     # Values that main() is expected to pass to ConfigureLogging() by default when configuring the logging
+
     log_level_console: str = field(default_factory=lambda: "WARNING")
     log_file: Path | None = None
     log_level_file: str = field(default_factory=lambda: "WARNING")
@@ -160,10 +202,17 @@ def test_logging_configuration(
     inputs: list[str],
     expected: ConfigureLoggingArgs | type,
     monkeypatch: pytest.MonkeyPatch,
-):
+) -> None:
     # sourcery skip: no-conditionals-in-tests
     # sourcery skip: no-loop-in-tests
     # Prepare
+    """Verify that CLI options reach logging configuration with the expected defaults.
+
+    Args:
+        inputs: Command-line arguments passed to the parser or entry point.
+        expected: Expected parsed values or expected exception type for this case.
+        monkeypatch: Pytest fixture used to replace process arguments or API dependencies.
+    """
     monkeypatch.setattr(sys, "argv", ["dictParser", *inputs])
     args: ConfigureLoggingArgs = ConfigureLoggingArgs()
 
@@ -171,7 +220,14 @@ def test_logging_configuration(
         log_level_console: str,
         log_file: Path | None,
         log_level_file: str,
-    ):
+    ) -> None:
+        """Capture logging options supplied by the CLI for assertions in the test.
+
+        Args:
+            log_level_console: Console logging threshold captured from the CLI call.
+            log_file: Log destination captured from the CLI call.
+            log_level_file: File logging threshold captured from the CLI call.
+        """
         args.log_level_console = log_level_console
         args.log_file = log_file
         args.log_level_file = log_level_file
@@ -183,10 +239,20 @@ def test_logging_configuration(
         mode: str = "w",
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[Any] | None = None,
+        scope: MutableSequence[TKey] | None = None,
         output: str | None = None,
-    ):
-        pass
+    ) -> None:
+        """Capture parser options supplied by the CLI without reading or writing dictionary files.
+
+        Args:
+            source_file: Dictionary input file supplied to the parser operation.
+            includes: Whether include directives should be expanded for this case.
+            mode: File mode supplied to the parser operation.
+            order: Whether output keys should be ordered for this case.
+            comments: Whether comments should be retained while processing the input.
+            scope: Dictionary keys selected for the parser scope.
+            output: Output format selected for the parser operation.
+        """
 
     monkeypatch.setattr(__main__, "configure_logging", fake_configure_logging)
     monkeypatch.setattr(DictParser, "parse", fake_parse)
@@ -211,13 +277,26 @@ def test_logging_configuration(
 
 @dataclass()
 class ApiArgs:
+    """Expected parser options passed by the command-line entry point.
+
+    Attributes:
+        source_file: Input dictionary file.
+        includes: Whether include directives are processed.
+        mode: File mode used by the parser.
+        order: Whether dictionary keys are ordered.
+        comments: Whether comments are retained.
+        scope: Optional dictionary scope selection.
+        output: Requested output format.
+    """
+
     # Values that main() is expected to pass to DictParser.parse() by default when invoking the API
+
     source_file: Path = field(default_factory=lambda: Path("test_dictParser_dict"))
     includes: bool = True
     mode: str = "w"
     order: bool = False
     comments: bool = True
-    scope: MutableSequence[Any] | None = None
+    scope: MutableSequence[TKey] | None = None
     output: str | None = "cpp"
 
 
@@ -262,10 +341,17 @@ def test_api_invokation(
     inputs: list[str],
     expected: ApiArgs | type,
     monkeypatch: pytest.MonkeyPatch,
-):
+) -> None:
     # sourcery skip: no-conditionals-in-tests
     # sourcery skip: no-loop-in-tests
     # Prepare
+    """Verify that CLI options reach DictParser.parse and invalid values are rejected.
+
+    Args:
+        inputs: Command-line arguments passed to the parser or entry point.
+        expected: Expected parsed values or expected exception type for this case.
+        monkeypatch: Pytest fixture used to replace process arguments or API dependencies.
+    """
     monkeypatch.setattr(sys, "argv", ["dictParser", *inputs])
     args: ApiArgs = ApiArgs()
 
@@ -276,9 +362,20 @@ def test_api_invokation(
         mode: str = "w",
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[Any] | None = None,
+        scope: MutableSequence[TKey] | None = None,
         output: str | None = None,
-    ):
+    ) -> None:
+        """Capture parser options supplied by the CLI without reading or writing dictionary files.
+
+        Args:
+            source_file: Dictionary input file supplied to the parser operation.
+            includes: Whether include directives should be expanded for this case.
+            mode: File mode supplied to the parser operation.
+            order: Whether output keys should be ordered for this case.
+            comments: Whether comments should be retained while processing the input.
+            scope: Dictionary keys selected for the parser scope.
+            output: Output format selected for the parser operation.
+        """
         args.source_file = source_file
         args.includes = includes
         args.mode = mode
@@ -309,6 +406,7 @@ def test_api_invokation(
 
 def test_validate_scope() -> None:
     # Vary scope to different types and each time test whether setOptions works as expected
+    """Verify that scope input is normalized to the list accepted by the parser API."""
     scope_in: str | list[str] | int | None
     # None
     scope_in = None

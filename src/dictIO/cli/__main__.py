@@ -15,11 +15,16 @@ from dictIO import DictParser
 from dictIO.types import K
 from dictIO.utils.logging import configure_logging
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def _get_version() -> str:
-    """Return the installed package version, or a safe fallback if unavailable."""
+    """Return the installed package version or a fallback for source checkouts.
+
+    Returns:
+        The installed distribution version, or a message when package
+        metadata is unavailable.
+    """
     try:
         return metadata.version("dictIO")
     except metadata.PackageNotFoundError:
@@ -28,6 +33,11 @@ def _get_version() -> str:
 
 
 def _argparser() -> argparse.ArgumentParser:
+    """Create the command-line argument parser.
+
+    Returns:
+        Configured parser for the `dictParser` command.
+    """
     parser = argparse.ArgumentParser(
         prog="dictParser",
         usage="%(prog)s dict [options [args]]",
@@ -44,8 +54,8 @@ def _argparser() -> argparse.ArgumentParser:
     )
 
     _ = parser.add_argument(
-        "dict",
-        metavar="dict",
+        "dict_file",
+        metavar="dict_file",
         type=str,
         help="name of dict file to be parsed.",
     )
@@ -158,9 +168,10 @@ def _argparser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    """Entry point for console script as configured in pyproject.toml.
+    """Run the command-line interface.
 
-    Runs the command line interface and parses arguments and options entered on the console.
+    Parse command-line arguments, configure logging, and parse the requested
+    dictionary file.
     """
     parser = _argparser()
     args = parser.parse_args()
@@ -176,7 +187,7 @@ def main() -> None:
     log_level_file: str = args.log_level
     configure_logging(log_level_console, log_file, log_level_file)
 
-    dict_file = Path(args.dict)
+    dict_file = Path(args.dict_file)
     includes: bool = not args.ignore_includes
     mode: str = args.mode
     order: bool = args.order

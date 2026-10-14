@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from _collections_abc import Iterable, Mapping
 
 
-__ALL__ = [
+__all__: list[str] = [
     "CppDict",
 ]
 
@@ -69,10 +69,17 @@ class CppDict(SDict[str, Any]):
         arg: Mapping[str, Any] | Iterable[tuple[str, Any]] | str | os.PathLike[str] | None = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize a deprecated C++ dictionary wrapper.
+
+        Args:
+            arg: Initial mapping, key-value iterable, or source file. If `None`,
+                initialize an empty dictionary. Defaults to `None`.
+            **kwargs: Additional entries to initialize the dictionary with.
+        """
         warnings.warn(
             "`CppDict` is deprecated. Use `SDict[K, V]` instead.",
             DeprecationWarning,
             stacklevel=1,
         )
-        super().__init__(arg, **kwargs)  # type: ignore[arg-type, reportArgumentType, reportCallIssue]
+        super().__init__(arg, **kwargs)  # type: ignore[arg-type]
         return

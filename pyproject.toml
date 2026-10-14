@@ -1,3 +1,105 @@
+# ===== project metadata =====
+
+[project]
+name = "dictIO"
+version = "0.4.5"
+description = "Python package to read, write and manipulate dictionary text files. Supports dictIOs native file format, as well as JSON, XML and OpenFOAM."
+requires-python = ">=3.12"
+readme = "README.md"
+license-files = [ "LICENSE" ]
+authors = [
+    { name = "Frank Lumpitzsch", email = "frank.lumpitzsch@dnv.com" },
+    { name = "Claas Rostock", email = "claas.rostock@dnv.com" },
+    { name = "Seunghyeon Yoo", email = "seunghyeon.yoo@dnv.com" },
+]
+maintainers = [
+    { name = "Claas Rostock", email = "claas.rostock@dnv.com" },
+]
+keywords = [
+    "dictIO",
+    "dictParser",
+    "dict",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "lxml>=6.1",
+    "jsonschema>=4.26",
+    "numpy>=2.5",
+]
+
+[project.scripts]
+dictParser = "dictIO.cli.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/dnv-opensource/dictIO"
+Documentation = "https://dnv-opensource.github.io/dictIO"
+Repository = "https://github.com/dnv-opensource/dictIO.git"
+Issues = "https://github.com/dnv-opensource/dictIO/issues"
+Changelog = "https://github.com/dnv-opensource/dictIO/blob/main/CHANGELOG.md"
+
+
+# ===== dependency groups (PEP 735) =====
+
+[dependency-groups]
+test = [
+    "pytest>=9.1",
+    "pytest-cov>=7.1",
+    "pytest-dependency>=0.6.0",
+    "pytest-timeout>=2.3.1",
+]
+docs = [
+    "Sphinx>=9.1",
+    "sphinx-argparse-cli>=1.24.0",
+    "sphinx-autodoc-typehints>=3.13",
+    "sphinxcontrib-mermaid>=2.1",
+    "myst-parser>=5.1",
+    "furo>=2025.12",
+]
+dev = [
+    {include-group = "test"},
+    {include-group = "docs"},
+    "ruff>=0.17.0",
+    "pyright>=1.1.414",
+    "mypy>=2.4",
+    "pre-commit>=4.7",
+    "jupyter>=1.1.1",
+    "nbconvert>=7.17",
+    "types-lxml>=2026.2",
+]
+
+
+# ===== `uv` settings =====
+
+[tool.uv]
+default-groups = [
+    "dev",
+]
+system-certs = true
+required-environments = [
+    "sys_platform == 'win32'",
+    "sys_platform == 'linux'",
+    "sys_platform == 'darwin'",
+]
+
+
+
+# ===== build system settings =====
+
 [build-system]
 requires = [
     "hatchling",
@@ -25,91 +127,8 @@ packages = [
 [tool.hatch.metadata]
 allow-direct-references = true
 
-[project]
-name = "dictIO"
-version = "0.4.4"
-description = "Python package to read, write and manipulate dictionary text files. Supports dictIOs native file format, as well as JSON, XML and OpenFOAM."
-readme = "README.md"
-requires-python = ">= 3.11"
-license = { file = "LICENSE" }
-authors = [
-    { name = "Frank Lumpitzsch", email = "frank.lumpitzsch@dnv.com" },
-    { name = "Claas Rostock", email = "claas.rostock@dnv.com" },
-    { name = "Seunghyeon Yoo", email = "seunghyeon.yoo@dnv.com" },
-]
-maintainers = [
-    { name = "Claas Rostock", email = "claas.rostock@dnv.com" },
-]
-keywords = [
-    "dictIO",
-    "dictParser",
-    "dict",
-]
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: POSIX :: Linux",
-    "Operating System :: MacOS",
-    "Environment :: Console",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-]
-dependencies = [
-    "lxml>=6.0",
-    "jsonschema>=4.26",
-    "numpy>=2.4",
-]
 
-[project.urls]
-Homepage = "https://github.com/dnv-opensource/dictIO"
-Documentation = "https://dnv-opensource.github.io/dictIO/README.html"
-Repository = "https://github.com/dnv-opensource/dictIO.git"
-Issues = "https://github.com/dnv-opensource/dictIO/issues"
-Changelog = "https://github.com/dnv-opensource/dictIO/blob/main/CHANGELOG.md"
-
-
-[dependency-groups]
-dev = [
-    "pytest>=9.0",
-    "pytest-cov>=7.1",
-    "ruff>=0.15.7",
-    "pyright>=1.1.408",
-    "mypy>=1.19.1",
-    "sourcery>=1.43.0",
-    "pre-commit>=4.5",
-    "Sphinx>=9.0",
-    "sphinx-argparse-cli>=1.21.3",
-    "sphinx-autodoc-typehints>=3.6",
-    "sphinxcontrib-mermaid>=2.0",
-    "myst-parser>=5.0",
-    "furo>=2025.12",
-    "jupyter>=1.1.1",
-    "nbconvert>=7.17",
-    "types-lxml>=2026.2",
-]
-
-[tool.uv]
-default-groups = [
-    "dev",
-]
-native-tls = true
-required-environments = [
-    "sys_platform == 'win32'",
-    "sys_platform == 'linux'",
-    "sys_platform == 'darwin'",
-]
-
-
-[project.scripts]
-dictParser = "dictIO.cli.__main__:main"
-
+# ===== `mypy` settings =====
 
 [tool.mypy]
 plugins = []
@@ -117,7 +136,7 @@ mypy_path = "stubs"
 files = [
     "src",
     "tests",
-    "demos",
+    "examples",
 ]
 exclude = [
     "src/folder_to_be_excluded",
@@ -129,12 +148,14 @@ disable_error_code = [
 ]
 
 
+# ===== `pyright` settings =====
+
 [tool.pyright]
 stubPath = "stubs"
 include = [
     "src",
     "tests",
-    "demos",
+    "examples",
 ]
 exclude = [
     "**/node_modules",

@@ -1,3 +1,5 @@
+"""Tests common-root and relative-path utilities."""
+
 import sys
 from pathlib import Path
 
@@ -10,6 +12,7 @@ WindowsOnly: pytest.MarkDecorator = pytest.mark.skipif(not sys.platform.startswi
 
 def test_highest_common_root_folder() -> None:
     # Prepare
+    """Verify that the common-root utility returns the shared parent of input paths."""
     file_01: Path = Path(r"C:/A0/A1/A2/file_01.abc")
     file_02: Path = Path(r"C:/A0/A1/A2/file_02.abc")
     file_03: Path = Path(r"C:/A0/A1/B2/file_03.abc")
@@ -75,6 +78,7 @@ def test_highest_common_root_folder() -> None:
 @WindowsOnly
 def test_highest_common_root_folder_raises_value_error() -> None:
     # Prepare
+    """Verify that incompatible paths raise ValueError when no common root exists."""
     file_11: Path = Path(r"C:/file_11.abc")
     file_12: Path = Path(r"D:/file_12.abc")
     folder_11: Path = Path(r"C:/")
@@ -90,6 +94,7 @@ def test_highest_common_root_folder_raises_value_error() -> None:
 
 def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_1() -> None:
     # Prepare
+    """Verify that repeated path components do not select the wrong common root."""
     file_01: Path = Path(r"C:/A0/A1/A0/A1/A0/A1/file_01.abc")
     file_02: Path = Path(r"C:/A0/A1/A0/A1/A0/file_02.abc")
     file_03: Path = Path(r"C:/A0/A1/A0/A1/file_03.abc")
@@ -150,6 +155,7 @@ def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_1(
 
 def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_2() -> None:
     # Prepare
+    """Verify that similar repeated path components are matched at the correct positions."""
     file_01: Path = Path(r"C:/A0/A0/A0/A0/A0/A0/file_01.abc")
     file_02: Path = Path(r"C:/A0/A0/A0/A0/A0/file_02.abc")
     file_03: Path = Path(r"C:/A0/A0/A0/A0/file_03.abc")
@@ -210,6 +216,7 @@ def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_2(
 
 def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_3() -> None:
     # Prepare
+    """Verify common-root selection with paths containing several repeated component names."""
     file_01: Path = Path(r"C:/A0/A0/A0/A0/A0/A1/file_01.abc")
     file_02: Path = Path(r"C:/A0/A1/A0/A0/A0/A0/file_02.abc")
     file_03: Path = Path(r"C:/A0/A0/A0/A0/A1/file_03.abc")
@@ -247,6 +254,7 @@ def test_highest_common_root_folder_with_multiple_occurences_of_similar_parts_3(
 
 def test_relative_path() -> None:
     # Prepare
+    """Verify that the relative-path utility computes a path from the requested root."""
     file_01: Path = Path(r"C:/A0/A1/A2/file_01.abc")
     file_06: Path = Path(r"C:/A0/A1/file_06.abc")
     folder_01: Path = Path(r"C:/A0/A1/A2/")
@@ -334,6 +342,7 @@ def test_relative_path() -> None:
 @WindowsOnly
 def test_relative_path_raises_value_error() -> None:
     # Prepare
+    """Verify that paths outside the requested root raise ValueError."""
     file_11: Path = Path(r"C:/file_11.abc")
     file_12: Path = Path(r"D:/file_12.abc")
     folder_11: Path = Path(r"C:/")

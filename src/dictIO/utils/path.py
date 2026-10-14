@@ -5,28 +5,26 @@ import os
 from collections.abc import Sequence
 from pathlib import Path
 
-__all__ = ["highest_common_root_folder", "relative_path"]
+__all__: list[str] = ["highest_common_root_folder", "relative_path"]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def highest_common_root_folder(paths: Sequence[Path]) -> Path:
     """Return the highest common root folder among the passed in paths.
 
-    Parameters
-    ----------
-    paths : Sequence[Path]
-        A sequence of path objects. Can be files or folders, or both.
+    Paths with a suffix are treated as files, so their parent directories
+    participate in the common-root calculation.
 
-    Returns
-    -------
-    Path
-        The highest common root folder among the passed in paths.
+    Args:
+        paths: Paths to files or folders.
 
-    Raises
-    ------
-    ValueError
-        If argument 'paths' is empty or if the passed in paths do not share a common root folder.
+    Returns:
+        The highest common directory shared by all input paths.
+
+    Raises:
+        ValueError: If `paths` is empty or the paths do not share a common
+            root.
     """
     if not paths:
         raise ValueError("argument 'paths' is empty.")
@@ -57,22 +55,19 @@ def highest_common_root_folder(paths: Sequence[Path]) -> Path:
 def relative_path(from_path: Path, to_path: Path) -> Path:
     """Return the relative path from one path to another.
 
-    Parameters
-    ----------
-    from_path : Path
-        The start point path.
-    to_path : Path
-        The end point path.
+    First resolve the relative path using `Path.relative_to`; if the target is
+    outside the source path, calculate a relative path using the operating
+    system path rules.
 
-    Returns
-    -------
-    Path
-        The relative path from 'from_path' (the start point) to 'to_path' (the end point).
+    Args:
+        from_path: Starting path.
+        to_path: Target path.
 
-    Raises
-    ------
-    ValueError
-        If no relative path between 'from_path' and 'to_path' can be resolved.
+    Returns:
+        Path from the starting path to the target path.
+
+    Raises:
+        ValueError: If neither path operation can calculate a relative path.
     """
     relative_path: Path
     try:

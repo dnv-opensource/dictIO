@@ -1,3 +1,5 @@
+"""Configure Sphinx extensions, documentation paths, and project metadata."""
+
 # mypy: ignore-errors
 
 # Configuration file for the Sphinx documentation builder.
@@ -12,10 +14,18 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import sys
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _get_version
 from pathlib import Path
 
 sys.path.insert(0, str(Path("../../src").absolute()))
 
+# Read version from installed package metadata
+try:
+    __version__ = _get_version("dictIO")
+except PackageNotFoundError:
+    # Docs may be built from a source checkout without the package installed
+    __version__ = "0.0.0.dev0"
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -25,7 +35,7 @@ copyright = "2026, DNV SE. All rights reserved."
 author = "Frank Lumpitzsch, Claas Rostock, Seunghyeon Yoo"
 
 # The full version, including alpha/beta/rc tags
-release = "0.4.4"
+release = __version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -75,6 +85,15 @@ autodoc_default_options = {
     "exclude-members": "__weakref__",
 }
 autodoc_preserve_defaults = True
+autodoc_typehints = "both"
+autodoc_typehints_description_target = "all"
+
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
+napoleon_use_param = True
+napoleon_use_rtype = True
+napoleon_preprocess_types = True
+napoleon_attr_annotations = True
 
 myst_heading_anchors = 3
 

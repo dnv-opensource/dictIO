@@ -14,7 +14,7 @@
         },
         "editor.defaultFormatter": "charliermarsh.ruff",
     },
-    "autoDocstring.docstringFormat": "numpy",
+    "autoDocstring.docstringFormat": "google-notypes",
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "python.analysis.logLevel": "Warning",
@@ -32,4 +32,18 @@
     "mypy-type-checker.reportingScope": "custom",
     "mypy-type-checker.preferDaemon": true,
     "ruff.configurationPreference": "filesystemFirst",
+    "chat.instructionsFilesLocations": {
+        ".github/instructions": true,
+    },
+    "chat.tools.terminal.autoApprove": {
+        "uv": true,
+        "/^uv run pytest -q$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^uv run ruff format --check$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    },
 }

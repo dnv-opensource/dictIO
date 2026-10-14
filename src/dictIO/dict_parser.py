@@ -7,10 +7,11 @@ from pathlib import Path
 from typing import Any
 
 from dictIO import DictReader, DictWriter, SDict, create_target_file_name
+from dictIO.types import TKey
 
-__ALL__ = ["DictParser"]
+__all__: list[str] = ["DictParser"]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class DictParser:
@@ -21,6 +22,7 @@ class DictParser:
     """
 
     def __init__(self) -> None:
+        """Initialize a dictionary parser."""
         return
 
     @staticmethod
@@ -31,50 +33,39 @@ class DictParser:
         mode: str = "w",
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[Any] | None = None,
+        scope: MutableSequence[TKey] | None = None,
         output: str | None = None,
     ) -> SDict[Any, Any] | None:
         """Parse a dictionary file and save it with prefix 'parsed.'.
 
-        DictParser.parse() combines the otherwise atomic operations
-        of DictReader.read() and DictWriter.write() in one chunk:
+        This convenience method combines `DictReader.read` and
+        `DictWriter.write`.
 
-        1: parsed_dict = DictReader.read(source_file)
+        The parsed output is written with the `parsed.` prefix. For example,
+        parsing `xyz` creates `parsed.xyz`. Output uses dictIO's native format
+        by default; JSON, XML, and OpenFOAM formats are also supported.
 
-        2: DictWriter.write(parsed_dict, target_file)
+        Args:
+            source_file: Dictionary file to parse.
+            includes: Whether to merge sub-dictionaries referenced by include
+                directives. Defaults to `True`.
+            mode: Whether to append (`"a"`) to an existing output file or
+                overwrite it (`"w"`). Defaults to `"w"`.
+            order: Whether to sort the parsed dictionary. Defaults to `False`.
+            comments: Whether to write comments to the output file. Defaults
+                to `True`.
+            scope: Keys to retain after parsing. If `None`, do not reduce the
+                dictionary by scope. Defaults to `None`.
+            output: Output format (`"cpp"`, `"foam"`, `"xml"`, or `"json"`).
+                If `None`, infer the format from the default behavior.
+                Defaults to `None`.
 
-        The parsed dict is saved with prefix 'parsed.'
-        Example: Parsing source file 'xyz' will result in parsed file 'parsed.xyz' being generated.
+        Returns:
+            Parsed dictionary, or `None` if the writer does not return a
+            parsed dictionary.
 
-        The parsed dict will by default be written in dictIO's native file format.
-        Optionally, output format can be changed to JSON, XML and OpenFOAM.
-
-        Parameters
-        ----------
-        source_file : Union[str, os.PathLike[str]]
-            dict file to be parsed
-        includes : bool, optional
-            merge sub-dicts being referenced through #include directives, by default True
-        mode : str, optional
-            append to output file ('a') or overwrite output file ('w'), by default 'w'
-        order : bool, optional
-            sort the parsed dict, by default False
-        comments : bool, optional
-            writes comments to output file, by default True
-        scope : MutableSequence[str], optional
-            scope the dict will be reduced to after parsing, by default None
-        output : str, optional
-            format of the output file. Choices are 'cpp', 'foam', 'xml' and 'json'., by default None
-
-        Returns
-        -------
-        Union[SDict, None]
-            the parsed dict
-
-        Raises
-        ------
-        FileNotFoundError
-            if source_file does not exist
+        Raises:
+            FileNotFoundError: If `source_file` does not exist.
         """
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
         source_file = source_file if isinstance(source_file, Path) else Path(source_file)

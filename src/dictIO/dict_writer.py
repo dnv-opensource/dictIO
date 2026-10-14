@@ -5,20 +5,21 @@ import os
 import re
 from collections.abc import MutableMapping, MutableSequence
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 from dictIO import Formatter, NativeParser, SDict, order_keys
-from dictIO.types import K, V
+from dictIO.types import K, TKey, V
 
-__ALL__ = ["DictWriter", "create_target_file_name"]
+__all__: list[str] = ["DictWriter", "create_target_file_name"]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class DictWriter:
     """Writer for dictionaries in dictIO native file format, as well as JSON, XML and OpenFoam."""
 
     def __init__(self) -> None:
+        """Create a writer for dictionary files."""
         return
 
     @staticmethod
@@ -30,32 +31,30 @@ class DictWriter:
         order: bool = False,
         formatter: Formatter | None = None,
     ) -> None:
-        """Write a dictionary file in dictIO native file format, as well as JSON, XML and OpenFoam.
+        """Serialize a dictionary and write it to a file.
 
-        Writes a dictIO dict (parameter source_dict of type SDict) to target_file.
-        Following file formats are supported and interpreted through target_file's file ending:
+        The file format is selected from the target file extension:
         no file ending   ->   dictIO native dict file
         '.cpp'           ->   dictIO native dict file
         '.foam'          ->   Foam dictionary file
         '.json'          ->   Json dictionary file
         '.xml'           ->   XML file
-        Following modes are supported:
-        mode = 'a': append to target file. If the existing file contains a dictionary, write() will append the new dict
-        to the existing through merging. This is the default behaviour.
-        mode = 'w': overwrite target file. The existing file will be overwritten.
 
-        Parameters
-        ----------
-        source_dict : MutableMapping[K, V]
-            source dict
-        target_file : str | os.PathLike[str] | None, optional
-            target dict file name, by default None
-        mode : str, optional
-            append to target file ('a') or overwrite target file ('w'), by default 'a'
-        order : bool, optional
-            if True, the dict will be sorted before writing, by default False
-        formatter : Formatter | None, optional
-            formatter to be used, by default None
+        In append mode, an existing dictionary is read and merged with
+        `source_dict` before writing. In overwrite mode, the target is replaced.
+
+        Args:
+            source_dict: Dictionary content to serialize.
+            target_file: Target file name. If `None`, infer the target from
+                `source_dict`'s source file; if it has no source file, log an
+                error and do not write a file. Defaults to `None`.
+            mode: `"a"` to merge with an existing target before writing, or `"w"`
+                to overwrite it. An unsupported value logs a warning and writes
+                without merging. Defaults to `"a"`.
+            order: Whether to sort dictionary keys before serialization.
+                Defaults to `False`.
+            formatter: Formatter to use. If `None`, select one based on the
+                target file format. Defaults to `None`.
         """
         # Check arguments
         if mode not in ["a", "w"]:
@@ -119,7 +118,7 @@ class DictWriter:
 def create_target_file_name(
     source_file: str | os.PathLike[str],
     prefix: str | None = None,
-    scope: MutableSequence[Any] | None = None,
+    scope: MutableSequence[TKey] | None = None,
     output: str | None = None,
 ) -> Path:
     """Create a well defined target file name.
@@ -127,20 +126,17 @@ def create_target_file_name(
     Helper function to create a target file name based on the source file name,
     a prefix, a scope and an output format.
 
-    Parameters
-    ----------
-    source_file : Union[str, os.PathLike[str]]
-        source dict file
-    prefix : Union[str, None], optional
-        prefix to be used, by default None
-    scope : MutableSequence[Any] | None, optional
-        scope to be reflected in the target file name, by default None
-    output : Union[str, None], optional
-        format of the target dict file. Choices are 'cpp', 'foam', 'xml' and 'json', by default None
+    Args:
+        source_file: source dict file.
+        prefix: Prefix to prepend to the file name. If `None`, do not add a
+            prefix. Defaults to `None`.
+        scope: Keys to append to the file name. If `None` or empty, do not add a
+            scope suffix. Defaults to `None`.
+        output: Output format (`cpp`, `foam`, `xml`, or `json`). If `None`,
+            preserve the source file extension; unsupported values use `cpp`.
+            Defaults to `None`.
 
-    Returns
-    -------
-    Path
+    Returns:
         target dict file name
     """
     # Make sure source_file argument is of type Path. If not, cast it to Path type.

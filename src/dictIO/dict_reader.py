@@ -41,18 +41,19 @@ from numpy import (  # noqa: F401
 )
 
 from dictIO import Parser, SDict
-from dictIO.types import K, M, V
+from dictIO.types import K, M, TKey, V
 from dictIO.utils.counter import DejaVue
 
-__ALL__ = ["DictReader"]
+__all__: list[str] = ["DictReader"]
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class DictReader:
     """Reader for dictionaries in dictIO native file format, as well as JSON and XML."""
 
     def __init__(self) -> None:
+        """Create a reader for dictionary files."""
         return
 
     @staticmethod
@@ -62,44 +63,36 @@ class DictReader:
         includes: bool = True,
         order: bool = False,
         comments: bool = True,
-        scope: MutableSequence[Any] | None = None,
+        scope: MutableSequence[TKey] | None = None,
         parser: Parser | None = None,
     ) -> SDict[Any, Any]:
-        """Read a dictionary file in dictIO native file format, as well as JSON and XML.
+        """Read and parse a dictionary file.
 
-        Reads a dict file, parses it and transforms its content into a dictIO dict object (SDict).
-        Following file formats are supported and interpreted through source_file's file ending:
+        The file format is selected from the file extension:
         no file ending   ->   dictIO native dict file
         '.cpp'           ->   dictIO native dict file
         '.foam'          ->   Foam dictionary file
         '.json'          ->   Json dictionary file
         '.xml'           ->   XML file
-        Return type is in all cases SDict
 
-        Parameters
-        ----------
-        source_file : Union[str, os.PathLike[str]]
-            dict file to be read
-        includes : bool, optional
-            merge sub-dicts being referenced through #include directives, by default True
-        order : bool, optional
-            sort the read dict, by default False
-        comments : bool, optional
-            reads comments from source file, by default True
-        scope : MutableSequence[str], optional
-            scope the dict will be reduced to after reading, by default None
-        parser : Parser, optional
-            Parser object to be used, by default None
+        Args:
+            source_file: Dictionary file to read.
+            includes: Whether to merge included dictionaries. If `False`,
+                include directives are removed without merging. Defaults to `True`.
+            order: Whether to sort the parsed dictionary. Defaults to `False`.
+            comments: Whether to preserve comments from the source file.
+                Defaults to `True`.
+            scope: Keys that select the nested dictionary to return. If `None`
+                or empty, return the full dictionary. Defaults to `None`.
+            parser: Parser to use. If `None`, select one based on the source
+                file format. Defaults to `None`.
 
-        Returns
-        -------
-        SDict[Any, Any]
-            the read dict
+        Returns:
+            The parsed file content.
 
-        Raises
-        ------
-        FileNotFoundError
-            if source_file does not exist
+        Raises:
+            FileNotFoundError: If `source_file` does not exist.
+            SystemExit: If `scope` is provided but does not exist in the file.
         """
         # Make sure source_file argument is of type Path. If not, cast it to Path type.
         source_file = source_file if isinstance(source_file, Path) else Path(source_file)
@@ -153,7 +146,13 @@ class DictReader:
         *,
         comments: bool = True,
     ) -> None:
-        """Parse and merge any (child) dicts that are referenced in the dict file through #include directives."""
+        """Parse and merge dictionaries referenced by include directives.
+
+        Args:
+            parent_dict: Dictionary whose include directives are resolved.
+            comments: Whether to preserve comments from included files.
+                Defaults to `True`.
+        """
         # Create dejavue string watchdog
         djv = DejaVue()
         djv.reset()
@@ -345,7 +344,14 @@ class DictReader:
 
     @staticmethod
     def _remove_comment_keys(data: M) -> M:
-        """Remove comments from data structure for read function call from other programs."""
+        """Remove comment placeholders from a parsed dictionary.
+
+        Args:
+            data: Dictionary-like structure to clean.
+
+        Returns:
+            The same structure with comment placeholders removed.
+        """
         remove = "[A-Z]+COMMENT[0-9;]+"
 
         with contextlib.suppress(Exception):
@@ -359,7 +365,14 @@ class DictReader:
 
     @staticmethod
     def _remove_include_keys(data: M) -> M:
-        """Remove includes from data structure for read function call from other programs."""
+        """Remove include placeholders from a parsed dictionary.
+
+        Args:
+            data: Dictionary-like structure to clean.
+
+        Returns:
+            The same structure with include placeholders removed.
+        """
         remove = "INCLUDE[0-9;]+"
 
         with contextlib.suppress(Exception):

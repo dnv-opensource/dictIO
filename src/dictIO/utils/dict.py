@@ -10,17 +10,15 @@ from dictIO.types import K, M, V
 
 
 def order_keys(arg: M) -> M:
-    """alpha-numeric sorting of keys, recursively.
+    """Sort mapping keys recursively, placing non-string keys before strings.
 
-    Parameters
-    ----------
-    arg : _MT
-        MutableMapping, the keys of which shall be sorted.
+    The mapping is updated in place, and the same instance is returned.
 
-    Returns
-    -------
-    _MT
-        the passed in MutableMapping, with keys sorted. The same instance is returned.
+    Args:
+        arg: Mapping whose keys should be sorted.
+
+    Returns:
+        The input mapping with recursively sorted keys.
     """
     sorted_dict: dict[Any, Any] = dict(sorted(arg.items(), key=lambda x: (isinstance(x[0], str), x[0])))
     for key, value in copy(sorted_dict).items():
@@ -37,17 +35,17 @@ def find_global_key(
 ) -> list[K | int] | None:
     """Return the global key thread to the first key the value of which matches the passed in query.
 
-    Parameters
-    ----------
-    arg : Union[MutableMapping[K, V], MutableSequence[V]]
-        dict to search in for the queried value
-    query : str, optional
-        query string for the value to search for, by default ''
+    The query is interpreted as a regular expression and values are searched
+    in traversal order.
 
-    Returns
-    -------
-    list[K | int] | None
-        global key thread to the first key the value of which matches the passed in query, if found. Otherwise None.
+    Args:
+        arg: Nested mapping or sequence to search.
+        query: Regular expression to search for in each value's string form.
+            Defaults to `""`.
+
+    Returns:
+        The key path to the first matching value, or `None` if no value
+        matches.
     """
     global_key: list[K | int] = []
     if isinstance(arg, MutableMapping):  # dict
@@ -79,16 +77,21 @@ def set_global_key(
     global_key: Sequence[K | int],
     value: V,
 ) -> None:
-    """Set the value for the passed in global key.
+    """Set a value at the location identified by a global key path.
 
-    Parameters
-    ----------
-    arg : MutableMapping[K, V]
-        dict the target key in which shall be set
-    global_key : MutableSequence[K | int]
-        list of keys defining the global key thread to the target key (such as returned by method find_global_key())
-    value : V
-        value the target key shall be set to
+    An empty key path leaves the mapping unchanged. Paths may traverse nested
+    mappings and sequences, and are limited to ten levels.
+
+    Args:
+        arg: Mapping containing the target location.
+        global_key: Key path to the target location, such as one returned by
+            `find_global_key`.
+        value: Value to store at the target location.
+
+    Raises:
+        KeyError: If the key path is invalid or does not identify a nested
+            mapping or sequence.
+        RecursionError: If the path traverses more than ten levels.
     """
     if not global_key:
         return
@@ -144,23 +147,21 @@ def global_key_exists(
 ) -> bool:
     """Check whether the specified global key exists in the passed in dict.
 
-    Parameters
-    ----------
-    dict_in : MutableMapping[K, V]
-        dict to check for existence of the specified global key
-    global_key : MutableSequence[K | int]
-        global key the existence of which is checked in the passed in dict
+    Each key in the path must lead to another mapping; a scalar value at an
+    intermediate level means the path does not exist.
 
-    Returns
-    -------
-    bool
-        True if the specified global key exists, otherwise False
+    Args:
+        dict_in: Mapping to search.
+        global_key: Key path whose existence is checked.
+
+    Returns:
+        `True` if the path exists through nested mappings, otherwise `False`.
     """
     _last_branch: MutableMapping[K, V] = dict_in
     _next_branch: MutableMapping[K, V] | V
     try:
         for key in global_key:
-            _next_branch = _last_branch[key]  # type: ignore[index, reportArgumentType]
+            _next_branch = _last_branch[key]  # type: ignore[index]
             if not isinstance(_next_branch, MutableMapping):
                 return False
             _last_branch = _next_branch

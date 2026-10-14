@@ -1,8 +1,10 @@
+"""Tests SDict initialization, mapping operations, parsing, serialization, and copying."""
+
 import copy
 import re
-from collections.abc import MutableMapping
 from copy import deepcopy
 from pathlib import Path
+from types import NotImplementedType
 from typing import Any, cast
 
 import pytest
@@ -23,11 +25,17 @@ from dictIO.types import K, V
 
 @pytest.fixture
 def test_dict() -> SDict[str, Any]:
+    """Load the parsed dictionary fixture shared by this module's tests.
+
+    Returns:
+        Parsed fixture dictionary used by the test cases.
+    """
     parser = NativeParser()
     return parser.parse_file(Path("test_dict_dict"))
 
 
 def test_init() -> None:
+    """Verify that a new dictionary starts with empty metadata and the default delimiters."""
     test_dict: SDict[str, Any] = SDict()
     assert test_dict.source_file is None
     assert test_dict.path == Path.cwd()
@@ -43,6 +51,7 @@ def test_init() -> None:
 
 
 def test_init_with_file() -> None:
+    """Verify that a dictionary initialized with a filename records its source path and name."""
     test_dict: SDict[str, Any] = SDict("someDict")
     assert test_dict.source_file == Path.cwd() / "someDict"
     assert test_dict.path == Path.cwd()
@@ -58,6 +67,7 @@ def test_init_with_file() -> None:
 
 
 def test_init_with_base_dict() -> None:
+    """Verify that a dictionary initialized from a mapping preserves its entries and default metadata."""
     base_dict: dict[str, Any] = {
         "key1": "value1",
         "key2": "value2",
@@ -80,6 +90,7 @@ def test_init_with_base_dict() -> None:
 def test_find_global_key() -> None:
     # sourcery skip: no-loop-in-tests
     # Prepare
+    """Verify nested searches find global strings and ignore non-string values."""
     str_in_1 = "PLACEHOLDER000001"
     str_in_2 = "PLACEHOLDER000002"
     str_in_3 = "PLACEHOLDER000003"
@@ -247,6 +258,7 @@ def test_find_global_key() -> None:
 def test_order_keys() -> None:
     # sourcery skip: no-loop-in-tests
     # Prepare
+    """Verify that dictionary keys are ordered recursively without changing their associated values."""
     str_1 = "string 1"
     str_2 = "string 2"
     str_3 = "string 3"
@@ -321,6 +333,11 @@ def test_order_keys() -> None:
 def test_order_keys_of_test_dict(test_dict: SDict[K, V]) -> None:
     # Prepare
     # Execute
+    """Verify that ordering the parsed fixture preserves its data while sorting its keys.
+
+    Args:
+        test_dict: Parsed fixture dictionary used as the operation's input.
+    """
     test_dict.order_keys()
     # Assert
     assert str(test_dict[cast("K", "unordered")]) == str(test_dict[cast("K", "ordered")])
@@ -328,6 +345,11 @@ def test_order_keys_of_test_dict(test_dict: SDict[K, V]) -> None:
 
 def test_reduce_scope_of_test_dict(test_dict: SDict[K, V]) -> None:
     # Prepare
+    """Verify that reducing scope retains the requested entries and their metadata.
+
+    Args:
+        test_dict: Parsed fixture dictionary used as the operation's input.
+    """
     scope: list[K] = [cast("K", "scope"), cast("K", "subscope1")]
     # Execute
     test_dict.reduce_scope(scope)
@@ -342,6 +364,7 @@ def test_reduce_scope_of_test_dict(test_dict: SDict[K, V]) -> None:
 
 def test_include() -> None:
     # Prepare
+    """Verify that included dictionaries contribute their entries to the parsed mapping."""
     source_dict_file = Path("test_dict_add_include")
     param_dict_file = Path("test_dict_paramDict")
     temp_dict_file = Path(f"{source_dict_file.name}_temp")
@@ -364,6 +387,7 @@ def test_include() -> None:
 
 def test_merge_does_not_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that merge keeps destination values when a key is already present."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -414,6 +438,7 @@ def test_merge_does_not_overwrite_existing_keys() -> None:
 
 def test_merge_does_not_delete_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that merge retains destination entries absent from the source mapping."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -450,6 +475,7 @@ def test_merge_does_not_delete_existing_keys() -> None:
 
 def test_merge_does_add_new_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that merge adds keys present only in the source mapping."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -499,6 +525,7 @@ def test_merge_does_add_new_keys() -> None:
 
 def test_merge_does_not_change_existings_lists() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that merge preserves existing lists rather than replacing them."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -544,6 +571,7 @@ def test_merge_does_not_change_existings_lists() -> None:
 
 
 def test_merge_does_also_merge_attributes() -> None:
+    """Verify that merge combines dictionary metadata as well as mapping entries."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_2: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_1.expressions |= {
@@ -626,6 +654,7 @@ def test_merge_does_also_merge_attributes() -> None:
 
 def test_update_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that update replaces destination values for keys supplied by the source."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -685,6 +714,7 @@ def test_update_does_overwrite_existing_keys() -> None:
 
 def test_update_does_delete_nested_elements() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that update removes nested destination elements omitted from the replacement value."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -726,6 +756,7 @@ def test_update_does_delete_nested_elements() -> None:
 
 def test_update_does_add_new_keys_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that update adds source-only keys while overwriting existing values."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -779,6 +810,7 @@ def test_update_does_add_new_keys_by_overwrite() -> None:
 
 def test_update_does_change_existings_lists_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that update replaces existing lists when overwrite behavior is enabled."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -821,6 +853,7 @@ def test_update_does_change_existings_lists_by_overwrite() -> None:
 
 
 def test_update_does_also_update_attributes() -> None:
+    """Verify that update replaces dictionary metadata as well as mapping entries."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_2: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_1.expressions |= {
@@ -903,6 +936,7 @@ def test_update_does_also_update_attributes() -> None:
 
 def test_augmented_or_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that in-place union replaces values for keys supplied by the right operand."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -962,6 +996,7 @@ def test_augmented_or_does_overwrite_existing_keys() -> None:
 
 def test_augmented_or_does_delete_nested_elements() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that in-place union removes nested elements omitted by the right operand."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -1003,6 +1038,7 @@ def test_augmented_or_does_delete_nested_elements() -> None:
 
 def test_augmented_or_does_add_new_keys_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that in-place union adds new keys and updates existing values."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -1056,6 +1092,7 @@ def test_augmented_or_does_add_new_keys_by_overwrite() -> None:
 
 def test_augmented_or_does_change_existings_lists_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that in-place union replaces existing lists with right-operand lists."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -1098,6 +1135,7 @@ def test_augmented_or_does_change_existings_lists_by_overwrite() -> None:
 
 
 def test_augmented_or_does_also_update_attributes() -> None:
+    """Verify that in-place union updates dictionary metadata as well as entries."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_2: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_1.expressions |= {
@@ -1180,6 +1218,7 @@ def test_augmented_or_does_also_update_attributes() -> None:
 
 def test_left_or_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that left-hand union applies the expected overwrite behavior to existing keys."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -1239,6 +1278,7 @@ def test_left_or_does_overwrite_existing_keys() -> None:
 
 def test_left_or_does_delete_nested_elements() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that left-hand union handles nested elements omitted from the right operand."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -1280,6 +1320,7 @@ def test_left_or_does_delete_nested_elements() -> None:
 
 def test_left_or_does_add_new_keys_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that left-hand union adds right-operand keys and updates existing values."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -1333,6 +1374,7 @@ def test_left_or_does_add_new_keys_by_overwrite() -> None:
 
 def test_left_or_does_change_existings_lists_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that left-hand union replaces existing lists with right-operand lists."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict(
         {
             "A": "string 11",
@@ -1375,6 +1417,7 @@ def test_left_or_does_change_existings_lists_by_overwrite() -> None:
 
 
 def test_left_or_does_also_update_attributes() -> None:
+    """Verify that left-hand union combines dictionary metadata as well as entries."""
     dict_1: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_2: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_1.expressions |= {
@@ -1456,13 +1499,24 @@ def test_left_or_does_also_update_attributes() -> None:
     assert new_dict.includes[3] == ("#include dict_23", "dict_23", Path("dict_23"))
 
 
-class DictWithoutOr(dict[Any, Any]):
-    def __or__(self, value: MutableMapping[Any, Any]) -> dict[Any, Any]:
+class DictWithoutOr(dict[str, Any]):
+    """Dictionary test double that declines left-hand union so reflected union dispatch can be tested."""
+
+    def __or__(self, value: object) -> NotImplementedType:
+        """Return NotImplemented so reflected union dispatch can use the right operand.
+
+        Args:
+            value: Right operand passed to the dictionary union method.
+
+        Returns:
+            NotImplemented to request reflected union dispatch.
+        """
         return NotImplemented
 
 
 def test_right_or_does_overwrite_existing_keys() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that reflected union applies the expected overwrite behavior to existing keys."""
     dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr(
         {
             "A": "string 11",
@@ -1522,6 +1576,7 @@ def test_right_or_does_overwrite_existing_keys() -> None:
 
 def test_right_or_does_delete_nested_elements() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that reflected union handles nested elements omitted from the left operand."""
     dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr(
         {
             "A": "string 11",
@@ -1563,6 +1618,7 @@ def test_right_or_does_delete_nested_elements() -> None:
 
 def test_right_or_does_add_new_keys_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that reflected union adds keys from the left operand."""
     dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr(
         {
             "A": "string 11",
@@ -1616,6 +1672,7 @@ def test_right_or_does_add_new_keys_by_overwrite() -> None:
 
 def test_right_or_does_change_existings_lists_by_overwrite() -> None:
     # construct two dicts with single entries, a nested dict and a nested list
+    """Verify that reflected union replaces lists with values from the left operand."""
     dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr(
         {
             "A": "string 11",
@@ -1658,6 +1715,7 @@ def test_right_or_does_change_existings_lists_by_overwrite() -> None:
 
 
 def test_right_or_does_also_update_attributes() -> None:
+    """Verify that reflected union combines dictionary metadata as well as entries."""
     dict_1: dict[str, Any | dict[str | int, Any]] = DictWithoutOr()
     dict_2: SDict[str, Any | dict[str | int, Any]] = SDict()
     dict_2.expressions |= {
@@ -1691,7 +1749,7 @@ def test_right_or_does_also_update_attributes() -> None:
     }
     # execute right or operation
     new_dict: SDict[str, Any | dict[str | int, Any]]
-    new_dict = dict_1 | dict_2  # type: ignore[assignment, reportAssignmentType]
+    new_dict = cast("SDict[str, Any | dict[str | int, Any]]", dict_1 | dict_2)
     # assert that existing entries in the attributes of dict_1 HAVE been overwritten
     # and new entries have been added
     assert new_dict.expressions[1] == {
@@ -1718,6 +1776,7 @@ def test_right_or_does_also_update_attributes() -> None:
 
 
 def test_dict_copy() -> None:
+    """Verify that the dictionary copy operation duplicates entries without aliasing the original."""
     original_dict = _construct_test_dict()
     manual_copy = _construct_test_dict()
     # execute copy operation
@@ -1765,6 +1824,7 @@ def test_dict_copy() -> None:
 
 
 def test_dict_copy_copy() -> None:
+    """Verify that copy.copy creates a shallow copy with shared nested values."""
     original_dict = _construct_test_dict()
     manual_copy = _construct_test_dict()
     # execute copy operation
@@ -1812,6 +1872,7 @@ def test_dict_copy_copy() -> None:
 
 
 def test_dict_copy_deepcopy() -> None:
+    """Verify that copy.deepcopy duplicates nested values independently."""
     original_dict = _construct_test_dict()
     manual_copy = _construct_test_dict()
     # execute deepcopy operation
@@ -1863,6 +1924,7 @@ def test_dict_copy_deepcopy() -> None:
 
 
 def test_sdict_copy() -> None:
+    """Verify that SDict copying duplicates entries without aliasing the original."""
     original_dict = _construct_test_sdict()
     manual_copy = _construct_test_sdict()
     # execute copy operation
@@ -1914,6 +1976,7 @@ def test_sdict_copy() -> None:
 
 
 def test_sdict_copy_copy() -> None:
+    """Verify that copy.copy preserves SDict metadata and shallow-copy semantics."""
     original_dict = _construct_test_sdict()
     manual_copy = _construct_test_sdict()
     # execute copy operation
@@ -1965,6 +2028,7 @@ def test_sdict_copy_copy() -> None:
 
 
 def test_sdict_copy_deepcopy() -> None:
+    """Verify that copy.deepcopy duplicates SDict entries and metadata independently."""
     original_dict = _construct_test_sdict()
     manual_copy = _construct_test_sdict()
     # execute deepcopy operation
@@ -2076,6 +2140,7 @@ def _construct_test_sdict() -> SDict[str, Any]:
 
 def test_load() -> None:
     # Prepare
+    """Verify that loading a serialized dictionary restores its values and metadata."""
     source_file = Path("test_dictReader_dict")
     s_dict: SDict[str, Any] = SDict()
     # Execute
@@ -2107,6 +2172,7 @@ def test_load() -> None:
 
 def test_dump() -> None:
     # Prepare
+    """Verify that dumping a dictionary writes a representation that can be loaded again."""
     target_file: Path = Path("temp_file_test_write_dict")
     test_dict: dict[str, Any] = {
         "param1": -10.0,
@@ -2233,6 +2299,7 @@ def test_dump() -> None:
 
 def test_dump_load_example_used_in_docs() -> None:
     # Prepare
+    """Verify that the documented dump-and-load example preserves dictionary data."""
     my_dict: SDict[str, int] = SDict(
         {
             "foo": 1,
@@ -2250,6 +2317,7 @@ def test_dump_load_example_used_in_docs() -> None:
 
 def test_permissable_key_type_example_used_in_docs() -> None:
     # Prepare
+    """Verify that the documented key-type example accepts supported key values."""
     str_dict: SDict[str, Any] = SDict(
         {
             "foo": 1,
@@ -2286,6 +2354,7 @@ def test_permissable_key_type_example_used_in_docs() -> None:
 
 
 def test_cpp_dict() -> None:
+    """Verify that the legacy CppDict API remains compatible with shared dictionary behavior."""
     s_dict: SDict[str, Any] = SDict(_construct_test_dict())
     cpp_dict: CppDict = CppDict(_construct_test_dict())
     assert isinstance(cpp_dict, dict)

@@ -5,16 +5,26 @@
 [![docs](https://img.shields.io/github/actions/workflow/status/dnv-opensource/dictIO/.github%2Fworkflows%2Fpush_to_release.yml?label=docs)][dictIO_docs]
 
 # dictIO
-dictIO is a Python package to read, write and manipulate dictionary text files.
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [File Format](#file-format)
+- [Development Setup](#development-setup)
+- [Meta](#meta)
+- [Contributing](#contributing)
+
+`dictIO` is a Python package to read, write and manipulate dictionary text files.
 
 It was designed to leverage the versatility of text based dictionary files, or 'dict files' in short, while easing their use in Python through seamless support for Python dicts.
 
-dictIO supports
+`dictIO` supports
 * reading and writing Python dicts in dict files.
 * usage of references and expressions in dict files, dynamically resolved during reading.
 * usage of cascaded dict files, allowing separation of a case-agnostic configuration dict and its case-specific parameterization: baseDict + paramDict = caseDict
 
-Further, dictIO
+Further, `dictIO`
 * is widely tolerant in reading different flavours (quotes, preserving comments, etc.)
 * can read and write also JSON, XML and OpenFOAM (with some limitations)
 
@@ -58,8 +68,8 @@ dictIO's `DictReader` and `DictWriter` classes offer this flexibility, while sti
 ```py
 from dictIO import DictReader, DictWriter
 
-my_dict = DictReader.read('myDict')
-DictWriter.write(my_dict, 'parsed.myDict')
+my_dict = DictReader.read("myDict")
+DictWriter.write(my_dict, "parsed.myDict")
 ```
 
 The above example reads a dict file, merges any (sub-)dicts included through #include directives, evaluates expressions contained in the dict,
@@ -71,7 +81,7 @@ Using `DictParser.parse()` the above task can be accomplished in one line of cod
 ```py
 from dictIO import DictParser
 
-DictParser.parse('myDict')
+DictParser.parse("myDict")
 ```
 
 The `parse` operation can also be executed from the command line, using the 'dictParser' command line script installed with dictIO:
@@ -109,21 +119,7 @@ Once installed, you can update `uv` to its latest version, anytime, by running:
 uv self update
 ```
 
-### 2. Install Python
-This project requires Python 3.11 or later. <br>
-If you don't already have a compatible version installed on your machine, the probably most comfortable way to install Python is through `uv`:
-```sh
-uv python install
-```
-This will install the latest stable version of Python into the uv Python directory, i.e. as a uv-managed version of Python.
-
-Alternatively, and if you want a standalone version of Python on your machine, you can install Python either via `winget`:
-```sh
-winget install --id Python.Python
-```
-or you can download and install Python from the [python.org](https://www.python.org/downloads/) website.
-
-### 3. Clone the repository
+### 2. Clone the repository
 Clone the dictIO repository into your local development directory:
 ```sh
 git clone https://github.com/dnv-opensource/dictIO path/to/your/dev/dictIO
@@ -133,7 +129,7 @@ Change into the project directory after cloning:
 cd dictIO
 ```
 
-### 4. Install dependencies
+### 3. Install dependencies
 Run `uv sync -U` to create a virtual environment and install all project dependencies into it:
 ```sh
 uv sync -U
@@ -147,7 +143,7 @@ uv sync -U
 > `uv sync -U` the first time. Optionally, you can create your own virtual environment using e.g. `uv venv`, before running
 > `uv sync -U`.
 
-### 5. (Optional) Activate the virtual environment
+### 4. (Optional) Activate the virtual environment
 When using `uv`, there is in almost all cases no longer a need to manually activate the virtual environment. <br>
 `uv` will find the `.venv` virtual environment in the working directory or any parent directory, and activate it on the fly whenever you run a command via `uv` inside your project folder structure:
 ```sh
@@ -166,7 +162,7 @@ To manually activate the virtual environment, run one of the "known" legacy comm
 source .venv/bin/activate
 ```
 
-### 6. Install pre-commit hooks
+### 5. Install pre-commit hooks
 The `.pre-commit-config.yaml` file in the project root directory contains a configuration for pre-commit hooks.
 To install the pre-commit hooks defined therein in your local git repository, run:
 ```sh
@@ -190,7 +186,7 @@ To update the hooks configured in `.pre-commit-config.yaml` to their newest vers
 uv run pre-commit autoupdate
 ```
 
-### 7. Test that the installation works
+### . Test that the installation works
 To test that the installation works, run pytest in the project root folder:
 ```sh
 uv run pytest
@@ -223,6 +219,6 @@ Distributed under the MIT license. See [LICENSE](LICENSE.md) for more informatio
 For your contribution, please make sure you follow the [STYLEGUIDE](STYLEGUIDE.md) before creating the Pull Request.
 
 <!-- Markdown link & img dfn's -->
-[dictIO_docs]: https://dnv-opensource.github.io/dictIO/README.html
-[ospx_docs]: https://dnv-opensource.github.io/ospx/README.html
-[farn_docs]: https://dnv-opensource.github.io/farn/README.html
+[dictIO_docs]: https://dnv-opensource.github.io/dictIO
+[ospx_docs]: https://dnv-opensource.github.io/ospx
+[farn_docs]: https://dnv-opensource.github.io/farn
