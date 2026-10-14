@@ -35,6 +35,11 @@ class Parser:
 
     Parsers deserialize a string into a SDict.
     Subclasses of Parser implement parsing of different, specifically formatted strings (see also Formatters).
+
+    Attributes:
+        counter: Shared placeholder counter used while parsing.
+        source_file: Source file currently being parsed, or `None` when no
+            file has been assigned.
     """
 
     def __init__(self) -> None:
@@ -48,12 +53,12 @@ class Parser:
         """Return a Parser instance matching the type of the source file to be parsed (factory method).
 
         Args:
-                source_file: Path used to select a format-specific parser. If
-                    `None` or an unsupported suffix is supplied, use the native
-                    parser. Defaults to `None`.
+            source_file: Path used to select a format-specific parser. If
+                `None` or an unsupported suffix is supplied, use the native
+                parser. Defaults to `None`.
 
         Returns:
-            specific Parser instance matching the source file type to be parsed
+            Parser selected for the source file's format.
         """
         # Determine the parser to be used by a two stage process:
 
@@ -1593,7 +1598,12 @@ class JsonParser(Parser):
 
 
 class XmlParser(Parser):
-    """Parser to deserialize a string in XML format into a SDict."""
+    """Parser to deserialize a string in XML format into a SDict.
+
+    Attributes:
+        add_node_numbering: Whether repeated XML element names receive unique
+            numbering in the parsed dictionary.
+    """
 
     def __init__(
         self,

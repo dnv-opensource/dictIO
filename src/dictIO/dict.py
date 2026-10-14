@@ -918,6 +918,9 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         - LINECOMMENT
         By definition, only keys on the same nest level are checked for doublettes.
         Doublettes are identified through equality with their lookup values.
+
+        Args:
+            data: Mapping whose placeholder entries are checked and cleaned.
         """
 
         def _recursive_clean(data: MutableMapping[K, V]) -> None:

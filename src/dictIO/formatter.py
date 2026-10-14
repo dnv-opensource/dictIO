@@ -37,6 +37,9 @@ class Formatter:
     """Abstract Base Class for formatters.
 
     Formatters serialize a dict into a string applying a specific format.
+
+    Attributes:
+        counter: Shared placeholder counter used during formatting.
     """
 
     def __init__(self) -> None:
@@ -1021,14 +1024,10 @@ class JsonFormatter(Formatter):
 class XmlFormatter(Formatter):
     r"""Formatter to serialize a dict into a string in xml format.
 
-    Defaults:
-        namespaces:      'https://www.w3.org/2009/XMLSchema/XMLSchema.xsd' \n
-        root tag:        'NOTSPECIFIED' \n
-        root attributes: None \n
-        indent:          4
-
-    Defaults can be overwritten by adding a subdict '_xmlOpts' to dict,
-    containing '_nameSpaces', '_rootTag', '_rootAttributes'.
+    The default XML configuration uses the XML Schema namespace, the
+    `NOTSPECIFIED` root tag, no root attributes, and four-space indentation.
+    Override these defaults with an `_xmlOpts` subdictionary containing
+    `_nameSpaces`, `_rootTag`, or `_rootAttributes`.
 
     Adding a subdict '_attributes' to a subdict inside dict causes the XmlFormatter to write xml attributes.
     In contrast to xml, there are some specialties in dict format what need to be customized:
@@ -1040,6 +1039,13 @@ class XmlFormatter(Formatter):
     |              | (multiple occurrences allowed due to attributes) | |
     | attributes   | as required | attributes need to be provided in a separate subdict "_attributes" to take action |
     | style        | namespace(s) | style guide, no namespaces (ns can be provided in a subdict "_xmlOpts") |
+
+    Attributes:
+        omit_prefix: Whether namespace prefixes are removed from element tags.
+        integrate_attributes: Whether recognized dictionary attributes are
+            serialized as XML attributes.
+        remove_node_numbering: Whether generated node numbers are removed from
+            element names.
     """
 
     """ <databases>

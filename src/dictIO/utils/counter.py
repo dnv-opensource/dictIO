@@ -53,7 +53,7 @@ class Indenter:
     """A class that implements a static global indentation.
 
     Instances of this class all share the same global indentation.
-    This is used in logger class to ensure a readable message hirarchy.
+    This is used in the logger utilities to ensure a readable message hierarchy.
 
     Attributes:
         Ind: Shared storage for the indentation level and formatting settings.
@@ -92,12 +92,22 @@ class Indenter:
 
     @staticmethod
     def incr(increase: int = 1) -> None:
-        """Increase the Indent."""
+        """Increase the shared indentation level.
+
+        Args:
+            increase: Amount to increase the indentation level. Defaults to
+                `1`.
+        """
         Indenter.Ind["Indent"] += increase
 
     @staticmethod
     def decr(decrease: int = 1) -> None:
-        """Decreas the Indent."""
+        """Decrease the shared indentation level.
+
+        Args:
+            decrease: Amount to decrease the indentation level. Defaults to
+                `1`.
+        """
         Indenter.Ind["Indent"] -= decrease
 
     @staticmethod
@@ -122,13 +132,17 @@ class DejaVue:
         self.ret_val: bool = False
 
     def __call__(self, string: str) -> bool:
-        """Check whether a string has already been registered, then register it.
+        """Check and register a string in the shared registry.
+
+        The return value remains `True` after any duplicate is found until
+        `reset()` is called.
 
         Args:
             string: String to check and add to the registry.
 
         Returns:
-            `True` if the string was already registered, otherwise `False`.
+            `True` if this or an earlier call since the last reset found a
+            duplicate; otherwise, `False`.
         """
         if string in self.djv["strings"]:
             self.ret_val = True
