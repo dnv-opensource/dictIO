@@ -5,10 +5,8 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
-* -/-
-
-
 ### Changed
+* Added behavior-focused Google-style docstrings to test, example, and Sphinx configuration modules and enabled Ruff's D-family checks for those files.
 * Clarified argument defaults and stateful behavior in parser and indentation utility docstrings.
 * Resolved a Pyright type error in `SDict` dictionary union handling.
 * Modernized type alias declarations and removed active Ruff check violations.

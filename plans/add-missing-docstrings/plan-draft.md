@@ -18,9 +18,12 @@ sub-packages have docstrings.
 
 - Read the instructions for docstrings given in
   `/AGENTS.md`, section [Docstrings](/AGENTS.md#docstrings).
-- Read `ruff.toml`. Therein, check for ruff rules from the `D10x` family which are listed as "temporarily ignored",
-  i.e. listed under the `# Ruff lint rules temporarily ignored` line comment at top of the `ignore` list.
-  Such temporarily ignored rules can e.g. be:
+- Read `ruff.toml` and inspect both its global `ignore` list and
+  `lint.per-file-ignores` for suppressed D-family rules. Establish the full
+  baseline with a direct D-family check that disables per-file ignores, for
+  example `uv run ruff check --select D --config 'lint.per-file-ignores = {}'`.
+  Do not assume missing-docstring suppressions are global; they may apply only
+  to tests, examples, or other scoped files. Suppressions found may include:
     "D100", # Missing docstring in public module
     "D101", # Missing docstring in public class
     "D102", # Missing docstring in public method
@@ -28,11 +31,11 @@ sub-packages have docstrings.
     "D104", # Missing docstring in public package
     "D105", # Missing docstring in magic method
     "D107", # Missing docstring in `__init__`
-  In case you _do_ find ruff rules from the `D10x` family listed as "temporarily ignored", then your
-  goal is to eventually have these rules reactivated again (i.e. removed from the ignore list).
-  As you progress, sequentially re-activate the rules, by step-by-step
-  removing them from the ignore list in `ruff.toml`, then add the respective docstrings where flagged missing
-  until `uv run ruff check` reports no more missing docstrings, and then repeat for the next rule.
+  Reactivate the suppressed rules within the approved scope as the relevant
+  docstrings are added. If broad per-file suppressions prevent an incremental
+  pass, temporarily retain only the known residual rule codes, then remove
+  those residual suppressions when their findings are resolved. Preserve
+  unrelated per-file exceptions and instruction scopes.
 - Work in phases, "inside-out": Start with docstrings for symbols defined in a smaller / more
   local scope to docstrings for symbols defined in a more global scope.
 - After each phase, follow the common per-phase loop in

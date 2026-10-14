@@ -1,3 +1,5 @@
+"""Tests dictionary serialization, output formats, and target file naming."""
+
 import re
 from copy import deepcopy
 from pathlib import Path, PurePath
@@ -12,6 +14,7 @@ from dictIO.utils.counter import BorgCounter
 def test_write_dict() -> None:
     # sourcery skip: extract-duplicate-method
     # Prepare
+    """Verify that writing a dictionary produces the expected native-format file."""
     target_file: Path = Path("temp_file_test_write_dict")
     test_dict: dict[str, Any] = {
         "param1": -10.0,
@@ -98,6 +101,7 @@ def test_write_dict() -> None:
 def test_write_mode() -> None:
     # sourcery skip: extract-duplicate-method
     # Prepare
+    """Verify that the selected write mode controls how an existing output file is handled."""
     source_file = Path("test_dictWriter_dict")
     target_file = Path(f"parsed.{source_file}")
     target_file.unlink(missing_ok=True)
@@ -133,6 +137,11 @@ def test_read_dict_write_dict(
     includes: bool,
 ) -> None:
     # Prepare
+    """Verify that reading and writing native dictionaries preserves content and includes.
+
+    Args:
+        includes: Whether include directives should be expanded for this case.
+    """
     source_file = Path("test_dictWriter_dict")
     target_file = Path(f"parsed.{source_file.name}")
     target_file.unlink(missing_ok=True)
@@ -150,6 +159,7 @@ def test_read_dict_write_dict(
 
 def test_read_dict_write_dict_target_file_given_as_str() -> None:
     # Prepare
+    """Verify that writing succeeds when the target filename is supplied as a string."""
     source_file = Path("test_dictWriter_dict")
     target_file = Path.cwd().absolute() / "parsed.test_dictWriter_dict"
     target_file_as_str = str(target_file.absolute())
@@ -168,6 +178,7 @@ def test_read_dict_write_dict_target_file_given_as_str() -> None:
 
 def test_read_dict_write_dict_target_file_given_as_purepath() -> None:
     # Prepare
+    """Verify that writing succeeds when the target filename is supplied as a Path."""
     source_file = Path("test_dictWriter_dict")
     target_file = Path.cwd().absolute() / "parsed.test_dictWriter_dict"
     target_file_as_purepath = PurePath(str(target_file.absolute()))
@@ -191,6 +202,11 @@ def test_read_dict_write_abc(
 ) -> None:
     # sourcery skip: class-extract-method
     # Prepare
+    """Verify that dictionary data can be written using the ABC formatter.
+
+    Args:
+        includes: Whether include directives should be expanded for this case.
+    """
     source_file = Path("test_dictWriter_dict")
     target_file = Path(f"parsed.{source_file.name}")
     target_file_abc = Path(f"{target_file.name}.abc")
@@ -216,6 +232,11 @@ def test_read_dict_write_cpp(
 ) -> None:
     # sourcery skip: class-extract-method
     # Prepare
+    """Verify that dictionary data can be written using the native C++-style formatter.
+
+    Args:
+        includes: Whether include directives should be expanded for this case.
+    """
     source_file = Path("test_dictWriter_dict")
     target_file = Path(f"parsed.{source_file.name}")
     target_file_cpp = Path(f"{target_file.name}.cpp")
@@ -241,6 +262,11 @@ def test_read_dict_write_foam(
 ) -> None:
     # sourcery skip: class-extract-method
     # Prepare
+    """Verify that dictionary data can be written in OpenFOAM format.
+
+    Args:
+        includes: Whether include directives should be expanded for this case.
+    """
     source_file = Path("test_dictWriter_dict")
     target_file = Path(f"parsed.{source_file.name}")
     target_file_foam = Path(f"{target_file.name}.foam")
@@ -283,6 +309,11 @@ def test_read_dict_write_xml(
 ) -> None:
     # sourcery skip: class-extract-method
     # Prepare
+    """Verify that dictionary data can be written in XML format.
+
+    Args:
+        includes: Whether include directives should be expanded for this case.
+    """
     source_file = Path("test_dictWriter_dict")
     target_file = Path(f"parsed.{source_file.name}")
     target_file_xml = Path(f"{target_file.name}.xml")
@@ -308,6 +339,11 @@ def test_read_dict_write_json(
 ) -> None:
     # sourcery skip: class-extract-method
     # Prepare
+    """Verify that dictionary data can be written in JSON format.
+
+    Args:
+        includes: Whether include directives should be expanded for this case.
+    """
     source_file = Path("test_dictWriter_dict")
     target_file = Path(f"parsed.{source_file.name}")
     target_file_json = Path(f"{target_file.name}.json")
@@ -332,6 +368,11 @@ def test_read_foam_write_foam(
     includes: bool,
 ) -> None:
     # Prepare
+    """Verify that reading and writing OpenFOAM data preserves its content.
+
+    Args:
+        includes: Whether include directives should be expanded for this case.
+    """
     source_file = Path("test_dictWriter_foam")
     target_file = Path(f"parsed.{source_file}.foam")
     target_file.unlink(missing_ok=True)
@@ -354,6 +395,11 @@ def test_read_xml_write_xml(
     includes: bool,
 ) -> None:
     # Prepare
+    """Verify that reading and writing XML data preserves its content.
+
+    Args:
+        includes: Whether include directives should be expanded for this case.
+    """
     source_file = Path("test_dictWriter_xml.xml")
     target_file = Path(f"parsed.{source_file}")
     target_file.unlink(missing_ok=True)
@@ -377,6 +423,11 @@ def test_read_json_write_json(
     includes: bool,
 ) -> None:
     # Prepare
+    """Verify that reading and writing JSON data preserves its content.
+
+    Args:
+        includes: Whether include directives should be expanded for this case.
+    """
     source_file = Path("test_dictWriter_json.json")
     target_file = Path(f"parsed.{source_file}")
     target_file.unlink(missing_ok=True)
@@ -393,6 +444,8 @@ def test_read_json_write_json(
 
 
 class TestCreateTargetFileName:
+    """Tests output filename generation for source files and requested formats."""
+
     @pytest.mark.parametrize(
         "file_ending",
         [
@@ -406,6 +459,11 @@ class TestCreateTargetFileName:
     )
     def test_file_ending(self, file_ending: str) -> None:
         # Prepare
+        """Verify that a source filename retains its existing extension, including an empty extension.
+
+        Args:
+            file_ending: Source filename extension used in the target-name case.
+        """
         file_name = f"someDictFile.{file_ending}" if file_ending else "someDictFile"
         source_file = Path(file_name)
         assert_file = Path(file_name)
@@ -427,6 +485,12 @@ class TestCreateTargetFileName:
     )
     def test_output_format_file_ending(self, output_format: str, file_ending: str) -> None:
         # Prepare
+        """Verify that the requested output format determines the target filename extension.
+
+        Args:
+            output_format: Output format whose target filename extension is checked.
+            file_ending: Source filename extension used in the target-name case.
+        """
         source_file = Path("someDictFile")
         assert_file_name = f"someDictFile.{file_ending}" if file_ending else "someDictFile"
         assert_file = Path(assert_file_name)
@@ -437,6 +501,7 @@ class TestCreateTargetFileName:
 
     def test_target_file_does_not_contain_double_prefix(self) -> None:
         # Prepare
+        """Verify that applying the same filename prefix repeatedly does not duplicate it."""
         source_file = Path("test_dictWriter_dict")
         target_file_expected = Path("prefix.test_dictWriter_dict")
         # Execute

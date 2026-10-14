@@ -1,3 +1,5 @@
+"""Tests parsing dictionary files through the DictParser command-line API."""
+
 # pyright: reportPrivateUsage=false
 from pathlib import Path
 
@@ -7,6 +9,7 @@ from dictIO import DictParser, DictReader
 def test_parse_dict() -> None:
     # sourcery skip: class-extract-method
     # Prepare
+    """Verify that DictParser reads a native dictionary and creates its parsed output file."""
     source_file = Path("test_dictParser_dict")
     parsed_dict = Path(f"parsed.{source_file.name}")
     parsed_param_dict = Path("parsed.test_dictParser_paramDict")  # must NOT exist !
@@ -25,6 +28,7 @@ def test_parse_dict() -> None:
 def test_reread_parsed_dict() -> None:
     # sourcery skip: class-extract-method
     # Prepare
+    """Verify that parsed output can be read again without duplicating its filename prefix."""
     source_file = Path("test_dictParser_dict")
     parsed_dict = Path(f"parsed.{source_file.name}")
     parsed_param_dict = Path("parsed.test_dictParser_paramDict")  # must NOT exist !
@@ -45,6 +49,7 @@ def test_reread_parsed_dict() -> None:
 
 def test_parse_dict_foam_format() -> None:
     # Prepare
+    """Verify that DictParser writes OpenFOAM output without creating the default-format file."""
     source_file = Path("test_dictParser_dict")
     parsed_file = Path(f"parsed.{source_file.name}")
     parsed_file_foam = Path(f"{parsed_file.name}.foam")
