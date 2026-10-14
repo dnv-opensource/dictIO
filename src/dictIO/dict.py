@@ -729,7 +729,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
     #      once we drop support for Python 3.10
     #      (see https://docs.python.org/3/library/typing.html#typing.Self)
     #      CLAROS, 2024-10-15
-    def __ior__(  # noqa: PYI034
+    def __ior__(
         self,
         other: Mapping[K, V] | Iterable[tuple[K, V]],
     ) -> SDict[K, V]:
