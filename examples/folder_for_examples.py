@@ -1,1 +1,1 @@
-"""Demonstrates locating the common folder shared by a set of example paths."""
+"""Folder for examples, such as example code / scripts and Jupyter notebooks."""

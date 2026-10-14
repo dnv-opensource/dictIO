@@ -1,17 +1,20 @@
 ---
 name: implement-plan
 description: >-
-  Implement one or more plan.md files. Use when: asked to implement,
-  execute, or carry out an existing plan.md (or several), working through
-  its phases/steps and running its validation strategy. Attach the plan.md
-  file(s) as context.
-  Do not use for: creating a plan.md from a plan-draft.md (see the
-  generate-plan skill).
+  Implement one or more plan.md files under plans/<task>/ step by step,
+  running the plan's validation commands and reporting a definitive outcome
+  for each. Use when: asked to implement or execute an already existing plan.md, carrying out the
+  implementation phase of the plan-first workflow.
+  Do not use for: drafting a new a plan-draft.md, generating a plan.md from a plan-draft.md / expanding a plan-draft.md into a plan.md (see
+  the generate-plan skill), or preparing commits/reflecting on a session.
 argument-hint: "[plan.md path(s)]"
 disable-model-invocation: true
 ---
 
 # Implement Plan
+
+Implement one or more plans. Attach the `plan.md` file(s) as context before
+invoking this skill.
 
 Read the repository instructions:
 

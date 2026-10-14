@@ -116,10 +116,10 @@ Before committing ANY code change, ALL of these must pass. Do not skip any gate.
 
 The detailed instructions for each workflow phase are maintained in:
 
-- `.github/skills/generate-plan/SKILL.md`
-- `.github/skills/implement-plan/SKILL.md`
-- `.github/skills/reflect-and-improve/SKILL.md`
-- `.github/skills/prepare-commits/SKILL.md`
+- [generate-plan](../skills/generate-plan/SKILL.md)
+- [implement-plan](../skills/implement-plan/SKILL.md)
+- [reflect-and-improve](../skills/reflect-and-improve/SKILL.md)
+- [prepare-commits](../skills/prepare-commits/SKILL.md)
 
 The plan template is at `plans/.plan.md`. Draft plans live in `plans/<task>/plan-draft.md`.
 

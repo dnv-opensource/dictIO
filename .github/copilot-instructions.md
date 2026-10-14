@@ -45,9 +45,9 @@ Additional GitHub-specific guidance MAY apply from:
   Named agent personas, if explicitly activated.
 
 - `.github/skills/**/SKILL.md`
-  Reusable, invoke-by-name procedures (see `.github/skills/README.md`),
-  including the reusable workflow skills `generate-plan`, `implement-plan`,
-  `prepare-commits`, and `reflect-and-improve`.
+  Reusable, invoke-by-name procedures, including the `generate-plan`,
+  `implement-plan`, `prepare-commits`, and `reflect-and-improve` workflows
+  (see `.github/skills/README.md`).
 
 Unlike `.github/instructions/` (opted into discovery via
 `.vscode/settings.json`'s `chat.instructionsFilesLocations`), the
@@ -69,10 +69,9 @@ custom instructions (not merely a repository convention):
 2. Repository-wide `.github/copilot-instructions.md` (this file)
 3. Agent instructions in `/AGENTS.md`
 
-Skill and agent definitions (`.github/skills/`, `.github/agents/`) rank
-below all three tiers above; see `/AGENTS.md`'s "Instruction Precedence
-and Scope" section for how they relate to the repository instruction
-files as a whole.
+Skill and agent definitions (`.github/skills/`, `.github/agents/`) rank below all three
+tiers above; see `/AGENTS.md`'s "Instruction Precedence and Scope" section
+for how they relate to the repository instruction files as a whole.
 
 When in doubt:
 

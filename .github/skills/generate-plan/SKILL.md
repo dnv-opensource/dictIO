@@ -1,17 +1,20 @@
 ---
 name: generate-plan
 description: >-
-  Create detailed plan.md file(s) from one or more draft plans
-  (plan-draft.md). Use when: turning a plan-draft.md into a full,
-  actionable plan.md, or when asked to generate/expand a plan from one or
+  Create detailed plan.md file(s) from one or more draft plans (plan-draft.md)
+  under plans/<task>/. Use when: turning a plan-draft.md into a full, actionable
+  plan.md, starting the plan-first workflow for a task, or when asked to generate/expand a plan from one or
   more drafts. Attach the plan-draft.md file(s) as context.
-  Do not use for: implementing an existing plan.md (see the implement-plan
-  skill) or writing the initial plan-draft.md itself.
+  Do not use for: implementing an already existing plan.md (see the
+  implement-plan skill), writing the initial plan-draft.md itself, or preparing commits/reflecting on a session.
 argument-hint: "[plan-draft.md path(s)]"
 disable-model-invocation: true
 ---
 
 # Generate Plan
+
+Create detailed plan(s) from one or more draft plans. Attach the
+`plan-draft.md` file(s) as context before invoking this skill.
 
 Read the repository instructions:
 - `/.github/copilot-instructions.md`

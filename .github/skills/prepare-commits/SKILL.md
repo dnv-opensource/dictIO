@@ -2,10 +2,12 @@
 name: prepare-commits
 description: >-
   Split the current uncommitted changes into logical, well-structured local
-  commits. Use when: asked to prepare, organize, or split uncommitted
-  changes into commits, or to stage and commit work in progress.
-  Do not use for: pushing commits, opening a pull request, or generating a
-  plan or implementing one.
+  commits with conventional commit messages. Use when: asked to prepare, organize, or split uncommitted
+  changes into commits, or to stage and commit work in progress, or the working tree has
+  uncommitted changes that need to be grouped into clean commits before
+  review or a pull request.
+  Do not use for: pushing commits, opening a pull request, generating a plan (see the generate-plan skill), or implementing
+  new changes (see the implement-plan skill).
 disable-model-invocation: true
 ---
 

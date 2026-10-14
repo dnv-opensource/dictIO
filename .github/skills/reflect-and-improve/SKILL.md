@@ -2,10 +2,11 @@
 name: reflect-and-improve
 description: >-
   Reflect on the current session and propose improvements to repository
-  instruction files, reusable prompts/skills, and draft plans. Use when:
-  ending a session and asked to reflect, capture learnings, or improve
+  instruction files, reusable skills, and draft plans.
+  Use when: ending a session and asked to reflect, capture learnings, or improve
   instructions/skills/plan-drafts based on what happened in the session.
-  Do not use for: making the proposed edits automatically without
+  Do not use for: implementing a plan or preparing commits (see the
+  implement-plan and prepare-commits skills), making the proposed edits automatically without
   discussion, or performing a broad, unrelated instruction-file audit (see
   the `improve-agent-instructions-and-plans` plan for that).
 disable-model-invocation: true
