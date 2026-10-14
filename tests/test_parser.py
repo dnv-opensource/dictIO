@@ -59,11 +59,11 @@ class TestParser:
         assert str_out_4 == "a string with inside double quotes"
 
         with pytest.raises(TypeError):
-            _ = Parser.remove_quotes_from_string(not_a_str_1)  # type: ignore[arg-type, reportArgumentType]
+            _ = Parser.remove_quotes_from_string(not_a_str_1)  # type: ignore[arg-type]
         with pytest.raises(TypeError):
-            _ = Parser.remove_quotes_from_string(not_a_str_2)  # type: ignore[arg-type, reportArgumentType]
+            _ = Parser.remove_quotes_from_string(not_a_str_2)  # type: ignore[arg-type]
         with pytest.raises(TypeError):
-            _ = Parser.remove_quotes_from_string(not_a_str_3)  # type: ignore[arg-type, reportArgumentType]
+            _ = Parser.remove_quotes_from_string(not_a_str_3)  # type: ignore[arg-type]
 
     def test_remove_quotes_from_strings(self) -> None:
         str_in_1 = "'a string with single quotes'"
@@ -130,9 +130,9 @@ class TestParser:
         assert dict_out[keyl][5] == not_a_str_3
 
         with pytest.raises(TypeError):
-            _ = Parser.remove_quotes_from_strings(str_in_1)  # type: ignore[arg-type, reportArgumentType]
+            _ = Parser.remove_quotes_from_strings(str_in_1)  # type: ignore[arg-type]
         with pytest.raises(TypeError):
-            _ = Parser.remove_quotes_from_strings(not_a_str_1)  # type: ignore[arg-type, reportArgumentType]
+            _ = Parser.remove_quotes_from_strings(not_a_str_1)  # type: ignore[arg-type]
 
     def test_parse_value_int(self) -> None:
         parser = Parser()

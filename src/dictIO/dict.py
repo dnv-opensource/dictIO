@@ -120,7 +120,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         elif isinstance(arg, str | os.PathLike):
             source_file = arg
         elif isinstance(arg, Iterable):
-            base_dict = dict(cast("Iterable[tuple[K, V]]", arg))  # type: ignore[reportUnnecessaryCast]
+            base_dict = dict(cast("Iterable[tuple[K, V]]", arg))  # pyright: ignore[reportUnnecessaryCast]
 
         if base_dict:
             super().__init__(base_dict)
@@ -181,7 +181,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
 
         return
 
-    @overload  # type: ignore[override]
+    @overload
     @classmethod
     def fromkeys(
         cls,
@@ -623,7 +623,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         self.includes.update({ii: (include_directive, include_file_name, include_file_path)})
         return
 
-    @overload  # type: ignore[override]
+    @overload
     def __or__(
         self,
         other: dict[K, V],
@@ -673,7 +673,7 @@ class SDict(dict[K, V]):  # noqa: PLW1641
         new_dict._clean()
         return new_dict
 
-    @overload  # type: ignore[override]
+    @overload
     def __ror__(
         self,
         other: dict[K, V],

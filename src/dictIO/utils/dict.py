@@ -161,7 +161,7 @@ def global_key_exists(
     _next_branch: MutableMapping[K, V] | V
     try:
         for key in global_key:
-            _next_branch = _last_branch[key]  # type: ignore[index, reportArgumentType]
+            _next_branch = _last_branch[key]  # type: ignore[index]
             if not isinstance(_next_branch, MutableMapping):
                 return False
             _last_branch = _next_branch

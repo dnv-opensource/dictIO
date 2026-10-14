@@ -81,5 +81,5 @@ class CppDict(SDict[str, Any]):
             DeprecationWarning,
             stacklevel=1,
         )
-        super().__init__(arg, **kwargs)  # type: ignore[arg-type, reportArgumentType, reportCallIssue]
+        super().__init__(arg, **kwargs)  # type: ignore[arg-type]
         return
