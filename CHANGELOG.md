@@ -5,6 +5,18 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-10-15
+
+### Added
+* Added the reusable `adopt-changes-from-another-repo` draft plan with validated source/commit input loops, a detailed adaptation register, applicability and confidence ratings, and user selection before generating an actionable plan.
+
+### Changed
+* Separate main, release, and custom-branch workflow concurrency; skip automatic custom-branch CI for temporary release merge branches.
+* Update version-bump, repository-link, changelog commit-grouping, commit-signing, and GitHub Actions validation guidance.
+
+### Security
+* Validate release tags before building, publishing, or merging, and use verified temporary refs and safely quoted values in release and documentation workflows.
+
 ## [0.4.5] - 2026-10-14
 
 ### Changed
@@ -549,7 +561,8 @@ This removes the need to manually add /src to the PythonPath environment variabl
 * Added support for Python 3.10
 
 <!-- Markdown link & img dfn's -->
-[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.5...HEAD
+[unreleased]: https://github.com/dnv-opensource/dictIO/compare/v0.4.6...HEAD
+[0.4.6]: https://github.com/dnv-opensource/dictIO/compare/v0.4.5...v0.4.6
 [0.4.5]: https://github.com/dnv-opensource/dictIO/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/dnv-opensource/dictIO/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/dnv-opensource/dictIO/compare/v0.4.2...v0.4.3

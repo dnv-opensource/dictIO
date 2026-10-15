@@ -33,5 +33,13 @@ Prepare reasonably split commits:
 - Each commit should be self-contained and pass tests independently where feasible.
 - Write clear, conventional commit messages (imperative mood, concise subject line).
 - Prefer smaller, focused commits over large monolithic ones.
+- Commit every `CHANGELOG.md` entry in the same commit as its matching change,
+  regardless of how many logical groups are involved.
+
+Commits may require interactive signing (e.g. GPG). If `git commit` stalls,
+stop the stalled process and ask the user. Do not disable signing, change
+Git/GPG configuration, or delete keys, caches, or locks. After committing,
+verify signatures with `git log --show-signature -<n>`, where `<n>` is the
+number of newly created commits.
 
 Do NOT push. Only create local commits.
