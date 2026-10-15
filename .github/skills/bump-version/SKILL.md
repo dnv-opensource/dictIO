@@ -56,7 +56,7 @@ these files. See `./references/version-files.md` (Manual Propagation section)
 for the exact fields.
 
 Files to edit:
-- (None currently. List will be updated as new manual-propagation files are added)
+- `CITATION.cff` -- update the `version` field to the target version.
 
 ### Phase 4: Verify
 
@@ -66,7 +66,7 @@ Files to edit:
    filenames, not directories), which can stall/desync the terminal for
    later commands in the same session.
    ```powershell
-   $files = git ls-files "*.py" "*.toml" "*.md" "*.json" "*.svelte" | Where-Object { $_ -notmatch '\.lock$' }
+   $files = git ls-files "*.py" "*.toml" "*.md" "*.json" "*.svelte" "*.cff" | Where-Object { $_ -notmatch '\.lock$' }
    Select-String -Path $files -Pattern "<old_version>"
    ```
 2. Review matches. The only acceptable matches are:

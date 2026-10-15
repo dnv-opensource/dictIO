@@ -22,7 +22,7 @@ The goal is to add type annotations where missing to:
 ## Proposed Approach
 
 - Read the instructions for type annotations given in
-  `/AGENTS.md`, section [Type Annotations](/AGENTS.md#type-annotations).
+  `/AGENTS.md`, section [Type Annotations](../../AGENTS.md#type-annotations).
 - Work in phases, ordered from easiest-to-resolve types to hardest-to-resolve types.
 - After each phase, follow the common per-phase loop in
   [.github/skills/quality-gate-plan-pattern/SKILL.md](../../.github/skills/quality-gate-plan-pattern/SKILL.md),
@@ -39,7 +39,7 @@ The goal is to add type annotations where missing to:
 ## Validation Strategy
 
 - Ensure all added or changed type annotations follow the instructions for type annotations given in
-`/AGENTS.md`, section [Type Annotations](/AGENTS.md#type-annotations).
+`/AGENTS.md`, section [Type Annotations](../../AGENTS.md#type-annotations).
 - See [.github/skills/quality-gate-plan-pattern/SKILL.md](../../.github/skills/quality-gate-plan-pattern/SKILL.md) for the common `ruff format --check` and `pytest -q` validation steps.
 - Run `uv run ruff check` (ruff-check) and compare the results to the baseline (ruff-check-baseline). Ensure there is no regression.
 - Run `uv run ruff check --ignore ANN --ignore RUF100` (ruff-check-other) and compare the results to the baseline (ruff-check-other-baseline). Ensure there is no regression.
@@ -50,7 +50,7 @@ The goal is to add type annotations where missing to:
 
 - [ ] Missing type annotations added (all phases complete).
 - [ ] All type annotations follow the instructions for type annotations given in
-      `/AGENTS.md`, section [Type Annotations](/AGENTS.md#type-annotations).
+      `/AGENTS.md`, section [Type Annotations](../../AGENTS.md#type-annotations).
 - [ ] `uv run ruff format --check` passes.
 - [ ] `uv run ruff check` (ruff-check) - no regression compared to the baseline (ruff-check-baseline).
 - [ ] `uv run ruff check --ignore ANN --ignore RUF100` (ruff-check-other) - no regression compared to the baseline (ruff-check-other-baseline).

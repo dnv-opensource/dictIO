@@ -6,10 +6,11 @@ on:
     branches-ignore:
       - main
       - release
+      - 'release-merge-*'
   workflow_dispatch:
 
 concurrency:
-  group: push-${{ github.ref }}-1
+  group: push-custom-${{ github.ref }}-1
   cancel-in-progress: true
 
 jobs:

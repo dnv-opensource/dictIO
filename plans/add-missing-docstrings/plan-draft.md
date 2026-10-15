@@ -17,7 +17,7 @@ sub-packages have docstrings.
 ## Proposed Approach
 
 - Read the instructions for docstrings given in
-  `/AGENTS.md`, section [Docstrings](/AGENTS.md#docstrings).
+  `/AGENTS.md`, section [Docstrings](../../AGENTS.md#docstrings).
 - Read `ruff.toml` and inspect both its global `ignore` list and
   `lint.per-file-ignores` for suppressed D-family rules. Establish the full
   baseline with a direct D-family check that disables per-file ignores, for
@@ -53,7 +53,7 @@ sub-packages have docstrings.
 ## Validation Strategy
 
 - Ensure all added or changed docstrings follow the instructions for docstrings given in
-  `/AGENTS.md`, section [Docstrings](/AGENTS.md#docstrings).
+  `/AGENTS.md`, section [Docstrings](../../AGENTS.md#docstrings).
 - See [.github/skills/quality-gate-plan-pattern/SKILL.md](../../.github/skills/quality-gate-plan-pattern/SKILL.md) for the common `ruff format --check` and `pytest -q` validation steps.
 - Run `uv run ruff check` (ruff-check) and compare the results to the baseline (ruff-check-baseline). Ensure there is no regression.
 - Run `uv run ruff check --ignore D` (ruff-check-other) and compare the results to the baseline (ruff-check-other-baseline). Ensure there is no regression.
@@ -65,7 +65,7 @@ sub-packages have docstrings.
 - [ ] In `ruff.toml`, all `D10x` rules which were listed as temporarily ignored (if so) are reactivated, i.e. removed.
 - [ ] Missing docstrings added (all phases complete).
 - [ ] Added docstrings follow the instructions for docstrings given in
-      `/AGENTS.md`, section [Docstrings](/AGENTS.md#docstrings).
+      `/AGENTS.md`, section [Docstrings](../../AGENTS.md#docstrings).
 - [ ] `uv run ruff format --check` passes.
 - [ ] `uv run ruff check` (ruff-check) - no regression compared to the baseline (ruff-check-baseline).
 - [ ] `uv run ruff check --ignore D` (ruff-check-other) - no regression compared to the baseline (ruff-check-other-baseline).

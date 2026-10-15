@@ -4,7 +4,8 @@ on:
   workflow_call:
 
 env:
-  DEFAULT_BRANCH: "release"
+  DEFAULT_BRANCH_REF: "refs/heads/release"
+  DEPLOY_REF: ${{ github.ref }}
   #SPHINXOPTS: '-W --keep-going -T'
   # ^-- If these SPHINXOPTS are enabled, then be strict about the builds and fail on any warnings
 
@@ -25,11 +26,15 @@ jobs:
       - name: Install the project
         run: uv sync --frozen
       - name: Print debugging information
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          echo "github.ref:" ${{github.ref}}
-          echo "github.event_name:" ${{github.event_name}}
-          echo "github.head_ref:" ${{github.head_ref}}
-          echo "github.base_ref:" ${{github.base_ref}}
+          echo "github.ref: $DEPLOY_REF"
+          echo "github.event_name: $EVENT_NAME"
+          echo "github.head_ref: $HEAD_REF"
+          echo "github.base_ref: $BASE_REF"
           set -x
           git rev-parse --abbrev-ref HEAD
           git branch
@@ -59,18 +64,19 @@ jobs:
       - name: Delete orphaned branch-folders
         run: |
           set -x
-          for brdir in `ls _gh-pages/branch/` ; do
-              brname=${brdir//--/\/}   # replace '--' with '/'
-              if ! git show-ref remotes/origin/$brname ; then
+          for branch_dir in _gh-pages/branch/*; do
+              [[ -d "$branch_dir" ]] || continue
+              brdir="${branch_dir##*/}"
+              brname="${brdir//--/\/}"
+              if ! git show-ref --verify --quiet "refs/remotes/origin/$brname"; then
                   echo "Removing $brdir"
-                  rm -r _gh-pages/branch/$brdir/
+                  rm -r -- "$branch_dir"
               fi
           done
 
       # Copy documentation to _gh-pages/  (if push happened on release branch)
       - name: Copy documentation to _gh-pages/
-        if: |
-          contains(github.ref, env.DEFAULT_BRANCH)
+        if: github.ref == env.DEFAULT_BRANCH_REF
         run: |
           set -x
           # Delete everything under _gh-pages/ that is from the
@@ -82,17 +88,16 @@ jobs:
 
       # Copy documentation to _gh-pages/branch/$brname  (if push happened on any other branch)
       # ('/' gets replaced by '--')
-      - name: Copy documentation to _gh-pages/branch/${{github.ref}}
-        if: |
-          !contains(github.ref, env.DEFAULT_BRANCH)
+      - name: Copy documentation to branch-specific directory
+        if: github.ref != env.DEFAULT_BRANCH_REF
         run: |
           set -x
-          #brname=$(git rev-parse --abbrev-ref HEAD)
-          brname="${{github.ref}}"
+          brname="$DEPLOY_REF"
           brname="${brname##refs/heads/}"
-          brdir=${brname//\//--}   # replace '/' with '--'
-          rm -rf   _gh-pages/branch/${brdir}
-          rsync -a docs/build/html/ _gh-pages/branch/${brdir}
+          brname="${brname##refs/tags/}"
+          brdir="${brname//\//--}"
+          rm -rf -- "_gh-pages/branch/$brdir"
+          rsync -a docs/build/html/ "_gh-pages/branch/$brdir/"
 
       # Add .nojekyll file
       - name: Add .nojekyll file
