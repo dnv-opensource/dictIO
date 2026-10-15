@@ -8,7 +8,7 @@ on:
 
 jobs:
   merge_into_release:
-    name: Merge ${{ github.event.ref }} -> release branch
+    name: Merge release commit into release branch
     runs-on: ubuntu-latest
     environment: release
     steps:
@@ -17,22 +17,37 @@ jobs:
         with:
           # Fetch the whole history to prevent unrelated history errors
           fetch-depth: 0
-          # The branch you want to checkout (usually equal to `branchtomerge`)
-          # ref: ${{ github.event.ref }}
-      - name: Resolve head commit
-        id: resolve_head
+      - name: Create release source branch
+        id: create_release_ref
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
-          # Prefer a v* version tag pointing at HEAD, fall back to short hash, then full SHA
-          TAG=$(git tag --list 'v*' --points-at HEAD --sort=-version:refname | head -n 1)
-          if [ -n "$TAG" ]; then
-            echo "head_ref=$TAG" >> "$GITHUB_OUTPUT"
-          else
-            SHORT=$(git rev-parse --short HEAD 2>/dev/null || echo "")
-            echo "head_ref=${SHORT:-${{ github.sha }}}" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          branch_name="release-merge-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+            -f "ref=refs/heads/${branch_name}" \
+            -f "sha=${GITHUB_SHA}" > /dev/null
+          echo "head_ref=$branch_name" >> "$GITHUB_OUTPUT"
+
+          resolved_sha="$(gh api \
+            "repos/${GITHUB_REPOSITORY}/git/ref/heads/${branch_name}" \
+            --jq '.object.sha')"
+          if [[ "$resolved_sha" != "$GITHUB_SHA" ]]; then
+            echo "Temporary release branch does not point to the release commit." >&2
+            exit 1
           fi
       - uses: devmasx/merge-branch@v1.4.0
         with:
           type: now
           target_branch: release
-          head_to_merge: ${{ steps.resolve_head.outputs.head_ref }}
+          head_to_merge: ${{ steps.create_release_ref.outputs.head_ref }}
           github_token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Delete release source branch
+        if: ${{ always() && steps.create_release_ref.outputs.head_ref != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          HEAD_REF: ${{ steps.create_release_ref.outputs.head_ref }}
+        run: |
+          set -euo pipefail
+          gh api --method DELETE \
+            "repos/${GITHUB_REPOSITORY}/git/refs/heads/${HEAD_REF}"

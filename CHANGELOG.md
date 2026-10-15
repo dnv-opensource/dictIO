@@ -8,6 +8,12 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 ### Added
 * Added the reusable `adopt-changes-from-another-repo` draft plan with validated source/commit input loops, a detailed adaptation register, applicability and confidence ratings, and user selection before generating an actionable plan.
 
+### Changed
+* Separate main, release, and custom-branch workflow concurrency; skip automatic custom-branch CI for temporary release merge branches.
+* Update version-bump, repository-link, changelog commit-grouping, commit-signing, and GitHub Actions validation guidance.
+
+### Security
+* Validate release tags before building, publishing, or merging, and use verified temporary refs and safely quoted values in release and documentation workflows.
 
 ## [0.4.5] - 2026-10-14
 

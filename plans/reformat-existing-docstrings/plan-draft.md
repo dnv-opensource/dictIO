@@ -16,7 +16,7 @@ Goal is to reformat all existing docstrings to be Google-style compliant.
 ## Proposed Approach
 
 - Read the instructions for docstrings given in
-  `/AGENTS.md`, section [Docstrings](/AGENTS.md#docstrings).
+  `/AGENTS.md`, section [Docstrings](../../AGENTS.md#docstrings).
 - For each file, apply the following transformations as needed:
   - Convert section headers from NumPy/reST style (e.g. `Parameters\n----------`) to Google style (e.g. `Args:`) and remove separator lines.
   - Remove types from docstring argument/return descriptions (types belong only in type annotations).
@@ -40,7 +40,7 @@ Goal is to reformat all existing docstrings to be Google-style compliant.
 ## Validation Strategy
 
 - Ensure all reformatted docstrings are Google-style compliant and follow the instructions for docstrings given in
-  `/AGENTS.md`, section [Docstrings](/AGENTS.md#docstrings).
+  `/AGENTS.md`, section [Docstrings](../../AGENTS.md#docstrings).
 - See [.github/skills/quality-gate-plan-pattern/SKILL.md](../../.github/skills/quality-gate-plan-pattern/SKILL.md) for the common `ruff format --check` and `pytest -q` validation steps.
 - Run `uv run ruff check` (ruff-check) and compare the results to the baseline (ruff-check-baseline). Ensure there is no regression.
 - Run `uv run ruff check --ignore D` (ruff-check-other) and compare the results to the baseline (ruff-check-other-baseline). Ensure there is no regression.
@@ -51,7 +51,7 @@ Goal is to reformat all existing docstrings to be Google-style compliant.
 
 - [ ] All existing docstrings reformatted to Google style (all phases complete).
 - [ ] Reformatted docstrings follow the instructions for docstrings given in
-      `/AGENTS.md`, section [Docstrings](/AGENTS.md#docstrings).
+      `/AGENTS.md`, section [Docstrings](../../AGENTS.md#docstrings).
 - [ ] `uv run ruff format --check` passes.
 - [ ] `uv run ruff check` (ruff-check) - no regression compared to the baseline (ruff-check-baseline).
 - [ ] `uv run ruff check --ignore D` (ruff-check-other) - no regression compared to the baseline (ruff-check-other-baseline).

@@ -70,6 +70,9 @@ anchor, inspect the owning file directly.
   staging until the scope is understood.
 - Do not use ambiguous Unicode characters in code or comments (e.g. em-dash `—`, en-dash `–`).
   Use ASCII equivalents (e.g. hyphen `-`).
+- In committed Markdown files, link to repository files with relative paths
+  (e.g. `../../AGENTS.md#docstrings` from a plan draft), not site-root paths
+  (e.g. `/AGENTS.md`), which GitHub resolves outside the repository.
 - **Terminal working directory:** All commands assume the **repository root** as the working directory unless stated otherwise.
   When a command must run from a sub-directory, always restore the working directory afterwards.
   Use `Push-Location` / `Pop-Location` in PowerShell, or `cd <dir> && <cmd>; cd ..` in Bash.
@@ -265,6 +268,10 @@ uv run pytest -q
   - Never use bare `pip install` or `python` — always route through `uv`.
   - Secrets are passed explicitly via `secrets:` (not `secrets: inherit`).
   - Use `actions/checkout` consistently.
+- After changing a GitHub Actions workflow (`.yml` or `.yaml`) under
+  `.github/workflows/`, run `actionlint` on the changed files. If it is not on
+  `PATH`, locate the executable before reporting it unavailable. If it is
+  unavailable, record the check as blocked; do not mark it passed.
 
 ---
 
