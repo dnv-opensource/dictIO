@@ -5,6 +5,10 @@ The changelog format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 ## [Unreleased]
 
+### Added
+* Added the reusable `adopt-changes-from-another-repo` draft plan with validated source/commit input loops, a detailed adaptation register, applicability and confidence ratings, and user selection before generating an actionable plan.
+
+
 ## [0.4.5] - 2026-10-14
 
 ### Changed
