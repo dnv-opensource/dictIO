@@ -1,0 +1,21 @@
+﻿dictIO.formatter
+================
+
+.. automodule:: dictIO.formatter
+   :members:
+   :exclude-members: FoamFormatter,Formatter,JsonFormatter,NativeFormatter,XmlFormatter,
+   
+
+
+   
+   .. rubric:: Classes
+   .. autosummary::
+      :toctree:
+      :template: custom-class.rst
+   
+      FoamFormatter
+      Formatter
+      JsonFormatter
+      NativeFormatter
+      XmlFormatter
+   

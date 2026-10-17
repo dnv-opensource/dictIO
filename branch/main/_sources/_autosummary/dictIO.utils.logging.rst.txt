@@ -1,0 +1,13 @@
+dictIO.utils.logging
+====================
+
+.. automodule:: dictIO.utils.logging
+   :members:
+
+
+   
+   .. rubric:: Functions
+   .. autosummary::
+   
+      configure_logging
+   

@@ -1,0 +1,8 @@
+﻿dictIO.types
+============
+
+.. automodule:: dictIO.types
+   :members:
+
+
+   
