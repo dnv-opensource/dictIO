@@ -1,0 +1,31 @@
+DejaVue
+=======
+
+.. currentmodule:: dictIO.utils.counter
+
+.. autoclass:: DejaVue
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~DejaVue.__init__
+      ~DejaVue.reset
+   
+   
+
+
+   
+   
+   .. rubric:: Attributes
+   .. autosummary::
+   
+      ~DejaVue.djv
+      ~DejaVue.strings
+   
+   

@@ -1,0 +1,14 @@
+dictIO.utils.path
+=================
+
+.. automodule:: dictIO.utils.path
+   :members:
+
+
+   
+   .. rubric:: Functions
+   .. autosummary::
+   
+      highest_common_root_folder
+      relative_path
+   
