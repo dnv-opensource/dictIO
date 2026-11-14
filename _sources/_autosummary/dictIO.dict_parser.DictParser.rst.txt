@@ -1,0 +1,25 @@
+DictParser
+==========
+
+.. currentmodule:: dictIO.dict_parser
+
+.. autoclass:: DictParser
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~DictParser.__init__
+      ~DictParser.parse
+   
+   
+
+
+   
+   
+   

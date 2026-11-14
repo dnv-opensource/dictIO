@@ -1,0 +1,43 @@
+XmlFormatter
+============
+
+.. currentmodule:: dictIO.formatter
+
+.. autoclass:: XmlFormatter
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~XmlFormatter.__init__
+      ~XmlFormatter.add_double_quotes
+      ~XmlFormatter.add_single_quotes
+      ~XmlFormatter.format_bool
+      ~XmlFormatter.format_empty_string
+      ~XmlFormatter.format_expression_string
+      ~XmlFormatter.format_float
+      ~XmlFormatter.format_int
+      ~XmlFormatter.format_key
+      ~XmlFormatter.format_multi_word_string
+      ~XmlFormatter.format_none
+      ~XmlFormatter.format_reference_string
+      ~XmlFormatter.format_single_word_string
+      ~XmlFormatter.format_string
+      ~XmlFormatter.format_string_with_nested_string
+      ~XmlFormatter.format_value
+      ~XmlFormatter.format_values
+      ~XmlFormatter.get_formatter
+      ~XmlFormatter.populate_into_element
+      ~XmlFormatter.to_string
+   
+   
+
+
+   
+   
+   

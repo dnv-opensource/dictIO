@@ -1,0 +1,48 @@
+FoamFormatter
+=============
+
+.. currentmodule:: dictIO.formatter
+
+.. autoclass:: FoamFormatter
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~FoamFormatter.__init__
+      ~FoamFormatter.add_double_quotes
+      ~FoamFormatter.add_single_quotes
+      ~FoamFormatter.format_bool
+      ~FoamFormatter.format_dict
+      ~FoamFormatter.format_empty_string
+      ~FoamFormatter.format_expression_string
+      ~FoamFormatter.format_float
+      ~FoamFormatter.format_int
+      ~FoamFormatter.format_key
+      ~FoamFormatter.format_multi_word_string
+      ~FoamFormatter.format_none
+      ~FoamFormatter.format_reference_string
+      ~FoamFormatter.format_single_word_string
+      ~FoamFormatter.format_string
+      ~FoamFormatter.format_string_with_nested_string
+      ~FoamFormatter.format_value
+      ~FoamFormatter.format_values
+      ~FoamFormatter.get_formatter
+      ~FoamFormatter.insert_block_comments
+      ~FoamFormatter.insert_includes
+      ~FoamFormatter.insert_line_comments
+      ~FoamFormatter.make_default_block_comment
+      ~FoamFormatter.remove_trailing_spaces
+      ~FoamFormatter.to_string
+   
+   
+
+
+   
+   
+   
