@@ -1,0 +1,14 @@
+dictIO.utils.strings
+====================
+
+.. automodule:: dictIO.utils.strings
+   :members:
+
+
+   
+   .. rubric:: Functions
+   .. autosummary::
+   
+      remove_quotes
+      string_diff
+   

@@ -1,0 +1,43 @@
+JsonFormatter
+=============
+
+.. currentmodule:: dictIO.formatter
+
+.. autoclass:: JsonFormatter
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~JsonFormatter.__init__
+      ~JsonFormatter.add_double_quotes
+      ~JsonFormatter.add_single_quotes
+      ~JsonFormatter.format_bool
+      ~JsonFormatter.format_empty_string
+      ~JsonFormatter.format_expression_string
+      ~JsonFormatter.format_float
+      ~JsonFormatter.format_int
+      ~JsonFormatter.format_key
+      ~JsonFormatter.format_multi_word_string
+      ~JsonFormatter.format_none
+      ~JsonFormatter.format_reference_string
+      ~JsonFormatter.format_single_word_string
+      ~JsonFormatter.format_string
+      ~JsonFormatter.format_string_with_nested_string
+      ~JsonFormatter.format_value
+      ~JsonFormatter.format_values
+      ~JsonFormatter.get_formatter
+      ~JsonFormatter.insert_includes
+      ~JsonFormatter.to_string
+   
+   
+
+
+   
+   
+   
