@@ -1,0 +1,54 @@
+CppDict
+=======
+
+.. currentmodule:: dictIO.cpp_dict
+
+.. autoclass:: CppDict
+   :members:
+   :show-inheritance:
+
+
+   
+   .. automethod:: __init__
+   
+   .. rubric:: Methods
+   .. autosummary::
+   
+      ~CppDict.__init__
+      ~CppDict.clear
+      ~CppDict.copy
+      ~CppDict.dump
+      ~CppDict.find_global_key
+      ~CppDict.fromkeys
+      ~CppDict.get
+      ~CppDict.global_key_exists
+      ~CppDict.include
+      ~CppDict.items
+      ~CppDict.keys
+      ~CppDict.load
+      ~CppDict.merge
+      ~CppDict.order_keys
+      ~CppDict.pop
+      ~CppDict.popitem
+      ~CppDict.reduce_scope
+      ~CppDict.reset
+      ~CppDict.set_global_key
+      ~CppDict.setdefault
+      ~CppDict.update
+      ~CppDict.values
+   
+   
+
+
+   
+   
+   .. rubric:: Attributes
+   .. autosummary::
+   
+      ~CppDict.data
+      ~CppDict.name
+      ~CppDict.path
+      ~CppDict.source_file
+      ~CppDict.variables
+   
+   

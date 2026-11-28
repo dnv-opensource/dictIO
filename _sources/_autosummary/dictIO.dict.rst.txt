@@ -1,0 +1,17 @@
+﻿dictIO.dict
+===========
+
+.. automodule:: dictIO.dict
+   :members:
+   :exclude-members: SDict,
+   
+
+
+   
+   .. rubric:: Classes
+   .. autosummary::
+      :toctree:
+      :template: custom-class.rst
+   
+      SDict
+   
